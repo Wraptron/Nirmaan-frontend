@@ -71,6 +71,11 @@ function AddNewMentor() {
         setNextt(nextt - 1);
     }
     console.log(formData);
+
+    const handleSubmit = (e) => {
+        e.preventDefault(); // Prevents page reload
+        // Your submission logic here
+      };
     return (
         <div className="flex">
             <div>
@@ -92,11 +97,11 @@ function AddNewMentor() {
                                                     <div className={`text-black text-lg ${nextt == 0 && 'text-white'}`}>Description</div>
                                             </div> 
                                             <div className={`flex justify-center items-center border bg-[#45C74D] p-3 py-5 ${nextt==1 && 'bg-[#45C74D]' || 'bg-[#D8F3D9]'}`} style={{clipPath: "polygon(89% 0%, 100% 50%, 89% 100%, 0% 100%, 9% 50%, 0% 0%)",}}>
-                                                <div><img src={`${nextt==1 && exclamtionwhite || professionalsvgblack}`} className="w-[80%]"/></div>
+                                                <div><img src={`${nextt==1 && exclamtionwhite || professionalsvgblack}`} className="w-[80%]" alt=''/></div>
                                                 <div className={`text-black text-lg ${nextt == 1 && 'text-white'}`}>Professional</div>
                                             </div>
                                             <div className={`flex justify-center items-center border bg-[#45C74D] p-3 py-5 ${nextt==2 && 'bg-[#45C74D]' || 'bg-[#D8F3D9]'}`} style={{clipPath: "polygon(100% 0%, 100% 49%, 100% 100%, 0% 100%, 9% 50%, 0% 0%)",}}>
-                                                    <div><img src={`${nextt==2 && settingsvgwhite || settingsvg}`} className="w-[80%]"/></div>
+                                                    <div><img src={`${nextt==2 && settingsvgwhite || settingsvg}`} className="w-[80%]" alt=''/></div>
                                                     <div className={`text-lg text-lg ${nextt == 2 && 'text-white'}`}>Contact</div>
                                             </div>  
                                     </div>
@@ -108,7 +113,7 @@ function AddNewMentor() {
                                             {nextt == 1 && <button className={`bg-[#45C74D] p-2 text-white rounded-lg`} onClick={handleBack}>Back</button>}
                                             {nextt == 2 && <button className={`bg-[#45C74D] p-2 text-white rounded-lg`} onClick={handleBack}>Back</button>}
                                             <button className={`bg-[#45C74D] p-2 text-white rounded-lg ${nextt == 2 && 'hidden'}`} onClick={handleNext}>Next</button>
-                                            {nextt == 2 && <button className={`bg-[#45C74D] p-2 text-white rounded-lg`}>Submit</button>}   
+                                            {nextt === 2 && (<form onSubmit={handleSubmit}><button type="submit"className="bg-[#45C74D] p-2 text-white rounded-lg">Submit</button></form>)} 
                                         </div>
                                     </div>
                             </div>

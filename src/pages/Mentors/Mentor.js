@@ -105,22 +105,11 @@ function Mentor() {
                                                                       <div>
                                                                           <div className="font-semibold"><a href="/mentor/mentor_profile">Mentor Name</a></div>
                                                                           <div className="text-sm">Institution</div>
+                                                                          
                                                                       </div>
                                                                       <div className="text-sm pt-[4px] ms-auto"><FaEllipsisV size={15}/></div>
                                                                   </div>
-                                                                  <div className="border border-r-0 border-l-0 border-b-0 border-b-1 w-full mt-1">
-                                                                      <div className="pt-1 text-sm">
-                                                                          <div className="flex justify-start">
-                                                                              <div className="rounded-xl"><img src={ImageSvg} className="w-[13%]"/></div>
-                                                                              <img src={ImageSvg} className="w-[13%]"/>
-                                                                              <img src={ImageSvg} className="w-[13%]"/>
-                                                                              <img src={ImageSvg} className="w-[13%]"/>
-                                                                              <img src={ImageSvg} className="w-[13%]"/>
-                                                                              <img src={ImageSvg} className="w-[13%]"/>
-                                                                              <img src={ImageSvg} className="w-[13%]"/>
-                                                                          </div>
-                                                                      </div>
-                                                                  </div>
+                                                                  
                                                             </div>
                                                       </div>
                                               </div>
