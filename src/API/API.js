@@ -57,7 +57,14 @@ async function ApiAddNewMentor(formData)
 {
     try
     {
-        const result = await axios.post('http://localhost:3003/api/v1/mentor/add', formData)
+        const result = await axios.post('http://localhost:3003/api/v1/mentor/add', formData , {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }); 
+
+        
+        
         return result.data;
     }
     catch(err)

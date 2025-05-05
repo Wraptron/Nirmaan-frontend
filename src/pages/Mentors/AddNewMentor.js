@@ -72,9 +72,19 @@ function AddNewMentor() {
     }
     console.log(formData);
 
-    const handleSubmit = (e) => {
+    const handleSubmit  = async (e) => {
         e.preventDefault(); // Prevents page reload
-        // Your submission logic here
+        console.log(formData)
+        try {
+            const API = await ApiAddNewMentor(formData);
+            console.log("posted");
+        }
+        catch (error) {
+            console.error("Error in API", error);
+            
+        }
+        
+        
       };
     return (
         <div className="flex">

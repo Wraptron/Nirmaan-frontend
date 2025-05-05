@@ -1,76 +1,8 @@
 import React, { useState } from "react";
 
 const Step3 = ({ formData, handleChange }) => {
-  const [errors, setErrors] = useState({
-    contact_number: "",
-    email_address: "",
-    linkedIn_ID: "",
-    password: ""
-  });
-
-  // Custom handler for validation
-  const validateAndChange = (e) => {
-    const { name, value } = e.target;
-    let newErrors = { ...errors };
-
-    // Validation rules
-    switch (name) {
-      case "contact_number":
-        if (!value.trim()) {
-          newErrors.contact_number = "Contact number is required";
-        } else if (!/^[0-9]{10}$/.test(value.replace(/\s/g, ''))) {
-          newErrors.contact_number = "Please enter a valid 10-digit number";
-        } else {
-          newErrors.contact_number = "";
-        }
-        break;
-        
-      case "email_address":
-        if (!value.trim()) {
-          newErrors.email_address = "Email address is required";
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          newErrors.email_address = "Please enter a valid email address";
-        } else {
-          newErrors.email_address = "";
-        }
-        break;
-        
-      case "linkedIn_ID":
-        if (!value.trim()) {
-          newErrors.linkedIn_ID = "LinkedIn ID is required";
-        } else if (!/^(https?:\/\/)?([a-z]{2,3}\.)?linkedin\.com\/in\/[a-zA-Z0-9_-]+\/?$/.test(value)) {
-          newErrors.linkedIn_ID = "Please enter a valid LinkedIn profile URL";
-        } else {
-          newErrors.linkedIn_ID = "";
-        }
-        break;
-        
-      case "password":
-        if (!value) {
-          newErrors.password = "Password is required";
-        } else if (value.length < 8) {
-          newErrors.password = "Password must be at least 8 characters";
-        } else if (!/(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[@$!%*?&])/.test(value)) {
-          newErrors.password = "Password must include uppercase, lowercase, number and special character";
-        } else {
-          newErrors.password = "";
-        }
-        break;
-        
-      default:
-        break;
-    }
-
-    setErrors(newErrors);
-    handleChange(e);
-  };
-
-  // Toggle password visibility
   const [showPassword, setShowPassword] = useState(false);
-  
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
   return (
     <div className="grid grid-cols-2 gap-5 items-start">
@@ -78,65 +10,44 @@ const Step3 = ({ formData, handleChange }) => {
         <div className="mb-1">
           Contact Number <span className="text-[#E54545]">*</span>
         </div>
-        <div>
-          <input
-            type="text"
-            placeholder="Enter contact number"
-            onChange={validateAndChange}
-            name="contact_number"
-            value={formData.contact_number || ""}
-            className={`block w-full p-2 text-sm text-gray-900 border ${
-              errors.contact_number ? "border-[#E54545]" : "border-gray-300"
-            } rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]`}
-          />
-          {errors.contact_number && (
-            <p className="text-[#E54545] text-xs mt-1">{errors.contact_number}</p>
-          )}
-        </div>
+        <input
+          type="text"
+          placeholder="Enter contact number"
+          onChange={handleChange}
+          name="contact_number"
+          value={formData.contact_number || ""}
+          className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+        />
       </div>
-      
+
       <div className="mt-1 mb-4">
         <div className="mb-1">
           Email Address <span className="text-[#E54545]">*</span>
         </div>
-        <div>
-          <input
-            type="email"
-            placeholder="Enter email address"
-            onChange={validateAndChange}
-            name="email_address"
-            value={formData.email_address || ""}
-            className={`block w-full p-2 text-sm text-gray-900 border ${
-              errors.email_address ? "border-[#E54545]" : "border-gray-300"
-            } rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]`}
-          />
-          {errors.email_address && (
-            <p className="text-[#E54545] text-xs mt-1">{errors.email_address}</p>
-          )}
-        </div>
+        <input
+          type="email"
+          placeholder="Enter email address"
+          onChange={handleChange}
+          name="email_address"
+          value={formData.email_address || ""}
+          className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+        />
       </div>
-      
+
       <div className="mt-1 mb-4">
         <div className="mb-1">
           LinkedIn ID <span className="text-[#E54545]">*</span>
         </div>
-        <div>
-          <input
-            type="text"
-            placeholder="https://linkedin.com/in/profile"
-            onChange={validateAndChange}
-            name="linkedIn_ID"
-            value={formData.linkedIn_ID || ""}
-            className={`block w-full p-2 text-sm text-gray-900 border ${
-              errors.linkedIn_ID ? "border-[#E54545]" : "border-gray-300"
-            } rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]`}
-          />
-          {errors.linkedIn_ID && (
-            <p className="text-[#E54545] text-xs mt-1">{errors.linkedIn_ID}</p>
-          )}
-        </div>
+        <input
+          type="text"
+          placeholder="https://linkedin.com/in/profile"
+          onChange={handleChange}
+          name="linkedIn_ID"
+          value={formData.linkedIn_ID || ""}
+          className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+        />
       </div>
-      
+
       <div className="mt-1 mb-4">
         <div className="mb-1">
           Password <span className="text-[#E54545]">*</span>
@@ -145,12 +56,10 @@ const Step3 = ({ formData, handleChange }) => {
           <input
             type={showPassword ? "text" : "password"}
             placeholder="Enter password"
-            onChange={validateAndChange}
+            onChange={handleChange}
             name="password"
             value={formData.password || ""}
-            className={`block w-full p-2 text-sm text-gray-900 border ${
-              errors.password ? "border-[#E54545]" : "border-gray-300"
-            } rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]`}
+            className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
           />
           <button
             type="button"
@@ -168,12 +77,6 @@ const Step3 = ({ formData, handleChange }) => {
               </svg>
             )}
           </button>
-          {errors.password && (
-            <p className="text-[#E54545] text-xs mt-1">{errors.password}</p>
-          )}
-        </div>
-        <div className="text-xs mt-1 text-gray-500">
-          Password must be at least 8 characters with uppercase, lowercase, number, and special character
         </div>
       </div>
     </div>
