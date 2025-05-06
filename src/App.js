@@ -90,71 +90,103 @@ function App() {
   }
   return (
     <div>
-      <Toaster 
-        position="top-right"
-        reverseOrder={false}
-      />
+      <Toaster position="top-right" reverseOrder={false} />
       {/* <ToastContainer /> */}
       <BrowserRouter>
         <Routes>
-          <Route path="/like" element={<OfficeHome />}/>
-           <Route path="/" element={<Login />} /> 
-           {/* <Route path="/home" element={<Home />} />   */}
-            <Route element={<ProtectedRoutes requiredRoles={[localStorage.getItem('token'), '2']} />}>
-                  <Route path="/home" element={<Home />} />
-                  <Route path="/profile" element={<Profile/>} />
-                  <Route path="/" element={<AddStartup/>} />
-                  <Route path="/home-finance" element={<HomeFinance/>} />
-                  <Route path="/connections" element={<Connections />} />
-                  <Route path="/addstartup" element={<AddStartup/>} />
-                  <Route path="/startups" element={<Startups />} />
-                  <Route path="/connections" element={<Connections />} />
-                  {/* <Route path="/profile" element={<Profile/>} /> */}
-                  <Route path="/addconnections" element={<Forms />} />
-                  <Route path="/startups" element={<Startups />} />
-                  <Route path="/mentors" element={<Mentors />} />
-                  <Route path="/events" element={<Events/>} />
-                  <Route path="/mentorship" element={<MentorShip/>} />
-                  {/* <Route path="/startup/new" element={<AddStartup/>} /> */}
-                  <Route path="/settings" element={<Settings/>} />
-                  <Route path="/fintechstartups" element={<FinTech />} />
-                  <Route path="/industrystartups" element={<Industry />} />
-                  <Route path="/addmentor" element={<AddNewMentor />} />
-                  <Route path="/Sustainability" element={<Sustainability />} />
-                  <Route path="/healthcarestartups" element={<Healthcare />} />
-                  <Route path="/mobilitystartups" element={<Mobility/>} />
-                  <Route path="/events/new" element={<CreateNewEvent />} />
-                  <Route path="/contacts" element={<Contacts/>} /> 
-                  <Route path="/mentor/new" element={<AddNewMentor />} />
-                  <Route path="/reports" element={<Reports />} />
-                  <Route path="/uploads" element={<UploadFile />} />
-                  <Route path="/view/uploads" element={<ViewComponents/> }/>
-                  <Route path="/cms" element={<Cms />} />
-                  <Route path="/mentor/mentor_profile" element={<MentorProfile />} />
-                  <Route path = '/pdf' element ={<PDFViewer className="w-full h-screen"><Pdf /></PDFViewer>} />
-                  <Route path="/startup/:id" element={<IndividualStartups />}/>
-                   {/* <Route path="/home?tab=startups" element={<HomeStartups />} /> */}
-             </Route>
-             <Route  element={<ProtectedRoutes requiredRoles={[localStorage.getItem('token'), '5']} />} >
-                  <Route path="/events/request-speaker" element={<RequestSpeaker/>} />  
-                  <Route path="/customer/Home" element={< CustomerHome/>}  />
-                  <Route path="/customer/resume" element={<Resume />} />
-                  <Route path="/customer/resources" element={<Resource/>} />
-                  <Route path="/customer/Mentor" element={<CustomerMentor/>} />
-                  <Route path="/customer/jobs" element={<Jobs />} />
-                  <Route path="/customer/profile" element={<CustomerProfile />} />
-                  <Route path="/jobs/new" element={<Addjob />} />
-                  <Route path="/Profile/addprofile" element={<Profileapply/>} />
-                  <Route path="/customer/DE" element={<DisEnt />} />
-                  <Route path="/customer/home/request" element={<RaiseRequest />} />
-                  <Route path="/customer/Startups" element={<CustomerStartup />} />
-                  <Route path="/customer/contacts" element={<CustomerContacts />} />
-             </Route>
-             <Route  element={<ProtectedRoutes requiredRoles={[localStorage.getItem('token'), '3']} />} >
-                  <Route path="/finance/home" element={<FinanceHome/>} />
-                  <Route path="/fin/updatefunding" element={<FinanceUpdateFunding/>} />
-                  <Route path="/bills" element={<Bills />} />
-             </Route>
+          <Route path="/like" element={<OfficeHome />} />
+          <Route path="/" element={<Login />} />
+          {/* <Route path="/home" element={<Home />} />   */}
+          <Route
+            element={
+              <ProtectedRoutes
+                requiredRoles={[localStorage.getItem("token"), "2"]}
+              />
+            }
+          >
+            <Route path="/home" element={<Home />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/" element={<AddStartup />} />
+            <Route path="/home-finance" element={<HomeFinance />} />
+            <Route path="/connections" element={<Connections />} />
+            <Route path="/addstartup" element={<AddStartup />} />
+            <Route path="/startups" element={<Startups />} />
+            <Route path="/connections" element={<Connections />} />
+            {/* <Route path="/profile" element={<Profile/>} /> */}
+            <Route path="/addconnections" element={<Forms />} />
+            <Route path="/startups" element={<Startups />} />
+            <Route path="/mentors" element={<Mentors />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/mentorship" element={<MentorShip />} />
+            {/* <Route path="/startup/new" element={<AddStartup/>} /> */}
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/fintechstartups" element={<FinTech />} />
+            <Route path="/industrystartups" element={<Industry />} />
+            <Route path="/addmentor" element={<AddNewMentor />} />
+            <Route path="/Sustainability" element={<Sustainability />} />
+            <Route path="/healthcarestartups" element={<Healthcare />} />
+            <Route path="/mobilitystartups" element={<Mobility />} />
+            <Route path="/events/new" element={<CreateNewEvent />} />
+            <Route path="/contacts" element={<Contacts />} />
+            <Route path="/mentor/new" element={<AddNewMentor />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/uploads" element={<UploadFile />} />
+            <Route path="/view/uploads" element={<ViewComponents />} />
+            <Route path="/cms" element={<Cms />} />
+            <Route
+              path="/mentor/mentor_profile/:id"
+              element={<MentorProfile />}
+            />
+
+            <Route
+              path="/pdf"
+              element={
+                <PDFViewer className="w-full h-screen">
+                  <Pdf />
+                </PDFViewer>
+              }
+            />
+            <Route path="/startup/:id" element={<IndividualStartups />} />
+            {/* <Route path="/home?tab=startups" element={<HomeStartups />} /> */}
+          </Route>
+          <Route
+            element={
+              <ProtectedRoutes
+                requiredRoles={[localStorage.getItem("token"), "5"]}
+              />
+            }
+          >
+            <Route
+              path="/events/request-speaker"
+              element={<RequestSpeaker />}
+            />
+            <Route path="/customer/Home" element={<CustomerHome />} />
+            <Route path="/customer/resume" element={<Resume />} />
+            <Route path="/customer/resources" element={<Resource />} />
+            <Route path="/customer/Mentor" element={<CustomerMentor />} />
+            <Route path="/customer/jobs" element={<Jobs />} />
+            <Route path="/customer/profile" element={<CustomerProfile />} />
+            <Route path="/jobs/new" element={<Addjob />} />
+            <Route path="/Profile/addprofile" element={<Profileapply />} />
+            <Route path="/customer/DE" element={<DisEnt />} />
+            <Route path="/customer/home/request" element={<RaiseRequest />} />
+            <Route path="/customer/Startups" element={<CustomerStartup />} />
+            <Route path="/customer/contacts" element={<CustomerContacts />} />
+          </Route>
+          <Route
+            element={
+              <ProtectedRoutes
+                requiredRoles={[localStorage.getItem("token"), "3"]}
+              />
+            }
+          >
+            <Route path="/finance/home" element={<FinanceHome />} />
+            <Route
+              path="/fin/updatefunding"
+              element={<FinanceUpdateFunding />}
+            />
+            <Route path="/bills" element={<Bills />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </div>
