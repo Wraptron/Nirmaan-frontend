@@ -89,7 +89,7 @@ function AddNewMentor() {
         <NavBar />
         <div className="bg-gray-100 min-h-screen">
           <div className={`mx-10 py-5 ${showw ? "visible" : ""}`}>
-            <div className="bg-white rounded-sm px-10 py-10">
+            <div className="bg-white rounded-sm bg-white rounded-sm px-10 py-10">
               <div className="text-sm text-[#808080]">
                 Dashboard &gt; Mentor &gt; Add New Mentor
               </div>

@@ -60,6 +60,7 @@ import Mentor from './pages/Mentors/Mentor';
 import MentorProfile from './pages/Mentors/MentorProfile.js';
 import Swal from 'sweetalert2/dist/sweetalert2.js'
 import 'sweetalert2/dist/sweetalert2.min.css'
+import ScheduleMeeting from './pages/Mentors/ScheduleMeeting.js';
 function App() {
   const [LoggedIn, setLoggedIn] = useState(false);
   const authenticate = async() => {
@@ -123,6 +124,8 @@ function App() {
             <Route path="/fintechstartups" element={<FinTech />} />
             <Route path="/industrystartups" element={<Industry />} />
             <Route path="/addmentor" element={<AddNewMentor />} />
+            <Route path="/scheduleMeeting/:mentor_reference_id" element={<ScheduleMeeting />} />
+
             <Route path="/Sustainability" element={<Sustainability />} />
             <Route path="/healthcarestartups" element={<Healthcare />} />
             <Route path="/mobilitystartups" element={<Mobility />} />
