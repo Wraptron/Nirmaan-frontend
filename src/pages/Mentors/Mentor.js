@@ -5,31 +5,57 @@ import { FaEllipsisV } from "react-icons/fa";
 import { ApiFetchMentor, ApiDeletMentorData } from "../../API/API";
 import toast from "react-hot-toast";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
-import ImageSvg from "../../assets/images/image.svg"; // Replace with real mentor photo path if dynamic
+import ImageSvg from "../../assets/images/image.svg"; // Placeholder image
+import { useNavigate } from "react-router-dom";
 
 function Mentor() {
   const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
   const [data, setData] = useState([]);
-  const [mentordata, setMentorData] = useState("");
+  const [mentordata, setMentorData] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage] = useState(10); // 10 per page like image
+  const [rowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
+  const [openDropdownId, setOpenDropdownId] = useState(null);
+  const navigate = useNavigate();
 
-  const FetchData = async () => {
-    try {
-      const API = await ApiFetchMentor();
-      setData(API.STATUS.rows);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const API = await ApiFetchMentor();
+        setData(API.STATUS.rows);
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
-  const DeleteMentorData = async (id) => {
+    fetchData();
+  }, []);
+
+  // Click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        !event.target.closest(".dropdown-menu") &&
+        !event.target.closest(".ellipsis-button")
+      ) {
+        setOpenDropdownId(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleDelete = async (id) => {
     try {
       const API = await ApiDeletMentorData(id);
       if (API) {
         toast.success("Mentor deleted successfully!");
-        FetchData();
+        const updatedList = data.filter((mentor) => mentor.mentor_id !== id);
+        setData(updatedList);
+        setOpenDropdownId(null);
       } else {
         toast.error("Failed to delete mentor.");
       }
@@ -37,10 +63,6 @@ function Mentor() {
       console.error(err);
     }
   };
-
-  useEffect(() => {
-    FetchData();
-  }, []);
 
   const filteredMentors = data.filter((mentor) =>
     mentor.mentor_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -60,6 +82,7 @@ function Mentor() {
       <div className="ms-[221px] flex-grow">
         <NavBar />
         <div className="bg-[#f9f9f9] min-h-screen p-8">
+          {/* Header */}
           <div className="mb-6">
             <div className="text-sm text-gray-500">Dashboard &gt; Mentors</div>
             <h1 className="text-2xl font-bold mt-1">Mentors</h1>
@@ -96,15 +119,15 @@ function Mentor() {
             </a>
           </div>
 
-          {/* Grid */}
+          {/* Mentor Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {currentMentors.map((mentor, index) => (
+            {currentMentors.map((mentor) => (
               <div
-                key={index}
-                className="bg-white rounded-2xl shadow-md p-4 flex items-center justify-between"
+                key={mentor.mentor_id}
+                className="bg-white rounded-2xl shadow-md p-4 flex items-center justify-between relative"
               >
                 <img
-                  src={ImageSvg}
+                  src={mentor.profile_image || ImageSvg}
                   alt="Mentor"
                   className="w-16 h-16 rounded-lg object-cover"
                 />
@@ -117,24 +140,52 @@ function Mentor() {
                   <div className="text-sm text-gray-500">
                     {mentor.institution}
                   </div>
-                  <div className="flex items-center mt-2 space-x-2">
-                    {/* Hardcoded avatars for demo; replace with dynamic if available */}
-                    {[...Array(3)].map((_, i) => (
-                      <img
-                        key={i}
-                        src={ImageSvg}
-                        className="w-5 h-5 rounded-full border-2 border-white"
-                        alt="participant"
-                      />
-                    ))}
-                    <span className="text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded-full ml-1">
-                      +3
-                    </span>
-                  </div>
                 </div>
-                <button className="text-gray-400">
-                  <FaEllipsisV />
-                </button>
+
+                {/* Menu Button and Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() =>
+                      setOpenDropdownId(
+                        openDropdownId === mentor.mentor_id
+                          ? null
+                          : mentor.mentor_id
+                      )
+                    }
+                    className="ellipsis-button text-gray-400 hover:text-gray-600 focus:outline-none"
+                  >
+                    <FaEllipsisV />
+                  </button>
+
+                  {openDropdownId === mentor.mentor_id && (
+                    <div className="dropdown-menu absolute right-0 mt-2 w-36 bg-white border rounded-md shadow-lg z-10 text-sm">
+                      <button
+                        onClick={() =>
+                          navigate(`/mentor/mentor_profile/${mentor.mentor_id}`)
+                        }
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                      >
+                        View
+                      </button>
+                      <button
+                        onClick={() => toast("Message clicked")}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                      >
+                        Message
+                      </button>
+                      <button
+                        onClick={() => {
+                          setMentorData(mentor.mentor_id);
+                          setOpenEstablishPopUp(true);
+                          setOpenDropdownId(null);
+                        }}
+                        className="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -188,7 +239,7 @@ function Mentor() {
               <button
                 className="text-gray-500 font-semibold p-2 rounded-xl shadow"
                 onClick={() => {
-                  DeleteMentorData(mentordata);
+                  handleDelete(mentordata);
                   setOpenEstablishPopUp(false);
                 }}
               >

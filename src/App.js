@@ -60,6 +60,8 @@ import Mentor from './pages/Mentors/Mentor';
 import MentorProfile from './pages/Mentors/MentorProfile.js';
 import Swal from 'sweetalert2/dist/sweetalert2.js'
 import 'sweetalert2/dist/sweetalert2.min.css'
+
+
 function App() {
   const [LoggedIn, setLoggedIn] = useState(false);
   const authenticate = async() => {
@@ -137,6 +139,7 @@ function App() {
               path="/mentor/mentor_profile/:id"
               element={<MentorProfile />}
             />
+            
 
             <Route
               path="/pdf"
