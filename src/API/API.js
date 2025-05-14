@@ -104,7 +104,7 @@ async function ApiDeletMentorData(id) {
 async function ApiScheduleMeeting(payload) {
   try {
     const result = await axios.post(
-      "http://localhost:3003/api/v1/scheduleMeeting",
+      "http://localhost:3003/api/v1/schedulemeeting",
       payload,
       {
         headers: {
@@ -122,7 +122,35 @@ async function ApiScheduleMeeting(payload) {
 
 async function ApiFetchScheduleMeetings(mentor_id) {
   try {
-    const result = await axios.get(`http://localhost:3003/api/v1/scheduleMeetings${mentor_id}`);
+    const result = await axios.get(`http://localhost:3003/api/v1/fetchmeeting/${mentor_id}`);
+    return result.data;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+async function ApiTestimonials(payload){
+  try{
+    const result=await axios.post(
+       "http://localhost:3003/api/v1/testimonial",
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+    return result.data
+  }
+  catch(error){
+           console.log(error)
+           throw error
+  }
+}
+
+async function ApiFetchTestimonials(mentor_id) {
+  try {
+    const result = await axios.get(`http://localhost:3003/api/v1/fetchtestimonial/${mentor_id}`);
     return result.data;
   } catch (err) {
     console.log(err);
@@ -163,5 +191,7 @@ export {
   ApiDeletMentorData,
   ApiFetchEvents,
   ApiScheduleMeeting,
-  ApiFetchScheduleMeetings
+  ApiFetchScheduleMeetings,
+  ApiTestimonials,
+  ApiFetchTestimonials
 };

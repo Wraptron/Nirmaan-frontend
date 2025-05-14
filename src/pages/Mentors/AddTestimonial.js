@@ -1,24 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { ApiTestimonials } from "../../API/API";
 
-const AddTestimonial = ({ onClose }) => {
+const AddTestimonial = ({ onClose, mentorRefId }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    role: '',
-    description: '',
+    name: "",
+    role: "",
+    description: "",
   });
 
   const handleChange = (e) => {
-    const {name,value}=e.target
-    setFormData({ 
-      ...formData, 
-      [name]:value
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submitted:', formData);
-    // You can add API call or state update here
+    const payload = {
+      mentor_ref_id: mentorRefId,
+      ...formData,
+    };
+    try {
+      await ApiTestimonials(payload);
+      console.log("posted");
+      console.log(payload);
+    } catch (error) {
+      console.log(error);
+    }
     onClose(); // Close modal after save
   };
 

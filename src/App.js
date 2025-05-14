@@ -124,7 +124,7 @@ function App() {
             <Route path="/fintechstartups" element={<FinTech />} />
             <Route path="/industrystartups" element={<Industry />} />
             <Route path="/addmentor" element={<AddNewMentor />} />
-            <Route path="/scheduleMeeting/:mentor_reference_id" element={<ScheduleMeeting />} />
+            <Route path="/scheduleMeeting/:mentor_id" element={<ScheduleMeeting />} />
 
             <Route path="/Sustainability" element={<Sustainability />} />
             <Route path="/healthcarestartups" element={<Healthcare />} />

@@ -11,7 +11,11 @@ import bgsvg from "../../assets/images/Rectangle 5.svg";
 import mentorsvg from "../../assets/images/Frame (11).svg";
 import testimonial from "../../assets/images/testimonial.png";
 import editsvg from "../../assets/images/Frame (12).svg";
-import { ApiFetchMentor, ApiFetchScheduleMeetings } from "../../API/API";
+import {
+  ApiFetchMentor,
+  ApiFetchScheduleMeetings,
+  ApiFetchTestimonials,
+} from "../../API/API";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
@@ -27,24 +31,23 @@ function MentorProfile() {
   const { id } = useParams(); // get id from URL
   const [mentor, setMentor] = useState(null);
   const [meeting, setMeeting] = useState(null);
+  const [testimonial, setTestimonial] = useState([]);
   const [showModal, setShowModal] = useState(false);
 
   const navigationPrevRef = useRef(null);
   const navigationNextRef = useRef(null);
 
+  const navigate = useNavigate();
 
-const navigate = useNavigate();
-
-const handleScheduleClick = () => {
-  navigate(`/schedulemeeting/${mentor.mentor_id}`);
-};
+  const handleScheduleClick = () => {
+    navigate(`/schedulemeeting/${mentor.mentor_id}`);
+  };
 
   const FetchData = async () => {
     try {
       const API = await ApiFetchMentor();
 
       const allMentors = API?.STATUS?.rows || [];
-  
 
       const selectedMentor = allMentors.find((m) => {
         return String(m.mentor_id) === String(id);
@@ -52,17 +55,20 @@ const handleScheduleClick = () => {
 
       setMentor(selectedMentor || null);
 
-      // if (selectedMentor) {
-      //   // Fetch the schedule meetings for this mentor
-      //   const scheduleAPIResponse = await ApiFetchScheduleMeetings(selectedMentor.mentor_id);
-  
-      //   // You can process the schedule data as needed
-      //   console.log('Schedule API Response:', scheduleAPIResponse);
-  
-      //   // Set the schedule data to state
-      //   setMeeting(scheduleAPIResponse || []);
-      // }
-    } catch(err) {
+      // fetching schedule meetings
+      const MeetAPI = await ApiFetchScheduleMeetings(selectedMentor?.mentor_id);
+      const meetings = MeetAPI?.STATUS?.rows || [];
+
+      setMeeting(meetings);
+
+      // fetching testimonials
+      const TestimonialAPI = await ApiFetchTestimonials(
+        selectedMentor?.mentor_id
+      );
+      const testimonial = TestimonialAPI?.STATUS?.rows || [];
+
+      setTestimonial(testimonial);
+    } catch (err) {
       console.error("Error fetching mentor data:", err);
     }
   };
@@ -74,33 +80,6 @@ const handleScheduleClick = () => {
   if (!mentor) {
     return <div className="p-10 text-gray-500">Loading mentor profile...</div>;
   }
-
-  const testimonials = [
-    {
-      text: "The team took time to understand our vision and delivered a sleek, professional site that not only looks great but also improved our conversion rates. Their design process was smooth.",
-      name: "Maxin Will",
-      title: "Product Manager",
-      img: "https://randomuser.me/api/portraits/men/32.jpg",
-    },
-    {
-      text: "The team took time to understand our vision and delivered a sleek, professional site that not only looks great but also improved our conversion rates. Their design process was smooth.",
-      name: "Maxin Will",
-      title: "Product Manager",
-      img: "https://randomuser.me/api/portraits/men/45.jpg",
-    },
-    {
-      text: "The team took time to understand our vision and delivered a sleek, professional site that not only looks great but also improved our conversion rates. Their design process was smooth.",
-      name: "Maxin Will",
-      title: "Product Manager",
-      img: "https://randomuser.me/api/portraits/women/68.jpg",
-    },
-    {
-      text: "The team took time to understand our vision and delivered a sleek, professional site that not only looks great but also improved our conversion rates. Their design process was smooth.",
-      name: "Maxin Will",
-      title: "Product Manager",
-      img: "https://randomuser.me/api/portraits/women/20.jpg",
-    },
-  ];
 
   return (
     <div className="flex flex-col">
@@ -170,11 +149,13 @@ const handleScheduleClick = () => {
                         <button className="bg-[#45C74D] p-1 rounded-md">
                           <img src={whatsappsvg} alt="whatsapp" />
                         </button>
-                        
-                          <button onClick={handleScheduleClick} className="bg-[#45C74D] p-1 rounded-md text-white">
-                            Schedule Session
-                          </button>
-                        
+
+                        <button
+                          onClick={handleScheduleClick}
+                          className="bg-[#45C74D] p-1 rounded-md text-white"
+                        >
+                          Schedule Session
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -251,15 +232,17 @@ const handleScheduleClick = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {mentor.sessions?.length > 0 ? (
-                      mentor.sessions.map((session, i) => (
+                    {meeting?.length > 0 ? (
+                      meeting.map((meeting, i) => (
                         <tr
                           key={i}
                           className="bg-white border-b border-gray-200"
                         >
-                          <td className="px-6 py-3">{session.startup}</td>
-                          <td className="px-6 py-3">{session.date}</td>
-                          <td className="px-6 py-3">{session.hours}</td>
+                          <td className="px-6 py-3">{meeting.start_up_name}</td>
+                          <td className="px-6 py-3">{meeting.date}</td>
+                          <td className="px-6 py-3">
+                            {meeting.meeting_duration}
+                          </td>
                           <td className="px-6 py-3">
                             <button className="p-1 text-sm bg-[#45C74D] text-white rounded-md">
                               Visit Feedback
@@ -287,13 +270,16 @@ const handleScheduleClick = () => {
           <div className="border shadow-sm py-6 rounded-md w-full">
             <div className="flex justify-between ">
               <h2 className="text-xl font-semibold mb-4 text-gray-800 px-5">
-                Testimonails
+                Testimonials
               </h2>
               <div onClick={() => setShowModal(true)}>
                 <img src={testimonial} alt="" className="px-8 h-6" />
               </div>
               {showModal && (
-                <TestimonialForm onClose={() => setShowModal(false)} />
+                <TestimonialForm
+                  mentorRefId={id}
+                  onClose={() => setShowModal(false)}
+                />
               )}
             </div>
 
@@ -315,22 +301,17 @@ const handleScheduleClick = () => {
                 0: { slidesPerView: 1.25 },
               }}
             >
-              {testimonials.map((item, index) => (
+              {testimonial.map((item, index) => (
                 <SwiperSlide key={index}>
                   <div className="bg-[#F9F9F9] shadow-md rounded-xl p-6 h-full flex flex-col justify-between mx-2">
                     <FaQuoteLeft className="text-[#808080] text-2xl mb-4" />
                     <p className="text-gray-700 text-sm italic">
-                      "{item.text}"
+                      "{item.description}"
                     </p>
                     <div className="flex items-center gap-3 mt-6">
-                      <img
-                        src={item.img}
-                        alt={item.name}
-                        className="w-10 h-10 rounded-full border"
-                      />
                       <div>
                         <h4 className="text-sm font-semibold">{item.name}</h4>
-                        <p className="text-xs text-green-600">{item.title}</p>
+                        <p className="text-xs text-green-600">{item.role}</p>
                       </div>
                     </div>
                   </div>

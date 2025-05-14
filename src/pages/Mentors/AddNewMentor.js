@@ -80,6 +80,7 @@ function AddNewMentor() {
       console.error("Error in API", error);
       toast.error("Something went wrong");
     }
+    console.log(formData);
   };
 
   return (
