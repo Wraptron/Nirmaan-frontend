@@ -9,7 +9,7 @@ import dummysvg from "../../assets/images/image (1).svg";
 import linkedinsvg from "../../assets/images/Frame (9).svg";
 import bgsvg from "../../assets/images/Rectangle 5.svg";
 import mentorsvg from "../../assets/images/Frame (11).svg";
-import testimonial from "../../assets/images/testimonial.png";
+import Testimonials from "../../assets/images/testimonial.png";
 import editsvg from "../../assets/images/Frame (12).svg";
 import {
   ApiFetchMentor,
@@ -43,6 +43,16 @@ function MentorProfile() {
     navigate(`/schedulemeeting/${mentor.mentor_id}`);
   };
 
+  const fetchTestimonials = async (mentorId) => {
+    try {
+      const TestimonialAPI = await ApiFetchTestimonials(mentorId);
+      const testimonialData = TestimonialAPI?.STATUS?.rows || [];
+      setTestimonial(testimonialData);
+    } catch (err) {
+      console.error("Error fetching testimonials:", err);
+    }
+  };
+
   const FetchData = async () => {
     try {
       const API = await ApiFetchMentor();
@@ -62,12 +72,7 @@ function MentorProfile() {
       setMeeting(meetings);
 
       // fetching testimonials
-      const TestimonialAPI = await ApiFetchTestimonials(
-        selectedMentor?.mentor_id
-      );
-      const testimonial = TestimonialAPI?.STATUS?.rows || [];
-
-      setTestimonial(testimonial);
+      await fetchTestimonials(selectedMentor?.mentor_id);
     } catch (err) {
       console.error("Error fetching mentor data:", err);
     }
@@ -273,12 +278,13 @@ function MentorProfile() {
                 Testimonials
               </h2>
               <div onClick={() => setShowModal(true)}>
-                <img src={testimonial} alt="" className="px-8 h-6" />
+                <img src={Testimonials} alt="" className="px-8 h-6" />
               </div>
               {showModal && (
                 <TestimonialForm
                   mentorRefId={id}
                   onClose={() => setShowModal(false)}
+                  onTestimonialAdded={() => fetchTestimonials(id)}
                 />
               )}
             </div>

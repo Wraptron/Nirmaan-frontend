@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import NavBar from "../../components/NavBar";
 import SideBar from "../../components/sidebar";
 import mentorsvg from "../../assets/images/Frame (11).svg";
@@ -19,6 +19,7 @@ function ScheduleMeeting() {
     meeting_agenda: "",
   });
   const { mentor_id } = useParams();
+  const navigate = useNavigate();
 
 
   // Drop down options
@@ -51,6 +52,8 @@ function ScheduleMeeting() {
       await ApiScheduleMeeting(payload);
       console.log(payload);
       console.log("posted");
+      // Navigate back to mentor profile after successful scheduling
+      navigate(`/mentor/mentor_profile/${mentor_id}`);
     } catch (error) {
       console.log("error", error);
     }
