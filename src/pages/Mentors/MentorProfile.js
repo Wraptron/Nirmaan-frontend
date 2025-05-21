@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import NavBar from "../../components/NavBar";
 import SideBar from "../../components/sidebar";
 import mailsvg from "../../assets/images/Frame (6).svg";
@@ -22,10 +22,8 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { FaChevronLeft, FaChevronRight, FaQuoteLeft } from "react-icons/fa";
-import { useRef } from "react";
 import TestimonialForm from "./AddTestimonial";
-
-import { useNavigate } from "react-router-dom";
+import EditMentorForm from "./EditMentorPage";
 
 function MentorProfile() {
   const { id } = useParams(); // get id from URL
@@ -33,6 +31,7 @@ function MentorProfile() {
   const [meeting, setMeeting] = useState(null);
   const [testimonial, setTestimonial] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const navigationPrevRef = useRef(null);
   const navigationNextRef = useRef(null);
@@ -82,6 +81,13 @@ function MentorProfile() {
     FetchData();
   }, [id]);
 
+  const handleEditSubmit = (updatedData) => {
+    setMentor(prev => ({
+      ...prev,
+      ...updatedData
+    }));
+  };
+
   if (!mentor) {
     return <div className="p-10 text-gray-500">Loading mentor profile...</div>;
   }
@@ -111,10 +117,10 @@ function MentorProfile() {
             <div className="bg-white rounded-2xl shadow-lg border">
               <div className="relative flex">
                 <img src={bgsvg} className="" alt="bg" />
-                <button>
+                <button onClick={() => setShowEditModal(true)}>
                   <img
                     src={editsvg}
-                    className="absolute top-5 right-5"
+                    className="absolute top-5 right-5 cursor-pointer hover:opacity-80"
                     alt="edit"
                   />
                 </button>
@@ -280,13 +286,6 @@ function MentorProfile() {
               <div onClick={() => setShowModal(true)}>
                 <img src={Testimonials} alt="" className="px-8 h-6" />
               </div>
-              {showModal && (
-                <TestimonialForm
-                  mentorRefId={id}
-                  onClose={() => setShowModal(false)}
-                  onTestimonialAdded={() => fetchTestimonials(id)}
-                />
-              )}
             </div>
 
             <Swiper
@@ -342,6 +341,22 @@ function MentorProfile() {
             </div>
           </div>
         </div>
+
+        {showEditModal && (
+          <EditMentorForm
+            initialData={mentor}
+            onClose={() => setShowEditModal(false)}
+            onSubmit={handleEditSubmit}
+          />
+        )}
+
+        {showModal && (
+          <TestimonialForm
+            mentorRefId={id}
+            onClose={() => setShowModal(false)}
+            onTestimonialAdded={() => fetchTestimonials(id)}
+          />
+        )}
       </div>
     </div>
   );
