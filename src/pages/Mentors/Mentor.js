@@ -127,7 +127,7 @@ function Mentor() {
                 className="bg-white rounded-2xl shadow-md p-4 flex items-center justify-between relative"
               >
                 <img
-                  src={mentor.profile_image || ImageSvg}
+                  src={mentor.mentor_logo.replace("/uploads/", "") || ImageSvg}
                   alt="Mentor"
                   className="w-16 h-16 rounded-lg object-cover"
                 />

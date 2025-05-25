@@ -21,10 +21,11 @@ import settingsvgwhite from "../../assets/images/Frame (27).svg";
 function AddNewMentor() {
   const [currentStep, setCurrentStep] = useState(0);
   const navigate = useNavigate();
+  const [file, setFile] = useState(null);
   const [formData, setFormData] = useState({
     description: {
       mentor_name: "",
-      choose_logo: "",
+      choose_logo: null,
       mentor_description: "",
     },
     professional: {
@@ -43,7 +44,7 @@ function AddNewMentor() {
       password: "",
     },
   });
-
+  console.log(formData.description.choose_logo);
   const handleChange = (e, section) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -72,8 +73,13 @@ function AddNewMentor() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formDataa = new FormData();
+    formDataa.append("choose_logo", formData.description.choose_logo);
+    formDataa.append("description", JSON.stringify(formData.description));
+    formDataa.append("professional", JSON.stringify(formData.professional));
+    formDataa.append("contact", JSON.stringify(formData.contact));
     try {
-      await ApiAddNewMentor(formData);
+      await ApiAddNewMentor(formDataa);
       toast.success("Mentor added successfully");
       navigate("/mentors");
     } catch (error) {

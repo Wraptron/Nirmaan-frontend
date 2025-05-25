@@ -49,14 +49,14 @@ async function ApiDeleteConnections(email_address) {
 }
 
 //mentor data
-async function ApiAddNewMentor(formData) {
+async function ApiAddNewMentor(formDataa) {
   try {
     const result = await axios.post(
       "http://localhost:3003/api/v1/mentor/add",
-      formData,
+      formDataa,
       {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
       }
     );
