@@ -1,45 +1,78 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import NavBar from "../../components/NavBar";
-import SideBar from "../../components/sidebar";
 import mailsvg from "../../assets/images/Frame (6).svg";
 import phonesvg from "../../assets/images/Frame (7).svg";
 import whatsappsvg from "../../assets/images/Frame (8).svg";
 import dummysvg from "../../assets/images/image (1).svg";
 import linkedinsvg from "../../assets/images/Frame (9).svg";
 import bgsvg from "../../assets/images/Rectangle 5.svg";
-import mentorsvg from "../../assets/images/Frame (11).svg";
 import Testimonials from "../../assets/images/testimonial.png";
 import editsvg from "../../assets/images/Frame (12).svg";
+
 import {
   ApiFetchMentor,
   ApiFetchScheduleMeetings,
   ApiFetchTestimonials,
+  ApiDeleteTestimonial,
+  ApiSaveFeedback,
+  ApiFetchFeedback,
 } from "../../API/API";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
+import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import "swiper/css/pagination";
-import { FaChevronLeft, FaChevronRight, FaQuoteLeft } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaQuoteLeft, FaEllipsisV } from "react-icons/fa";
 import TestimonialForm from "./AddTestimonial";
 import EditMentorForm from "./EditMentorPage";
+import SideBar from '../../components/sidebar';
+import NavBar from "../../components/NavBar";
+import FeedbackModal from './FeedbackModal';
 
 function MentorProfile() {
-  const { id } = useParams(); // get id from URL
+  const { id } = useParams();
   const [mentor, setMentor] = useState(null);
   const [meeting, setMeeting] = useState(null);
   const [testimonial, setTestimonial] = useState([]);
+
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-
   const navigationPrevRef = useRef(null);
   const navigationNextRef = useRef(null);
-
+  const prevRef = useRef(null);
+  const nextRef = useRef(null);
   const navigate = useNavigate();
+  const [selectedTestimonial, setSelectedTestimonial] = useState(null);
+  const [editTestimonial, setEditTestimonial] = useState(null);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [selectedSession, setSelectedSession] = useState(null);
+  const [sessionFeedbacks, setSessionFeedbacks] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [activityCurrentPage, setActivityCurrentPage] = useState(1);
+  const itemsPerPage = 3;
+
+  // Mock activity data - replace with actual API call
+  const [activities] = useState([
+    {
+      id: 1,
+      startup: "Start-up - Name",
+      activity: "Activity",
+      status: "Upcoming",
+    },
+    { id: 2, startup: "Start-up - Name", activity: "Activity" },
+    { id: 3, startup: "Start-up - Name", activity: "Activity" },
+    { id: 4, startup: "Start-up - Name", activity: "Activity" },
+  ]);
 
   const handleScheduleClick = () => {
     navigate(`/schedulemeeting/${mentor.mentor_id}`);
+  };
+
+  const handleLinkedInClick = (e) => {
+    if (!mentor.linkedin_url) {
+      e.preventDefault();
+      alert("LinkedIn URL not available for this mentor");
+    }
   };
 
   const fetchTestimonials = async (mentorId) => {
@@ -52,26 +85,39 @@ function MentorProfile() {
     }
   };
 
+  const fetchFeedback = async (meetingId) => {
+    try {
+      const response = await ApiFetchFeedback(meetingId);
+      if (response?.STATUS?.rows?.[0]) {
+        const feedbackData = response.STATUS.rows[0];
+        setSessionFeedbacks((prev) => ({
+          ...prev,
+          [meetingId]: feedbackData.feedback || "",
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching feedback:", error);
+    }
+  };
+
   const FetchData = async () => {
     try {
       const API = await ApiFetchMentor();
-
       const allMentors = API?.STATUS?.rows || [];
-
-      const selectedMentor = allMentors.find((m) => {
-        return String(m.mentor_id) === String(id);
-      });
-
+      const selectedMentor = allMentors.find(
+        (m) => String(m.mentor_id) === String(id)
+      );
       setMentor(selectedMentor || null);
 
-      // fetching schedule meetings
       const MeetAPI = await ApiFetchScheduleMeetings(selectedMentor?.mentor_id);
       const meetings = MeetAPI?.STATUS?.rows || [];
-
       setMeeting(meetings);
 
-      // fetching testimonials
       await fetchTestimonials(selectedMentor?.mentor_id);
+
+      for (const session of meetings) {
+        await fetchFeedback(session.meeting_id);
+      }
     } catch (err) {
       console.error("Error fetching mentor data:", err);
     }
@@ -82,266 +128,386 @@ function MentorProfile() {
   }, [id]);
 
   const handleEditSubmit = (updatedData) => {
-    setMentor(prev => ({
-      ...prev,
-      ...updatedData
-    }));
+    setMentor((prev) => ({ ...prev, ...updatedData }));
   };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (activeDropdown && !event.target.closest(".dropdown-container")) {
+        setActiveDropdown(null);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [activeDropdown]);
 
   if (!mentor) {
     return <div className="p-10 text-gray-500">Loading mentor profile...</div>;
   }
 
+
+  const getLinkedInUrl = (urlOrUsername) => {
+    if (!urlOrUsername) return "#";
+    if (urlOrUsername.startsWith("http")) return urlOrUsername;
+    return `https://www.linkedin.com/in/${urlOrUsername}`;
+  };
+
+  const handleFeedbackSave = async (feedback) => {
+    try {
+      const response = await ApiSaveFeedback(
+        selectedSession.meeting_id,
+        feedback
+      );
+      if (response?.STATUS?.success) {
+        setSessionFeedbacks((prev) => ({
+          ...prev,
+          [selectedSession.meeting_id]: feedback,
+        }));
+      } else {
+        console.error("Failed to save feedback:", response?.STATUS?.message);
+      }
+    } catch (error) {
+      console.error("Error saving feedback:", error);
+    }
+  };
+
+  // Pagination logic for mentoring sessions
+  const totalPages = Math.ceil((meeting?.length || 0) / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentMeetings = meeting?.slice(startIndex, endIndex) || [];
+
+  // Pagination logic for activities
+  const activityTotalPages = Math.ceil(activities.length / itemsPerPage);
+  const activityStartIndex = (activityCurrentPage - 1) * itemsPerPage;
+  const activityEndIndex = activityStartIndex + itemsPerPage;
+  const currentActivities = activities.slice(
+    activityStartIndex,
+    activityEndIndex
+  );
+
+  const Pagination = ({
+    currentPage,
+    totalPages,
+    onPageChange,
+    showingText,
+  }) => (
+    <div className="flex justify-between items-center mt-4">
+      <div className="flex items-center space-x-2">
+        <button
+          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+          disabled={currentPage === 1}
+          className="p-2 rounded border border-gray-300 disabled:opacity-50"
+        >
+          <FaChevronLeft className="w-4 h-4" />
+        </button>
+
+        {[...Array(totalPages)].map((_, index) => {
+          const pageNum = index + 1;
+          return (
+            <button
+              key={pageNum}
+              onClick={() => onPageChange(pageNum)}
+              className={`px-3 py-1 rounded ${
+                currentPage === pageNum
+                  ? "bg-green-500 text-white"
+                  : "border border-gray-300 text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              {pageNum}
+            </button>
+          );
+        })}
+
+        <button
+          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+          disabled={currentPage === totalPages}
+          className="p-2 rounded border border-gray-300 disabled:opacity-50"
+        >
+          <FaChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+      <div className="text-sm text-gray-600">{showingText}</div>
+    </div>
+  );
+
   return (
-    <div className="flex flex-col">
+    <div className="flex">
       <SideBar />
-      <div className="ms-[221px] flex-grow">
+      <div className="ms-[220px] bg-gray-100 flex-grow">
         <NavBar />
-        <div className="bg-gray-100 min-h-screen">
-          <div className="p-5 text-sm text-[#808080]">
-            Dashboard {">"} Mentors {">"} Profile
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center mb-4">
+            <p className="text-sm text-gray-600">
+              Dashboard &gt; Mentors &gt; Profile
+            </p>
+          </div>
+          <div className="flex items-center mb-6">
+            <button
+              onClick={() => navigate("/mentors")}
+              className="mr-2 p-2 rounded-full hover:bg-gray-200"
+            >
+              <FaChevronLeft className="w-5 h-5" />
+            </button>
+            <h1 className="text-xl font-bold">Mentor profile</h1>
           </div>
 
-          {/* Heading */}
-          <div className="flex gap-5 px-5">
-            <div className="pt-1">
-              <a href="/mentors">
-                <img src={mentorsvg} alt="back" />
-              </a>
+          {/* Profile Header */}
+          <div className="bg-gradient-to-r from-green-300 to-grey-200 rounded-lg p-6 relative mb-6">
+            <div className="absolute top-4 right-4">
+              <button
+                onClick={() => {
+                  setShowEditModal(true);
+                }}
+              >
+                <img
+                  src={editsvg}
+                  alt="edit"
+                  className="w-5 h-5 cursor-pointer hover:opacity-80"
+                />
+              </button>
             </div>
-            <div className="text-lg font-semibold pt-1">Mentor Profile</div>
-          </div>
-
-          {/* Profile Card */}
-          <div className="px-5 py-4">
-            <div className="bg-white rounded-2xl shadow-lg border">
-              <div className="relative flex">
-                <img src={bgsvg} className="" alt="bg" />
-                <button onClick={() => setShowEditModal(true)}>
-                  <img
-                    src={editsvg}
-                    className="absolute top-5 right-5 cursor-pointer hover:opacity-80"
-                    alt="edit"
-                  />
-                </button>
+            <div className="flex items-start mt-12">
+              <div className="mr-4">
+                <img
+                  src={mentor.mentor_logo?.replace("/uploads/", "") || dummysvg}
+                  alt="Profile"
+                  className="rounded-full w-28 h-28 object-cover aspect-square"
+                />
               </div>
 
-              <div className="shadow-sm px-5 py-2">
-                <div className="grid grid-cols-4 py-2 shadow-md rounded-lg">
-                  <div className="col-span-1">
-                    <img src={bgsvg} alt="mentor" />
-                  </div>
-                  <div className="col-span-3 px-2">
-                    <div className="flex gap-2 items-center">
-                      <div className="text-lg font-semibold">
-                        {mentor.mentor_name}
-                      </div>
-                      <img
-                        src={linkedinsvg}
-                        className="w-[20px] pt-1"
-                        alt="linkedin"
-                      />
-                    </div>
-                    <div className="text-xs text-[#808080]">
-                      {mentor.designation || "--"}
-                    </div>
-
-                    <div className="flex gap-4 mt-3 items-center">
-                      <img src={mailsvg} alt="mail" />
-                      <div>{mentor.email_address || "--"}</div>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <div className="flex gap-4 mt-3 items-center">
-                        <img src={phonesvg} alt="phone" />
-                        <div>{mentor.contact_num || "--"}</div>
-                      </div>
-                      <div className="flex gap-5">
-                        <button className="bg-[#45C74D] p-1 rounded-md">
-                          <img src={whatsappsvg} alt="whatsapp" />
-                        </button>
-
-                        <button
-                          onClick={handleScheduleClick}
-                          className="bg-[#45C74D] p-1 rounded-md text-white"
-                        >
-                          Schedule Session
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+              <div>
+                <div className="flex items-center">
+                  <h2 className="text-xl font-bold">{mentor.mentor_name}</h2>
+                  <a
+                    href={getLinkedInUrl(mentor.linkedin_url)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={handleLinkedInClick}
+                    className="ml-2 bg-white p-1 rounded-full hover:opacity-80"
+                  >
+                    <img src={linkedinsvg} alt="linkedin" className="w-5 h-5" />
+                  </a>
                 </div>
-
-                {/* Education Info */}
-                <div className="flex justify-between gap-5 shadow-md border rounded-lg py-2 px-1 mt-4">
-                  <div>
-                    <div>Years Of Passing</div>
-                    <div>{mentor.year_of_passing_out || "--"}</div>
-                  </div>
-                  <div>
-                    <div>Qualification</div>
-                    <div>{mentor.qualification || "--"}</div>
-                  </div>
-                  <div>
-                    <div>Institution</div>
-                    <div>{mentor.institution || "--"}</div>
-                  </div>
-                  <div>
-                    <div>Expertise</div>
-                    <div>{mentor.expertise || "--"}</div>
-                  </div>
+                <p className="text-sm text-gray-700">
+                  {mentor.designation || "--"}
+                </p>
+                <div className="flex items-center mt-2">
+                  <img src={mailsvg} alt="mail" className="w-4 h-4 mr-1" />
+                  <span className="text-sm text-gray-700">
+                    {mentor.email_address || "--"}
+                  </span>
                 </div>
-
-                {/* About */}
-                <div className="rounded-lg py-2 px-1 mt-4">
-                  <div className="flex text-lg">About</div>
-                  <div className="text-sm">
-                    {mentor.about || "No description provided."}
-                  </div>
+                <div className="flex items-center mt-1">
+                  <img src={phonesvg} alt="phone" className="w-4 h-4 mr-1" />
+                  <span className="text-sm text-gray-700">
+                    {mentor.contact_num || "--"}
+                  </span>
                 </div>
               </div>
             </div>
+            <div className="flex justify-end mt-4">
+              <button
+                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                onClick={handleScheduleClick}
+              >
+                Schedule Session
+              </button>
+            </div>
+          </div>
 
-            {/* Current Mentees */}
-            <div className="bg-white border shadow-sm px-5 py-2 mt-4 rounded-md">
-              <div>Current Mentees</div>
+          {/* Profile Stats */}
+          <div className="bg-white p-6 rounded-lg mb-6">
+            <div className="grid grid-cols-4 gap-6">
+              <div>
+                <h3 className="text-sm text-gray-600 mb-1">Year Of Passing</h3>
+                <p className="font-medium">
+                  {mentor.year_of_passing_out || "--"}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm text-gray-600 mb-1">Qualification</h3>
+                <p className="font-medium">{mentor.qualification || "--"}</p>
+              </div>
+              <div>
+                <h3 className="text-sm text-gray-600 mb-1">Institution</h3>
+                <p className="font-medium">{mentor.institution || "--"}</p>
+              </div>
+              <div>
+                <h3 className="text-sm text-gray-600 mb-1">Expertise</h3>
+                <p className="font-medium">
+                  {mentor.area_of_expertise || "Not Associated"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* About Section */}
+          <div className="bg-white p-6 rounded-lg mb-6">
+            <h2 className="text-lg font-semibold mb-4">About</h2>
+            <p className="text-gray-700 text-sm leading-relaxed">
+              {mentor.mento_description || "No description provided."}
+            </p>
+          </div>
+
+          {/* Current Mentees Section */}
+          <div className="bg-white p-6 rounded-lg mb-6">
+            <h2 className="text-lg font-semibold mb-4">Current Mentees</h2>
+            <div className="space-y-4">
               {mentor.mentees?.length > 0 ? (
-                mentor.mentees.map((mentee, i) => (
-                  <div key={i} className="bg-[#FAFAFA] rounded-md mt-2 px-6">
-                    <div className="flex justify-between py-2">
-                      <div className="flex gap-7">
-                        <img src={dummysvg} className="w-12" alt="mentee" />
-                        <div>
-                          <div>{mentee.name}</div>
-                          <div className="text-sm">{mentee.position}</div>
-                        </div>
+                mentor.mentees.map((mentee, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between py-2"
+                  >
+                    <div className="flex items-center">
+                      <img
+                        src={dummysvg}
+                        alt="Mentee"
+                        className="rounded-lg w-12 h-12 object-cover mr-4"
+                      />
+                      <div>
+                        <h3 className="font-medium text-sm">{mentee.name}</h3>
+                        <p className="text-sm text-gray-600">
+                          {mentee.position}
+                        </p>
                       </div>
-                      <button className="bg-[#45C74D] text-white p-1 mt-[3px] rounded-md text-sm">
-                        Visit Profile
+                    </div>
+                    <button className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600">
+                      Visit Profile
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="py-4 text-sm text-gray-500">
+                  No mentees available.
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Mentoring Sessions Section */}
+          <div className="bg-white p-6 rounded-lg mb-6">
+            <h2 className="text-lg font-semibold mb-4">Mentoring Sessions</h2>
+            <div className="grid grid-cols-5 gap-3 py-3 border-b border-gray-200 font-medium text-sm text-gray-600">
+              <div>Start-up</div>
+              <div>Date</div>
+              <div>Mentor Hours</div>
+              <div>Meeting Mode</div>
+              <div>Feedback</div>
+            </div>
+            <div className="space-y-3">
+              {currentMeetings.length > 0 ? (
+                currentMeetings.map((session, index) => (
+                  <div
+                    key={index}
+                    className="grid grid-cols-5 gap-3 py-3 items-center"
+                  >
+                    <div className="text-sm font-medium">
+                      {session.start_up_name}
+                    </div>
+                    <div className="text-sm text-gray-600">{session.date}</div>
+                    <div className="text-sm text-gray-600">
+                      {session.meeting_duration || "-"}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {session.meeting_mode || "-"}
+                    </div>
+                    <div>
+                      <button
+                        onClick={() => {
+                          setSelectedSession(session);
+                          setShowFeedbackModal(true);
+                        }}
+                        className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600"
+                      >
+                        Visit Feedback
                       </button>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="p-2 text-sm text-gray-500">
-                  No mentees available.
+                <div className="py-4 text-sm text-gray-500">
+                  No sessions found.
                 </div>
               )}
             </div>
-
-            {/* Mentoring Sessions */}
-            <div className="bg-white border shadow-sm px-5 py-2 mt-4 rounded-md">
-              <div className="font-semibold">Mentoring Sessions</div>
-              <div className="relative overflow-x-auto">
-                <table className="w-full text-sm text-left text-gray-500">
-                  <thead className="text-xs text-gray-700 uppercase">
-                    <tr>
-                      <th className="px-6 py-3">start_up_name</th>
-                      <th className="px-6 py-3">date</th>
-                      <th className="px-6 py-3">meeting_duration</th>
-                      <th className="px-6 py-3">Feedback</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {meeting?.length > 0 ? (
-                      meeting.map((meeting, i) => (
-                        <tr
-                          key={i}
-                          className="bg-white border-b border-gray-200"
-                        >
-                          <td className="px-6 py-3">{meeting.start_up_name}</td>
-                          <td className="px-6 py-3">{meeting.date}</td>
-                          <td className="px-6 py-3">
-                            {meeting.meeting_duration}
-                          </td>
-                          <td className="px-6 py-3">
-                            <button className="p-1 text-sm bg-[#45C74D] text-white rounded-md">
-                              Visit Feedback
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td
-                          colSpan="4"
-                          className="text-center p-3 text-gray-500"
-                        >
-                          No sessions found.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            {meeting?.length > itemsPerPage && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                showingText={`Showing ${startIndex + 1} to ${Math.min(endIndex, meeting.length)} of ${meeting.length} results`}
+              />
+            )}
           </div>
-        </div>
-        <div className="w-full px-5 mt-4">
-          <div className="border shadow-sm py-6 rounded-md w-full">
-            <div className="flex justify-between ">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 px-5">
-                Testimonials
-              </h2>
-              <div onClick={() => setShowModal(true)}>
-                <img src={Testimonials} alt="" className="px-8 h-6" />
+          {/* Testimonials */}
+          <div className="bg-white p-6 rounded-lg mb-6">
+            <div className="border shadow-sm py-6 rounded-md w-full">
+              <div className="flex justify-between ">
+                <h2 className="text-xl font-semibold mb-4 text-gray-800 px-5">
+                  Testimonials
+                </h2>
+                <div onClick={() => setShowModal(true)}>
+                  <img src={Testimonials} alt="" className="px-8 h-6" />
+                </div>
               </div>
-            </div>
 
-            <Swiper
-              modules={[Navigation]}
-              spaceBetween={20}
-              slidesPerView={3.25} // 3 full, 1 partial
-              navigation={{
-                prevEl: navigationPrevRef.current,
-                nextEl: navigationNextRef.current,
-              }}
-              onBeforeInit={(swiper) => {
-                swiper.params.navigation.prevEl = navigationPrevRef.current;
-                swiper.params.navigation.nextEl = navigationNextRef.current;
-              }}
-              breakpoints={{
-                1024: { slidesPerView: 3.25 },
-                768: { slidesPerView: 2.25 },
-                0: { slidesPerView: 1.25 },
-              }}
-            >
-              {testimonial.map((item, index) => (
-                <SwiperSlide key={index}>
-                  <div className="bg-[#F9F9F9] shadow-md rounded-xl p-6 h-full flex flex-col justify-between mx-2">
-                    <FaQuoteLeft className="text-[#808080] text-2xl mb-4" />
-                    <p className="text-gray-700 text-sm italic">
-                      "{item.description}"
-                    </p>
-                    <div className="flex items-center gap-3 mt-6">
-                      <div>
-                        <h4 className="text-sm font-semibold">{item.name}</h4>
-                        <p className="text-xs text-green-600">{item.role}</p>
+              <Swiper
+                modules={[Navigation]}
+                spaceBetween={20}
+                slidesPerView={3.25} // 3 full, 1 partial
+                navigation={{
+                  prevEl: navigationPrevRef.current,
+                  nextEl: navigationNextRef.current,
+                }}
+                onBeforeInit={(swiper) => {
+                  swiper.params.navigation.prevEl = navigationPrevRef.current;
+                  swiper.params.navigation.nextEl = navigationNextRef.current;
+                }}
+                breakpoints={{
+                  1024: { slidesPerView: 3.25 },
+                  768: { slidesPerView: 2.25 },
+                  0: { slidesPerView: 1.25 },
+                }}
+              >
+                {testimonial.map((item, index) => (
+                  <SwiperSlide key={index}>
+                    <div className="bg-[#F9F9F9] shadow-md rounded-xl p-6 h-full flex flex-col justify-between mx-2">
+                      <FaQuoteLeft className="text-[#808080] text-2xl mb-4" />
+                      <p className="text-gray-700 text-sm italic">
+                        "{item.description}"
+                      </p>
+                      <div className="flex items-center gap-3 mt-6">
+                        <div>
+                          <h4 className="text-sm font-semibold">{item.name}</h4>
+                          <p className="text-xs text-green-600">{item.role}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
 
-            {/* Custom Navigation Arrows */}
-            <div className="flex justify-center gap-4 mt-6">
-              <button
-                ref={navigationPrevRef}
-                className="w-8 h-8 flex items-center justify-center bg-[#45C74D] text-white rounded"
-              >
-                <FaChevronLeft />
-              </button>
-              <button
-                ref={navigationNextRef}
-                className="w-8 h-8 flex items-center justify-center bg-[#45C74D] text-white rounded"
-              >
-                <FaChevronRight />
-              </button>
+              {/* Custom Navigation Arrows */}
+              <div className="flex justify-center gap-4 mt-6">
+                <button
+                  ref={navigationPrevRef}
+                  className="w-8 h-8 flex items-center justify-center bg-[#45C74D] text-white rounded"
+                >
+                  <FaChevronLeft />
+                </button>
+                <button
+                  ref={navigationNextRef}
+                  className="w-8 h-8 flex items-center justify-center bg-[#45C74D] text-white rounded"
+                >
+                  <FaChevronRight />
+                </button>
+              </div>
             </div>
+                    
           </div>
         </div>
-
         {showEditModal && (
           <EditMentorForm
             initialData={mentor}
@@ -358,8 +524,9 @@ function MentorProfile() {
           />
         )}
       </div>
+         
     </div>
   );
 }
 
-export default MentorProfile;
+export default MentorProfile;

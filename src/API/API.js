@@ -2,7 +2,7 @@ import axios from "axios";
 async function ApiAddConnections(AddConnection) {
   try {
     const result = await axios.post(
-      "http://localhost:3003/api/v1/add-connections",
+      "http://3.109.48.163:3003/api/v1/add-connections",
       AddConnection
     );
     return result.data;
@@ -14,7 +14,7 @@ async function ApiAddConnections(AddConnection) {
 async function ApiViewConnections() {
   try {
     const result = await axios.get(
-      "http://localhost:3003/api/v1/viewconnections"
+      "http://3.109.48.163:3003/api/v1/viewconnections"
     );
     return result.data;
   } catch (error) {
@@ -26,7 +26,7 @@ async function ApiViewConnections() {
 async function ApiEstablishConnections(EstablishConnection) {
   try {
     const result = await axios.post(
-      "http://localhost:3003/api/v1/establish-connection",
+      "http://3.109.48.163:3003/api/v1/establish-connection",
       EstablishConnection
     );
     return result.data;
@@ -39,7 +39,7 @@ async function ApiEstablishConnections(EstablishConnection) {
 async function ApiDeleteConnections(email_address) {
   try {
     const result = await axios.delete(
-      `http://localhost:3003/api/v1/delete-connection?element_data=${email_address}`
+      `http://3.109.48.163:3003/api/v1/delete-connection?element_data=${email_address}`
     );
     return result.data;
   } catch (error) {
@@ -52,7 +52,7 @@ async function ApiDeleteConnections(email_address) {
 async function ApiAddNewMentor(formDataa) {
   try {
     const result = await axios.post(
-      "http://localhost:3003/api/v1/mentor/add",
+      "http://3.109.48.163:3003/api/v1/mentor/add",
       formDataa,
       {
         headers: {
@@ -71,7 +71,7 @@ async function ApiAddNewMentor(formDataa) {
 async function ApiFetchMentor() {
   try {
     const result = await axios.get(
-      "http://localhost:3003/api/v1/get-mentor-details"
+      "http://3.109.48.163:3003/api/v1/get-mentor-details"
     );
     return result.data;
   } catch (error) {
@@ -92,7 +92,7 @@ async function ApiFetchMentorCount() {
 async function ApiDeletMentorData(id) {
   try {
     const result = await axios.delete(
-      `http://localhost:3003/api/v1/delete-mentor/${id}`
+      `http://3.109.48.163:3003/api/v1/delete-mentor/${id}`
     );
     return result.data;
   } catch (err) {
@@ -100,11 +100,20 @@ async function ApiDeletMentorData(id) {
     throw err;
   }
 }
+export const ApiDeleteTestimonial = async (testimonialId) => {
+  try {
+    const res = await axios.delete(`/testimonial/${testimonialId}`);
+    return res.data;
+  } catch (error) {
+    console.error("Error deleting testimonial:", error);
+    throw error;
+  }
+};
 
 async function ApiScheduleMeeting(payload) {
   try {
     const result = await axios.post(
-      "http://localhost:3003/api/v1/schedulemeeting",
+      "http://3.109.48.163:3003/api/v1/schedulemeeting",
       payload,
       {
         headers: {
@@ -122,7 +131,9 @@ async function ApiScheduleMeeting(payload) {
 
 async function ApiFetchScheduleMeetings(mentor_id) {
   try {
-    const result = await axios.get(`http://localhost:3003/api/v1/fetchmeeting/${mentor_id}`);
+    const result = await axios.get(
+      `http://3.109.48.163:3003/api/v1/fetchmeeting/${mentor_id}`
+    );
     return result.data;
   } catch (err) {
     console.log(err);
@@ -131,15 +142,15 @@ async function ApiFetchScheduleMeetings(mentor_id) {
 
 async function ApiTestimonials(payload){
   try{
-    const result=await axios.post(
-       "http://localhost:3003/api/v1/testimonial",
+    const result = await axios.post(
+      "http://3.109.48.163:3003/api/v1/testimonial",
       payload,
       {
         headers: {
           "Content-Type": "application/json",
         },
       }
-    )
+    );
     return result.data
   }
   catch(error){
@@ -150,7 +161,9 @@ async function ApiTestimonials(payload){
 
 async function ApiFetchTestimonials(mentor_id) {
   try {
-    const result = await axios.get(`http://localhost:3003/api/v1/fetchtestimonial/${mentor_id}`);
+    const result = await axios.get(
+      `http://3.109.48.163:3003/api/v1/fetchtestimonial/${mentor_id}`
+    );
     return result.data;
   } catch (err) {
     console.log(err);
@@ -208,7 +221,9 @@ async function ApiUpdateMentor(mentorId, formData) {
 
     // First try a GET request to verify the mentor exists
     try {
-      const verifyResponse = await axios.get(`http://localhost:3003/api/v1/get-mentor-details`);
+      const verifyResponse = await axios.get(
+        `http://3.109.48.163:3003/api/v1/get-mentor-details`
+      );
       const mentorExists = verifyResponse.data?.STATUS?.rows?.some(
         m => String(m.mentor_id) === String(mentorId)
       );
@@ -223,16 +238,16 @@ async function ApiUpdateMentor(mentorId, formData) {
 
     // Make the update request
     const result = await axios.put(
-      `http://localhost:3003/api/v1/mentor/update/${mentorId}`,
+      `http://3.109.48.163:3003/api/v1/mentor/update/${mentorId}`,
       cleanedData,
       {
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          Accept: "application/json",
         },
         validateStatus: function (status) {
           return status < 500; // Resolve only if the status code is less than 500
-        }
+        },
       }
     );
 
@@ -275,8 +290,46 @@ async function ApiUpdateMentor(mentorId, formData) {
   }
 }
 
+async function ApiSaveFeedback(meetingId, feedback) {
+  try {
+    const result = await axios.post(
+      "http://l3.109.48.163:3003/api/v1/mentor/feedback/save",
+      {
+        meeting_id: meetingId,
+        feedback_text: feedback,
+        created_at: new Date().toISOString(),
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log('Save Feedback API Response:', result.data); // Debug log
+    return result.data;
+  } catch (error) {
+    console.error("Error saving feedback:", error);
+    throw error;
+  }
+}
+
+async function ApiFetchFeedback(meetingId) {
+  try {
+    const result = await axios.get(
+      `http://3.109.48.163:3003/api/v1/mentor/feedback/${meetingId}`
+    );
+    console.log('Fetch Feedback API Response:', result.data); // Debug log
+    return result.data;
+  } catch (error) {
+    console.error("Error fetching feedback:", error);
+    throw error;
+  }
+}
+
 export {
   ApiAddConnections,
+  ApiSaveFeedback,
+  ApiFetchFeedback,
   ApiViewConnections,
   ApiEstablishConnections,
   ApiDeleteConnections,

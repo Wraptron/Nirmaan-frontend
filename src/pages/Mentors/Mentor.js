@@ -129,7 +129,7 @@ function Mentor() {
                 <img
                   src={mentor.mentor_logo.replace("/uploads/", "") || ImageSvg}
                   alt="Mentor"
-                  className="w-16 h-16 rounded-lg object-cover"
+                  className="rounded-full w-20 h-20 object-cover aspect-square"
                 />
                 <div className="flex-1 ml-4">
                   <div className="text-md font-semibold">

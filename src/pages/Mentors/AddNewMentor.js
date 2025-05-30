@@ -26,7 +26,7 @@ function AddNewMentor() {
     description: {
       mentor_name: "",
       choose_logo: null,
-      mentor_description: "",
+      mento_description: "",
     },
     professional: {
       years_of_experience: null,
