@@ -7,13 +7,14 @@ const Step1 = ({ formData, handleChange }) => {
     const file = e.target.files[0];
     if (file) {
       // Create a custom event to pass to handleChange
-      const customEvent = {
+      handleChange({
         target: {
           name: "choose_logo",
-          value: file.name,
+          value: file,
         },
-      };
-      handleChange(customEvent);
+      },
+      "description" // ✅ Pass the section name!
+      );
     }
   };
 
@@ -47,8 +48,7 @@ const Step1 = ({ formData, handleChange }) => {
             <input
               type="text"
               name="choose_logo"
-              value={formData.choose_logo}
-              onChange={handleChange}
+              value={formData.choose_logo ? formData.choose_logo.name : "" }
               className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
               placeholder="No file chosen"
               readOnly

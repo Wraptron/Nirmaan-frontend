@@ -1,25 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { ApiTestimonials } from "../../API/API";
+import { useNavigate } from "react-router-dom";
 
-const AddTestimonial = ({ onClose }) => {
+const AddTestimonial = ({ onClose, mentorRefId, onTestimonialAdded }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: '',
-    role: '',
-    description: '',
+    name: "",
+    role: "",
+    description: "",
   });
 
   const handleChange = (e) => {
-    const {name,value}=e.target
-    setFormData({ 
-      ...formData, 
-      [name]:value
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submitted:', formData);
-    // You can add API call or state update here
-    onClose(); // Close modal after save
+    const payload = {
+      mentor_ref_id: mentorRefId,
+      ...formData,
+    };
+    try {
+      await ApiTestimonials(payload);
+      console.log("posted");
+      console.log(payload);
+      onClose(); // Close modal after save
+      // Refresh testimonials before navigation
+      await onTestimonialAdded();
+      // Navigate back to mentor profile after successful submission
+      navigate(`/mentor/mentor_profile/${mentorRefId}`);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

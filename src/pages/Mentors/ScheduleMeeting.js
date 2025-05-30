@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import NavBar from "../../components/NavBar";
 import SideBar from "../../components/sidebar";
 import mentorsvg from "../../assets/images/Frame (11).svg";
 import { ApiScheduleMeeting } from "../../API/API";
 
-function ScheduleMeeting({ selectedMentorId }) {
+function ScheduleMeeting() {
   const [meetingdata, setMeetingdata] = useState({
     start_up_name: "",
     founder_name: "",
@@ -18,7 +18,9 @@ function ScheduleMeeting({ selectedMentorId }) {
     meeting_duration: "",
     meeting_agenda: "",
   });
-  const { mentor_reference_id } = useParams();
+  const { mentor_id } = useParams();
+  const navigate = useNavigate();
+
 
   // Drop down options
   const startupOptions = [
@@ -26,6 +28,7 @@ function ScheduleMeeting({ selectedMentorId }) {
     "Growth Stage Startups",
     "Enterprise Level",
   ];
+
 
   const participantsOptions = ["John Doe", "Dev"];
   const durationOptions = ["30 mins", "1 hour", "2 hour"];
@@ -37,10 +40,11 @@ function ScheduleMeeting({ selectedMentorId }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const newdate=new Date(meetingdata.date).toISOString().split("T")[0]
     const payload = {
-      mentor_reference_id: mentor_reference_id,
+      mentor_reference_id: mentor_id,
       ...meetingdata,
-      date: new Date(meetingdata.date).toISOString().split("T")[0], // Format date as YYYY-MM-DD
+      date: newdate, // Format date as YYYY-MM-DD
       time: meetingdata.time + ":00",
     };
     console.log(payload);
@@ -48,9 +52,13 @@ function ScheduleMeeting({ selectedMentorId }) {
       await ApiScheduleMeeting(payload);
       console.log(payload);
       console.log("posted");
+      // Navigate back to mentor profile after successful scheduling
+      navigate(`/mentor/mentor_profile/${mentor_id}`);
     } catch (error) {
       console.log("error", error);
     }
+
+    handleReset()
   };
 
   const handleReset = () => {
