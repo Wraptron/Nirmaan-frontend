@@ -8,23 +8,14 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  deploy:
     runs-on: self-hosted
-
-    strategy:
-      matrix:
-        node-version: [18.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: |
-           cd /actions-runner/_work/Nirmaan-frontend/Nirmaan-frontend
-           sudo cp -r build/* /var/www/html
+
+    - name: Copy committed build to /var/www/html
+      run: |
+        sudo cp -r build/* /var/www/html
+      working-directory: ${{github.workspace}}
+
