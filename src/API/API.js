@@ -82,7 +82,9 @@ async function ApiFetchMentor() {
 
 async function ApiFetchMentorCount() {
   try {
-    const result = await axios.get("http://localhost:3003/api/v1/mentor/count");
+    const result = await axios.get(
+      "http://3.109.48.163:3003/api/v1/mentor/count"
+    );
     return result.data;
   } catch (error) {
     console.error("Error in APi", error);
@@ -176,7 +178,7 @@ async function ApiFetchTestimonials(mentor_id) {
 // async function ApiCreateEvent(){
 //     try
 //     {
-//         const result = await axios.post(`http://localhost:3003/api/v1/delete-mentor`,)
+//         const result = await axios.post(`http://3.109.48.163:3003/api/v1/delete-mentor`,)
 //     }
 //     catch(err)
 //     {
@@ -187,7 +189,9 @@ async function ApiFetchTestimonials(mentor_id) {
 
 async function ApiFetchEvents() {
   try {
-    const result = await axios.get("http://localhost:3003/api/v1/fetchevents");
+    const result = await axios.get(
+      "http://3.109.48.163:3003/api/v1/fetchevents"
+    );
     return result.data;
   } catch (err) {
     console.log(err);
