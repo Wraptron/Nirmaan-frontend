@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { ApiUpdateMentor } from "../../API/API";
 import toast from "react-hot-toast";
-
+import { FaChevronLeft } from "react-icons/fa";
+import editsvg from "../../assets/images/Frame (12).svg";
 const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
+    mentor_logo: initialData?.mentor_logo || "",
     mentor_name: initialData.mentor_name || "",
     designation: initialData.designation || "",
     about: initialData.about || "",
@@ -15,7 +17,9 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
     expertise: initialData.expertise || "",
     linkedin_id: initialData.linkedin_id || ""
   });
-
+  const url = formData?.mentor_logo;
+  const cleanedurl = url.replace("/uploads/", "");
+  console.log(cleanedurl);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -75,7 +79,6 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
       }
     }
   };
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative max-h-[90vh] overflow-y-auto">
@@ -87,6 +90,18 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
         </button>
         <h2 className="text-xl font-semibold mb-6">Edit Mentor Profile</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div class="relative">
+                <div class="flex justify-center items-center"><img src={cleanedurl} class="w-28 h-28 rounded-lg"/></div>
+                <div class="absolute left-[330px] top-1">
+                        <a className="bg-gray-200 rounded-md">
+                                <img
+                                  src={editsvg}
+                                  alt="edit"
+                                  className="w-7 h-7 cursor-pointer hover:opacity-80 bg-white rounded-md"
+                                />
+                        </a>
+                </div>
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
