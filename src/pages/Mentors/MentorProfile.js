@@ -64,6 +64,9 @@ function MentorProfile() {
     { id: 4, startup: "Start-up - Name", activity: "Activity" },
   ]);
 
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [testimonialToDelete, setTestimonialToDelete] = useState(null);
+
   const handleScheduleClick = () => {
     navigate(`/schedulemeeting/${mentor.mentor_id}`);
   };
@@ -231,6 +234,21 @@ function MentorProfile() {
     </div>
   );
 
+  const handleDeleteTestimonial = async (testimonialId) => {
+    try {
+      const response = await ApiDeleteTestimonial(testimonialId);
+      if (response?.STATUS?.success) {
+        await fetchTestimonials(id);
+        setShowDeleteConfirm(false);
+        setTestimonialToDelete(null);
+      } else {
+        console.error("Failed to delete testimonial:", response?.STATUS?.message);
+      }
+    } catch (error) {
+      console.error("Error deleting testimonial:", error);
+    }
+  };
+
   return (
     <div className="flex">
       <SideBar />
@@ -394,7 +412,7 @@ function MentorProfile() {
               <div>Date</div>
               <div>Mentor Hours</div>
               <div>Meeting Mode</div>
-              <div>Feedback</div>
+              <div>Notes</div>
             </div>
             <div className="space-y-3">
               {currentMeetings.length > 0 ? (
@@ -417,11 +435,11 @@ function MentorProfile() {
                       <button
                         onClick={() => {
                           setSelectedSession(session);
-                          setShowFeedbackModal(true);
+                          navigate(`/mentor/${session.meeting_id}`);
                         }}
                         className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600"
                       >
-                        Visit Feedback
+                        Meeting Notes
                       </button>
                     </div>
                   </div>
@@ -456,7 +474,7 @@ function MentorProfile() {
               <Swiper
                 modules={[Navigation]}
                 spaceBetween={20}
-                slidesPerView={3.25} // 3 full, 1 partial
+                slidesPerView={3.25}
                 navigation={{
                   prevEl: navigationPrevRef.current,
                   nextEl: navigationNextRef.current,
@@ -473,7 +491,16 @@ function MentorProfile() {
               >
                 {testimonial.map((item, index) => (
                   <SwiperSlide key={index}>
-                    <div className="bg-[#F9F9F9] shadow-md rounded-xl p-6 h-full flex flex-col justify-between mx-2">
+                    <div className="bg-[#F9F9F9] shadow-md rounded-xl p-6 h-full flex flex-col justify-between mx-2 relative">
+                      <button
+                        onClick={() => {
+                          setTestimonialToDelete(item);
+                          setShowDeleteConfirm(true);
+                        }}
+                        className="absolute top-2 right-2 text-gray-500 hover:text-red-500"
+                      >
+                        <FaEllipsisV />
+                      </button>
                       <FaQuoteLeft className="text-[#808080] text-2xl mb-4" />
                       <p className="text-gray-700 text-sm italic">
                         "{item.description}"
@@ -505,7 +532,6 @@ function MentorProfile() {
                 </button>
               </div>
             </div>
-                    
           </div>
         </div>
         {showEditModal && (
@@ -522,6 +548,50 @@ function MentorProfile() {
             onClose={() => setShowModal(false)}
             onTestimonialAdded={() => fetchTestimonials(id)}
           />
+        )}
+
+        {showFeedbackModal && selectedSession && (
+          <FeedbackModal
+            session={selectedSession}
+            onClose={() => {
+              setShowFeedbackModal(false);
+              setSelectedSession(null);
+            }}
+            onSave={handleFeedbackSave}
+            initialFeedback={sessionFeedbacks[selectedSession.meeting_id] || ""}
+          />
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm && testimonialToDelete && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+              <h3 className="text-lg font-semibold mb-4">Delete Testimonial</h3>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to delete this testimonial? This action
+                cannot be undone.
+              </p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => {
+                    setShowDeleteConfirm(false);
+                    setTestimonialToDelete(null);
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() =>
+                    handleDeleteTestimonial(testimonialToDelete.testimonial_id)
+                  }
+                  className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
          

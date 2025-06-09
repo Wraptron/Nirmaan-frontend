@@ -22,6 +22,7 @@ import View from './pages/UploadFile/View';
 import ViewComponents from './pages/UploadFile/ViewComponents';
 import CustomerProfile from './Customer/Pages/Profile/Profile.js'
 import HomeMentor from './pages/Home/Mentors/Mentor.js';
+import Notes from './pages/Mentors/Notes.js';
 import Investor from './pages/Home/Investor/Investor.js';
 import HomeFunding from './pages/Home/Funding/Funding.js';
 import Addjob from './Customer/Pages/Job/AddJob.js';
@@ -124,7 +125,10 @@ function App() {
             <Route path="/fintechstartups" element={<FinTech />} />
             <Route path="/industrystartups" element={<Industry />} />
             <Route path="/addmentor" element={<AddNewMentor />} />
-            <Route path="/scheduleMeeting/:mentor_id" element={<ScheduleMeeting />} />
+            <Route
+              path="/scheduleMeeting/:mentor_id"
+              element={<ScheduleMeeting />}
+            />
 
             <Route path="/Sustainability" element={<Sustainability />} />
             <Route path="/healthcarestartups" element={<Healthcare />} />
@@ -140,7 +144,7 @@ function App() {
               path="/mentor/mentor_profile/:id"
               element={<MentorProfile />}
             />
-            
+            <Route path="/mentor/:notesId" element={<Notes />} />
 
             <Route
               path="/pdf"

@@ -104,7 +104,7 @@ async function ApiDeletMentorData(id) {
 }
 export const ApiDeleteTestimonial = async (testimonialId) => {
   try {
-    const res = await axios.delete(`/testimonial/${testimonialId}`);
+    const res = await axios.delete(`http://3.109.48.163:3003/api/v1/testimonial/${testimonialId}`);
     return res.data;
   } catch (error) {
     console.error("Error deleting testimonial:", error);
@@ -326,8 +326,8 @@ async function ApiFetchFeedback(meetingId) {
     return result.data;
   } catch (error) {
     console.error("Error fetching feedback:", error);
-    throw error;
-  }
+    throw error;
+  }
 }
 
 export {
