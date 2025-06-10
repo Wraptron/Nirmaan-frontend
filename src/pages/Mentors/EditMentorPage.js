@@ -5,6 +5,7 @@ import { FaChevronLeft } from "react-icons/fa";
 import editsvg from "../../assets/images/Frame (12).svg";
 const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
+    mentor_id: initialData?.mentor_id ||"",
     mentor_logo: initialData?.mentor_logo || "",
     mentor_name: initialData.mentor_name || "",
     designation: initialData.designation || "",
@@ -19,7 +20,7 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
   });
   const url = formData?.mentor_logo;
   const cleanedurl = url.replace("/uploads/", "");
-  console.log(cleanedurl);
+  console.log(formData);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({

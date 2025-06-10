@@ -77,7 +77,7 @@ function MentorProfile() {
       alert("LinkedIn URL not available for this mentor");
     }
   };
-
+  console.log(mentor);
   const fetchTestimonials = async (mentorId) => {
     try {
       const TestimonialAPI = await ApiFetchTestimonials(mentorId);
