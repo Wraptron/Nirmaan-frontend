@@ -71,7 +71,7 @@ async function ApiAddNewMentor(formDataa) {
 async function ApiFetchMentor() {
   try {
     const result = await axios.get(
-      "http://3.109.48.163:3003/api/v1/get-mentor-details"
+      "http://localhost:3003/api/v1/get-mentor-details"
     );
     return result.data;
   } catch (error) {
