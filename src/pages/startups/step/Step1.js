@@ -44,5 +44,4 @@ const Step1 = ({formData, handleChange}) => {
       </div>
   );
 };
-
 export default Step1;

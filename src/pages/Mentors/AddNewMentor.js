@@ -88,7 +88,6 @@ function AddNewMentor() {
     }
     console.log(formData);
   };
-
   return (
     <div className="flex">
       <SideBar />

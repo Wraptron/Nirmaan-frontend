@@ -21,6 +21,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Swal from 'sweetalert2/dist/sweetalert2.js'
 import 'sweetalert2/dist/sweetalert2.min.css'
 function AddStartup() {
+    let startups = new FormData();
     const [formData, setFormData] = useState({
         basic: {
          startup_name: '',
@@ -140,8 +141,8 @@ function AddStartup() {
                                                         {/* <div><img src={exclamtionsvg} /></div> */}
                                                         <div className="text-lg">Add New Start-up</div>
                                                   </div> 
-                                                  <div className="mt-4">Program <span className="text-red-600">*</span></div>
-                                                  <div className="mt-2"><input type="text" className="block w-[50%] p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]" placeholder="Select Program"/></div>
+                                                  {/* <div className="mt-4">Program <span className="text-red-600">*</span></div>
+                                                  <div className="mt-2"><input type="text" className="block w-[50%] p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]" placeholder="Select Program"/></div> */}
                                                   <div className="grid grid-cols-4 mt-10 mx-7">
                                                           <div className={`${steps==0 && 'bg-[#45C74D]' || 'bg-[#D8F3D9]'}  text-white flex justify-center items-center text-lg gap-2 md:py-2`} style={{clipPath: "polygon(0% 0%, 90% 0%, 100% 50%, 90% 100%, 0% 100%)",}}>
                                                                 <span><img src={`${steps==0 && exclamtionsvg || exclamationsvgblack}`} class /></span>

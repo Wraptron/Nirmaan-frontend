@@ -91,7 +91,12 @@ function Login() {
           }, 4000);
         try
         {
-            const response = await axios.post(APP_URL+'login', formData);
+            const response = await axios.post(APP_URL+'login', formData , {
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'application/json' 
+                }
+            });
             if(response.data.authentication === "Please enter username and password properly!")
             {
                 alertify.error('All fields are required to login');
