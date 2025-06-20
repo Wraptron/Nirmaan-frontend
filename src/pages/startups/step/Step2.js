@@ -98,6 +98,7 @@ useEffect(() => {
                 <select onChange={handleChange} name="scheme" value={formData.scheme}  className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]">
                     <option>Pratham</option>
                     <option>Akshar</option>
+                    <option>Graduated</option>
                 </select>
               </div>
           </div>

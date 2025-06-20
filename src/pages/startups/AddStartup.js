@@ -20,6 +20,8 @@ import { Toaster, toast } from "react-hot-toast";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from 'sweetalert2/dist/sweetalert2.js'
 import 'sweetalert2/dist/sweetalert2.min.css'
+import { useNavigate } from 'react-router-dom';
+
 function AddStartup() {
     const [formData, setFormData] = useState({
         basic: {
@@ -30,7 +32,8 @@ function AddStartup() {
          startup_technology: '',
          startup_cohort: '',
          startup_yog:'',
-         graduated_to: ''
+         graduated_to: '',
+         program: '',
        },
        official: {
          official_contact_number: '',
@@ -94,34 +97,54 @@ function AddStartup() {
         e.preventDefault();
         setsteps(steps - 1);
     }
+    const navigate = useNavigate();
     let handleSubmit = async(e) => {
-        e.preventDefault();
-        try 
-        {
-            const result = await axios.post('http://localhost:3003/api/v1/v2/startupdata', formData, {headers: {
+    e.preventDefault();
+    try {
+        const result = await axios.post('http://localhost:3003/api/v1/add-startup', formData, {
+            headers: {
                 "Cache-Control": "no-cache",
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-              }})
-            if(result.data.status.status == "data already exists")
-            {
-                toast.error('Startup already exists')
             }
+        });
+
+        if (result.data?.status?.status === "data already exists") {
+            toast.error('Startup already exists');
+        } else {
+            Swal.fire({
+                icon: "success",
+                title: "Startup added successfully!",
+                timer: 1500
+            });
+            navigate('/startups');
         }
-        catch(err)
-        {
-            if(err.response.status == 400)
-            {
-                Swal.fire({
-                    position: "top-end",
-                    icon: "error",
-                    title: "Please fill necessary data",
-                    showConfirmButton: false,
-                    timer: 1500
-                  })
-            }
+    } catch (err) {
+        console.error("Error in handleSubmit:", err);
+
+        const status = err?.response?.status;
+
+        if (status === 400) {
+            Swal.fire({
+                icon: "error",
+                title: "Please fill necessary data",
+                timer: 1500
+            });
+        } else if (status === 409) {
+            Swal.fire({
+                icon: "warning",
+                title: "Startup already exists",
+                text: err.response.data?.error || "Duplicate entry"
+            });
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Server Error",
+                text: "Something went wrong. Please try again."
+            });
         }
-    }   
+    }
+} 
    return (
     <div className="flex">
           <div>
@@ -140,8 +163,21 @@ function AddStartup() {
                                                         {/* <div><img src={exclamtionsvg} /></div> */}
                                                         <div className="text-lg">Add New Start-up</div>
                                                   </div> 
-                                                  <div className="mt-4">Program <span className="text-red-600">*</span></div>
-                                                  <div className="mt-2"><input type="text" className="block w-[50%] p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]" placeholder="Select Program"/></div>
+                                                  <div className="mt-4">Stage <span className="text-red-600">*</span></div>
+                                                  <div className="mt-2">
+                                                    <select
+                                                      name="program"
+                                                      value={formData.basic.program}
+                                                      onChange={(e) => handleChange(e, 'basic')}
+                                                      className="border p-2 rounded"
+                                                      required
+                                                    >
+                                                      <option value="">Select Stage</option>
+                                                      <option value="Pratham">Pratham</option>
+                                                      <option value="Akshar">Akshar</option>
+                                                      <option value="Graduated">Graduated</option>
+                                                    </select>
+                                                  </div>
                                                   <div className="grid grid-cols-4 mt-10 mx-7">
                                                           <div className={`${steps==0 && 'bg-[#45C74D]' || 'bg-[#D8F3D9]'}  text-white flex justify-center items-center text-lg gap-2 md:py-2`} style={{clipPath: "polygon(0% 0%, 90% 0%, 100% 50%, 90% 100%, 0% 100%)",}}>
                                                                 <span><img src={`${steps==0 && exclamtionsvg || exclamationsvgblack}`} class /></span>

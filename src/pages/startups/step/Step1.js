@@ -26,6 +26,7 @@ const Step1 = ({formData, handleChange}) => {
                           <option disabled>Select start-up technology</option>
                           <option>Hardware</option>
                           <option>Software</option>
+                          <option>Internet of Things</option>
                       </select>
                     </div>
                 </div>
