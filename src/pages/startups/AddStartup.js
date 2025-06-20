@@ -23,6 +23,7 @@ import 'sweetalert2/dist/sweetalert2.min.css'
 import { useNavigate } from 'react-router-dom';
 
 function AddStartup() {
+    let startups = new FormData();
     const [formData, setFormData] = useState({
         basic: {
          startup_name: '',
@@ -163,6 +164,8 @@ function AddStartup() {
                                                         {/* <div><img src={exclamtionsvg} /></div> */}
                                                         <div className="text-lg">Add New Start-up</div>
                                                   </div> 
+                                                  {/* <div className="mt-4">Program <span className="text-red-600">*</span></div>
+                                                  <div className="mt-2"><input type="text" className="block w-[50%] p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]" placeholder="Select Program"/></div> */}
                                                   <div className="mt-4">Stage <span className="text-red-600">*</span></div>
                                                   <div className="mt-2">
                                                     <select
