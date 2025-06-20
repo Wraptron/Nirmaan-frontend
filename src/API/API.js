@@ -171,6 +171,18 @@ async function ApiFetchTestimonials(mentor_id) {
     console.log(err);
   }
 }
+
+async function ApiDeletStartupData(email) {
+  try {
+    const result = await axios.delete(
+      `http://localhost:3003/api/v1/delete-startup/${email}`
+    );
+    return result.data;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
 // Register for new startups
 
 //Events
@@ -346,5 +358,6 @@ export {
   ApiFetchScheduleMeetings,
   ApiTestimonials,
   ApiFetchTestimonials,
-  ApiUpdateMentor
+  ApiUpdateMentor,
+  ApiDeletStartupData
 };
