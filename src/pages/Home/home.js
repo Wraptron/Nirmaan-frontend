@@ -96,7 +96,7 @@ function Home() {
                                                 <div className="grid grid-cols-3 gap-5">
                                                         <div className="border bg-white rounded-xl col-span-2">
                                                                     <div className="py-2 px-7 text-xl underline underline-offset-[13px] decoration-gray-200 ">General Dashboard</div>
-                                                                    <div className="px-7 text-lg">Status</div>
+                                                                    {/* <div className="px-7 text-lg">Status</div>
                                                                     <div className="flex justify-between px-7 gap-5 border-l-2 border-r-2 overflow-x-auto scrollbar-hidden w-full h-auto">
                                                                         <div className="border rounded-3xl p-[25px] border-2 border-[#45C74D]"><img src={ImageSvg}  className="w-full" width={100} height={100}/></div>
                                                                         <div className="border rounded-3xl p-[25px] border-2 border-[#45C74D]"><img src={ImageSvg}  className="w-100"/></div>
@@ -113,37 +113,49 @@ function Home() {
                                                                         <div className="border rounded-3xl p-[25px] border-2 border-[#45C74D]"><img src={ImageSvg} className="w-100"/></div>
                                                                         <div className="border rounded-3xl p-[25px] border-2 border-[#45C74D]"><img src={ImageSvg}  className="w-100"/></div>
                                                                         <div className="border rounded-3xl p-[25px] border-2 border-[#45C74D]"><img src={ImageSvg}  className="w-100"/></div>
-                                                                    </div>
+                                                                    </div> */}
                                                                     <div className="py-2 px-7 text-lg ">Overview</div>
                                                                     <div className="grid grid-cols-4 gap-10 px-7 py-2">
-                                                                            <div className="shadow-md border border-sm rounded-lg p-2">
-                                                                                <div className="pb-1"><FaRegAddressBook size={20} className="text-[#45C74D]"/></div>
-                                                                                <div className="text-2xl font-semibold">{analysedData?.startup_total || 0}</div>
-                                                                                <div className="text-sm">Total Start-ups</div>
-                                                                            </div>
+                                                                            
                                                                             <div className="shadow-md border border-sm rounded-lg p-2">
                                                                                 <div className="pb-1"><FaRocket size={20} className="text-[#45C74D]"/></div>
-                                                                                <div className="text-2xl font-semibold">{analysedData?.active_startups || 0}</div>
+                                                                                <div className="text-2xl font-semibold">
+                                                                                    {isLoaded ? (analysedData?.active_startups || 0) : <SkeletonLoader />}
+                                                                                </div>
                                                                                 <div className="text-sm">Active Start-ups</div>
                                                                             </div>
 
                                                                             <div className="shadow-md border border-sm rounded-lg p-2">
-                                                                                <div className="pb-1"><FaGraduationCap size={20} className="text-[#45C74D]"/></div>
-                                                                                <div className="text-2xl font-semibold">{analysedData?.graduated_startups || 0}</div>
-                                                                                <div className="text-sm">Graduated</div>
+                                                                                <div className="pb-1"><FaRocket size={20} className="text-[#45C74D]"/></div>
+                                                                                <div className="text-2xl font-semibold">
+                                                                                    {isLoaded ? (analysedData?.active_pratham || 0) : <SkeletonLoader />}
+                                                                                </div>
+                                                                                <div className="text-sm">Pratham</div>
                                                                             </div>
 
                                                                             <div className="shadow-md border border-sm rounded-lg p-2">
-                                                                                <div className="pb-1"><FaSignOutAlt size={20} className="text-[#45C74D]"/></div>
-                                                                                <div className="text-2xl font-semibold">{analysedData?.dropped_startups || 0}</div>
-                                                                                <div className="text-sm">Dropped out</div>
-                                                                            </div>            
+                                                                                <div className="pb-1"><FaRocket size={20} className="text-[#45C74D]"/></div>
+                                                                                <div className="text-2xl font-semibold">
+                                                                                    {isLoaded ? (analysedData?.Energy_sector_startups || 0) : <SkeletonLoader />}
+                                                                                </div>
+                                                                                <div className="text-sm">Akshar</div>
+                                                                            </div>
+                                                                            
+
+                                                                            <div className="shadow-md border border-sm rounded-lg p-2">
+                                                                                <div className="pb-1"><FaGraduationCap size={20} className="text-[#45C74D]"/></div>
+                                                                                <div className="text-2xl font-semibold">
+                                                                                    {isLoaded ? (analysedData?.graduated_startups || 0) : <SkeletonLoader />}
+                                                                                </div>
+                                                                                <div className="text-sm">Graduated</div>
+                                                                            </div>
+            
                                                                     </div>
-                                                                    <div className="pt-7 px-7 text-lg flex justify-between">
-                                                                            <div className="text-lg">Funding</div>
+                                                                    {/* <div className="pt-7 px-7 text-lg flex justify-between">
+                                                                        <div className="text-lg">Funding</div>
                                                                             <button className="bg-[#45C74D] text-white block py-2 px-2 rounded-lg ms-3 text-sm font-semibold">View</button>
-                                                                    </div>
-                                                                    <div className="grid grid-cols-3 gap-10 px-7 py-2">
+                                                                    </div> */}
+                                                                    {/* <div className="grid grid-cols-3 gap-10 px-7 py-2">
                                                                             <div className="shadow-lg border rounded-lg">
                                                                                             <div className="p-3 text-sm">Funding Disbursed</div>
                                                                                             <div className="px-3 flex justify-between">
@@ -165,14 +177,14 @@ function Home() {
                                                                                                     <div className="bg-[#E54545] mb-1 rounded-xl p-2 text-white"><FaWallet size={20}/></div>
                                                                                             </div>
                                                                             </div>
-                                                                    </div>
-                                                                    <div className="pt-7 px-7 text-lg flex justify-between">
+                                                                    </div> */}
+                                                                    {/* <div className="pt-7 px-7 text-lg flex justify-between">
                                                                             <div className="text-lg">Start-ups</div>
                                                                             <button className="bg-[#45C74D] text-white block py-2 px-2 rounded-lg ms-3 text-sm font-semibold">View</button>
-                                                                    </div>
+                                                                    </div> */}
                                                         </div>
-                                                        <div className="border bg-white rounded-xl">
-                                                                <div className="py-2 px-7 text-xl underline underline-offset-[13px] decoration-gray-200 ">Recent Activities</div>
+                                                        {/* <div className="border bg-white rounded-xl">
+                                                            <div className="py-2 px-7 text-xl underline underline-offset-[13px] decoration-gray-200 ">Recent Activities</div>
                                                                 <div className="overflow-y-auto scrollbar-hidden">
                                                                             <div className="px-4 pt-5 flex">
                                                                                     <div><img src="" abt="" /></div>
@@ -199,9 +211,9 @@ function Home() {
                                                                                     <span>Lorem Ispum Ispum Ispum Ispum Ispum Ispum </span>
                                                                             </div>
                                                                 </div>
+                                                            </div> */}
                                                         </div>
                                                 </div>
-                                    </div>
                                 )}
                                 {selectedIndex === 1 && (
                                     <Teams props={analysedData}/>

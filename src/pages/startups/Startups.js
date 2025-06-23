@@ -6,6 +6,8 @@ import ExportSvg from '../../assets/images/export excel.svg';
 import FrameSvg from '../../assets/images/Frame.svg';
 import toast from 'react-hot-toast';
 import { FaSpinner, FaEllipsisV } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom';
+
 
 function Startups() {
     const [data, setData] = useState([]);
@@ -14,6 +16,7 @@ function Startups() {
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage] = useState(6);
     const [filterStatus, setFilterStatus] = useState('All');
+    const navigate = useNavigate();
 
     const statusTabs = [
         
@@ -143,15 +146,15 @@ function Startups() {
                             {/* Search + Add Button */}
                             <div className="flex justify-between px-5 mt-3">
                                 <div className="relative">
-                                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                    {/* <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                                         <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20"><path stroke="currentColor" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/></svg>
                                     </div>
-                                    <input type="text" id="search-navbar" className="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50" placeholder="Search..." />
+                                    <input type="text" id="search-navbar" className="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50" placeholder="Search..." /> */}
                                 </div>
                                 <div className="flex gap-4">
                                     <a className="bg-[#45C74D] text-white px-4 py-2 rounded-lg text-sm font-semibold" href="/addstartup">Add New Start-ups</a>
-                                    <button><img src={ExportSvg} alt="Export" /></button>
-                                    <button><img src={FrameSvg} alt="Filter" /></button>
+                                    {/* <button><img src={ExportSvg} alt="Export" /></button>
+                                    <button><img src={FrameSvg} alt="Filter" /></button> */}
                                 </div>
                             </div>
 
@@ -166,7 +169,11 @@ function Startups() {
                                     <div className="pt-3">
                                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 px-5 mb-2">
                                             {currentItems.length > 0 ? currentItems.map((startup, index) => (
-                                                <div key={startup.id || index} className="border shadow-md rounded-lg p-4 bg-white">
+                                                <div
+                                                    key={startup.id || index}
+                                                    className="border shadow-md rounded-lg p-4 bg-white cursor-pointer hover:shadow-lg transition"
+                                                    onClick={() => navigate(`/startupprofile/${startup.id || startup.official_email_address}`)}
+                                                >
                                                     <div className="flex justify-between items-center mb-3">
                                                         <div className={`px-2 py-1 rounded-xl text-xs ${getStatusColor(startup.startup_status)}`}>
                                                             {startup.startup_status || 'Active'}
@@ -189,12 +196,12 @@ function Startups() {
                                                             <div>{startup.sector || startup.startup_sector || 'N/A'}</div>
                                                         </div>
                                                     </div>
-                                                    <div className="mt-4">
+                                                    {/* <div className="mt-4">
                                                         <div className="text-sm font-semibold">Current Stage</div>
                                                         <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
                                                             <div className="bg-[#45C74D] h-2 rounded-full" style={{ width: `${getProgressPercentage(startup.stage)}%` }}></div>
                                                         </div>
-                                                    </div>
+                                                    </div> */}
                                                 </div>
                                             )) : (
                                                 <div className="col-span-3 text-center py-20 text-gray-500">

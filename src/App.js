@@ -61,6 +61,7 @@ import MentorProfile from './pages/Mentors/MentorProfile.js';
 import Swal from 'sweetalert2/dist/sweetalert2.js'
 import 'sweetalert2/dist/sweetalert2.min.css'
 import ScheduleMeeting from './pages/Mentors/ScheduleMeeting.js';
+import Startupprofile from './pages/startups/startupprofile';
 function App() {
   const [LoggedIn, setLoggedIn] = useState(false);
   const authenticate = async() => {
@@ -151,6 +152,7 @@ function App() {
               }
             />
             <Route path="/startup/:id" element={<IndividualStartups />} />
+            <Route path="/startupprofile/:id" element={<Startupprofile />} />
             {/* <Route path="/home?tab=startups" element={<HomeStartups />} /> */}
           </Route>
           <Route
