@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { FaSpinner, FaEllipsisV } from "react-icons/fa";
 import { ApiDeletStartupData } from "../../API/API";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
+import { useNavigate } from "react-router-dom";
 
 function Startups() {
   const [data, setData] = useState([]);
@@ -19,6 +20,7 @@ function Startups() {
   const [filterStatus, setFilterStatus] = useState("All");
    const [openDropdownId, setOpenDropdownId] = useState(null);
    const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
+   const navigate = useNavigate();
 
   const statusTabs = [
     { label: "Akshar", value: "Akshar" },
@@ -205,7 +207,11 @@ function Startups() {
                                     <div className="pt-3">
                                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 px-5 mb-2">
                                             {currentItems.length > 0 ? currentItems.map((startup, index) => (
-                                                <div key={startup.id || index} className="border shadow-md rounded-lg p-4 bg-white">
+                                                <div
+                                                  key={startup.id || index}
+                                                  className="border shadow-md rounded-lg p-4 bg-white cursor-pointer hover:shadow-lg transition"
+                                                  onClick={() => navigate(`/startupprofile/${startup.id}`)}
+                                                >
                                                     <div className="flex justify-between items-center mb-3">
                                                         <div className={`px-2 py-1 rounded-xl text-xs ${getStatusColor(startup.startup_status)}`}>
                                                             {startup.startup_status || 'Active'}
