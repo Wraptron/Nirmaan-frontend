@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import SideBar from '../../components/sidebar';
 import NavBar from '../../components/NavBar';
 import { FiEdit2, FiShare2 } from 'react-icons/fi';
@@ -9,9 +9,134 @@ import profileImg from '../../assets/images/296fe121-5dfa-43f4-98b5-db50019738a7
 import pinSvg from '../../assets/images/Frame (9).svg';
 import pdfSvg from '../../assets/images/Frame (8).svg';
 import { useParams } from 'react-router-dom';
+import EditStartupForm from '../startups/step/EditForm/EditStartupForm';
+import EditAboutForm from '../startups/step/EditForm/EditAboutForm';
+import AddAwardForm from '../startups/step/EditForm/AddAwardForm';
+import EditTeamMembersForm from '../startups/step/EditForm/EditTeamMembersForm';
+import EditFundingForm from '../startups/step/EditForm/EditFundingForm';
+import toast from 'react-hot-toast';
+import EditMentorForm from '../startups/step/EditForm/EditMentorForm';
 
 function StartupProfile() {
   const { id } = useParams();
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [showAboutForm, setShowAboutForm] = useState(false);
+  const [showAddAwardForm, setShowAddAwardForm] = useState(false);
+  const [showTeamMembersForm, setShowTeamMembersForm] = useState(false);
+  const [showFundingForm, setShowFundingForm] = useState(false);
+  const [showMentorForm, setShowMentorForm] = useState(false);
+
+  const [startupData, setStartupData] = useState({
+    startup_name: "Seat of Joy",
+    email: "ed19b063@smail.iitm.ac.in",
+    phone: "9840046978",
+    linkedin: "linkedin.com/company/seat-of-joy",
+    about: "Our Seat of Joy manufacturers a child safety seat for Motorcycles that protects a child during accidents. Our Seat along with protecting the child, also slidable foldable and convertible into a storage box.",
+    startup_type: "Hardware",
+    sector: "Automotive",
+    program: "Nirmaan",
+    status: "Active",
+    profile_image: profileImg,
+    background_image: bgImg,
+    awards: []
+  });
+
+  // Edit handlers
+  const handleEditClick = () => setShowEditForm(true);
+  const handleAboutClick = () => setShowAboutForm(true);
+  const handleAddAwardClick = () => setShowAddAwardForm(true);
+  const handleTeamMembersClick = () => setShowTeamMembersForm(true);
+  const handleFundingClick = () => setShowFundingForm(true);
+  const handleMentorEditClick = () => setShowMentorForm(true);
+
+  const handleEditClose = () => setShowEditForm(false);
+  const handleAboutClose = () => setShowAboutForm(false);
+  const handleAddAwardClose = () => setShowAddAwardForm(false);
+  const handleTeamMembersClose = () => setShowTeamMembersForm(false);
+  const handleFundingClose = () => setShowFundingForm(false);
+  const handleMentorEditClose = () => setShowMentorForm(false);
+
+  const handleEditSubmit = async (updatedData) => {
+    try {
+      // Here you would typically call your API to update the startup
+      // await ApiUpdateStartup(id, updatedData);
+      setStartupData(updatedData);
+      
+    } catch (error) {
+      console.error("Error updating startup:", error);
+      toast.error("Failed to update startup profile");
+    }
+  };
+
+  const handleAboutSubmit = async (updatedData) => {
+    try {
+      setStartupData(prev => ({
+        ...prev,
+        about: updatedData.about
+      }));
+      
+    } catch (error) {
+      console.error("Error updating about section:", error);
+      toast.error("Failed to update about section");
+    }
+  };
+
+  const handleAddAwardSubmit = async (newAward) => {
+    try {
+      setStartupData(prev => ({
+        ...prev,
+        awards: [...prev.awards, newAward]
+      }));
+      
+    } catch (error) {
+      console.error("Error adding award:", error);
+      toast.error("Failed to add award");
+    }
+  };
+
+  const handleTeamMembersSubmit = async (updatedData) => {
+    try {
+      setStartupData(prev => ({
+        ...prev,
+        founders: updatedData.founders,
+        team_members: updatedData.team_members
+      }));
+      toast.success("Team members updated successfully");
+    } catch (error) {
+      console.error("Error updating team members:", error);
+      toast.error("Failed to update team members");
+    }
+  };
+
+  const handleFundingSubmit = async (updatedData) => {
+    try {
+      setStartupData(prev => ({
+        ...prev,
+        funding_disbursed: updatedData.funding_disbursed,
+        funding_utilized: updatedData.funding_utilized,
+        external_funding: updatedData.external_funding,
+        funding_details: updatedData.funding_details
+      }));
+      toast.success("Funding information updated successfully");
+    } catch (error) {
+      console.error("Error updating funding:", error);
+      toast.error("Failed to update funding information");
+    }
+  };
+
+  const handleMentorEditSubmit = async (updatedData) => {
+    try {
+      setStartupData(prev => ({
+        ...prev,
+        mentors: updatedData.mentors
+      }));
+      
+    } catch (error) {
+      console.error("Error updating mentors:", error);
+      toast.error("Failed to update mentors");
+    }
+  };
+
   return (
     <div className="flex font-[\'DM Sans\',sans-serif]">
       <SideBar />
@@ -35,7 +160,12 @@ function StartupProfile() {
                 {/* Background image with edit icon */}
                 <div className="relative h-[140px] rounded-t-2xl overflow-hidden">
                   <img src={bgImg} alt="bg" className="w-full h-full object-cover" />
-                  <button className="absolute top-3 right-3 bg-white rounded-full p-2 shadow hover:bg-gray-100 transition"><FiEdit2 size={18} className="text-[#232323]" /></button>
+                  <button 
+                    onClick={handleEditClick}
+                    className="absolute top-3 right-3 bg-white rounded-full p-2 shadow hover:bg-gray-100 transition"
+                  >
+                    <FiEdit2 size={18} className="text-[#232323]" />
+                  </button>
                 </div>
                 {/* Profile image with green border */}
                 <div className="absolute left-1/2 top-[90px] -translate-x-1/2 z-10">
@@ -80,7 +210,9 @@ function StartupProfile() {
                 <div className="bg-white rounded-2xl shadow p-6 min-h-[180px] relative flex flex-col justify-between">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-bold text-lg text-[#232323]">About Us</span>
-                    <button className="p-1 hover:bg-gray-100 rounded-full"><FiEdit2 size={18} className="text-[#A1A1A1]" /></button>
+                    <button className="p-1 hover:bg-gray-100 rounded-full" onClick={handleAboutClick}>
+                      <FiEdit2 size={18} className="text-[#A1A1A1]" />
+                    </button>
                   </div>
                   <div className="text-[#232323] text-sm mb-4">
                     Our Seat of Joy manufacturers a child safety seat for Motorcycles that protects a child during accidents. Our Seat along with protecting the child, also slidable foldable and convertible into a storage box.
@@ -105,7 +237,9 @@ function StartupProfile() {
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-bold text-lg text-[#232323]">Awards & Recognitions</span>
                     <div className="flex items-center gap-2">
-                      <button className="p-1 hover:bg-gray-100 rounded-full"><MdOutlineAdd size={22} className="text-[#45C74D]" /></button>
+                      <button className="p-1 hover:bg-gray-100 rounded-full" onClick={handleAddAwardClick}>
+                        <MdOutlineAdd size={22} className="text-[#45C74D]" />
+                      </button>
                     </div>
                   </div>
                   {/* Award List */}
@@ -130,7 +264,15 @@ function StartupProfile() {
               </div>
             </div>
             {/* Details Grid Section */}
-            <div className="bg-white rounded-2xl shadow p-6 mb-8 grid grid-cols-3 gap-8 text-sm font-medium text-[#232323]">
+            <div className="bg-white rounded-2xl shadow p-6 mb-8 grid grid-cols-3 gap-8 text-sm font-medium text-[#232323] relative">
+              {/* Edit button at top right */}
+              <button
+                className="absolute top-4 right-4 p-1 hover:bg-gray-100 rounded"
+                onClick={handleMentorEditClick}
+                title="Edit Mentor & Details"
+              >
+                <FiEdit2 size={20} className="text-[#45C74D]" />
+              </button>
               <div>
                 <div className="flex items-center gap-1 mb-1 font-semibold">Mentors <span className="material-icons text-xs text-[#A1A1A1]">expand_more</span></div>
                 <div className="text-[#A1A1A1]">Not Associated</div>
@@ -171,7 +313,9 @@ function StartupProfile() {
                   <span className="font-semibold text-lg text-[#A1A1A1]">Team Members</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button className="p-1 hover:bg-gray-100 rounded-full"><MdOutlineAdd size={22} className="text-[#45C74D]" /></button>
+                  <button className="p-1 hover:bg-gray-100 rounded-full" onClick={handleTeamMembersClick}>
+                    <FiEdit2 size={22} className="text-[#45C74D]" />
+                  </button>
                   <button className="p-1 hover:bg-gray-100 rounded-full"><BsThreeDotsVertical size={22} className="text-[#A1A1A1]" /></button>
                 </div>
               </div>
@@ -204,7 +348,9 @@ function StartupProfile() {
               <div className="flex items-center justify-between mb-4">
                 <span className="font-bold text-lg text-[#232323]">Funding</span>
                 <div className="flex items-center gap-2">
-                  <button className="bg-[#45C74D] text-white px-8 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition">View</button>
+                  <button className="bg-[#45C74D] text-white px-8 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition" onClick={handleFundingClick}>
+                    View
+                  </button>
                   <button className="p-1 hover:bg-gray-100 rounded-full"><MdOutlineAdd size={22} className="text-[#45C74D]" /></button>
                 </div>
               </div>
@@ -318,8 +464,50 @@ function StartupProfile() {
           </div>
         </div>
       </div>
+      {showEditForm && (
+        <EditStartupForm
+          initialData={startupData}
+          onClose={handleEditClose}
+          onSubmit={handleEditSubmit}
+        />
+      )}
+      {showAboutForm && (
+        <EditAboutForm
+          initialData={startupData}
+          onClose={handleAboutClose}
+          onSubmit={handleAboutSubmit}
+        />
+      )}
+      {showAddAwardForm && (
+        <AddAwardForm
+          initialData={{}}
+          onClose={handleAddAwardClose}
+          onSubmit={handleAddAwardSubmit}
+        />
+      )}
+      {showTeamMembersForm && (
+        <EditTeamMembersForm
+          initialData={startupData}
+          onClose={handleTeamMembersClose}
+          onSubmit={handleTeamMembersSubmit}
+        />
+      )}
+      {showFundingForm && (
+        <EditFundingForm
+          initialData={startupData}
+          onClose={handleFundingClose}
+          onSubmit={handleFundingSubmit}
+        />
+      )}
+      {showMentorForm && (
+        <EditMentorForm
+          initialData={startupData}
+          onClose={handleMentorEditClose}
+          onSubmit={handleMentorEditSubmit}
+        />
+      )}
     </div>
   );
 }
 
-export default StartupProfile;
+export default StartupProfile;
