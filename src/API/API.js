@@ -79,6 +79,18 @@ async function ApiFetchMentor() {
     throw error;
   }
 }
+async function ApiFetchStartup() {
+  try {
+    const result = await axios.get(
+      "http://localhost:3003/api/v1/fetch-startup"
+    );
+    return result.data;
+  } catch (error) {
+    console.error("Error in APi", error);
+    throw error;
+  }
+}
+
 
 async function ApiFetchMentorCount() {
   try {
@@ -359,5 +371,7 @@ export {
   ApiTestimonials,
   ApiFetchTestimonials,
   ApiUpdateMentor,
-  ApiDeletStartupData
+  ApiDeletStartupData,
+  ApiFetchStartup
+  
 };

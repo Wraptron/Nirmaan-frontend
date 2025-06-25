@@ -152,7 +152,7 @@ function App() {
               }
             />
             <Route path="/startup/:id" element={<IndividualStartups />} />
-            <Route path="/startupprofile/:id" element={<Startupprofile />} />
+            <Route path="/startupprofile/:official_email_address" element={<Startupprofile />} />
             {/* <Route path="/home?tab=startups" element={<HomeStartups />} /> */}
           </Route>
           <Route

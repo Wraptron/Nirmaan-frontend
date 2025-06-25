@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SideBar from '../../components/sidebar';
 import NavBar from '../../components/NavBar';
 import { FiEdit2, FiShare2 } from 'react-icons/fi';
@@ -16,9 +16,12 @@ import EditTeamMembersForm from '../startups/step/EditForm/EditTeamMembersForm';
 import EditFundingForm from '../startups/step/EditForm/EditFundingForm';
 import toast from 'react-hot-toast';
 import EditMentorForm from '../startups/step/EditForm/EditMentorForm';
+import { ApiFetchStartup } from '../../API/API';
 
 function StartupProfile() {
-  const { id } = useParams();
+  
+  const { official_email_address} = useParams();
+   console.log("Param official_email_address:", official_email_address);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showAboutForm, setShowAboutForm] = useState(false);
   const [showAddAwardForm, setShowAddAwardForm] = useState(false);
@@ -26,20 +29,7 @@ function StartupProfile() {
   const [showFundingForm, setShowFundingForm] = useState(false);
   const [showMentorForm, setShowMentorForm] = useState(false);
 
-  const [startupData, setStartupData] = useState({
-    startup_name: "Seat of Joy",
-    email: "ed19b063@smail.iitm.ac.in",
-    phone: "9840046978",
-    linkedin: "linkedin.com/company/seat-of-joy",
-    about: "Our Seat of Joy manufacturers a child safety seat for Motorcycles that protects a child during accidents. Our Seat along with protecting the child, also slidable foldable and convertible into a storage box.",
-    startup_type: "Hardware",
-    sector: "Automotive",
-    program: "Nirmaan",
-    status: "Active",
-    profile_image: profileImg,
-    background_image: bgImg,
-    awards: []
-  });
+  const [startupData, setStartupData] = useState(null);
 
   // Edit handlers
   const handleEditClick = () => setShowEditForm(true);
@@ -137,6 +127,32 @@ function StartupProfile() {
     }
   };
 
+const FetchData = async () => {
+  try {
+    const API = await ApiFetchStartup();
+    const allStartup = API?.rows || [];
+    const selectedstartup = allStartup.find(
+      (startup) => String(startup.email_address) === String(official_email_address)
+    );
+    console.log("Selected startup:", selectedstartup);
+    setStartupData(selectedstartup || null);
+   
+  } catch (err) {
+    console.error("Error fetching mentor data:", err);
+  }
+};
+
+   useEffect(() => {
+      FetchData();
+    }, [official_email_address]);
+
+
+    if (!startupData) {
+      return <div>Loading startup details</div>
+    }
+
+
+
   return (
     <div className="flex font-[\'DM Sans\',sans-serif]">
       <SideBar />
@@ -145,7 +161,7 @@ function StartupProfile() {
         <div className="bg-[#F8FAFB] min-h-screen">
           <div className="mx-auto max-w-6xl py-6">
             {/* Display the id for confirmation */}
-            <div className="mb-4 p-2 bg-yellow-100 text-yellow-800 rounded">Profile ID: {id}</div>
+            <div className="mb-4 p-2 bg-yellow-100 text-yellow-800 rounded">Profile ID: {startupData?.id || official_email_address}</div>
             {/* Breadcrumb */}
             <div className="text-xs text-[#A1A1A1] mb-2 flex items-center gap-2">
               <span className="material-icons text-base">chevron_left</span>
@@ -176,20 +192,22 @@ function StartupProfile() {
                 {/* Card content */}
                 <div className="flex flex-col items-center pt-20 pb-6 px-6">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-bold text-xl text-[#232323]">Seat of Joy</span>
+                    <span className="font-bold text-xl text-[#232323]">{startupData.startup_name}</span>
                     <span className="bg-[#E9F7F1] text-[#45C74D] text-xs font-semibold px-2 py-0.5 rounded ml-1">Active</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-[#232323] mb-1">
-                    <span className="flex items-center gap-1"><span className="material-icons text-base">mail</span> ed19b063@smail.iitm.ac.in</span>
-                    <span className="w-1 h-1 bg-gray-400 rounded-full inline-block" />
-                    <span className="flex items-center gap-1"><span className="material-icons text-base">call</span> +91 98400 46978</span>
+                    <span className="flex items-center gap-1"><span className="material-icons text-base">Email -</span> {startupData.email_address}</span>
+                    
+                    
                   </div>
                   <div className="flex items-center gap-2 text-sm text-[#232323] mb-2">
-                    <span className="flex items-center gap-1"><span className="material-icons text-base">link</span> Linked in</span>
-                    <button className="ml-2 p-1 hover:bg-gray-100 rounded"><FiShare2 size={18} /></button>
+                    <span className="flex items-center gap-1"><span className="material-icons text-base">Call -</span> {startupData.founder_number}</span>
+                    </div>
+                      <div className="flex items-center gap-2 text-sm text-[#232323] mb-2">
+                    <span className="flex items-center gap-1"><span className="material-icons text-base">linked In -</span> {startupData.linkedin}</span>
                   </div>
                   {/* Project Timeline */}
-                  <div className="w-full mt-2">
+                  {/* <div className="w-full mt-2">
                     <div className="font-semibold text-sm text-[#232323] mb-1">Project Timeline</div>
                     <div className="flex items-center gap-2">
                       <div className="flex-1 h-2 bg-[#E9F7F1] rounded-full relative">
@@ -201,7 +219,7 @@ function StartupProfile() {
                       <span className="text-xs text-[#A1A1A1]">Problem Validation</span>
                       <button className="bg-[#45C74D] text-white px-6 py-1 rounded-full text-sm font-semibold shadow hover:bg-[#36a03d] transition">View</button>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
               {/* Right: About Us & Awards (Figma accurate) */}
@@ -214,21 +232,20 @@ function StartupProfile() {
                       <FiEdit2 size={18} className="text-[#A1A1A1]" />
                     </button>
                   </div>
-                  <div className="text-[#232323] text-sm mb-4">
-                    Our Seat of Joy manufacturers a child safety seat for Motorcycles that protects a child during accidents. Our Seat along with protecting the child, also slidable foldable and convertible into a storage box.
+                  <div className="text-[#232323] text-sm mb-4">{startupData.startup_description}
                   </div>
                   <div className="flex w-full gap-4 text-sm font-medium text-[#232323]">
                     <div className="flex-1">
                       <div className="text-[#A1A1A1] text-xs mb-1">Start-up Type</div>
-                      <div>Hardware</div>
+                      <div>{startupData.startup_type}</div>
                     </div>
                     <div className="flex-1">
                       <div className="text-[#A1A1A1] text-xs mb-1">Sector</div>
-                      <div>Automotive</div>
+                      <div>{startupData.startup_sector}</div>
                     </div>
                     <div className="flex-1">
                       <div className="text-[#A1A1A1] text-xs mb-1">Program</div>
-                      <div>Nirmaan</div>
+                      <div>{startupData.program}</div>
                     </div>
                   </div>
                 </div>
@@ -274,12 +291,12 @@ function StartupProfile() {
                 <FiEdit2 size={20} className="text-[#45C74D]" />
               </button>
               <div>
-                <div className="flex items-center gap-1 mb-1 font-semibold">Mentors <span className="material-icons text-xs text-[#A1A1A1]">expand_more</span></div>
-                <div className="text-[#A1A1A1]">Not Associated</div>
+                <div className="flex items-center gap-1 mb-1 font-semibold">Mentors</div>
+                <div className="text-[#A1A1A1]">{startupData.mentor_associated}</div>
                 <div className="mt-6 font-semibold">CIN/ Registration Number</div>
-                <div className="text-[#A1A1A1]">-</div>
+                <div className="text-[#A1A1A1]">{startupData.cin}</div>
                 <div className="mt-6 font-semibold">Year of Graduation</div>
-                <div className="text-[#A1A1A1]">-</div>
+                <div className="text-[#A1A1A1]">{startupData.startup_yog}</div>
                 <div className="mt-6 font-semibold">Current Funding State</div>
                 <div className="text-[#A1A1A1]">-</div>
               </div>
@@ -287,21 +304,22 @@ function StartupProfile() {
                 <div className="flex items-center gap-1 mb-1 font-semibold">Role of Faculty <span className="material-icons text-xs text-[#A1A1A1]">expand_more</span></div>
                 <div className="text-[#A1A1A1]">Name</div>
                 <div className="mt-6 font-semibold">Industry</div>
-                <div className="text-[#A1A1A1]">Automobiles & Self-Driving Assistances</div>
-                <div className="mt-6 font-semibold">Graduated To <span className='material-icons text-xs text-[#A1A1A1]'>expand_more</span></div>
-                <div className="text-[#A1A1A1]">-</div>
+                <div className="text-[#A1A1A1]">{startupData.startup_industry}</div>
+                
+                <div className="mt-6 font-semibold">Graduated To </div>
+                <div className="text-[#A1A1A1]">{startupData.graduated_to}</div>
                 <div className="mt-6 font-semibold">Officially Registered as</div>
-                <div className="text-[#A1A1A1]">-</div>
+                <div className="text-[#A1A1A1]">{startupData.register}</div>
               </div>
               <div>
                 <div className="font-semibold mb-1">Cohort( Name & Year )</div>
-                <div className="text-[#A1A1A1]">2023</div>
+                <div className="text-[#A1A1A1]">{startupData.startup_cohort}</div>
                 <div className="mt-6 font-semibold">Technology</div>
-                <div className="text-[#A1A1A1]">-</div>
+                <div className="text-[#A1A1A1]">{startupData.startup_technology}</div>
                 <div className="mt-6 font-semibold">DPIIT Number</div>
-                <div className="text-[#A1A1A1]">-</div>
+                <div className="text-[#A1A1A1]">{startupData.dpiit}</div>
                 <div className="mt-6 font-semibold">PIA</div>
-                <div className="text-[#A1A1A1]">-</div>
+                <div className="text-[#A1A1A1]">{startupData.pia_state}</div>
               </div>
             </div>
 
@@ -310,7 +328,7 @@ function StartupProfile() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
                   <span className="font-bold text-lg text-[#45C74D]">Founders</span>
-                  <span className="font-semibold text-lg text-[#A1A1A1]">Team Members</span>
+                  {/* <span className="font-semibold text-lg text-[#A1A1A1]">Team Members</span> */}
                 </div>
                 <div className="flex items-center gap-2">
                   <button className="p-1 hover:bg-gray-100 rounded-full" onClick={handleTeamMembersClick}>
@@ -324,14 +342,14 @@ function StartupProfile() {
                 <div className="flex items-center gap-4">
                   <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Founder" className="w-14 h-14 rounded-lg object-cover" />
                   <div className="flex-1">
-                    <div className="font-semibold text-base">Name (Role)</div>
-                    <div className="text-sm text-[#A1A1A1]">ed19b063@smail.iitm.ac.in  |  +91 98400 46978</div>
-                    <div className="text-sm text-[#A1A1A1]">Linked in</div>
+                    <div className="font-semibold text-base">{startupData.founder_name}</div>
+                    <div className="text-sm text-[#A1A1A1]">{startupData.founder_email}</div>
+                    <div className="text-sm text-[#A1A1A1]">{startupData.founder_number}</div>
                   </div>
                   <button className="p-1 hover:bg-gray-100 rounded-full"><BsThreeDotsVertical size={20} className="text-[#A1A1A1]" /></button>
                 </div>
                 {/* Founder 2 */}
-                <div className="flex items-center gap-4">
+                {/* <div className="flex items-center gap-4">
                   <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Founder" className="w-14 h-14 rounded-lg object-cover" />
                   <div className="flex-1">
                     <div className="font-semibold text-base">Name (Role)</div>
@@ -339,126 +357,7 @@ function StartupProfile() {
                     <div className="text-sm text-[#A1A1A1]">Linked in</div>
                   </div>
                   <button className="p-1 hover:bg-gray-100 rounded-full"><BsThreeDotsVertical size={20} className="text-[#A1A1A1]" /></button>
-                </div>
-              </div>
-            </div>
-
-            {/* Funding Section */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <span className="font-bold text-lg text-[#232323]">Funding</span>
-                <div className="flex items-center gap-2">
-                  <button className="bg-[#45C74D] text-white px-8 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition" onClick={handleFundingClick}>
-                    View
-                  </button>
-                  <button className="p-1 hover:bg-gray-100 rounded-full"><MdOutlineAdd size={22} className="text-[#45C74D]" /></button>
-                </div>
-              </div>
-              <div className="grid grid-cols-4 gap-6">
-                {/* Card 1 */}
-                <div className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative" style={{background: 'linear-gradient(0deg, #E9F7F1 60%, #fff 100%)'}}>
-                  <span className="font-semibold text-sm text-[#232323] mb-1">Funding Disbursed</span>
-                  <span className="font-bold text-2xl text-[#232323] mb-2">Rs. 0</span>
-                  <img src="/src/assets/images/Frame (9).svg" alt="icon" className="absolute top-4 right-4 w-6 h-6 opacity-30" />
-                  <svg className="absolute bottom-2 left-2 w-20 h-8" viewBox="0 0 80 32"><polyline points="0,32 20,20 40,28 60,10 80,16" fill="none" stroke="#45C74D" strokeWidth="3" /></svg>
-                </div>
-                {/* Card 2 */}
-                <div className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative" style={{background: 'linear-gradient(0deg, #FFF7E6 60%, #fff 100%)'}}>
-                  <span className="font-semibold text-sm text-[#232323] mb-1">Funding Utilized</span>
-                  <span className="font-bold text-2xl text-[#232323] mb-2">Rs. 0</span>
-                  <img src="/src/assets/images/Frame (9).svg" alt="icon" className="absolute top-4 right-4 w-6 h-6 opacity-30" />
-                  <svg className="absolute bottom-2 left-2 w-20 h-8" viewBox="0 0 80 32"><polyline points="0,32 20,20 40,28 60,10 80,16" fill="none" stroke="#FFA726" strokeWidth="3" /></svg>
-                </div>
-                {/* Card 3 */}
-                <div className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative" style={{background: 'linear-gradient(0deg, #FFE6E6 60%, #fff 100%)'}}>
-                  <span className="font-semibold text-sm text-[#232323] mb-1">Balance</span>
-                  <span className="font-bold text-2xl text-[#232323] mb-2">Rs. 0</span>
-                  <img src="/src/assets/images/Frame (9).svg" alt="icon" className="absolute top-4 right-4 w-6 h-6 opacity-30" />
-                  <svg className="absolute bottom-2 left-2 w-20 h-8" viewBox="0 0 80 32"><polyline points="0,32 20,20 40,28 60,10 80,16" fill="none" stroke="#FF5252" strokeWidth="3" /></svg>
-                </div>
-                {/* Card 4 */}
-                <div className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative" style={{background: 'linear-gradient(0deg, #E6F0FF 60%, #fff 100%)'}}>
-                  <span className="font-semibold text-sm text-[#232323] mb-1">External Funding</span>
-                  <span className="font-bold text-2xl text-[#232323] mb-2">Rs. 0</span>
-                  <img src="/src/assets/images/Frame (9).svg" alt="icon" className="absolute top-4 right-4 w-6 h-6 opacity-30" />
-                  <svg className="absolute bottom-2 left-2 w-20 h-8" viewBox="0 0 80 32"><polyline points="0,32 20,20 40,28 60,10 80,16" fill="none" stroke="#42A5F5" strokeWidth="3" /></svg>
-                </div>
-              </div>
-            </div>
-
-            {/* Gallery & Documents Section */}
-            <div className="grid grid-cols-2 gap-6 mb-8">
-              {/* Gallery */}
-              <div className="bg-white rounded-2xl shadow p-6 flex flex-col">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="font-bold text-lg text-[#232323]">Gallery</span>
-                  <button className="p-1 hover:bg-gray-100 rounded-full"><BsThreeDotsVertical size={22} className="text-[#A1A1A1]" /></button>
-                </div>
-                <div className="flex gap-4">
-                  <div className="relative w-20 h-20 rounded-xl overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=200&q=80" alt="Gallery 1" className="w-full h-full object-cover" />
-                    <img src="/src/assets/images/Frame (9).svg" alt="Pin" className="absolute top-2 right-2 w-5 h-5" />
-                  </div>
-                  <div className="relative w-20 h-20 rounded-xl overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=200&q=80" alt="Gallery 2" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="relative w-20 h-20 rounded-xl overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=200&q=80" alt="Gallery 3" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="relative w-20 h-20 rounded-xl overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=200&q=80" alt="Gallery 4" className="w-full h-full object-cover" />
-                  </div>
-                </div>
-              </div>
-              {/* Documents */}
-              <div className="bg-white rounded-2xl shadow p-6 flex flex-col">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="font-bold text-lg text-[#232323]">Documents</span>
-                  <button className="p-1 hover:bg-gray-100 rounded-full"><BsThreeDotsVertical size={22} className="text-[#A1A1A1]" /></button>
-                </div>
-                <div className="flex gap-4">
-                  <div className="inline-flex items-center gap-2 bg-[#F8FAFB] rounded-lg px-3 py-2 border border-[#E6E6E6]">
-                    <img src="/src/assets/images/Frame (8).svg" alt="PDF" className="w-5 h-5" />
-                    <span className="text-xs text-[#232323] font-medium truncate max-w-[80px]">Pre-incubation...</span>
-                  </div>
-                  <div className="inline-flex items-center gap-2 bg-[#F8FAFB] rounded-lg px-3 py-2 border border-[#E6E6E6]">
-                    <img src="/src/assets/images/Frame (8).svg" alt="PDF" className="w-5 h-5" />
-                    <span className="text-xs text-[#232323] font-medium truncate max-w-[80px]">Letter of Recomm...</span>
-                  </div>
-                  <div className="inline-flex items-center gap-2 bg-[#F8FAFB] rounded-lg px-3 py-2 border border-[#E6E6E6]">
-                    <img src="/src/assets/images/Frame (8).svg" alt="PDF" className="w-5 h-5" />
-                    <span className="text-xs text-[#232323] font-medium truncate max-w-[80px]">Document Name.pdf</span>
-                  </div>
-                  <div className="inline-flex items-center gap-2 bg-[#F8FAFB] rounded-lg px-3 py-2 border border-[#E6E6E6]">
-                    <img src="/src/assets/images/Frame (8).svg" alt="PDF" className="w-5 h-5" />
-                    <span className="text-xs text-[#232323] font-medium truncate max-w-[80px]">Document Name.pdf</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Activity Section */}
-            <div className="bg-white rounded-2xl shadow p-6 mb-8">
-              <div className="font-bold text-lg text-[#232323] mb-4">Activity</div>
-              <div className="divide-y divide-[#E6E6E6]">
-                <div className="py-3">Activity</div>
-                <div className="py-3">Activity</div>
-                <div className="py-3">Activity</div>
-              </div>
-              {/* Pagination */}
-              <div className="flex items-center justify-between mt-4 text-xs text-[#A1A1A1]">
-                <div className="flex items-center gap-1">
-                  <button className="px-2 py-1 rounded hover:bg-gray-100">&laquo;</button>
-                  <button className="px-2 py-1 rounded hover:bg-gray-100">&lt;</button>
-                  <button className="px-2 py-1 rounded bg-[#45C74D] text-white">1</button>
-                  <button className="px-2 py-1 rounded hover:bg-gray-100">2</button>
-                  <button className="px-2 py-1 rounded hover:bg-gray-100">3</button>
-                  <span>...</span>
-                  <button className="px-2 py-1 rounded hover:bg-gray-100">10</button>
-                  <button className="px-2 py-1 rounded hover:bg-gray-100">&gt;</button>
-                  <button className="px-2 py-1 rounded hover:bg-gray-100">&raquo;</button>
-                </div>
-                <span>Showing 10 of 50 results</span>
+                </div> */}
               </div>
             </div>
           </div>
@@ -492,13 +391,7 @@ function StartupProfile() {
           onSubmit={handleTeamMembersSubmit}
         />
       )}
-      {showFundingForm && (
-        <EditFundingForm
-          initialData={startupData}
-          onClose={handleFundingClose}
-          onSubmit={handleFundingSubmit}
-        />
-      )}
+      
       {showMentorForm && (
         <EditMentorForm
           initialData={startupData}
@@ -510,4 +403,4 @@ function StartupProfile() {
   );
 }
 
-export default StartupProfile;
+export default StartupProfile;
