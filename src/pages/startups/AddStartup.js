@@ -84,7 +84,7 @@ function AddStartup() {
         let requiredFields = [];
 
         if (steps === 0) {
-            requiredFields = ['startup_name', 'startup_sector', 'startup_type', 'startup_industry', 'startup_technology', 'startup_cohort', 'startup_yog', 'graduated_to', 'program'];
+            requiredFields = ['startup_name', 'startup_sector', 'startup_type', 'startup_industry', 'startup_technology', 'startup_cohort',  'graduated_to', 'program'];
             for (let field of requiredFields) {
                 if (!formData.basic[field]) {
                     toast.error(`Please fill ${field.replaceAll('_', ' ')}`);
@@ -94,7 +94,8 @@ function AddStartup() {
         }
 
         if (steps === 1) {
-            requiredFields = ['official_contact_number', 'official_email_address', 'website_link'];
+            requiredFields = ['official_contact_number', 'official_email_address', 'website_link', 'linkedin_id', 'mentor_associated', 'role_of_faculty', 'cin_registration_number', 'dpiit_number', 'funding_stage', 'official_registered', 'pia_state', 'scheme']
+
             for (let field of requiredFields) {
                 if (!formData.official[field]) {
                     toast.error(`Please fill ${field.replaceAll('_', ' ')}`);
@@ -143,6 +144,7 @@ function AddStartup() {
         if (!validateStep()) return;
 
         try {
+            // 1. Add startup
             const result = await axios.post('http://localhost:3003/api/v1/add-startup', formData, {
                 headers: {
                     "Cache-Control": "no-cache",
@@ -154,6 +156,10 @@ function AddStartup() {
             if (result.data?.status?.status === "data already exists") {
                 toast.error('Startup already exists');
             } else {
+                if (result.data?.result?.role === '5') {
+                    navigate(`/startupprofile/${result.data.result.id}`);
+                }
+
                 Swal.fire({
                     icon: "success",
                     title: "Startup added successfully!",
@@ -162,24 +168,12 @@ function AddStartup() {
                 navigate('/startups');
             }
         } catch (err) {
-            console.error("Error in handleSubmit:", err);
-            const status = err?.response?.status;
-
-            if (status === 400) {
-                Swal.fire({ icon: "error", title: "Please fill necessary data", timer: 1500 });
-            } else if (status === 409) {
-                Swal.fire({
-                    icon: "warning",
-                    title: "Startup already exists",
-                    text: err.response.data?.error || "Duplicate entry"
-                });
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Server Error",
-                    text: "Something went wrong. Please try again."
-                });
-            }
+            const backendMsg = err?.response?.data?.error || "Server Error: Something went wrong. Please try again.";
+            Swal.fire({
+                icon: "error",
+                title: "Server Error",
+                text: backendMsg
+            });
         }
     };
 

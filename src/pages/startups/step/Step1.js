@@ -151,10 +151,18 @@ const Step1 = ({ formData, handleChange, errors = {}, setErrors = () => {} }) =>
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 px-6">
-      {renderInput("Name of the Start-up", "startup_name", "Enter startup name")}
+      {renderInput(
+        "Name of the Start-up",
+        "startup_name",
+        "Enter startup name"
+      )}
       {renderInput("Sector", "startup_sector", "Business sector")}
       {renderInput("Start-up Type", "startup_type", "Type of startup")}
-      {renderInput("Start-up Industry", "startup_industry", "Industry category")}
+      {renderInput(
+        "Start-up Industry",
+        "startup_industry",
+        "Industry category"
+      )}
 
       {/* Technology Select */}
       <div>
@@ -167,18 +175,24 @@ const Step1 = ({ formData, handleChange, errors = {}, setErrors = () => {} }) =>
           onChange={handleInputChange}
           onBlur={handleBlur}
           className={`mt-1 block w-full p-2 text-sm rounded-lg border focus:ring-[#45C74D] focus:border-[#45C74D] ${
-            touched.startup_technology && errors.startup_technology ? "border-red-500 bg-red-50" : "border-gray-300"
+            touched.startup_technology && errors.startup_technology
+              ? "border-red-500 bg-red-50"
+              : "border-gray-300"
           }`}
         >
           <option value="">Select technology</option>
           <option value="Hardware">Hardware</option>
           <option value="Software">Software</option>
           <option value="Internet of Things">Internet of Things</option>
-          <option value="Artificial Intelligence">Artificial Intelligence</option>
+          <option value="Artificial Intelligence">
+            Artificial Intelligence
+          </option>
           <option value="Blockchain">Blockchain</option>
         </select>
         {touched.startup_technology && errors.startup_technology && (
-          <p className="text-sm text-red-600 mt-1">{errors.startup_technology}</p>
+          <p className="text-sm text-red-600 mt-1">
+            {errors.startup_technology}
+          </p>
         )}
       </div>
 
@@ -196,7 +210,9 @@ const Step1 = ({ formData, handleChange, errors = {}, setErrors = () => {} }) =>
           min="2000-01"
           max="2099-12"
           className={`mt-1 block w-full p-2 text-sm rounded-lg border focus:ring-[#45C74D] focus:border-[#45C74D] ${
-            touched.startup_cohort && errors.startup_cohort ? "border-red-500 bg-red-50" : "border-gray-300"
+            touched.startup_cohort && errors.startup_cohort
+              ? "border-red-500 bg-red-50"
+              : "border-gray-300"
           }`}
         />
         {touched.startup_cohort && errors.startup_cohort && (
@@ -208,7 +224,7 @@ const Step1 = ({ formData, handleChange, errors = {}, setErrors = () => {} }) =>
       {renderInput(
         "Year of Graduation",
         "startup_yog",
-        "YYYY",
+        "Only Fill Graduated Year ",
         "text",
         4,
         {
@@ -216,7 +232,7 @@ const Step1 = ({ formData, handleChange, errors = {}, setErrors = () => {} }) =>
           pattern: "\\d{4}",
           onInput: (e) => {
             e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
-          }
+          },
         }
       )}
 

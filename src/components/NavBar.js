@@ -258,7 +258,7 @@ function NavBar({onSelectionChange, selectedIndex}) {
                                                   className="block py-2 px-3 text-black md:p-0 text-[#45C74D] hover:underline hover:underline-offset-[22px] hover:decoration-4 hover:decoration-[#45C74D]"
                                                   onClick={() => {onSelectionChange(index);}}
                                                   >
-                                                  {['Overview', 'Start-ups', 'Mentor', 'Funding'][index]}
+                                                  {['Overview'][index]}
                                                   </button>
                             ))}
                         </div>

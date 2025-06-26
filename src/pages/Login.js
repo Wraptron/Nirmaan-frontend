@@ -12,6 +12,9 @@ import APP_URL from '../Config';
 import {Icon} from 'react-icons-kit';
 import {eyeOff} from 'react-icons-kit/feather/eyeOff';
 import {eye} from 'react-icons-kit/feather/eye'
+import { Route } from 'react-router-dom';
+import StartupProfile from './startups/startupprofile';
+
 function Login() {  
     const navigate = useNavigate();
     const [error, setError] = useState('');
@@ -119,7 +122,7 @@ function Login() {
                         {
                             if(response.data.result.role === 5)
                             {
-                                navigate('/customer/Profile');
+                                navigate('/startups/startupprofile/:official_email_address');
                             }
                             else if(response.data.result.role === 2)
                             {

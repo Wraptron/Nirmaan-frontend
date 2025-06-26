@@ -221,9 +221,12 @@ function Startups() {
                           <div
                             key={startup.id || index}
                             className="border shadow-md rounded-lg p-4 bg-white cursor-pointer hover:shadow-lg transition"
-                            onClick={() =>
-                              navigate(`/startupprofile/${startup.email_address}`)
-                            }
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(
+                                `/startupprofile/${startup.email_address}`
+                              );
+                            }}
                           >
                             <div className="flex justify-between items-center mb-3">
                               <div
@@ -237,26 +240,26 @@ function Startups() {
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setOpenDropdownId(
-                                      openDropdownId ===
-                                        startup.official_email_address
+                                      openDropdownId === startup.email_address
                                         ? null
-                                        : startup.official_email_address
+                                        : startup.email_address
                                     );
                                   }}
                                 >
                                   <FaEllipsisV className="text-gray-500" />
                                 </button>
                                 {openDropdownId ===
-                                  startup.official_email_address && (
+                                  startup.email_address && (
                                   <div
                                     className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-20"
                                     onClick={(e) => e.stopPropagation()}
                                   >
                                     <div className="py-1">
                                       <button
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                          e.stopPropagation();
                                           navigate(
-                                            `/startupprofile/${startup.official_email_address}`
+                                            `/startupprofile/${startup.email_address}`
                                           );
                                           setOpenDropdownId(null);
                                         }}
@@ -265,9 +268,10 @@ function Startups() {
                                         View
                                       </button>
                                       <button
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                          e.stopPropagation();
                                           setStartupData(
-                                            startup.official_email_address
+                                            startup.email_address
                                           );
                                           setOpenEstablishPopUp(true);
                                           setOpenDropdownId(null);
