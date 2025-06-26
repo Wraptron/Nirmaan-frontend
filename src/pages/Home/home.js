@@ -128,7 +128,7 @@ function Home() {
                                                                             <div className="shadow-md border border-sm rounded-lg p-2">
                                                                                 <div className="pb-1"><FaRocket size={20} className="text-[#45C74D]"/></div>
                                                                                 <div className="text-2xl font-semibold">
-                                                                                    {isLoaded ? (analysedData?.active_pratham || 0) : <SkeletonLoader />}
+                                                                                    {isLoaded ? (analysedData?.pratham || 0) : <SkeletonLoader />}
                                                                                 </div>
                                                                                 <div className="text-sm">Pratham</div>
                                                                             </div>
@@ -136,7 +136,7 @@ function Home() {
                                                                             <div className="shadow-md border border-sm rounded-lg p-2">
                                                                                 <div className="pb-1"><FaRocket size={20} className="text-[#45C74D]"/></div>
                                                                                 <div className="text-2xl font-semibold">
-                                                                                    {isLoaded ? (analysedData?.Energy_sector_startups || 0) : <SkeletonLoader />}
+                                                                                    {isLoaded ? (analysedData?.akshar || 0) : <SkeletonLoader />}
                                                                                 </div>
                                                                                 <div className="text-sm">Akshar</div>
                                                                             </div>
