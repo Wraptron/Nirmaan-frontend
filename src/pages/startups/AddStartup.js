@@ -31,6 +31,7 @@ function AddStartup() {
             startup_yog: '',
             graduated_to: '',
             program: '',
+            startup_Community: ''
         },
         official: {
             official_contact_number: '',
@@ -53,7 +54,8 @@ function AddStartup() {
             founder_number: '',
             founder_gender: '',
             founder_student_id: '',
-            linkedInid: ''
+            linkedInid: '',
+            academic_background: ''
         },
         description: {
             logo_image: '',
@@ -84,7 +86,7 @@ function AddStartup() {
         let requiredFields = [];
 
         if (steps === 0) {
-            requiredFields = ['startup_name', 'startup_sector', 'startup_type', 'startup_industry', 'startup_technology', 'startup_cohort',  'graduated_to', 'program'];
+            requiredFields = ['startup_name', 'startup_sector', 'startup_type', 'startup_industry', 'startup_technology', 'startup_Community', 'startup_cohort',  'graduated_to', 'program'];
             for (let field of requiredFields) {
                 if (!formData.basic[field]) {
                     toast.error(`Please fill ${field.replaceAll('_', ' ')}`);
