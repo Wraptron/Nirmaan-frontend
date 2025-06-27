@@ -232,7 +232,7 @@ const Step4 = ({formData, handleChange}) => {
               <span className="text-orange-600 font-medium">⚠ Please complete all required fields</span>
             )}
           </div>
-          <button
+          {/* <button
             type="button"
             onClick={handleNextStep}
             disabled={!isFormValid()}
@@ -243,7 +243,7 @@ const Step4 = ({formData, handleChange}) => {
             }`}
           >
             Submit
-          </button>
+          </button> */}
         </div>
         
         {/* Progress indicator */}

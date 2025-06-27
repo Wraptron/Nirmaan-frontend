@@ -237,8 +237,38 @@ const Step1 = ({ formData, handleChange, errors = {}, setErrors = () => {} }) =>
       )}
 
       {renderInput("Graduated To", "graduated_to", "Graduation status")}
+
+      {/* Community Select */}
+      <div>
+        <label className="block font-medium text-gray-700">
+          Community <span className="text-red-500">*</span>
+        </label>
+        <select
+          name="startup_Community"
+          value={formData.startup_Community}
+          onChange={handleInputChange}
+          onBlur={handleBlur}
+          className={`mt-1 block w-full p-2 text-sm rounded-lg border focus:ring-[#45C74D] focus:border-[#45C74D] ${
+            touched.startup_Community && errors.startup_Community
+              ? "border-red-500 bg-red-50"
+              : "border-gray-300"
+          }`}
+        >
+          <option value="" disabled>Select start-up Community</option>
+          <option value="CFI">CFI</option>
+          <option value="E-cell">E-cell</option>
+          <option value="CZC">CZC</option>
+          <option value="PALS">PALS</option>
+          <option value="IZI">IZI</option>
+          <option value="Direct entry">Direct entry</option>
+          <option value="Non-iit">Non-iit</option>
+        </select>
+        {touched.startup_Community && errors.startup_Community && (
+          <p className="text-sm text-red-600 mt-1">{errors.startup_Community}</p>
+        )}
+      </div>
     </div>
   );
 };
 
-export default Step1;
+export default Step1;

@@ -1,84 +1,3 @@
-// import React, {useState} from "react";
-
-// const Step3 = ({formData, handleChange}) => {
-//   let regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-//   const [emailValid, setEmailValid] = useState(0);
-//   const [formDataa, setFormData] = useState({ founder_email: "" });
-
-//   const handleEmailValidation = (e) => {
-//       let email = e.target.value;
-//       setFormData({ ...formDataa, founder_email: email });
-//       if (regex.test(email)) {
-//           console.log("Valid Email address");
-//           setEmailValid(1);
-//       } else if(email == ""){
-//           setEmailValid(0);
-//       }
-//       else
-//       {
-//         setEmailValid(2);
-//       }
-//   };
-//   let handleBothChange = (e) => {
-//     handleChange(e);
-//     handleEmailValidation(e);
-//   }
-//   return (
-//     <div className="grid grid-cols-2 gap-5 mt-9 px-7">
-//         <div>
-//             <div>Founder Name</div>
-//             <div className="mt-1"><input type="text" onChange={handleChange} name="founder_name" value={formData.founder_name} className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]" placeholder="Enter founded name"/></div>
-//         </div>
-//         <div>
-//             <div>Email Address</div>
-//             <div className="mt-1">
-//               <input type="text" onChange={handleChange}  onInput={handleEmailValidation} name="founder_email" value={formData.founder_email} className={`block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D] ${emailValid === 2 && 'focus:ring-[#E54545] focus:border-[#E54545]'}`} placeholder="Enter email address"/>
-//               {emailValid===2 && <span className="text-xs text-[#E54545]">Please enter a valid email address</span> || ''}
-//             </div>
-//         </div>
-//         <div>
-//             <div>Contact Number</div>
-//             <div className="mt-1"><input type="text" onChange={handleChange} name="founder_number" value={formData.founder_number} className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]" placeholder="xxxxx xxxxx"/></div>
-//         </div>
-//         <div>
-//             <div>Gender</div>
-//             <div className="mt-1">
-//               <select onChange={handleChange} name="founder_gender" value={formData.founder_gender} className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]" placeholder="Select gender">
-//                   <option>Choose a Gender</option>
-//                   <option>Male</option>
-//                   <option>Female</option>
-//               </select>
-
-//             </div>
-//         </div>
-//         <div>
-//             <div>Student ID</div>
-//             <div className="mt-1"><input type="text" onChange={handleChange} name="founder_student_id" value={formData.founder_student_id} className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]" placeholder="Enter student ID"/></div>
-//         </div>
-//         <div>
-//             <div>LinkedIn Id</div>
-//             <div className="mt-1"><input type="text" onChange={handleChange} name="linkedInid" value={formData.linkedInid} className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"/></div>
-//         </div>
-//     </div>
-//   );
-// };
-// export default Step3;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import React, {useState, useEffect} from "react";
 
 const Step3 = ({formData, handleChange}) => {
@@ -116,6 +35,12 @@ const Step3 = ({formData, handleChange}) => {
     return "";
   };
 
+  // Academic Background validation
+  const validateAcademicBackground = (value) => {
+    if (!value || value === "Choose a Academic ") return "Academic background is required";
+    return "";
+  };
+
   // Fixed LinkedIn validation - now required
   const validateLinkedInId = (value) => {
     if (!value) return "LinkedIn ID is required";
@@ -135,6 +60,7 @@ const Step3 = ({formData, handleChange}) => {
     newErrors.founder_gender = validateFounderGender(formData.founder_gender);
     newErrors.founder_student_id = validateFounderStudentId(formData.founder_student_id);
     newErrors.linkedInid = validateLinkedInId(formData.linkedInid);
+    newErrors.academic_background = validateAcademicBackground(formData.academic_background);
     
     setErrors(newErrors);
     
@@ -151,13 +77,20 @@ const Step3 = ({formData, handleChange}) => {
       'founder_number',
       'founder_gender',
       'founder_student_id',
-      'linkedInid' // Added LinkedIn ID as required field
+      'linkedInid', // Added LinkedIn ID as required field
+      'academic_background' // Academic background required
     ];
     
     // Check if all required fields are filled
     const allRequiredFieldsFilled = requiredFields.every(field => {
       const value = formData[field];
-      return value && value.toString().trim() !== "" && value !== "Choose a Gender";
+      if (field === 'founder_gender') {
+        return value && value.toString().trim() !== "" && value !== "Choose a Gender";
+      }
+      if (field === 'academic_background') {
+        return value && value.toString().trim() !== "" && value !== "Choose a Academic ";
+      }
+      return value && value.toString().trim() !== "";
     });
     
     // Check if there are no validation errors
@@ -193,6 +126,9 @@ const Step3 = ({formData, handleChange}) => {
         break;
       case "linkedInid":
         error = validateLinkedInId(value);
+        break;
+      case "academic_background":
+        error = validateAcademicBackground(value);
         break;
       default:
         break;
@@ -246,6 +182,9 @@ const Step3 = ({formData, handleChange}) => {
             break;
           case "linkedInid":
             newErrors[fieldName] = validateLinkedInId(formData[fieldName]);
+            break;
+          case "academic_background":
+            newErrors[fieldName] = validateAcademicBackground(formData[fieldName]);
             break;
         }
       });
@@ -357,6 +296,29 @@ const Step3 = ({formData, handleChange}) => {
               />
             </div>
             {errors.linkedInid && <div className="text-red-500 text-xs mt-1">{errors.linkedInid}</div>}
+        </div>
+        {/* Academic Background Field */}
+        <div>
+          <div>Academic Background <span className="text-red-500">*</span></div>
+          <div className="mt-1">
+            <select
+              onChange={handleFieldChange}
+              name="academic_background"
+              value={formData.academic_background || ""}
+              className={getInputClass('academic_background')}
+              placeholder="Academic-Background"
+            >
+              <option value="">Choose a Academic </option>
+              <option>Bsc Datascience</option>
+              <option>B.Tech</option>
+              <option>M.Tech</option>
+              <option>Msc</option>
+              <option>MBA</option>
+              <option>Msc in Research</option>
+              <option>External</option>
+            </select>
+          </div>
+          {errors.academic_background && <div className="text-red-500 text-xs mt-1">{errors.academic_background}</div>}
         </div>
         
         {/* Form Status and Next Button */}

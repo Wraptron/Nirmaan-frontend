@@ -292,34 +292,39 @@ const FetchData = async () => {
               </button>
               <div>
                 <div className="flex items-center gap-1 mb-1 font-semibold">Mentors</div>
-                <div className="text-[#A1A1A1]">{startupData.mentor_associated}</div>
+                <div className="text-[#A1A1A1]">{startupData.mentor_associated || 'N/A'}</div>
                 <div className="mt-6 font-semibold">CIN/ Registration Number</div>
-                <div className="text-[#A1A1A1]">{startupData.cin}</div>
+                <div className="text-[#A1A1A1]">{startupData.cin || 'N/A'}</div>
                 <div className="mt-6 font-semibold">Year of Graduation</div>
-                <div className="text-[#A1A1A1]">{startupData.startup_yog}</div>
+                <div className="text-[#A1A1A1]">{startupData.startup_yog || 'N/A'}</div>
                 <div className="mt-6 font-semibold">Current Funding State</div>
-                <div className="text-[#A1A1A1]">-</div>
+                <div className="text-[#A1A1A1]">{startupData.startup_community || 'N/A'}</div>
+                <div className="mt-6 font-semibold">Current Funding State</div>
+                <div className="text-[#A1A1A1]">{ startupData.funding_stage || 'N/A'}</div>
               </div>
               <div>
-                <div className="flex items-center gap-1 mb-1 font-semibold">Role of Faculty <span className="material-icons text-xs text-[#A1A1A1]">expand_more</span></div>
-                <div className="text-[#A1A1A1]">Name</div>
+                <div className="flex items-center gap-1 mb-1 font-semibold">Role of Faculty </div>
+                <div className="text-[#A1A1A1]">{startupData.role_of_faculty || 'N/A'}</div>
                 <div className="mt-6 font-semibold">Industry</div>
-                <div className="text-[#A1A1A1]">{startupData.startup_industry}</div>
-                
+                <div className="text-[#A1A1A1]">{startupData.startup_industry || 'N/A'}</div>
                 <div className="mt-6 font-semibold">Graduated To </div>
-                <div className="text-[#A1A1A1]">{startupData.graduated_to}</div>
+                <div className="text-[#A1A1A1]">{startupData.graduated_to || 'N/A'}</div>
                 <div className="mt-6 font-semibold">Officially Registered as</div>
-                <div className="text-[#A1A1A1]">{startupData.register}</div>
+                <div className="text-[#A1A1A1]">{startupData.register || 'N/A'}</div>
+                <div className="mt-6 font-semibold">Community</div>
+                <div className="text-[#A1A1A1]">{startupData.startup_community || 'N/A'}</div>
               </div>
               <div>
                 <div className="font-semibold mb-1">Cohort( Name & Year )</div>
-                <div className="text-[#A1A1A1]">{startupData.startup_cohort}</div>
+                <div className="text-[#A1A1A1]">{startupData.startup_cohort || 'N/A'}</div>
                 <div className="mt-6 font-semibold">Technology</div>
-                <div className="text-[#A1A1A1]">{startupData.startup_technology}</div>
+                <div className="text-[#A1A1A1]">{startupData.startup_technology || 'N/A'}</div>
                 <div className="mt-6 font-semibold">DPIIT Number</div>
-                <div className="text-[#A1A1A1]">{startupData.dpiit}</div>
+                <div className="text-[#A1A1A1]">{startupData.dpiit || 'N/A'}</div>
                 <div className="mt-6 font-semibold">PIA</div>
-                <div className="text-[#A1A1A1]">{startupData.pia_state}</div>
+                <div className="text-[#A1A1A1]">{startupData.pia_state || 'N/A'}</div>
+                <div className="mt-6 font-semibold">Academic Background</div>
+                <div className="text-[#A1A1A1]">{startupData.academic_background || 'N/A'}</div>
               </div>
             </div>
 
