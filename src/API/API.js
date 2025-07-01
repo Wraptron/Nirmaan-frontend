@@ -354,8 +354,41 @@ async function ApiFetchFeedback(meetingId) {
   }
 }
 
+async function ApiUpdateStartupPersonalInfo(payload) {
+ try {
+    const response = await axios.put("http://localhost:3003/api/v1/edit-startupdata/personal-info", payload);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating startup:", error);
+    throw new Error("Failed to update startup details");
+  }
+}
+
+async function ApiUpdateStartupAbout(payload) {
+ try {
+    const response = await axios.put("http://localhost:3003/api/v1/edit-startup/about", payload);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating startup:", error);
+    throw new Error("Failed to update startup details");
+  }
+}
+
+async function ApiUpdateStartupMentorDetails(payload) {
+ try {
+    const response = await axios.put("http://localhost:3003/api/v1/edit-startup/mentordetails", payload);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating startup:", error);
+    throw new Error("Failed to update startup details");
+  }
+}
+
 export {
   ApiAddConnections,
+  ApiUpdateStartupPersonalInfo,
+  ApiUpdateStartupMentorDetails,
+  ApiUpdateStartupAbout,
   ApiSaveFeedback,
   ApiFetchFeedback,
   ApiViewConnections,

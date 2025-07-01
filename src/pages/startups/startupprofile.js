@@ -17,6 +17,8 @@ import EditFundingForm from '../startups/step/EditForm/EditFundingForm';
 import toast from 'react-hot-toast';
 import EditMentorForm from '../startups/step/EditForm/EditMentorForm';
 import { ApiFetchStartup } from '../../API/API';
+import { Route } from 'react-router-dom';
+
 
 function StartupProfile() {
   
@@ -39,12 +41,21 @@ function StartupProfile() {
   const handleFundingClick = () => setShowFundingForm(true);
   const handleMentorEditClick = () => setShowMentorForm(true);
 
-  const handleEditClose = () => setShowEditForm(false);
-  const handleAboutClose = () => setShowAboutForm(false);
+  const handleEditClose = async () => {
+    await FetchData()
+    setShowEditForm(false);
+  }
+const handleAboutClose = async () => {
+  await FetchData();              
+  setShowAboutForm(false);    
+}   
   const handleAddAwardClose = () => setShowAddAwardForm(false);
   const handleTeamMembersClose = () => setShowTeamMembersForm(false);
   const handleFundingClose = () => setShowFundingForm(false);
-  const handleMentorEditClose = () => setShowMentorForm(false);
+  const handleMentorEditClose = async () =>{ 
+    await FetchData()
+    setShowMentorForm(false);
+  }
 
   const handleEditSubmit = async (updatedData) => {
     try {
@@ -294,11 +305,11 @@ const FetchData = async () => {
                 <div className="flex items-center gap-1 mb-1 font-semibold">Mentors</div>
                 <div className="text-[#A1A1A1]">{startupData.mentor_associated || 'N/A'}</div>
                 <div className="mt-6 font-semibold">CIN/ Registration Number</div>
-                <div className="text-[#A1A1A1]">{startupData.cin || 'N/A'}</div>
+                <div className="text-[#A1A1A1]">{startupData.cin_registration_number || 'N/A'}</div>
                 <div className="mt-6 font-semibold">Year of Graduation</div>
                 <div className="text-[#A1A1A1]">{startupData.startup_yog || 'N/A'}</div>
                 <div className="mt-6 font-semibold">Current Funding State</div>
-                <div className="text-[#A1A1A1]">{startupData.startup_community || 'N/A'}</div>
+                <div className="text-[#A1A1A1]">{startupData.startup || 'N/A'}</div>
                 <div className="mt-6 font-semibold">Current Funding State</div>
                 <div className="text-[#A1A1A1]">{ startupData.funding_stage || 'N/A'}</div>
               </div>

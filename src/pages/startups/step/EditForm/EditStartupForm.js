@@ -1,46 +1,51 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
 import { FiEdit2 } from "react-icons/fi";
 import { IoCalendarOutline } from "react-icons/io5";
-
+import { ApiUpdateStartupPersonalInfo } from "../../../../API/API";
 const statusOptions = [
   { value: "Active", label: "Active" },
   { value: "Inactive", label: "Inactive" },
   { value: "Graduated", label: "Graduated" },
-  // Add more as needed
 ];
 
 const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
-    startup_name: initialData?.startup_name || "",
-    status: initialData?.status || "",
-    email: initialData?.email || "",
-    phone: initialData?.phone || "",
-    linkedin: initialData?.linkedin || "",
-    website: initialData?.website || "",
-    profile_image: initialData?.profile_image || null,
-    background_image: initialData?.background_image || null,
-    startup_type: initialData?.startup_type || "",
-    sector: initialData?.sector || "",
-    program: initialData?.program || "",
-    mentor: initialData?.mentor || "",
-    role_of_faculty: initialData?.role_of_faculty || "",
-    cohort: initialData?.cohort || "",
-    cin_number: initialData?.cin_number || "",
-    industry: initialData?.industry || "",
-    technology: initialData?.technology || "",
-    year_of_graduation: initialData?.year_of_graduation || "",
-    graduated_to: initialData?.graduated_to || "",
-    dpiit_number: initialData?.dpiit_number || "",
-    current_funding_state: initialData?.current_funding_state || "",
-    officially_registered: initialData?.officially_registered || "",
-    pia: initialData?.pia || "",
-    about: initialData?.about || ""
+    startup_name: "",
+    status: "Active",
+    email_address: "",
+    contact_number: "",
+    linkedin: "",
+    website: "",
+    profile_image: null,
+    background_image: null,
+    
   });
-  const [profilePreview, setProfilePreview] = useState(formData.profile_image);
-  const [bgPreview, setBgPreview] = useState(formData.background_image);
+  
+  const [profilePreview, setProfilePreview] = useState(null);
+  const [bgPreview, setBgPreview] = useState(null);
   const profileInputRef = useRef();
   const bgInputRef = useRef();
+
+  // Initialize form data when initialData changes
+  useEffect(() => {
+    if (initialData) { 
+      setFormData({
+        startup_name: initialData.startup_name || "",
+        status: "Active", 
+        email_address: initialData.email_address || "", 
+        contact_number: initialData.contact_number || "", 
+        linkedin: initialData.linkedin || "",
+        website: initialData.website || "",
+        profile_image: initialData.profile_image || null,
+        background_image: initialData.background_image || null,
+      });
+
+      // Set image previews if they exist
+      setProfilePreview(initialData.profile_image || null);
+      setBgPreview(initialData.background_image || null);
+    }
+  }, [initialData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -63,17 +68,35 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // Validation
-    if (!formData.startup_name || !formData.status || !formData.email || !formData.phone) {
-      toast.error("Please fill all required fields");
-      return;
-    }
-    await onSubmit(formData);
-    onClose();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const formPayload = new FormData();
+  formPayload.append("startup_name", formData.startup_name);
+  formPayload.append("email_address", formData.email_address);          
+  formPayload.append("contact_number", formData.contact_number);       
+  formPayload.append("linkedin", formData.linkedin);
+  formPayload.append("website", formData.website);
+
+  if (formData.profile_image) {
+    formPayload.append("profile_image", formData.profile_image);
+  }
+
+  if (formData.background_image) {
+    formPayload.append("background_image", formData.background_image);
+  }
+
+  try {
+    await ApiUpdateStartupPersonalInfo(formPayload);
+    console.log(formPayload)
     toast.success("Profile updated successfully");
-  };
+    onClose();
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    toast.error("Failed to update profile");
+  }
+};
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -136,21 +159,8 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
                   className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
                 />
               </div>
-              <div>
-                <label className="block text-sm mb-1.5 font-medium">Status <span className="text-red-500">*</span></label>
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500 bg-white"
-                >
-                  <option value="">Select Status</option>
-                  {statusOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
+              
+              {/* <div>
                 <label className="block text-sm mb-1.5 font-medium">Email Id <span className="text-red-500">*</span></label>
                 <input
                   type="email"
@@ -160,7 +170,7 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
                   placeholder="Enter email address"
                   className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
                 />
-              </div>
+              </div> */}
               <div>
                 <label className="block text-sm mb-1.5 font-medium">Contact Number <span className="text-red-500">*</span></label>
                 <input
