@@ -60,99 +60,60 @@ const handleAboutClose = async () => {
   }
 
   const handleEditSubmit = async (updatedData) => {
-    try {
-      // Here you would typically call your API to update the startup
-      // await ApiUpdateStartup(id, updatedData);
-      setStartupData(updatedData);
-      
-    } catch (error) {
-      console.error("Error updating startup:", error);
-      toast.error("Failed to update startup profile");
-    }
+    // Here you would typically call your API to update the startup
+    // await ApiUpdateStartup(id, updatedData);
+    setStartupData(updatedData);
   };
 
   const handleAboutSubmit = async (updatedData) => {
-    try {
-      setStartupData(prev => ({
-        ...prev,
-        about: updatedData.about
-      }));
-      
-    } catch (error) {
-      console.error("Error updating about section:", error);
-      toast.error("Failed to update about section");
-    }
+    setStartupData(prev => ({
+      ...prev,
+      about: updatedData.about
+    }));
   };
 
   const handleAddAwardSubmit = async (newAward) => {
-    try {
-      setStartupData(prev => ({
-        ...prev,
-        awards: [...prev.awards, newAward]
-      }));
-      
-    } catch (error) {
-      console.error("Error adding award:", error);
-      toast.error("Failed to add award");
-    }
+    setStartupData(prev => ({
+      ...prev,
+      awards: [...prev.awards, newAward]
+    }));
   };
 
   const handleTeamMembersSubmit = async (updatedData) => {
-    try {
-      setStartupData(prev => ({
-        ...prev,
-        founders: updatedData.founders,
-        team_members: updatedData.team_members
-      }));
-      toast.success("Team members updated successfully");
-    } catch (error) {
-      console.error("Error updating team members:", error);
-      toast.error("Failed to update team members");
-    }
+    setStartupData(prev => ({
+      ...prev,
+      founders: updatedData.founders,
+      team_members: updatedData.team_members
+    }));
+    toast.success("Team members updated successfully");
   };
 
   const handleFundingSubmit = async (updatedData) => {
-    try {
-      setStartupData(prev => ({
-        ...prev,
-        funding_disbursed: updatedData.funding_disbursed,
-        funding_utilized: updatedData.funding_utilized,
-        external_funding: updatedData.external_funding,
-        funding_details: updatedData.funding_details
-      }));
-      toast.success("Funding information updated successfully");
-    } catch (error) {
-      console.error("Error updating funding:", error);
-      toast.error("Failed to update funding information");
-    }
+    setStartupData(prev => ({
+      ...prev,
+      funding_disbursed: updatedData.funding_disbursed,
+      funding_utilized: updatedData.funding_utilized,
+      external_funding: updatedData.external_funding,
+      funding_details: updatedData.funding_details
+    }));
+    toast.success("Funding information updated successfully");
   };
 
   const handleMentorEditSubmit = async (updatedData) => {
-    try {
-      setStartupData(prev => ({
-        ...prev,
-        mentors: updatedData.mentors
-      }));
-      
-    } catch (error) {
-      console.error("Error updating mentors:", error);
-      toast.error("Failed to update mentors");
-    }
+    setStartupData(prev => ({
+      ...prev,
+      mentors: updatedData.mentors
+    }));
   };
 
 const FetchData = async () => {
-  try {
-    const API = await ApiFetchStartup();
-    const allStartup = API?.rows || [];
-    const selectedstartup = allStartup.find(
-      (startup) => String(startup.email_address) === String(official_email_address)
-    );
-    console.log("Selected startup:", selectedstartup);
-    setStartupData(selectedstartup || null);
-   
-  } catch (err) {
-    console.error("Error fetching mentor data:", err);
-  }
+  const API = await ApiFetchStartup();
+  const allStartup = API?.rows || [];
+  const selectedstartup = allStartup.find(
+    (startup) => String(startup.email_address) === String(official_email_address)
+  );
+  console.log("Selected startup:", selectedstartup);
+  setStartupData(selectedstartup || null);
 };
 
    useEffect(() => {

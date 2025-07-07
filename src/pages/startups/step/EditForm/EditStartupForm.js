@@ -15,6 +15,7 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
     background_image: null,
   });
 
+  const [errors, setErrors] = useState({});
   const [profilePreview, setProfilePreview] = useState(null);
   const [bgPreview, setBgPreview] = useState(null);
   const profileInputRef = useRef();
@@ -68,26 +69,43 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
   const isValidLinkedIn = (url) =>
     url === "" || /^https?:\/\/(www\.)?linkedin\.com\/.*$/.test(url);
 
+  const isValidWebsite = (url) =>
+    url === "" || /^https?:\/\/.+\..+/.test(url);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const newErrors = {};
+
     if (!formData.startup_name.trim()) {
-      toast.error("Startup name is required");
-      return;
+      newErrors.startup_name = "Startup name is required";
     }
 
-    if (!formData.email_address.trim() || !isValidEmail(formData.email_address)) {
-      toast.error("Please enter a valid email address");
-      return;
+    if (!formData.email_address.trim()) {
+      newErrors.email_address = "Email is required";
+    } else if (!isValidEmail(formData.email_address)) {
+      newErrors.email_address = "Invalid email format";
     }
 
-    if (!formData.contact_number.trim() || !isValidPhone(formData.contact_number)) {
-      toast.error("Please enter a valid 10-digit phone number");
-      return;
+    if (!formData.contact_number.trim()) {
+      newErrors.contact_number = "Contact number is required";
+    } else if (!isValidPhone(formData.contact_number)) {
+      newErrors.contact_number = "Invalid 10-digit number";
+    }
+
+    if (!formData.website.trim()) {
+      newErrors.website = "Website is required";
+    } else if (!isValidWebsite(formData.website)) {
+      newErrors.website = "Invalid website URL";
     }
 
     if (!isValidLinkedIn(formData.linkedin)) {
-      toast.error("Please enter a valid LinkedIn URL");
+      newErrors.linkedin = "Invalid LinkedIn URL";
+    }
+
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      toast.error("Please fix the errors");
       return;
     }
 
@@ -107,7 +125,6 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
     try {
       await ApiUpdateStartupPersonalInfo(formPayload);
       toast.success("Profile updated successfully");
-      // onClose will trigger parent FetchData to refresh images
       onClose();
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -159,6 +176,7 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
               </div>
             </div>
           </div>
+
           <form onSubmit={handleSubmit} className="mt-14 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -171,8 +189,9 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
                   value={formData.startup_name}
                   onChange={handleChange}
                   placeholder="Enter name of the start-up"
-                  className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
+                  className={`w-full h-10 px-3 text-sm border ${errors.startup_name ? "border-red-500" : "border-gray-300"} rounded-lg focus:ring-1 focus:ring-green-500`}
                 />
+                {errors.startup_name && <p className="text-red-500 text-xs mt-1">{errors.startup_name}</p>}
               </div>
               <div>
                 <label className="block text-sm mb-1.5 font-medium">
@@ -184,8 +203,9 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
                   value={formData.email_address}
                   onChange={handleChange}
                   placeholder="Enter email address"
-                  className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
+                  className={`w-full h-10 px-3 text-sm border ${errors.email_address ? "border-red-500" : "border-gray-300"} rounded-lg focus:ring-1 focus:ring-green-500`}
                 />
+                {errors.email_address && <p className="text-red-500 text-xs mt-1">{errors.email_address}</p>}
               </div>
               <div>
                 <label className="block text-sm mb-1.5 font-medium">
@@ -197,32 +217,40 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
                   value={formData.contact_number}
                   onChange={handleChange}
                   placeholder="+91 | XXXXX XXXXX"
-                  className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
+                  className={`w-full h-10 px-3 text-sm border ${errors.contact_number ? "border-red-500" : "border-gray-300"} rounded-lg focus:ring-1 focus:ring-green-500`}
                 />
+                {errors.contact_number && <p className="text-red-500 text-xs mt-1">{errors.contact_number}</p>}
               </div>
               <div>
-                <label className="block text-sm mb-1.5 font-medium">Website Link <span className="text-red-500">*</span></label>
+                <label className="block text-sm mb-1.5 font-medium">
+                  Website Link <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   name="website"
                   value={formData.website}
                   onChange={handleChange}
-                  placeholder=""
-                  className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
+                  placeholder="https://yourwebsite.com"
+                  className={`w-full h-10 px-3 text-sm border ${errors.website ? "border-red-500" : "border-gray-300"} rounded-lg focus:ring-1 focus:ring-green-500`}
                 />
+                {errors.website && <p className="text-red-500 text-xs mt-1">{errors.website}</p>}
               </div>
               <div>
-                <label className="block text-sm mb-1.5 font-medium">LinkedIn ID <span className="text-red-500">*</span></label>
+                <label className="block text-sm mb-1.5 font-medium">
+                  LinkedIn ID <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   name="linkedin"
                   value={formData.linkedin}
                   onChange={handleChange}
                   placeholder="https://linkedin.com/in/..."
-                  className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
+                  className={`w-full h-10 px-3 text-sm border ${errors.linkedin ? "border-red-500" : "border-gray-300"} rounded-lg focus:ring-1 focus:ring-green-500`}
                 />
+                {errors.linkedin && <p className="text-red-500 text-xs mt-1">{errors.linkedin}</p>}
               </div>
             </div>
+
             <div className="flex justify-center pt-2">
               <button
                 type="submit"
