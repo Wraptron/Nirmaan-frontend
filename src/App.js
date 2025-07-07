@@ -91,6 +91,7 @@ function App() {
           <Route element={<ProtectedRoutes requiredRoles={["2"]} />}>
             <Route path="/home" element={<Home />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/startupprofile/:official_email_address" element={<Startupprofile />} />
             <Route path="/addstartup" element={<AddStartup />} />
             <Route path="/startups" element={<Startups />} />
             <Route path="/connections" element={<Connections />} />

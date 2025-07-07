@@ -1,13 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
 import { FiEdit2 } from "react-icons/fi";
-import { IoCalendarOutline } from "react-icons/io5";
 import { ApiUpdateStartupPersonalInfo } from "../../../../API/API";
-const statusOptions = [
-  { value: "Active", label: "Active" },
-  { value: "Inactive", label: "Inactive" },
-  { value: "Graduated", label: "Graduated" },
-];
 
 const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -19,29 +13,26 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
     website: "",
     profile_image: null,
     background_image: null,
-    
   });
-  
+
   const [profilePreview, setProfilePreview] = useState(null);
   const [bgPreview, setBgPreview] = useState(null);
   const profileInputRef = useRef();
   const bgInputRef = useRef();
 
-  // Initialize form data when initialData changes
   useEffect(() => {
-    if (initialData) { 
+    if (initialData) {
       setFormData({
         startup_name: initialData.startup_name || "",
-        status: "Active", 
-        email_address: initialData.email_address || "", 
-        contact_number: initialData.contact_number || "", 
+        status: "Active",
+        email_address: initialData.email_address || "",
+        contact_number: initialData.contact_number || "",
         linkedin: initialData.linkedin || "",
         website: initialData.website || "",
         profile_image: initialData.profile_image || null,
         background_image: initialData.background_image || null,
       });
 
-      // Set image previews if they exist
       setProfilePreview(initialData.profile_image || null);
       setBgPreview(initialData.background_image || null);
     }
@@ -68,35 +59,61 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
     }
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const isValidEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const formPayload = new FormData();
-  formPayload.append("startup_name", formData.startup_name);
-  formPayload.append("email_address", formData.email_address);          
-  formPayload.append("contact_number", formData.contact_number);       
-  formPayload.append("linkedin", formData.linkedin);
-  formPayload.append("website", formData.website);
+  const isValidPhone = (phone) =>
+    /^[6-9]\d{9}$/.test(phone);
 
-  if (formData.profile_image) {
-    formPayload.append("profile_image", formData.profile_image);
-  }
+  const isValidLinkedIn = (url) =>
+    url === "" || /^https?:\/\/(www\.)?linkedin\.com\/.*$/.test(url);
 
-  if (formData.background_image) {
-    formPayload.append("background_image", formData.background_image);
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    await ApiUpdateStartupPersonalInfo(formPayload);
-    console.log(formPayload)
-    toast.success("Profile updated successfully");
-    onClose();
-  } catch (error) {
-    console.error("Error updating profile:", error);
-    toast.error("Failed to update profile");
-  }
-};
+    if (!formData.startup_name.trim()) {
+      toast.error("Startup name is required");
+      return;
+    }
 
+    if (!formData.email_address.trim() || !isValidEmail(formData.email_address)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    if (!formData.contact_number.trim() || !isValidPhone(formData.contact_number)) {
+      toast.error("Please enter a valid 10-digit phone number");
+      return;
+    }
+
+    if (!isValidLinkedIn(formData.linkedin)) {
+      toast.error("Please enter a valid LinkedIn URL");
+      return;
+    }
+
+    const formPayload = new FormData();
+    formPayload.append("startup_name", formData.startup_name);
+    formPayload.append("email_address", formData.email_address);
+    formPayload.append("contact_number", formData.contact_number);
+    formPayload.append("linkedin", formData.linkedin);
+    formPayload.append("website", formData.website);
+    if (formData.profile_image) {
+      formPayload.append("profile_image", formData.profile_image);
+    }
+    if (formData.background_image) {
+      formPayload.append("background_image", formData.background_image);
+    }
+
+    try {
+      await ApiUpdateStartupPersonalInfo(formPayload);
+      toast.success("Profile updated successfully");
+      // onClose will trigger parent FetchData to refresh images
+      onClose();
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Failed to update profile");
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -111,14 +128,12 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
         </button>
         <div className="p-6 pt-4">
           <h2 className="text-xl font-semibold text-[#232323] mb-4">Edit Personal Info</h2>
-          {/* Banner image (not editable) */}
           <div className="relative w-full h-32 rounded-xl mb-10 bg-gray-100">
             <img
               src={bgPreview}
               alt="Background"
               className="w-full h-full object-cover rounded-xl"
             />
-            {/* Profile image (rounded rectangle, overlapping banner, editable) */}
             <div className="absolute left-1/2 -bottom-12 -translate-x-1/2 z-30 flex flex-col items-center w-24">
               <div className="relative w-24 h-24">
                 <img
@@ -131,7 +146,6 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
                   onClick={() => profileInputRef.current && profileInputRef.current.click()}
                   className="absolute bottom-2 right-2 bg-white rounded-full p-1 shadow hover:bg-gray-100 border border-gray-300 z-40"
                   title="Edit Profile Photo"
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
                   <FiEdit2 size={16} className="text-[#232323]" />
                 </button>
@@ -145,11 +159,12 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
               </div>
             </div>
           </div>
-          {/* Form fields */}
           <form onSubmit={handleSubmit} className="mt-14 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm mb-1.5 font-medium">Name Of The Start-up <span className="text-red-500">*</span></label>
+                <label className="block text-sm mb-1.5 font-medium">
+                  Name Of The Start-up <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   name="startup_name"
@@ -159,31 +174,34 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
                   className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
                 />
               </div>
-              
-              {/* <div>
-                <label className="block text-sm mb-1.5 font-medium">Email Id <span className="text-red-500">*</span></label>
+              <div>
+                <label className="block text-sm mb-1.5 font-medium">
+                  Email ID <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="email"
-                  name="email"
-                  value={formData.email}
+                  name="email_address"
+                  value={formData.email_address}
                   onChange={handleChange}
                   placeholder="Enter email address"
                   className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
                 />
-              </div> */}
+              </div>
               <div>
-                <label className="block text-sm mb-1.5 font-medium">Contact Number <span className="text-red-500">*</span></label>
+                <label className="block text-sm mb-1.5 font-medium">
+                  Contact Number <span className="text-red-500">*</span>
+                </label>
                 <input
-                  type="text"
-                  name="phone"
-                  value={formData.phone}
+                  type="number"
+                  name="contact_number"
+                  value={formData.contact_number}
                   onChange={handleChange}
                   placeholder="+91 | XXXXX XXXXX"
                   className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1.5 font-medium">Website Link</label>
+                <label className="block text-sm mb-1.5 font-medium">Website Link <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   name="website"
@@ -194,13 +212,13 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1.5 font-medium">LinkedIn ID</label>
+                <label className="block text-sm mb-1.5 font-medium">LinkedIn ID <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   name="linkedin"
                   value={formData.linkedin}
                   onChange={handleChange}
-                  placeholder=""
+                  placeholder="https://linkedin.com/in/..."
                   className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
                 />
               </div>

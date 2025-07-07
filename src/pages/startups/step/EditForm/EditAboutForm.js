@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { ApiFetchStartup, ApiUpdateStartupAbout } from "../../../../API/API";
+import { ApiUpdateStartupAbout } from "../../../../API/API";
 
 const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -8,20 +8,20 @@ const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
     program: "",
     startup_type: "",
     about: "",
-     email_address: "" 
+    email_address: ""
   });
 
- useEffect(() => {
-  if (initialData) {
-    setFormData({
-      sector: initialData.startup_sector || "",
-      program: initialData.program || "",
-      startup_type: initialData.startup_type || "",
-      about: initialData.about || "",
-       email_address: initialData.email_address || "" 
-    });
-  }
-}, [initialData]);
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        sector: initialData.startup_sector || "",
+        program: initialData.program || "",
+        startup_type: initialData.startup_type || "",
+        about: initialData.about || "",
+        email_address: initialData.email_address || ""
+      });
+    }
+  }, [initialData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,12 +31,40 @@ const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
     }));
   };
 
+  const isValidEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting data:", formData); // 🧪 Confirm before sending
+
+    // === Validation ===
+    if (!formData.startup_type.trim()) {
+      toast.error("Startup type is required");
+      return;
+    }
+
+    if (!formData.sector.trim()) {
+      toast.error("Sector is required");
+      return;
+    }
+
+    if (!formData.program.trim()) {
+      toast.error("Program is required");
+      return;
+    }
+
+    if (!formData.about.trim()) {
+      toast.error("About field is required");
+      return;
+    }
+
+    if (!formData.email_address.trim() || !isValidEmail(formData.email_address)) {
+      toast.error("Valid email address is required");
+      return;
+    }
 
     try {
-      await ApiUpdateStartupAbout(formData); // ✅ send as JSON object
+      await ApiUpdateStartupAbout(formData); // sending as JSON
       toast.success("Profile updated successfully");
       onClose();
     } catch (error) {
@@ -70,7 +98,7 @@ const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm mb-1.5">Startup Type</label>
+                <label className="block text-sm mb-1.5">Startup Type <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   name="startup_type"
@@ -81,7 +109,7 @@ const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1.5">Sector</label>
+                <label className="block text-sm mb-1.5">Sector <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   name="sector"
@@ -92,7 +120,7 @@ const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1.5">Program</label>
+                <label className="block text-sm mb-1.5">Program <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   name="program"
@@ -102,6 +130,18 @@ const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
                   className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm mb-1.5">About <span className="text-red-500">*</span></label>
+              <textarea
+                name="about"
+                value={formData.about}
+                onChange={handleChange}
+                placeholder="Tell us about your startup..."
+                rows="5"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500 resize-none"
+              />
             </div>
 
             <div className="flex justify-end gap-4 pt-4">
@@ -126,4 +166,4 @@ const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
   );
 };
 
-export default EditAboutForm;
+export default EditAboutForm;

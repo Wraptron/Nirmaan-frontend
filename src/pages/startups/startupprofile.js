@@ -36,8 +36,10 @@ function StartupProfile() {
   // Edit handlers
   const handleEditClick = () => setShowEditForm(true);
   const handleAboutClick = () => setShowAboutForm(true);
+  
   const handleAddAwardClick = () => setShowAddAwardForm(true);
   const handleTeamMembersClick = () => setShowTeamMembersForm(true);
+  
   const handleFundingClick = () => setShowFundingForm(true);
   const handleMentorEditClick = () => setShowMentorForm(true);
 
@@ -186,7 +188,7 @@ const FetchData = async () => {
               <div className="relative bg-white rounded-2xl shadow p-0 flex flex-col min-h-[340px]">
                 {/* Background image with edit icon */}
                 <div className="relative h-[140px] rounded-t-2xl overflow-hidden">
-                  <img src={bgImg} alt="bg" className="w-full h-full object-cover" />
+                  <img src={startupData.background_image || bgImg} alt="bg" className="w-full h-full object-cover" />
                   <button 
                     onClick={handleEditClick}
                     className="absolute top-3 right-3 bg-white rounded-full p-2 shadow hover:bg-gray-100 transition"
@@ -197,7 +199,7 @@ const FetchData = async () => {
                 {/* Profile image with green border */}
                 <div className="absolute left-1/2 top-[90px] -translate-x-1/2 z-10">
                   <div className="w-24 h-24 rounded-full border-4 border-[#45C74D] bg-white flex items-center justify-center overflow-hidden">
-                    <img src={profileImg} alt="Profile" className="w-22 h-22 rounded-full object-cover" />
+                    <img src={startupData.logo_image || profileImg} alt="Startup Logo" className="w-22 h-22 rounded-full object-cover" />
                   </div>
                 </div>
                 {/* Card content */}

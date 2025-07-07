@@ -22,23 +22,47 @@ const AddAwardForm = ({ initialData, onClose, onSubmit }) => {
   };
 
   const handleDocumentUpload = (file) => {
-    if (file) {
-      setFormData(prev => ({
-        ...prev,
-        document: file
-      }));
+    const allowedTypes = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+    if (file && !allowedTypes.includes(file.type)) {
+      toast.error("Only PDF, DOC or DOCX files are allowed");
+      return;
     }
+    setFormData(prev => ({
+      ...prev,
+      document: file
+    }));
+  };
+
+  const validateDate = (date) => {
+    return /^\d{2}\/\d{2}\/\d{4}$/.test(date);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      // Validate required fields
-      if (!formData.name || !formData.organization || !formData.awarded_date) {
-        toast.error('Please fill in all required fields');
-        return;
-      }
 
+    // Required field checks
+    if (!formData.name.trim()) {
+      toast.error("Award/Recognition Name is required");
+      return;
+    }
+    if (!formData.organization.trim()) {
+      toast.error("Organization is required");
+      return;
+    }
+    if (!formData.awarded_date.trim()) {
+      toast.error("Awarded date is required");
+      return;
+    }
+    if (!validateDate(formData.awarded_date)) {
+      toast.error("Date format should be DD/MM/YYYY");
+      return;
+    }
+    if (formData.prize_money && isNaN(formData.prize_money)) {
+      toast.error("Prize Money must be a number");
+      return;
+    }
+
+    try {
       await onSubmit(formData);
       onClose();
       toast.success("Award added successfully");
@@ -51,23 +75,23 @@ const AddAwardForm = ({ initialData, onClose, onSubmit }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl shadow-lg w-[700px] relative">
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M1 1L13 13M1 13L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            <path d="M1 1L13 13M1 13L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
         </button>
 
         <div className="p-6">
           <h2 className="text-xl font-semibold text-[#232323] mb-6">Add New Award/Recognition</h2>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm mb-1.5">
-                  Name Of The Award / Recognition<span className="text-red-500">*</span>
+                  Name Of The Award / Recognition <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -80,7 +104,7 @@ const AddAwardForm = ({ initialData, onClose, onSubmit }) => {
               </div>
               <div>
                 <label className="block text-sm mb-1.5">
-                  Award / Recognition Org<span className="text-red-500">*</span>
+                  Award / Recognition Org <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -107,7 +131,7 @@ const AddAwardForm = ({ initialData, onClose, onSubmit }) => {
               </div>
               <div>
                 <label className="block text-sm mb-1.5">
-                  Awarded Date<span className="text-red-500">*</span>
+                  Awarded Date <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -176,4 +200,4 @@ const AddAwardForm = ({ initialData, onClose, onSubmit }) => {
   );
 };
 
-export default AddAwardForm;
+export default AddAwardForm;

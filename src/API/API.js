@@ -355,8 +355,29 @@ async function ApiFetchFeedback(meetingId) {
 }
 
 async function ApiUpdateStartupPersonalInfo(payload) {
- try {
-    const response = await axios.put("http://localhost:3003/api/v1/edit-startupdata/personal-info", payload);
+  try {
+    let dataToSend = payload;
+    let headers = {};
+    // If payload is not FormData, convert it
+    if (!(payload instanceof FormData)) {
+      dataToSend = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (key === 'profile_image' && value) {
+          dataToSend.append('logo_image', value); // Use 'logo_image' for backend
+        } else if (value !== undefined && value !== null) {
+          dataToSend.append(key, value);
+        }
+      });
+    } else {
+      // If already FormData, rename 'profile_image' to 'logo_image' if present
+      if (payload.has('profile_image')) {
+        const file = payload.get('profile_image');
+        payload.delete('profile_image');
+        payload.append('logo_image', file);
+      }
+    }
+    headers['Content-Type'] = 'multipart/form-data';
+    const response = await axios.put("http://localhost:3003/api/v1/edit-startupdata/personal-info", dataToSend, { headers });
     return response.data;
   } catch (error) {
     console.error("Error updating startup:", error);

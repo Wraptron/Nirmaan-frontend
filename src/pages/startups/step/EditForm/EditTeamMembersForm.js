@@ -14,13 +14,37 @@ const EditTeamMembersForm = ({ initialData, onClose, onSubmit }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validatePhone = (phone) => {
+    return /^\d{10}$/.test(phone);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Validation
-    if (!formData.name || !formData.designation || !formData.email || !formData.phone) {
-      toast.error("Please fill all required fields");
+
+    if (!formData.name.trim()) {
+      toast.error("Name is required");
       return;
     }
+
+    if (!formData.designation.trim()) {
+      toast.error("Designation is required");
+      return;
+    }
+
+    if (!formData.email.trim() || !validateEmail(formData.email)) {
+      toast.error("Enter a valid email address");
+      return;
+    }
+
+    if (!formData.phone.trim() || !validatePhone(formData.phone)) {
+      toast.error("Enter a valid 10-digit phone number");
+      return;
+    }
+
     await onSubmit(formData);
     onClose();
   };
@@ -41,7 +65,9 @@ const EditTeamMembersForm = ({ initialData, onClose, onSubmit }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm mb-1.5 font-medium">Name <span className="text-red-500">*</span></label>
+                <label className="block text-sm mb-1.5 font-medium">
+                  Name <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   name="name"
@@ -52,7 +78,9 @@ const EditTeamMembersForm = ({ initialData, onClose, onSubmit }) => {
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1.5 font-medium">Designation <span className="text-red-500">*</span></label>
+                <label className="block text-sm mb-1.5 font-medium">
+                  Designation <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   name="designation"
@@ -63,7 +91,9 @@ const EditTeamMembersForm = ({ initialData, onClose, onSubmit }) => {
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1.5 font-medium">Email Id <span className="text-red-500">*</span></label>
+                <label className="block text-sm mb-1.5 font-medium">
+                  Email Id <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="email"
                   name="email"
@@ -74,13 +104,19 @@ const EditTeamMembersForm = ({ initialData, onClose, onSubmit }) => {
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1.5 font-medium">Phone Number <span className="text-red-500">*</span></label>
+                <label className="block text-sm mb-1.5 font-medium">
+                  Phone Number <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="tel"
                   name="phone"
                   value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="+91 | XXXXX XXXXX"
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, ""); // Remove non-digits
+                    setFormData((prev) => ({ ...prev, phone: value }));
+                  }}
+                  maxLength={10}
+                  placeholder="e.g. 9876543210"
                   className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
                 />
               </div>
