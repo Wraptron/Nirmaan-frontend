@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState, useCallback} from 'react'
 import { useNavigate } from 'react-router-dom';
 import img from '../assets/images/nirmaan-iitm.14fdf833.svg';
 import profile from '../assets/images/Nandhinimamtraktor.png';
@@ -144,7 +144,7 @@ function NavBar({onSelectionChange, selectedIndex}) {
   let tokenDecodedData = jwtDecode(imageToken);
   let sessionRole = sessionStorage.getItem('role')
   const [image, setImage] = useState('');
-  const GetProfilePhotoImage = async() => {
+  const GetProfilePhotoImage = useCallback(async() => {
     try
     {
         const result = await axios.get(`http://localhost:3003/api/v1/prof?mail=${tokenDecodedData.user_mail}`)
@@ -158,10 +158,10 @@ function NavBar({onSelectionChange, selectedIndex}) {
     {
       console.log(err); 
     }
-  }
+  }, [tokenDecodedData.user_mail])
   useEffect(() => {
     GetProfilePhotoImage();
-  }, [])
+  }, [GetProfilePhotoImage])
   useEffect(()=> {
     setInterval(()=> {
         UpdatedFundingData()

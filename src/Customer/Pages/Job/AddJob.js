@@ -43,15 +43,15 @@ function Addjob() {
       }
       catch(err)
       {
-         if(err.response.status == 401)
+         if(err.response.status === 401)
         {
           alertify.warning("Please fill necessary data");
         }
-        else if(err.response.status==400)
+        else if(err.response.status===400)
         {
           alertify.error("Error Pushing the data");
         }
-        else if(err.response.status ==500)
+        else if(err.response.status ===500)
         {
            alertify.error("Request already raised please wait 3 hours.")
         }

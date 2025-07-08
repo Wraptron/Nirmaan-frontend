@@ -35,7 +35,7 @@ function ProfileApply() {
                 // 'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json'
             }});
-            if(result.status==200)
+            if(result.status===200)
             {
                 toast.success("We received your information");
                 setAwsCreditData({
@@ -48,7 +48,7 @@ function ProfileApply() {
         }
         catch(err)
         {
-            if(err.response.status == 400)
+            if(err.response.status === 400)
             {
                 // alertify.warning("Field should not be empty")
                 toast.warning('Field Should not be empty', {
@@ -62,7 +62,7 @@ function ProfileApply() {
                     theme: "light",
                 })
             }
-            else if(err.response.status == 401)
+            else if(err.response.status === 401)
             {
                 toast.warning('Email is not valid')
             }
@@ -70,7 +70,7 @@ function ProfileApply() {
             // {
             //     alertify.warning("Field should not be empty");
             // }
-            else if(err.response.status == 409)
+            else if(err.response.status === 409)
             {
                 toast.error("Try after 24 hours!");
             }

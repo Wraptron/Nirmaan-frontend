@@ -32,7 +32,7 @@ function UploadFile(){
         {
             const response = await axios.post(APP_URL+'resumeupload', formdata)
             //console.log(response);
-            if(response.status == 200)
+            if(response.status === 200)
             {
                 alertify.success("Uploaded Successfully");
             }

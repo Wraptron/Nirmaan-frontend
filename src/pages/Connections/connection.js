@@ -64,11 +64,11 @@ function Connection(){
           {
             if(err.response)
             {
-                if(err.response.status==400)
+                if(err.response.status===400)
                 {
                     toast.error("All Fields are required");
                 }
-                else if(err.response.status==422)
+                else if(err.response.status===422)
                 {
                     toast.error('Please provide a valid email')
                 }
@@ -95,7 +95,7 @@ function Connection(){
             }
             catch(err)
             {
-                if (err.response.status==400)
+                if (err.response.status===400)
                 {
                     toast.error('ALL fields are required');
                 }

@@ -55,7 +55,7 @@ function CustomerProfile() {
         }
         catch(err)
         {
-            if(err.response.status == 400)
+            if(err.response.status === 400)
             {
                 alertify.error("Please fill Necessary data")
             }
@@ -81,7 +81,7 @@ function CustomerProfile() {
         const result = await axios.post(`http://localhost:3003/api/v1/customer/teams-update`, memberFormData, {headers: {
           'Content-Type': 'application/json'
         }})
-        if(result.data.status == 200)
+        if(result.data.status === 200)
         {
           alertify.success('Data Inserted Successfully');
         }
@@ -93,7 +93,7 @@ function CustomerProfile() {
     }
     catch(err)
     {
-        if(err.response.status == 409)
+        if(err.response.status === 409)
         {
             alertify.warning("Email already exists");
         }

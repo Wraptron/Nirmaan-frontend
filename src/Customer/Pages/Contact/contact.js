@@ -21,9 +21,6 @@ const contacts = [
        button:"connecct"       
   },
 ];
-const actionButton=(Params)=>{
-  console.log(Params);
-}
 const DataTable = ({ rowData }) => {
   const columnDefs = [
     { headerName: 'Name', field: 'name', sortable: true, filter: true },

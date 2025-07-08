@@ -19,11 +19,11 @@ function IndividualStartups() {
  let [phase, setPhase] = useState(0);
  const handleToggle = () => {
 
-    if(phase == 0){
+    if(phase === 0){
         setArrowChange(arrowUpCircle)
         setPhase(1)
     }
-    else if(phase ==1)
+    else if(phase ===1)
     {
         setArrowChange(arrowDownCircle)
         setPhase(0);

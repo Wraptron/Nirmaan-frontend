@@ -49,7 +49,7 @@ function DisEnt() {
         [currentModule]: new Array(stepsMapping[currentModule].length).fill(0),
       }));
     }
-  }, [currentModule]);
+  }, [currentModule, progressMapping]);
 
   const handleProgressChange = (index, value) => {
     setProgressMapping((prev) => ({

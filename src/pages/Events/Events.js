@@ -67,7 +67,7 @@ function Events() {
         }
         catch(err)
         {
-             if(err.response.status==400)
+             if(err.response.status===400)
              {
                 toast.error('All fields are required')
              }
@@ -119,7 +119,7 @@ function Events() {
                         console.log(err);
                         if(err)
                         {
-                                if(err.response.status == 401)
+                                if(err.response.status === 401)
                                 {
                                         toast.error('Fields required')
                                 }
@@ -179,7 +179,7 @@ function Events() {
         {
                 if(err)
                 {
-                        if(err.response.status == 400)
+                        if(err.response.status === 400)
                         {
                                 toast.error("Check all fields");
                         }

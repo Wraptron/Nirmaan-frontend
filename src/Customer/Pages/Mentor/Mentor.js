@@ -46,7 +46,7 @@ function CustomerMentor() {
         }
         catch(err)
         {
-           if(err.response.status == 401)
+           if(err.response.status === 401)
           {
             alertify.warning("Request already raised");
           }

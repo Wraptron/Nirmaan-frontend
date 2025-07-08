@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from "react-hot-toast";
 import { PDFViewer } from '@react-pdf/renderer';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import 'sweetalert2/dist/sweetalert2.min.css';
 
 // Pages
@@ -29,7 +28,6 @@ import Industry from './pages/startups/Industry/Industry';
 import Sustainability from './pages/startups/Sustainability/Sustainability';
 import Healthcare from './pages/startups/Healthcare/Healthcare';
 import Mobility from './pages/startups/Mobility/Mobility';
-import AddStartupMultiForm from './pages/startups/AddStartupMultiForm';
 import IndividualStartups from './pages/startups/IndividualStartups';
 import Pdf from './pages/Reports/Pdf';
 import Bills from './Finance/Pages/Startup/Bills';
@@ -38,7 +36,6 @@ import Startupprofile from './pages/startups/startupprofile';
 import MentorProfile from './pages/Mentors/MentorProfile';
 import Mentor from './pages/Mentors/Mentor';
 import OfficeHome from './Office/Pages/OfficeHome';
-import HomeFinance from './pages/Home/Finance/Finance';
 
 // Customer pages
 import CustomerHome from './Customer/Pages/Home/home';
@@ -62,21 +59,7 @@ import FinanceUpdateFunding from './Finance/Pages/Startup/Updatefunding';
 import ProtectedRoutes from './utils/ProtectedRoutes';
 
 function App() {
-  const [LoggedIn, setLoggedIn] = useState(false);
 
-  const authenticate = () => {
-    const token = localStorage.getItem('token');
-    setLoggedIn(!!token);
-  };
-
-  useEffect(() => {
-    authenticate();
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setLoggedIn(false);
-  };
 
   return (
     <div>

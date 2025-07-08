@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import { Bar, Pie } from 'react-chartjs-2';
 //import { useContext } from 'react';
 import axios from 'axios';
@@ -20,7 +20,7 @@ const FundingByCohort = (props) => {
   const [dataa, setData] = useState([]);
   const [labels, setLabels] = useState([]);
   const [values, setValues] = useState([]);
-  let ApiCall = async() => {
+  const ApiCall = useCallback(async() => {
         //let data = props.selectedTopSectors
         try 
         {
@@ -35,10 +35,10 @@ const FundingByCohort = (props) => {
         {   
             console.log(err.message)
         }
-  }
+  }, [props.selectedTopSectors])
   useEffect(() => {
     ApiCall()
-  }, [props.selectedTopSectors,])
+  }, [ApiCall])
 
   useEffect(() => {
     console.log("Labels:", labels);

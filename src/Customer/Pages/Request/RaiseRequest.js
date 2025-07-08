@@ -28,7 +28,7 @@ const RaiseRequest = () => {
                     // 'Authorization': `Bearer ${localStorage.getItem('token')}`,
                     'Content-Type': 'application/json'
                 }});
-                if(result.status==200)
+                if(result.status===200)
                 {
                     alertify.success("Data Inserted Successfully");
                     setRaiseRequestData({
@@ -37,18 +37,18 @@ const RaiseRequest = () => {
                         description: ''
                     })
                 }
-                else if(result.status==204)
+                else if(result.status===204)
                 {
                     alertify.warning("Field should not be empty");
                 }
             }
             catch(err)
             {
-                if(err.response.status == 400)
+                if(err.response.status === 400)
                 {
                     alertify.error("Please fill Necessary data")
                 }
-                else if(err.response.status == 409)
+                else if(err.response.status === 409)
                 {
                     alertify.error("Data already exists");
                 }
