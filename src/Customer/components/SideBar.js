@@ -1,11 +1,7 @@
 import React, {useState} from 'react'
-import { FaBars, FaBook, FaBuilding, FaBusinessTime, FaCalendar, FaChalkboardTeacher, FaFileExcel, FaFilePdf, FaGraduationCap, FaHome, FaJava, FaJoint, FaLayerGroup, FaPeopleArrows, FaPhone, FaPuzzlePiece, FaResolving, FaRestroom, FaSearch, FaSourcetree, FaTasks, FaUser, FaUsers} from 'react-icons/fa';
-import { FaFile, FaGroupArrowsRotate, FaPersonRifle, FaRegSquarePlus, FaUpwork } from 'react-icons/fa6';
+import { FaUser, FaPuzzlePiece, FaUsers, FaLayerGroup, FaPhone, FaBusinessTime, FaFile, FaFilePdf } from 'react-icons/fa';
 
 function SideBar() {
-    const [userRole, setUserRole] = useState('customer');  
-    const currentPath = window.location.pathname;
-    const ShowArrowIcon = currentPath === '/customer/Home';
   return (
     <div className="fixed top-0 left-0 mt-14 h-screen md:w-11 sm:w-9 w-9 m-0 flex flex-col text-black border-r-0 border-gray-500 shadow-md">
       <SideBarLink href="/customer/Profile">

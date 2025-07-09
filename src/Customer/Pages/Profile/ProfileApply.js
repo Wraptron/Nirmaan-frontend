@@ -2,11 +2,10 @@ import React,{useState, useEffect} from "react";
 import SideBar from "../../components/SideBar";
 import NavBar from "../../../components/NavBar";
 import axios from "axios";
-import alertify from "alertifyjs";
 import { jwtDecode } from "jwt-decode";
-import {Bounce, ToastContainer, toast} from "react-toastify"
+import {ToastContainer, toast} from "react-toastify"
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate} from "react-router-dom";
+// import { useNavigate} from "react-router-dom"; // Removed unused import
 import {socket} from '../../../socket';
 function ProfileApply() {
     let token = jwtDecode(localStorage.getItem('token'));
@@ -18,7 +17,6 @@ function ProfileApply() {
         aws_email: '',
         aws_description: ''
     })
-    const[tokenData, setTokenData] = useState('');
     // const[enc, setEnc] = useState('');
     const handleChange = (e) => {
         const {name, value} = e.target;
@@ -107,7 +105,6 @@ function ProfileApply() {
         // socket.on('FirstEvent' , (msg) => {
         //      console.log(msg)
         // })
-        var token = token.user_mail;
         socket?.emit('newUser', (token.user_mail))
         // console.log(socket.emit("newUser", (user) => {
         //     console.log(user)

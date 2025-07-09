@@ -1,23 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import SideBar from '../../components/sidebar';
 import NavBar from '../../components/NavBar';
-import { FiEdit2, FiShare2 } from 'react-icons/fi';
+import { FiEdit2 } from 'react-icons/fi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { MdOutlineAdd } from 'react-icons/md';
 import bgImg from '../../assets/images/Rectangle 5.svg';
 import profileImg from '../../assets/images/296fe121-5dfa-43f4-98b5-db50019738a7.jpg';
-import pinSvg from '../../assets/images/Frame (9).svg';
-import pdfSvg from '../../assets/images/Frame (8).svg';
 import { useParams } from 'react-router-dom';
 import EditStartupForm from '../startups/step/EditForm/EditStartupForm';
 import EditAboutForm from '../startups/step/EditForm/EditAboutForm';
 import AddAwardForm from '../startups/step/EditForm/AddAwardForm';
 import EditTeamMembersForm from '../startups/step/EditForm/EditTeamMembersForm';
-import EditFundingForm from '../startups/step/EditForm/EditFundingForm';
 import toast from 'react-hot-toast';
 import EditMentorForm from '../startups/step/EditForm/EditMentorForm';
 import { ApiFetchStartup } from '../../API/API';
-import { Route } from 'react-router-dom';
+
 
 
 function StartupProfile() {
@@ -28,7 +25,6 @@ function StartupProfile() {
   const [showAboutForm, setShowAboutForm] = useState(false);
   const [showAddAwardForm, setShowAddAwardForm] = useState(false);
   const [showTeamMembersForm, setShowTeamMembersForm] = useState(false);
-  const [showFundingForm, setShowFundingForm] = useState(false);
   const [showMentorForm, setShowMentorForm] = useState(false);
 
   const [startupData, setStartupData] = useState(null);
@@ -40,11 +36,10 @@ function StartupProfile() {
   const handleAddAwardClick = () => setShowAddAwardForm(true);
   const handleTeamMembersClick = () => setShowTeamMembersForm(true);
   
-  const handleFundingClick = () => setShowFundingForm(true);
   const handleMentorEditClick = () => setShowMentorForm(true);
 
   const handleEditClose = async () => {
-    await FetchData()
+    await FetchData();
     setShowEditForm(false);
   }
 const handleAboutClose = async () => {
@@ -53,7 +48,6 @@ const handleAboutClose = async () => {
 }   
   const handleAddAwardClose = () => setShowAddAwardForm(false);
   const handleTeamMembersClose = () => setShowTeamMembersForm(false);
-  const handleFundingClose = () => setShowFundingForm(false);
   const handleMentorEditClose = async () =>{ 
     await FetchData()
     setShowMentorForm(false);
@@ -88,37 +82,28 @@ const handleAboutClose = async () => {
     toast.success("Team members updated successfully");
   };
 
-  const handleFundingSubmit = async (updatedData) => {
-    setStartupData(prev => ({
-      ...prev,
-      funding_disbursed: updatedData.funding_disbursed,
-      funding_utilized: updatedData.funding_utilized,
-      external_funding: updatedData.external_funding,
-      funding_details: updatedData.funding_details
-    }));
-    toast.success("Funding information updated successfully");
-  };
-
   const handleMentorEditSubmit = async (updatedData) => {
     setStartupData(prev => ({
       ...prev,
-      mentors: updatedData.mentors
+      mentor_associated: updatedData.mentor_associated,
+      // Add any other fields you expect to update from the mentor form
     }));
+    toast.success("Mentor details updated successfully");
   };
 
-const FetchData = async () => {
-  const API = await ApiFetchStartup();
-  const allStartup = API?.rows || [];
-  const selectedstartup = allStartup.find(
-    (startup) => String(startup.email_address) === String(official_email_address)
-  );
-  console.log("Selected startup:", selectedstartup);
-  setStartupData(selectedstartup || null);
-};
+  const FetchData = useCallback(async () => {
+    const API = await ApiFetchStartup();
+    const allStartup = API?.rows || [];
+    const selectedstartup = allStartup.find(
+      (startup) => String(startup.email_address) === String(official_email_address)
+    );
+    console.log("Selected startup:", selectedstartup);
+    setStartupData(selectedstartup || null);
+  }, [official_email_address]);
 
    useEffect(() => {
       FetchData();
-    }, [official_email_address]);
+    }, [official_email_address, FetchData]);
 
 
     if (!startupData) {

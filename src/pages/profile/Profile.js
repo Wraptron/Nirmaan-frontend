@@ -48,7 +48,7 @@ function Profile() {
                                   <div className="flex justify-start items-start pt-2 text-3xl font-semibold text-gray-500 border-b pb-2">My Profile</div>
                                   <div className="grid grid-cols-2 gap-2 mt-4">
                                         <div className="border shadow-sm">
-                                            <div className="flex justify-center items-center pt-5"><img class="w-[80px;] h-[80px;] rounded-full shadow-md border" src={img} alt="user photo" /></div>
+                                            <div className="flex justify-center items-center pt-5"><img class="w-[80px;] h-[80px;] rounded-full shadow-md border" src={img} alt="user" /></div>
                                             <div className="flex justify-center items-center pt-2 text-xl font-semibold">Manager</div>
                                             <div className="flex justify-center items-center text-xs text-gray-500 font-semibold">Administrator</div>
                                             <div className="flex justify-center items-center ps-2 mt-5 text-gray-500"> 

@@ -1,7 +1,6 @@
 import React, {useState} from "react";
 import SideBar from "../../components/SideBar";
 import NavBar from "../../../components/NavBar";
-import { FaArrowLeft } from "react-icons/fa";
 import { jwtDecode } from "jwt-decode";
 import alertify from "alertifyjs";
 import axios from "axios";

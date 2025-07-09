@@ -1,7 +1,6 @@
 import React,{useEffect, useState} from 'react'
 import SideBar from "../../components/sidebar";
 import NavBar from '../../components/NavBar';
-import { FaBars, FaEllipsisV } from 'react-icons/fa';
 import AddPastEvents from './AddPastEvents';
 import CreateNewEvent from './CreateNewEvent';
 import RequestSpeaker from './RequestSpeaker';
@@ -9,44 +8,24 @@ import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { ApiFetchEvents } from '../../API/API';
-import { GiConsoleController } from 'react-icons/gi';
 import { FaEllipsis } from 'react-icons/fa6';
 import calendersvg from '../../assets/images/Calendar.svg';
 import Clocksvg from '../../assets/images/Clock.svg'
 function Events() {
     const [openPopUp, setOpenpopup] = useState(false);
-    const handleShow = (e) => setOpenpopup(true);
-
     const [openCreateNewEvent, setCreateNewEvent] = useState(false);
-    const handleShow2 = (e) => setCreateNewEvent(true);
-
     const [reqSpeaker, setRequestSpeaker] = useState(false);
-    const [eventData, setEventData] = useState([]);
-    const handleShow3 = (e) => setRequestSpeaker(true);
-
-    const [currentPage, setCurrentPage] = useState(1);
-
-    const recordsPerPage = 5;
-    const lastIndex = currentPage * recordsPerPage;
-    const firstIndex = lastIndex - recordsPerPage;
-    const records = eventData.slice(firstIndex, lastIndex);
-    const npage = Math.ceil(eventData.length / recordsPerPage);
-    const numbers = [...Array(npage + 1).keys()].slice(1)
-
     let localStoragee = localStorage.getItem('token');
     let decodedStorage = jwtDecode(localStoragee);
-//     console.log(decodedStorage.user_mail);
     const[formData, setFormData] = useState({
         event_type: 'Webinar',
         event_title: '',
         event_privacy: 'Public',
         event_description: '',
-        // event_speaker: '',
         event_date: '',
         event_time: '',
         created_by: decodedStorage.user_mail
     });
-    console.log(formData);
     const handleChangeEve = (e) => {
         const {name, value} = e.target;
         setFormData((prevData)=>({ 
@@ -58,7 +37,6 @@ function Events() {
         e.preventDefault();
         try{
             const result = await axios.post('http://localhost:3003/api/v1/create-events', formData);
-            console.log(result.data);
             if(result)
             {
                 toast.success("Event Created");
@@ -76,19 +54,15 @@ function Events() {
     const Events = async() => {
         try 
         {
-                const result = await ApiFetchEvents();
-                //console.log(result.rows);
-                setEventData(result.rows);
-                console.log(eventData);
+                await ApiFetchEvents();
         }
         catch(err)
         {
                 console.log(err);
         }
     }
-    
     useEffect(() => {
-                Events()
+        Events()
     },[])
     const [requestSpeakerData, setRequestSpeakerData] = useState({
         select_speaker: 'B.Vaidyanathan',
@@ -102,7 +76,6 @@ function Events() {
             [name]: value,
         }))
      }
-//      console.log(requestSpeakerData);
      const RequestSpeakerButton = async(e) => {
         e.preventDefault();
                 try 
@@ -116,7 +89,6 @@ function Events() {
                 }
                 catch(err)
                 {
-                        console.log(err);
                         if(err)
                         {
                                 if(err.response.status === 401)
@@ -141,9 +113,6 @@ function Events() {
                 console.log(err); 
         }
     }
-
-
-//     Add Past events Data 
     const [AddPastEvent, setPastEvent] = useState({
         event_type: '',
         event_title: '',
@@ -154,7 +123,6 @@ function Events() {
         event_time: '',
         created_by: decodedStorage.user_mail
     })
- 
     const handleChangePastEvent = (e) => {
         const {name, value} = e.target;
         setPastEvent((prevData)=>({ 
@@ -162,8 +130,6 @@ function Events() {
             [name]: value,
         }))
      }
-     console.log(AddPastEvent)
-
      const SubmitAddPastEvent = async(e) => {
         e.preventDefault();
         try 
@@ -232,18 +198,15 @@ function Events() {
                                                                                         </div>
                                                                                 </div>
                                                                         </div>
-                                                                        {/* <div className="pt-2 px-3">
-                                                                                <img src="../../assets/images/296fe121-5dfa-43f4-98b5-db50019738a7.jpg" />
-                                                                        </div> */}
                                                                         <div className="px-3 pb-2 pt-2">
                                                                                         <div className="font-semibold text-lg">Nirmaan-DemoDay</div>
                                                                                         <div className="flex gap-4 pt-2">
                                                                                                 <div className="flex gap-1">
-                                                                                                        <div><img src={calendersvg} width={'15px'}/></div>
+                                                                                                        <div><img src={calendersvg} width={'15px'} alt="Calendar icon"/></div>
                                                                                                        <div className="text-sm">MM/DD/YY</div>
                                                                                                 </div>
                                                                                                 <div className="flex gap-1">
-                                                                                                        <div><img src={Clocksvg} width={'15px'}/></div>
+                                                                                                        <div><img src={Clocksvg} width={'15px'} alt="Clock icon"/></div>
                                                                                                        <div className="text-sm">HH:MM</div>
                                                                                                 </div>
                                                                                                 
@@ -314,7 +277,7 @@ function Events() {
                                 <label for="countries" id="floatig_outlined" className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-700 px-2 peer-focus:px-2 peer-focus:text-blue-500 peer-focus:dark:text-blue-500 peer-focus:dark:bg-gray-700 peer-focus:bg-white peer-focus:scale-75 peer-focus:-translate-y-6 left-2.5">Event type</label>
                         </div>
                         <div className="relative">
-                                <input type="text" id="floating_outlined" onChange={handleChangeEve} name="event_title" className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" "/>
+                                <input type="text" id="floating_outlined" onChange={handleChangeEve} name="event_title" className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=""/>
                                 <label for="floating_outlined" className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">Event Title</label>
                         </div> 
                         <div class="relative">
@@ -345,11 +308,11 @@ function Events() {
                 </div>
                 <div className="grid grid-cols-2 mt-3 gap-4">
                         <div className="relative">
-                                <input type="date" onChange={handleChangeEve} name="event_date" id="floating_outlined" className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" "/>
+                                <input type="date" onChange={handleChangeEve} name="event_date" id="floating_outlined" className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=""/>
                                 <label for="floating_outlined" className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">Event date</label>
                         </div> 
                         <div className="relative">
-                                <input type="time" name="event_time" onChange={handleChangeEve} id="floating_outlined" className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" "/>
+                                <input type="time" name="event_time" onChange={handleChangeEve} id="floating_outlined" className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=""/>
                                 <label for="floating_outlined" className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">Event time</label>
                         </div>
                 </div>

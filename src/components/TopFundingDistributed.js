@@ -17,7 +17,7 @@ ChartJS.register(
 const TopFundingDistributed = (props) => {
     //let dataProps = props.selectedTopSectors;
 
-  const [dataa, setData] = useState([]);
+  // const [dataa, setData] = useState([]);
   const [labels, setLabels] = useState([]);
   const [values, setValues] = useState([]);
   const ApiCall = useCallback(async() => {
@@ -26,7 +26,7 @@ const TopFundingDistributed = (props) => {
         {
             const response = await axios.get(`http://localhost:3003/api/v1/st?id=${props.selectedTopSectors}`)
             const rows = response.data.rows;
-            setData(rows);
+            // setData(rows); // removed unused state
             setLabels(rows.map((dataObj) => dataObj.sector));
             setValues(rows.map((dataObj) => parseFloat(dataObj.sum)));
             //console.log(response);

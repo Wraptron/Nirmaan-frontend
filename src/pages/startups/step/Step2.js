@@ -9,16 +9,14 @@
 
 
 import React, {useState, useEffect} from "react";
-import { ApiFetchMentor, ApiDeletMentorData } from "../../../API/API";
+import { ApiFetchMentor } from "../../../API/API";
 
 const Step2 = ({formData, handleChange}) => {
-  const [data, setData] = useState([]);
   const [errors, setErrors] = useState({});
 
   const FetchData = async() => {
     try {
-        const API = await ApiFetchMentor();
-        setData(API.STATUS.rows);
+        await ApiFetchMentor();
     }
     catch(err)
     {
@@ -29,16 +27,6 @@ const Step2 = ({formData, handleChange}) => {
   useEffect(() =>{
     FetchData();
   },[])
-
-  function generatePassword() {
-        var length = 8,
-        charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
-        retVal = "";
-        for (var i = 0, n = charset.length; i < length; ++i) {
-            retVal += charset.charAt(Math.floor(Math.random() * n));
-        }
-        return retVal;
-  }
 
   // Validation functions for each field
   const validateOfficialContactNumber = (value) => {

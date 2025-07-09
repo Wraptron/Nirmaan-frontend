@@ -12,16 +12,13 @@ import backarrow from "../../assets/images/Frame (1).svg";
 import messagesvg from "../../assets/images/Frame (2).svg";
 import messagesvgblack from "../../assets/images/Frame (22).svg";
 import settingsvg from "../../assets/images/Frame (3).svg";
-import professionalsvg from "../../assets/images/Frame (4).svg";
 import professionalsvgblack from "../../assets/images/Frame (24).svg";
-import settingsvgblack from "../../assets/images/Frame (25).svg";
 import exclamtionwhite from "../../assets/images/Frame (26).svg";
 import settingsvgwhite from "../../assets/images/Frame (27).svg";
 
 function AddNewMentor() {
   const [currentStep, setCurrentStep] = useState(0);
   const navigate = useNavigate();
-  const [file, setFile] = useState(null);
   const [formData, setFormData] = useState({
     description: {
       mentor_name: "",
@@ -137,9 +134,7 @@ function AddNewMentor() {
                   }}
                 >
                   <img
-                    src={
-                      currentStep === 1 ? exclamtionwhite : professionalsvgblack
-                    }
+                    src={currentStep === 1 ? exclamtionwhite : professionalsvgblack}
                     className="w-5 mb-1"
                     alt="Step 2"
                   />

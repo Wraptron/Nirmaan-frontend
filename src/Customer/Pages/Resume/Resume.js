@@ -83,14 +83,6 @@ function Resume() {
       .then(response => response.json())
       .then(fetchedData => setData(fetchedData));
   }, []);
-  const styles = `
-  @media (max-width: 768px) {
-    .ag-pagination {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-  }`;
   return (
     <div className="flex">
       <section id="SideBar" className="w-[66px]">

@@ -7,7 +7,6 @@ import FundingPrathamPieChart from '../../../components/FundingPratham'
 import FundingUtilized from '../../../components/FundingUtilized'
 import FundsRemaining from '../../../components/FundsRemaining'
 import axios from 'axios'
-import HomeFinance from '../../../pages/Home/Finance/Finance'
 const FinanceHome = () => {
   //console.log(props)
   const [data, setData] = useState([]);

@@ -50,55 +50,6 @@ const Step3 = ({formData, handleChange}) => {
     return "";
   };
 
-  // Validate all fields at once
-  const validateAllFields = () => {
-    const newErrors = {};
-    
-    newErrors.founder_name = validateFounderName(formData.founder_name);
-    newErrors.founder_email = validateFounderEmail(formData.founder_email);
-    newErrors.founder_number = validateFounderNumber(formData.founder_number);
-    newErrors.founder_gender = validateFounderGender(formData.founder_gender);
-    newErrors.founder_student_id = validateFounderStudentId(formData.founder_student_id);
-    newErrors.linkedInid = validateLinkedInId(formData.linkedInid);
-    newErrors.academic_background = validateAcademicBackground(formData.academic_background);
-    
-    setErrors(newErrors);
-    
-    // Check if there are any errors
-    const hasErrors = Object.values(newErrors).some(error => error !== "");
-    return !hasErrors;
-  };
-
-  // Check if form is valid (all required fields filled and no errors)
-  const isFormValid = () => {
-    const requiredFields = [
-      'founder_name',
-      'founder_email', 
-      'founder_number',
-      'founder_gender',
-      'founder_student_id',
-      'linkedInid', // Added LinkedIn ID as required field
-      'academic_background' // Academic background required
-    ];
-    
-    // Check if all required fields are filled
-    const allRequiredFieldsFilled = requiredFields.every(field => {
-      const value = formData[field];
-      if (field === 'founder_gender') {
-        return value && value.toString().trim() !== "" && value !== "Choose a Gender";
-      }
-      if (field === 'academic_background') {
-        return value && value.toString().trim() !== "" && value !== "Choose a Academic ";
-      }
-      return value && value.toString().trim() !== "";
-    });
-    
-    // Check if there are no validation errors
-    const noErrors = Object.values(errors).every(error => error === "");
-    
-    return allRequiredFieldsFilled && noErrors;
-  };
-
   // Handle field validation on change
   const handleFieldChange = (e) => {
     const { name, value } = e.target;
@@ -131,6 +82,7 @@ const Step3 = ({formData, handleChange}) => {
         error = validateAcademicBackground(value);
         break;
       default:
+        error = "";
         break;
     }
     
@@ -139,23 +91,6 @@ const Step3 = ({formData, handleChange}) => {
       ...prev,
       [name]: error
     }));
-  };
-
-  // Handle form submission or next step
-  const handleNextStep = () => {
-    const isValid = validateAllFields();
-    
-    if (isValid) {
-      // Proceed to next step
-      console.log("Form is valid, proceeding to next step");
-      // You can call your next step function here
-      // e.g., onNextStep();
-      return true;
-    } else {
-      // Show validation errors
-      console.log("Form has validation errors");
-      return false;
-    }
   };
 
   // Effect to validate form whenever formData changes
@@ -186,6 +121,9 @@ const Step3 = ({formData, handleChange}) => {
           case "academic_background":
             newErrors[fieldName] = validateAcademicBackground(formData[fieldName]);
             break;
+          default:
+            // No validation for other fields
+            break;
         }
       });
       setErrors(newErrors);
@@ -197,6 +135,26 @@ const Step3 = ({formData, handleChange}) => {
     const baseClass = "block w-full p-2 text-sm border rounded-lg bg-gray-50 focus:ring-[#45C74D]";
     const errorClass = errors[fieldName] ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-[#45C74D]";
     return `${baseClass} ${errorClass} text-gray-900`;
+  };
+
+  const isFormValid = () => {
+    // List all required fields
+    const requiredFields = [
+      "founder_name",
+      "founder_email",
+      "founder_number",
+      "founder_gender",
+      "founder_student_id",
+      "linkedInid",
+      "academic_background"
+    ];
+    // Check if any required field is empty or has an error
+    for (let field of requiredFields) {
+      if (!formData[field] || errors[field]) {
+        return false;
+      }
+    }
+    return true;
   };
 
   return (

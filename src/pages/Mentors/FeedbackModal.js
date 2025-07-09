@@ -22,7 +22,7 @@ const FeedbackModal = ({
     if (isOpen && meetingId) {
       fetchFeedback();
     }
-  }, [isOpen, meetingId]);
+  }, [isOpen, meetingId, fetchFeedback]);
 
   const fetchFeedback = async () => {
     try {

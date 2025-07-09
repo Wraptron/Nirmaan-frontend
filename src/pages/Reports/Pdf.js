@@ -28,10 +28,10 @@ const Pdf = () => {
             </Page>
             <Page>
                 <View>
-                    <Text style="display: flex">sfh</Text>
+                    <Text>sfh</Text>
                 </View>
                 <View>
-                    <Text style="display: flex">sfh</Text>
+                    <Text>sfh</Text>
                 </View>
             </Page>
         </Document>

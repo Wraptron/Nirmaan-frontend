@@ -1,14 +1,4 @@
-// 
 
-
-
-
-
-
-
-
-
- 
 import React, {useRef, useState, useEffect} from "react";
 
 const Step4 = ({formData, handleChange}) => {
@@ -43,18 +33,18 @@ const Step4 = ({formData, handleChange}) => {
   };
 
   // Validate all fields at once
-  const validateAllFields = () => {
-    const newErrors = {};
+  // const validateAllFields = () => {
+  //   const newErrors = {};
     
-    newErrors.logo = validateLogo(formData.logo);
-    newErrors.startup_description = validateDescription(formData.startup_description);
+  //   newErrors.logo = validateLogo(formData.logo);
+  //   newErrors.startup_description = validateDescription(formData.startup_description);
     
-    setErrors(newErrors);
+  //   setErrors(newErrors);
     
-    // Check if there are any errors
-    const hasErrors = Object.values(newErrors).some(error => error !== "");
-    return !hasErrors;
-  };
+  //   // Check if there are any errors
+  //   const hasErrors = Object.values(newErrors).some(error => error !== "");
+  //   return !hasErrors;
+  // };
 
   // Check if form is valid (all required fields filled and no errors)
   const isFormValid = () => {
@@ -121,23 +111,6 @@ const Step4 = ({formData, handleChange}) => {
       ...prev,
       [name]: error
     }));
-  };
-
-  // Handle form submission or next step
-  const handleNextStep = () => {
-    const isValid = validateAllFields();
-    
-    if (isValid) {
-      // Proceed to next step
-      console.log("Form is valid, proceeding to next step");
-      // You can call your next step function here
-      // e.g., onNextStep();
-      return true;
-    } else {
-      // Show validation errors
-      console.log("Form has validation errors");
-      return false;
-    }
   };
 
   // Effect to validate form whenever formData changes

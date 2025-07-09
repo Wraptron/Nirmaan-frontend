@@ -3,20 +3,15 @@ import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
 import AddConnections from "../../components/AddConnections";
 import EstablishConnections from "../../components/EstablishConnections";
-import { CSSTransition } from "react-transition-group";
-import {FaExclamationTriangle, FaFileAlt, FaPlusCircle, FaSearch, FaTag} from "react-icons/fa";
-import { FaGear, FaPage4, FaPencil, FaTrashCan } from "react-icons/fa6";
-import { ApiAddConnections, ApiViewConnections, ApiEstablishConnections, ApiDeleteConnections } from "../../API/API";
+import { ApiAddConnections, ApiViewConnections, ApiEstablishConnections } from "../../API/API";
 import '../../components/styles/style.css';
 import toast from 'react-hot-toast';
 // import { ToastContainer, toast } from 'react-toastify';
 // import 'react-toastify/dist/ReactToastify.css';
-import { Encryption } from "../../utils/Enc";
+
 function Connection(){
     const [openPopUp, setOpenpopup] = useState(false);
-    const handleShow = () => setOpenpopup(true);
     const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
-    const handleEstablish = () => setOpenEstablishPopUp(true);
     const [AddConnection, setAddConnection] = useState({
         name: '',
         designation: '',
@@ -72,7 +67,7 @@ function Connection(){
                 {
                     toast.error('Please provide a valid email')
                 }
-                else if(err.response.status=403)
+                else if(err.response.status===403)
                 {
                     toast.error('Please provide a valid contact number')
                 }
@@ -99,22 +94,6 @@ function Connection(){
                 {
                     toast.error('ALL fields are required');
                 }
-            }
-        }
-        // let email_address = 'hello';
-        const deleteConnection = async(email_address) => {
-            try
-            {
-                // console.log(email_address);
-                const API = await ApiDeleteConnections(email_address);
-                if(API)
-                {
-                    toast.success('Delete Successfull');
-                }
-            }
-            catch(err)
-            {
-                console.error(err);
             }
         }
         const [data, setData] = useState([]);

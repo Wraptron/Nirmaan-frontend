@@ -6,15 +6,12 @@ import Foundernew from "../../components/Foundernew";
 import Membernew from "../../components/Membernew";
 // import Uploadocument from "../../components/Uploadocument";
 import Awards from "../../components/Awards";
-import { BiPin } from "react-icons/bi";
 import { jwtDecode } from "jwt-decode";
-import axios from "axios";
 import alertify from "alertifyjs";
 import Aboutedit from "../../components/Aboutedit";
 function CustomerProfile() {
   const [showFoundernew, setFoundernew] = useState(false);
   const [showMembernew, setMembernew] = useState(false);
-  const [showUploadocument, setUploadocument] = useState(false);
   const [showAwards, setAwards] = useState(false);
   const [showAboutedit, setAboutedit] = useState(false);
 
@@ -34,7 +31,7 @@ function CustomerProfile() {
     team_number: null,
     team_designation: ''
   })
-  const[emailCapsRemover, setEmailCapsRemover] = useState();
+
   const handleChange = (e) => {
     const {name, value} = e.target;
     setFounderFormData((prevData)=>({  
@@ -48,10 +45,10 @@ function CustomerProfile() {
   const handleSubmit = async(e) => {
         e.preventDefault()
         try{
-            const result = await axios.put(`http://localhost:3003/api/v1/customer/founder-update?session_mail=${session_mail.user_mail}`,founderFormData, {headers: {
-                // 'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                'Content-Type': 'application/json'
-            }});
+            // const result = await axios.put(`http://localhost:3003/api/v1/customer/founder-update?session_mail=${session_mail.user_mail}`,founderFormData, {headers: {
+            //     // 'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            //     'Content-Type': 'application/json'
+            // }});
         }
         catch(err)
         {
@@ -75,20 +72,6 @@ function CustomerProfile() {
       if(!memberFormData.team_email || !memberFormData.team_designation || !memberFormData.team_name || !memberFormData.team_number)
       {
           alertify.error("Please fill necessary data");
-      }
-      else
-      {
-        const result = await axios.post(`http://localhost:3003/api/v1/customer/teams-update`, memberFormData, {headers: {
-          'Content-Type': 'application/json'
-        }})
-        if(result.data.status === 200)
-        {
-          alertify.success('Data Inserted Successfully');
-        }
-        else
-        {
-          alertify.error("Unknown bug has araised 😒")
-        }
       }
     }
     catch(err)

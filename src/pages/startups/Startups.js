@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
 import axios from "axios";
-import ExportSvg from "../../assets/images/export excel.svg";
-import FrameSvg from "../../assets/images/Frame.svg";
 import toast from "react-hot-toast";
 import { FaSpinner, FaEllipsisV } from "react-icons/fa";
 import { ApiDeletStartupData } from "../../API/API";
@@ -68,54 +66,6 @@ function Startups() {
   const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage((prev) => prev + 1);
-    }
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
-    }
-  };
-
-  const handleGraduate = async (email) => {
-    try {
-      await axios.put(
-        `http://localhost:3003/api/v1/update-status?startup_status=Graduated&official_email_address=${email}`
-      );
-      toast.success("Marked as Graduated");
-      fetchData();
-    } catch {
-      toast.error("Error updating status");
-    }
-  };
-
-  const handleDrop = async (email) => {
-    try {
-      await axios.put(
-        `http://localhost:3003/api/v1/update-status?startup_status=Dropped&official_email_address=${email}`
-      );
-      toast.success("Marked as Dropped");
-      fetchData();
-    } catch {
-      toast.error("Error updating status");
-    }
-  };
-
-  const handleActive = async (email) => {
-    try {
-      await axios.put(
-        `http://localhost:3003/api/v1/update-status?startup_status=Active&official_email_address=${email}`
-      );
-      toast.success("Marked as Active");
-      fetchData();
-    } catch {
-      toast.error("Error updating status");
-    }
-  };
-
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case "active":
@@ -127,12 +77,6 @@ function Startups() {
       default:
         return "bg-gray-100 text-gray-600";
     }
-  };
-
-  const getProgressPercentage = (stage) => {
-    const stages = ["idea", "mvp", "traction", "scaling", "graduated"];
-    const index = stages.indexOf(stage?.toLowerCase());
-    return index >= 0 ? ((index + 1) / stages.length) * 100 : 25;
   };
 
   const handleDelete = async (email) => {
@@ -314,10 +258,6 @@ function Startups() {
                                 </div>
                               </div>
                             </div>
-                            {/* Optional Progress Bar */}
-                            {/* <div className="w-full bg-gray-200 h-1 rounded mt-3">
-                            <div className="bg-green-500 h-1 rounded" style={{ width: `${getProgressPercentage(startup.stage)}%` }} />
-                          </div> */}
                           </div>
                         ))
                       ) : (

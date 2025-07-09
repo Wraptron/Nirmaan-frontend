@@ -1,29 +1,14 @@
-import React, {useState, useEffect, useCallback} from 'react'
-import { FaBars, FaBook, FaBookOpen, FaCalendar, FaCalendarCheck, FaChalkboard, FaChalkboardTeacher, FaChartPie, FaCubes, FaDashcube, FaFile, FaFilePdf, FaFileUpload, FaGraduationCap, FaHome, FaPencilAlt, FaPeopleArrows, FaRegCalendarCheck, FaRegFile, FaRocket} from 'react-icons/fa';
-import { FaPeopleGroup, FaPersonChalkboard } from 'react-icons/fa6';
+import React from 'react'
+import { FaChartPie, FaRocket } from 'react-icons/fa';
 import nirmaanlogo from '../assets/images/nirmaan-iitm.14fdf833.svg';
-import startupslogo from '../assets/images/Dashboard.svg';
 function SideBar({children}) {
     // const [userRole, setUserRole] = useState('customer');  
     // const currentPath = window.location.pathname;
     // const ShowArrowIcon = currentPath === '/customer/Home';
     const currentPath = window.location.pathname;
-    const [selectedIndex, setSelectedIndex] = useState('')
-
-    const findCurrentPathname = useCallback(() => {
-        if (currentPath === '/home') {
-          setSelectedIndex('bg-[#45C74D] text-white rounded-xl')
-        }
-        else if (currentPath === '/startups') {
-          setSelectedIndex('bg-[#45C74D] text-white rounded-xl')
-        }
-      }, [currentPath])
-      useEffect(() => {
-        findCurrentPathname();
-      }, [findCurrentPathname])
   return (
   <div className="fixed top-0 left-0 h-screen md:w-[220px] sm:w-9 w-9 m-0 flex flex-col text-black border-r-0 border-gray-500 shadow-md bg-white">
-        <div className="md:px-[50px] pt-4"><img src={nirmaanlogo} className="w-[120px;]"/></div>
+        <div className="md:px-[50px] pt-4"><img src={nirmaanlogo} alt="Nirmaan logo" className="w-[120px;]"/></div>
         <div className="">
             <ul className="py-5 px-8">
                 <li className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 mt-2 ${currentPath === "/home" && "bg-[#45C74D] text-white rounded-xl"}`}><a href="/home" className="flex gap-5"><FaChartPie size={20}/> Dashboard</a></li>

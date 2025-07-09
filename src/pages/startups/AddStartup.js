@@ -223,7 +223,7 @@ function AddStartup() {
                                         <div key={index} className={`${steps === index ? 'bg-[#45C74D]' : 'bg-[#D8F3D9]'} text-white flex justify-center items-center text-lg gap-2 md:py-2`}
                                             style={{ clipPath: index === 0 ? "polygon(0% 0%, 90% 0%, 100% 50%, 90% 100%, 0% 100%)" : index === 3 ? "polygon(100% 0%, 100% 49%, 100% 100%, 0% 100%, 9% 50%, 0% 0%)" : "polygon(89% 0%, 100% 50%, 89% 100%, 0% 100%, 9% 50%, 0% 0%)" }}>
                                             <span>
-                                                <img src={steps === index ? step.icon : step.iconAlt} />
+                                                <img src={steps === index ? step.icon : step.iconAlt} alt={step.label} />
                                             </span>
                                             <span className={`my-2 text-lg ${steps === index ? 'text-white' : 'text-black'}`}>{step.label}</span>
                                         </div>

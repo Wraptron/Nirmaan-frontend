@@ -1,11 +1,8 @@
 import React, {useState} from 'react'
-import { FaBars, FaBook, FaCalendar, FaChalkboard, FaChalkboardTeacher, FaDatabase, FaFilePdf, FaFileUpload, FaGraduationCap, FaHome, FaMoneyBill, FaPencilAlt, FaPeopleArrows} from 'react-icons/fa';
-import { FaMoneyBillTransfer, FaPersonChalkboard } from 'react-icons/fa6';
+import { FaDatabase, FaHome,} from 'react-icons/fa';
+import { FaMoneyBillTransfer } from 'react-icons/fa6';
 
 function SideBar({children}) {
-    const [userRole, setUserRole] = useState('customer');  
-    const currentPath = window.location.pathname;
-    const ShowArrowIcon = currentPath === '/customer/Home';
   return (
 <div className="fixed top-0 left-0 mt-14 h-screen md:w-11 sm:w-9 w-9 m-0 flex flex-col text-black border-gray-500 shadow-md">
       <SideBarLink href="/finance/home">

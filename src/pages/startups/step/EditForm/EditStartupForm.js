@@ -19,7 +19,6 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
   const [profilePreview, setProfilePreview] = useState(null);
   const [bgPreview, setBgPreview] = useState(null);
   const profileInputRef = useRef();
-  const bgInputRef = useRef();
 
   useEffect(() => {
     if (initialData) {
@@ -49,14 +48,6 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
     if (file) {
       setFormData((prev) => ({ ...prev, profile_image: file }));
       setProfilePreview(URL.createObjectURL(file));
-    }
-  };
-
-  const handleBgImage = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData((prev) => ({ ...prev, background_image: file }));
-      setBgPreview(URL.createObjectURL(file));
     }
   };
 

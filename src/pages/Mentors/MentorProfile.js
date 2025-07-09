@@ -2,10 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import mailsvg from "../../assets/images/Frame (6).svg";
 import phonesvg from "../../assets/images/Frame (7).svg";
-import whatsappsvg from "../../assets/images/Frame (8).svg";
 import dummysvg from "../../assets/images/image (1).svg";
 import linkedinsvg from "../../assets/images/Frame (9).svg";
-import bgsvg from "../../assets/images/Rectangle 5.svg";
 import Testimonials from "../../assets/images/testimonial.png";
 import editsvg from "../../assets/images/Frame (12).svg";
 
@@ -13,20 +11,17 @@ import {
   ApiFetchMentor,
   ApiFetchScheduleMeetings,
   ApiFetchTestimonials,
-  ApiDeleteTestimonial,
-  ApiSaveFeedback,
   ApiFetchFeedback,
 } from "../../API/API";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import { FaChevronLeft, FaChevronRight, FaQuoteLeft, FaEllipsisV } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaQuoteLeft } from "react-icons/fa";
 import TestimonialForm from "./AddTestimonial";
 import EditMentorForm from "./EditMentorPage";
 import SideBar from '../../components/sidebar';
 import NavBar from "../../components/NavBar";
-import FeedbackModal from './FeedbackModal';
 
 function MentorProfile() {
   const { id } = useParams();
@@ -38,31 +33,10 @@ function MentorProfile() {
   const [showEditModal, setShowEditModal] = useState(false);
   const navigationPrevRef = useRef(null);
   const navigationNextRef = useRef(null);
-  const prevRef = useRef(null);
-  const nextRef = useRef(null);
   const navigate = useNavigate();
-  const [selectedTestimonial, setSelectedTestimonial] = useState(null);
-  const [editTestimonial, setEditTestimonial] = useState(null);
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [selectedSession, setSelectedSession] = useState(null);
-  const [sessionFeedbacks, setSessionFeedbacks] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [activityCurrentPage, setActivityCurrentPage] = useState(1);
   const itemsPerPage = 3;
-
-  // Mock activity data - replace with actual API call
-  const [activities] = useState([
-    {
-      id: 1,
-      startup: "Start-up - Name",
-      activity: "Activity",
-      status: "Upcoming",
-    },
-    { id: 2, startup: "Start-up - Name", activity: "Activity" },
-    { id: 3, startup: "Start-up - Name", activity: "Activity" },
-    { id: 4, startup: "Start-up - Name", activity: "Activity" },
-  ]);
 
   const handleScheduleClick = () => {
     navigate(`/schedulemeeting/${mentor.mentor_id}`);
@@ -89,41 +63,40 @@ function MentorProfile() {
     try {
       const response = await ApiFetchFeedback(meetingId);
       if (response?.STATUS?.rows?.[0]) {
-        const feedbackData = response.STATUS.rows[0];
-        setSessionFeedbacks((prev) => ({
-          ...prev,
-          [meetingId]: feedbackData.feedback || "",
-        }));
+        // const feedbackData = response.STATUS.rows[0];
+        // setSessionFeedbacks((prev) => ({
+        //   ...prev,
+        //   [meetingId]: feedbackData.feedback || "",
+        // }));
       }
     } catch (error) {
       console.error("Error fetching feedback:", error);
     }
   };
 
-  const FetchData = async () => {
-    try {
-      const API = await ApiFetchMentor();
-      const allMentors = API?.STATUS?.rows || [];
-      const selectedMentor = allMentors.find(
-        (m) => String(m.mentor_id) === String(id)
-      );
-      setMentor(selectedMentor || null);
-
-      const MeetAPI = await ApiFetchScheduleMeetings(selectedMentor?.mentor_id);
-      const meetings = MeetAPI?.STATUS?.rows || [];
-      setMeeting(meetings);
-
-      await fetchTestimonials(selectedMentor?.mentor_id);
-
-      for (const session of meetings) {
-        await fetchFeedback(session.meeting_id);
-      }
-    } catch (err) {
-      console.error("Error fetching mentor data:", err);
-    }
-  };
-
   useEffect(() => {
+    const FetchData = async () => {
+      try {
+        const API = await ApiFetchMentor();
+        const allMentors = API?.STATUS?.rows || [];
+        const selectedMentor = allMentors.find(
+          (m) => String(m.mentor_id) === String(id)
+        );
+        setMentor(selectedMentor || null);
+
+        const MeetAPI = await ApiFetchScheduleMeetings(selectedMentor?.mentor_id);
+        const meetings = MeetAPI?.STATUS?.rows || [];
+        setMeeting(meetings);
+
+        await fetchTestimonials(selectedMentor?.mentor_id);
+
+        for (const session of meetings) {
+          await fetchFeedback(session.meeting_id);
+        }
+      } catch (err) {
+        console.error("Error fetching mentor data:", err);
+      }
+    };
     FetchData();
   }, [id]);
 
@@ -152,25 +125,6 @@ function MentorProfile() {
     return `https://www.linkedin.com/in/${urlOrUsername}`;
   };
 
-  const handleFeedbackSave = async (feedback) => {
-    try {
-      const response = await ApiSaveFeedback(
-        selectedSession.meeting_id,
-        feedback
-      );
-      if (response?.STATUS?.success) {
-        setSessionFeedbacks((prev) => ({
-          ...prev,
-          [selectedSession.meeting_id]: feedback,
-        }));
-      } else {
-        console.error("Failed to save feedback:", response?.STATUS?.message);
-      }
-    } catch (error) {
-      console.error("Error saving feedback:", error);
-    }
-  };
-
   // Pagination logic for mentoring sessions
   const totalPages = Math.ceil((meeting?.length || 0) / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -178,13 +132,13 @@ function MentorProfile() {
   const currentMeetings = meeting?.slice(startIndex, endIndex) || [];
 
   // Pagination logic for activities
-  const activityTotalPages = Math.ceil(activities.length / itemsPerPage);
-  const activityStartIndex = (activityCurrentPage - 1) * itemsPerPage;
-  const activityEndIndex = activityStartIndex + itemsPerPage;
-  const currentActivities = activities.slice(
-    activityStartIndex,
-    activityEndIndex
-  );
+  // const activityTotalPages = Math.ceil(activities.length / itemsPerPage);
+  // const activityStartIndex = (activityCurrentPage - 1) * itemsPerPage;
+  // const activityEndIndex = activityStartIndex + itemsPerPage;
+  // const currentActivities = activities.slice(
+  //   activityStartIndex,
+  //   activityEndIndex
+  // );
 
   const Pagination = ({
     currentPage,
@@ -415,10 +369,6 @@ function MentorProfile() {
                     </div>
                     <div>
                       <button
-                        onClick={() => {
-                          setSelectedSession(session);
-                          setShowFeedbackModal(true);
-                        }}
                         className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600"
                       >
                         Visit Feedback
@@ -505,7 +455,6 @@ function MentorProfile() {
                 </button>
               </div>
             </div>
-                    
           </div>
         </div>
         {showEditModal && (
@@ -524,9 +473,8 @@ function MentorProfile() {
           />
         )}
       </div>
-         
     </div>
   );
 }
 
-export default MentorProfile;
+export default MentorProfile;
