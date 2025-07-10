@@ -1,3 +1,3 @@
-const APP_URL = "http://localhost:3003/api/v1/";
+const APP_URL = "https://d81de2f6.nirmaan-frontend.pages.dev/";
 
 export default APP_URL;
