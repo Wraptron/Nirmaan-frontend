@@ -1,3 +1,3 @@
-const APP_URL = "https://d81de2f6.nirmaan-frontend.pages.dev/";
-
-export default APP_URL;
+const APP_URL = "http://3.109.48.163/api/v1/";
+    
+export default APP_URL;
