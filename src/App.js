@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from "react-hot-toast";
 import { PDFViewer } from '@react-pdf/renderer';
@@ -59,7 +59,9 @@ import FinanceUpdateFunding from './Finance/Pages/Startup/Updatefunding';
 import ProtectedRoutes from './utils/ProtectedRoutes';
 
 function App() {
-
+  useEffect(() => {
+    localStorage.getItem('token');
+  }, []);
 
   return (
     <div>
@@ -70,11 +72,10 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/like" element={<OfficeHome />} />
 
-          {/* Admin Routes (Role: 2) */}
-          <Route element={<ProtectedRoutes requiredRoles={["2"]} />}>
+          {/* Admin Only Routes (Role: 2) */}
+          <Route element={<ProtectedRoutes allowedRoles={["2"]} />}>
             <Route path="/home" element={<Home />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/startupprofile/:official_email_address" element={<Startupprofile />} />
             <Route path="/addstartup" element={<AddStartup />} />
             <Route path="/startups" element={<Startups />} />
             <Route path="/connections" element={<Connections />} />
@@ -105,10 +106,14 @@ function App() {
             } />
           </Route>
 
-          {/* Startup Profile (Role: 5) */}
-          <Route element={<ProtectedRoutes requiredRoles={["5"]} />}>
+          {/* Startup Profile Routes (Admin: 2 + Students: 5) */}
+          <Route element={<ProtectedRoutes allowedRoles={["2", "5"]} />}>
             <Route path="/startupprofile/:official_email_address" element={<Startupprofile />} />
             <Route path="/events/request-speaker" element={<RequestSpeaker />} />
+          </Route>
+
+          {/* Student Only Routes (Role: 5) */}
+          <Route element={<ProtectedRoutes allowedRoles={["5"]} />}>
             <Route path="/customer/Home" element={<CustomerHome />} />
             <Route path="/customer/resume" element={<Resume />} />
             <Route path="/customer/resources" element={<Resource />} />
@@ -124,7 +129,7 @@ function App() {
           </Route>
 
           {/* Finance Routes (Role: 3) */}
-          <Route element={<ProtectedRoutes requiredRoles={["3"]} />}>
+          <Route element={<ProtectedRoutes allowedRoles={["3"]} />}>
             <Route path="/finance/home" element={<FinanceHome />} />
             <Route path="/fin/updatefunding" element={<FinanceUpdateFunding />} />
             <Route path="/bills" element={<Bills />} />

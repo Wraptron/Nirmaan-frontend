@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import { Bar, Pie } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 //import { useContext } from 'react';
 import axios from 'axios';
 import {
@@ -17,7 +17,6 @@ ChartJS.register(
 const FundingByCohort = (props) => {
     //let dataProps = props.selectedTopSectors;
 
-  const [dataa, setData] = useState([]);
   const [labels, setLabels] = useState([]);
   const [values, setValues] = useState([]);
   const ApiCall = useCallback(async() => {
@@ -26,7 +25,6 @@ const FundingByCohort = (props) => {
         {
             const response = await axios.get(`http://localhost:3003/api/v1/st?id=${props.selectedTopSectors}`)
             const rows = response.data.rows;
-            setData(rows);
             setLabels(rows.map((dataObj) => dataObj.sector));
             setValues(rows.map((dataObj) => parseFloat(dataObj.sum)));
             //console.log(response);

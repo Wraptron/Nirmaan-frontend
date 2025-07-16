@@ -3,7 +3,7 @@ import Step1 from './step/Step1';
 import Step2 from './step/Step2';
 import Step3 from './step/Step3';
 import Step4 from './step/Step4';
-import { FaInfo, FaInfoCircle, FaSearch } from 'react-icons/fa';
+import { FaInfo, FaSearch } from 'react-icons/fa';
 import { FaGear, FaMessage } from 'react-icons/fa6';
 import toast from 'react-hot-toast';
 import axios from 'axios';
