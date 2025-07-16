@@ -1,16 +1,20 @@
-import React,{useState} from 'react';
+import React,{useState, useEffect} from 'react';
 import "@fontsource/open-sans";
 import '@fontsource/josefin-sans';
 import image from '../assets/images/nirmaan-iitm.14fdf833.svg';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import alertify from 'alertifyjs';
 import 'alertifyjs/build/css/alertify.css';
+import { jwtDecode } from "jwt-decode";
 import PuffLoader from "react-spinners/PuffLoader";
 import APP_URL from '../Config';
 import {Icon} from 'react-icons-kit';
 import {eyeOff} from 'react-icons-kit/feather/eyeOff';
 import {eye} from 'react-icons-kit/feather/eye'
+import { Route } from 'react-router-dom';
+import StartupProfile from './startups/startupprofile';
+import ProtectedRoutes from '../utils/ProtectedRoutes';
 
 function Login() {  
     const navigate = useNavigate();
@@ -19,8 +23,10 @@ function Login() {
         user_mail: '',
         user_password: ''
     }) 
+    const[viewPassword, setViewPassword] = useState(false);
     const[icon, setIcon] = useState(eyeOff);
     const[type, setType] = useState('password');
+    const [accessTokenn, setAccessToken] = useState('');
     
     const handleToggle = () => {
         if(type==='password')
@@ -79,12 +85,10 @@ function Login() {
     
     const handleChange = (e) => {
         const {name, value} = e.target;
-        setFormData((prevData)=>(
-            {
-                ...prevData,
-                [name]: value,
-            }
-        ))
+        setFormData((prevData)=>({
+            ...prevData,
+            [name]: value,
+        }))
     }
     
     const handleSubmit = async(e) => {
