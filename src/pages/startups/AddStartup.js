@@ -147,7 +147,7 @@ function AddStartup() {
 
         try {
             // 1. Add startup
-            const result = await axios.post('http://localhost:3003/api/v1/add-startup', formData, {
+            const result = await axios.post('http://3.109.144.218/api/v1/add-startup', formData, {
                 headers: {
                     "Cache-Control": "no-cache",
                     "Content-Type": "application/json",
