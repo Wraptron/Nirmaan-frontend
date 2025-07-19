@@ -151,7 +151,7 @@ function AddStartup() {
                 headers: {
                     "Cache-Control": "no-cache",
                     "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
+                    
                 }
             });
 
