@@ -28,7 +28,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
   const UpdatedFundingData = async () => {
     try {
       const result = await axios.get(
-        "http://3.109.144.218/api/v1/notification"
+        "http://3.111.170.87/api/v1/notification"
       );
       setTokenData(result.data.rows[0]);
     } catch (err) {
@@ -41,7 +41,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
   const GetProfilePhotoImage = useCallback(async () => {
     try {
       await axios.get(
-        `http://3.109.144.218/api/v1/prof?mail=${tokenDecodedData.user_mail}`
+        `http://3.111.170.87/api/v1/prof?mail=${tokenDecodedData.user_mail}`
       );
     } catch (err) {
       console.log(err);

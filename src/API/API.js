@@ -444,7 +444,7 @@ const isDevelopment = process.env.NODE_ENV === "development";
 // API Base URLs
 const API_URLS = {
   
-  PRODUCTION: "http://3.109.144.218",
+  PRODUCTION: "http://3.111.170.87",
 };
 
 // Current API Base URL based on environment

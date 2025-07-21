@@ -32,7 +32,7 @@ function Startups() {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://3.109.144.218/api/v1/fetch-startup"
+        "http://3.111.170.87/api/v1/fetch-startup"
       );
       setData(response.data.rows || []);
     } catch (error) {
