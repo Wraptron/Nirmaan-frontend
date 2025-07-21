@@ -333,7 +333,8 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const nameRegex = /^[A-Za-z\s]+$/;
-    const phoneRegex = /^(\+91[\-\s]?)?[0]?(91)?[789]\d{9}$/;
+    const phoneRegex = /^[6-9]\d{9}$/;
+
 
     if (
       !formData.startup_name.trim() ||
@@ -517,7 +518,7 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
                   onChange={handleChange}
                   placeholder="+91 | XXXXX XXXXX"
                   required
-                  pattern="^(\+91[\-\s]?)?[0]?(91)?[789]\d{9}$"
+                  pattern="^[6-9]\d{9}$"
                   title="Enter a valid 10-digit Indian mobile number"
                   className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500 focus:outline-none"
                 />

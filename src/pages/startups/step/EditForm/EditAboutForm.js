@@ -17,8 +17,8 @@ const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
         sector: initialData.startup_sector || "",
         program: initialData.program || "",
         startup_type: initialData.startup_type || "",
-        about: initialData.about || "",
-        email_address: initialData.email_address || ""
+        about: initialData.startup_description || "",
+        email_address: initialData.email_address || "",
       });
     }
   }, [initialData]);
