@@ -15,7 +15,7 @@ function Home() {
     useEffect(() => {
         setShoww(true);
     }, [])
-    const url =  'http://3.111.170.87/api/v1/count-startupdata';
+    const url = "http://13.127.7.121/api/v1/count-startupdata";
     const AnalysisData = async() => {
         try
         {
