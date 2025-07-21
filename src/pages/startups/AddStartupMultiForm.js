@@ -68,7 +68,7 @@ const handleSubmit = async (event) => {
     try {
         // const result = await ApiAddNewMentor(formData);
         //console.log('hello')
-        const result = await axios.post('http://localhost:3003/api/v1/add-startup', formData)
+        const result = await axios.post('http://13.127.7.121/api/v1/add-startup', formData)
         if(result)
         {
             toast.success("Startup Created");

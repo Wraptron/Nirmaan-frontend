@@ -10,7 +10,7 @@ function IndividualStartups() {
  const [data, getData] = useState(null);
 const GetData = async() => {
 try {
-    const result = await axios.get(`http://localhost:3003/api/v1/startup/${id}`);
+    const result = await axios.get(`http://13.127.7.121/api/v1/startup/${id}`);
     getData(result.data);
     //console.log(result.data);
 }
