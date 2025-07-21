@@ -2,8 +2,8 @@
 const isDevelopment = process.env.NODE_ENV === "development";
 
 const API_URLS = {
-  DEVELOPMENT: "http://3.109.144.218/api/v1/",
-  PRODUCTION: "http://3.109.144.218/api/v1/",
+  DEVELOPMENT: "http://3.111.170.87/api/v1/",
+  PRODUCTION: "http://3.111.170.87/api/v1/",
 };
 
 const APP_URL = isDevelopment ? API_URLS.DEVELOPMENT : API_URLS.PRODUCTION;
