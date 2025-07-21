@@ -2,7 +2,7 @@
 const isDevelopment = process.env.NODE_ENV === "development";
 
 const API_URLS = {
-  DEVELOPMENT: "http://3.111.170.87/api/v1/",
+  
   PRODUCTION: "http://3.111.170.87/api/v1/",
 };
 
