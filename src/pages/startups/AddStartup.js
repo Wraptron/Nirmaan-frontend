@@ -361,7 +361,7 @@ function AddStartup() {
       requiredFields = [
         "startup_name",
         "startup_sector",
-        "startup_type",
+        "startup_domain",
         "startup_technology",
         "startup_Community",
         "startup_cohort",
@@ -571,7 +571,7 @@ function AddStartup() {
                 <Step2
                   formData={formData.official}
                   handleChange={(e) => handleChange(e, "official")}
-                  selectedProgram={formData.basic.program}
+                //   selectedProgram={formData.basic.program}
                 />
               )}
               {steps === 2 && (
