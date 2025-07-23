@@ -426,7 +426,7 @@ function Startups() {
   const handleGraduate = async (email) => {
     try {
       await axios.put(
-        `http://localhost:3003/api/v1/update-status?startup_status=Graduated&official_email_address=${email}`
+        `http://13.127.7.121/api/v1/update-status?startup_status=Graduated&official_email_address=${email}`
       );
       toast.success("Marked as Graduated");
       fetchData();
@@ -438,7 +438,7 @@ function Startups() {
   const handleDrop = async (email) => {
     try {
       await axios.put(
-        `http://localhost:3003/api/v1/update-status?startup_status=Dropped&official_email_address=${email}`
+        `http://13.127.7.121/api/v1/update-status?startup_status=Dropped&official_email_address=${email}`
       );
       toast.success("Marked as Dropped");
       fetchData();
@@ -450,7 +450,7 @@ function Startups() {
   const handleActive = async (email) => {
     try {
       await axios.put(
-        `http://localhost:3003/api/v1/update-status?startup_status=Active&official_email_address=${email}`
+        `http://13.127.7.121/api/v1/update-status?startup_status=Active&official_email_address=${email}`
       );
       toast.success("Marked as Active");
       fetchData();
@@ -644,17 +644,19 @@ function Startups() {
                                 <div className="font-semibold">Founder</div>
                                 <div>
                                   {startup.founder_name ||
-                                    "startup.founder_name"}
+                                    "N/A"}
                                 </div>
                               </div>
                               <div>
                                 <div className="font-semibold">Sector</div>
                                 <div>
-                                  {startup.startup_industry ||
-                                    "startup.startup_industry"}
+                                  {startup.startup_sector ||
+                                    "N/A"}
                                 </div>
                               </div>
                             </div>
+                            
+                            
                             {/* Optional Progress Bar */}
                             {/* <div className="w-full bg-gray-200 h-1 rounded mt-3">
                             <div className="bg-green-500 h-1 rounded" style={{ width: `${getProgressPercentage(startup.stage)}%` }} />

@@ -6,7 +6,7 @@ const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     sector: "",
     program: "",
-    startup_type: "",
+    startup_domain: "",
     about: "",
     email_address: ""
   });
@@ -16,7 +16,7 @@ const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
       setFormData({
         sector: initialData.startup_sector || "",
         program: initialData.program || "",
-        startup_type: initialData.startup_type || "",
+        startup_domain: initialData.startup_domain || "",
         about: initialData.startup_description || "",
         email_address: initialData.email_address || "",
       });
@@ -98,18 +98,22 @@ const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm mb-1.5">Startup Type <span className="text-red-500">*</span></label>
+                <label className="block text-sm mb-1.5">
+                  Domain <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
-                  name="startup_type"
-                  value={formData.startup_type}
+                  name="startup_domain"
+                  value={formData.startup_domain}
                   onChange={handleChange}
-                  placeholder="Enter startup type"
+                  placeholder="Enter startup Domain"
                   className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1.5">Sector <span className="text-red-500">*</span></label>
+                <label className="block text-sm mb-1.5">
+                  Sector <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   name="sector"
@@ -120,7 +124,9 @@ const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1.5">Program <span className="text-red-500">*</span></label>
+                <label className="block text-sm mb-1.5">
+                  Program <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   name="program"
@@ -133,7 +139,9 @@ const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
             </div>
 
             <div>
-              <label className="block text-sm mb-1.5">About <span className="text-red-500">*</span></label>
+              <label className="block text-sm mb-1.5">
+                About <span className="text-red-500">*</span>
+              </label>
               <textarea
                 name="about"
                 value={formData.about}

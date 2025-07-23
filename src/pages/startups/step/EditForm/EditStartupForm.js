@@ -273,7 +273,7 @@ const statusOptions = [
 const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     startup_name: "",
-    status: "Active",
+    startup_status: "Active",
     email_address: "",
     official_contact_number: "",
     linkedin: "",
@@ -292,7 +292,7 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
     if (initialData) {
       setFormData({
         startup_name: initialData.startup_name || "",
-        status: "Active",
+        startup_status: initialData.startup_status || "Active",
         email_address: initialData.email_address || "",
         official_contact_number: initialData.official_contact_number || "",
         linkedin: initialData.linkedin || "",
@@ -361,6 +361,8 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
     const formPayload = new FormData();
     formPayload.append("startup_name", formData.startup_name);
     formPayload.append("email_address", formData.email_address);
+    formPayload.append("startup_status", formData.startup_status);
+
     formPayload.append(
       "official_contact_number",
       formData.official_contact_number
@@ -481,8 +483,8 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
                   Status <span className="text-red-500">*</span>
                 </label>
                 <select
-                  name="status"
-                  value={formData.status}
+                  name="startup_status"
+                  value={formData.startup_statusstatus}
                   onChange={handleChange}
                   required
                   className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500 focus:outline-none bg-white"

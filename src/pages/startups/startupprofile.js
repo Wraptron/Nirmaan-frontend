@@ -606,9 +606,9 @@ function StartupProfile() {
                     <span className="font-bold text-xl text-[#232323]">
                       {startupData.startup_name}
                     </span>
-                    <span className="bg-[#E9F7F1] text-[#45C74D] text-xs font-semibold px-2 py-0.5 rounded ml-1">
+                    {/* <span className="bg-[#E9F7F1] text-[#45C74D] text-xs font-semibold px-2 py-0.5 rounded ml-1">
                       Active
-                    </span>
+                    </span> */}
                   </div>
                   <div className="flex items-center gap-2 text-sm text-[#232323] mb-1">
                     <span className="flex items-center gap-1">
@@ -626,27 +626,30 @@ function StartupProfile() {
                       {startupData.official_contact_number}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-[#232323] mb-2">
-                    <a
-                      href={startupData.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 hover:underline"
-                    >
-                      <FaLinkedin className="text-blue-600 w-5 h-5" />
-                      {startupData.linkedin}
-                    </a>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-[#232323] mb-2">
-                    <a
-                      href={startupData.website_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 hover:underline"
-                    >
-                      <FiGlobe className="text-green-600 w-5 h-5" />
-                      {startupData.website_link}
-                    </a>
+                  <div className="flex items-center gap-4 text-sm text-[#232323] mb-2">
+                    {startupData.linkedin && (
+                      <a
+                        href={startupData.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 hover:underline"
+                      >
+                        <FaLinkedin className="text-blue-600 w-5 h-5" />
+                        {/* Optional: <span>{startupData.linkedin}</span> */}
+                      </a>
+                    )}
+
+                    {startupData.website_link && (
+                      <a
+                        href={startupData.website_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 hover:underline"
+                      >
+                        <FiGlobe className="text-green-600 w-5 h-5" />
+                        {/* Optional: <span>{startupData.website_link}</span> */}
+                      </a>
+                    )}
                   </div>
 
                   {/* Project Timeline */}
@@ -686,9 +689,9 @@ function StartupProfile() {
                   <div className="flex w-full gap-4 text-sm font-medium text-[#232323]">
                     <div className="flex-1">
                       <div className="text-[#A1A1A1] text-xs mb-1">
-                        Start-up Type
+                        Start-up Domain
                       </div>
-                      <div>{startupData.startup_type}</div>
+                      <div>{startupData.startup_domain}</div>
                     </div>
                     <div className="flex-1">
                       <div className="text-[#A1A1A1] text-xs mb-1">Sector</div>
@@ -800,7 +803,9 @@ function StartupProfile() {
                 </div>
                 <div className="mt-6 font-semibold">Graduated To </div>
                 <div className="text-[#A1A1A1]">
-                  {startupData.graduated_to || "N/A"}
+                  {startupData.graduated_to === "Other"
+                    ? startupData.graduated_to_other || "N/A"
+                    : startupData.graduated_to || "N/A"}
                 </div>
                 <div className="mt-6 font-semibold">
                   Officially Registered as
@@ -808,9 +813,9 @@ function StartupProfile() {
                 <div className="text-[#A1A1A1]">
                   {startupData.register || "N/A"}
                 </div>
-                <div className="mt-6 font-semibold">Community</div>
+                <div className="mt-6 font-semibold">Mode of Entry</div>
                 <div className="text-[#A1A1A1]">
-                  {startupData.community || "N/A"}
+                  {startupData.startup_community || "N/A"}
                 </div>
               </div>
               <div>
