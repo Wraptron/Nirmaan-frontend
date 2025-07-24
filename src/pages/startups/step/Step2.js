@@ -733,7 +733,7 @@ const Step2 = ({ formData, handleChange, selectedProgram }) => {
   };
 
   const validateDpiitNumber = (value) => {
-    if (value && !/D\d+$/.test(value)) return "Please enter a valid (format: D followed by numbers)";
+    if (value && !/D/.test(value)) return "Please enter a valid (format: D Should be First Letter)";
     return "";
   };
 
@@ -954,7 +954,7 @@ const Step2 = ({ formData, handleChange, selectedProgram }) => {
               name="dpiit_number"
               value={formData.dpiit_number || ""}
               className={getInputClass("dpiit_number")}
-              placeholder="DPIIT123456"
+              placeholder="DXXXXX"
             />
             {errors.dpiit_number && (
               <div className="text-red-500 text-xs mt-1">

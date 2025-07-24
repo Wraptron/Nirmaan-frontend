@@ -382,7 +382,12 @@ function AddStartup() {
 
         if (steps === 1) {
             requiredFields = ['official_contact_number', 'official_email_address', 'mentor_associated', 'role_of_faculty', 'funding_stage', 'official_registered', 'pia_state'];
-            
+            for (let field of requiredFields) {
+                if (!formData.official[field]) {
+                    toast.error(`Please fill ${field.replaceAll('_', ' ')}`);
+                    return false;
+                }
+            }
             
         }
 
