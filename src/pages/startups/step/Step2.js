@@ -733,7 +733,7 @@ const Step2 = ({ formData, handleChange, selectedProgram }) => {
   };
 
   const validateDpiitNumber = (value) => {
-    if (value && !/^DPIIT\d+$/.test(value)) return "Please enter a valid DPIIT number (format: DPIIT followed by numbers)";
+    if (value && !/D\d+$/.test(value)) return "Please enter a valid (format: D followed by numbers)";
     return "";
   };
 
