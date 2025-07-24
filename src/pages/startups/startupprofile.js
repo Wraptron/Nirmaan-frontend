@@ -785,10 +785,14 @@ function StartupProfile() {
                 <div className="text-[#A1A1A1]">
                   {startupData.funding_stage || "N/A"}
                 </div>
-                <div className="mt-6 font-semibold">Cohort( Name & Year )</div>
+                <div className="mt-6 font-semibold">Academic Background</div>
+                <div className="text-[#A1A1A1]">
+                  {startupData.academic_background || "N/A"}
+                </div>
+                {/* <div className="mt-6 font-semibold">Cohort( Name & Year )</div>
                 <div className="text-[#A1A1A1]">
                   {startupData.startup_cohort || "N/A"}
-                </div>
+                </div> */}
               </div>
               <div>
                 <div className="flex items-center gap-1 mb-1 font-semibold">
@@ -797,10 +801,10 @@ function StartupProfile() {
                 <div className="text-[#A1A1A1]">
                   {startupData.role_of_faculty || "N/A"}
                 </div>
-                <div className="mt-6 font-semibold">Industry</div>
+                {/* <div className="mt-6 font-semibold">Industry</div>
                 <div className="text-[#A1A1A1]">
                   {startupData.startup_industry || "N/A"}
-                </div>
+                </div> */}
                 <div className="mt-6 font-semibold">Graduated To </div>
                 <div className="text-[#A1A1A1]">
                   {startupData.graduated_to === "Other"
@@ -835,10 +839,7 @@ function StartupProfile() {
                 <div className="text-[#A1A1A1]">
                   {startupData.pia_state || "N/A"}
                 </div>
-                <div className="mt-6 font-semibold">Academic Background</div>
-                <div className="text-[#A1A1A1]">
-                  {startupData.academic_background || "N/A"}
-                </div>
+                
               </div>
             </div>
 

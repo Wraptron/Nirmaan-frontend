@@ -286,13 +286,14 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
     cin_registration_number: "",
     year_of_graduation: "",
     funding_stage: "",
-    industry: "",
+    startup_community: "",
     graduated_to: "",
     officially_registered: "",
     cohort: "",
     technology: "",
     dpiit_number: "",
     pia: "",
+    academic_background: "",
     email_address: "",
   });
 
@@ -307,13 +308,14 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
         cin_registration_number: initialData.cin_registration_number || "",
         year_of_graduation: initialData.startup_yog || "",
         funding_stage: initialData.funding_stage || "",
-        industry: initialData.startup_industry || "",
+        startup_community: initialData.startup_community || "",
         graduated_to: initialData.graduated_to || "",
         officially_registered: initialData.register || "",
         cohort: initialData.startup_cohort || "",
         technology: initialData.startup_technology || "",
         dpiit_number: initialData.dpiit || "",
         pia: initialData.pia_state || "",
+        academic_background: initialData.academic_background || "",
         email_address: initialData.email_address || "",
       });
     }
@@ -378,9 +380,7 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
               <div>
                 <div className="flex items-center gap-1 mb-1 font-semibold">
                   Mentors
-                  <span className="material-icons text-xs text-[#A1A1A1]">
-                    expand_more
-                  </span>
+                  
                   {/* <button */}
                   {/* className="ml-2 p-1 hover:bg-gray-100 rounded"
                     // onClick={handleMentorEditClick}
@@ -459,12 +459,12 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
               </div>
               <div>
                 <label className="block text-sm mb-1.5 font-medium">
-                  Industry
+                  Mode of Entry
                 </label>
                 <input
                   type="text"
-                  name="industry"
-                  value={formData.industry}
+                  name="startup_community"
+                  value={formData.startup_community}
                   onChange={handleChange}
                   placeholder="Enter Industry"
                   className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
@@ -546,7 +546,19 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
                   className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
                 />
               </div>
+              <div>
+                <label className="block text-sm mb-1.5 font-medium">Academic Background</label>
+                <input
+                  type="text"
+                  name="academic_background"
+                  value={formData.academic_background}
+                  onChange={handleChange}
+                  placeholder="Enter PIA"
+                  className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
+                />
+              </div>
             </div>
+            
             <div className="flex justify-end gap-4 pt-4">
               <button
                 type="button"

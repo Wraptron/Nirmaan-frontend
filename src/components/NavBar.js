@@ -344,7 +344,8 @@ function NavBar({ onSelectionChange, selectedIndex }) {
             />
           </div>
           <div className="">
-            <span className="text-lg">Add New Start-up</span>
+            <a href="/addstartup">
+            <span className="text-lg">Add New Start-up</span></a>
             <div className="text-xs">
               Search and connect with start-ups across sectors, industry &
               experience.
