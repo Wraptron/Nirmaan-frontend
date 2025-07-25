@@ -478,7 +478,7 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
                   className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500 focus:outline-none"
                 />
               </div>
-              {/* <div>
+              <div>
                 <label className="block text-sm mb-1.5 font-medium">
                   Status <span className="text-red-500">*</span>
                 </label>
@@ -496,7 +496,7 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
                     </option>
                   ))}
                 </select>
-              </div> */}
+              </div>
               {/* <div>
                 <label className="block text-sm mb-1.5 font-medium">Email Id <span className="text-red-500">*</span></label>
                 <input

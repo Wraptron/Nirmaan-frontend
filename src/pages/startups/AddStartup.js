@@ -497,6 +497,7 @@ function AddStartup() {
                                         <option value="Pratham">Pratham</option>
                                         <option value="Akshar">Akshar</option>
                                         <option value="Graduated">Graduated</option>
+                                        <option value="Dropped out">Dropped out</option>
                                     </select>
                                 </div>
 

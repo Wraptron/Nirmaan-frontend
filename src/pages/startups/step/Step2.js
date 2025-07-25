@@ -1009,23 +1009,25 @@ const Step2 = ({ formData, handleChange, selectedProgram }) => {
       </div>
 
       <div>
-        <div>
-          Official Registered As <span className="text-red-500">*</span>
-        </div>
-        <input
-          type="text"
-          onChange={handleFieldChange}
-          name="official_registered"
-          value={formData.official_registered || ""}
-          className={getInputClass("official_registered")}
-          placeholder="e.g., Private Limited Company"
-        />
-        {errors.official_registered && (
-          <div className="text-red-500 text-xs mt-1">
-            {errors.official_registered}
-          </div>
-        )}
-      </div>
+  <div>
+    Officially Registered As <span className="text-red-500">*</span>
+  </div>
+  <select
+    name="official_registered"
+    onChange={handleFieldChange}
+    value={formData.official_registered || ""}
+    className={getInputClass("official_registered")}
+  >
+    <option value="">Select an option</option>
+    <option value="Yes">Yes</option>
+    <option value="No">No</option>
+  </select>
+  {errors.official_registered && (
+    <div className="text-red-500 text-xs mt-1">
+      {errors.official_registered}
+    </div>
+  )}
+</div>
 
       {/* Commented out the Scheme selection as requested */}
       {/* 

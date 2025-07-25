@@ -348,7 +348,7 @@ import axios from "axios";
 import ExportSvg from "../../assets/images/export excel.svg";
 import FrameSvg from "../../assets/images/Frame.svg";
 import toast from "react-hot-toast";
-import { FaSpinner, FaEllipsisV } from "react-icons/fa";
+import { FaSpinner, FaEllipsisV, FaFilter, FaChevronDown } from "react-icons/fa";
 import { ApiDeletStartupData } from "../../API/API";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
 import { useNavigate } from "react-router-dom";
@@ -361,6 +361,8 @@ function Startups() {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage] = useState(6);
   const [filterStatus, setFilterStatus] = useState("All");
+  const [filterCohort, setFilterCohort] = useState("All"); // Added cohort filter state
+  const [showCohortDropdown, setShowCohortDropdown] = useState(false); // Dropdown visibility
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -371,7 +373,25 @@ function Startups() {
     { label: "Pratham", value: "Pratham" },
     { label: "Akshar", value: "Akshar" },
     { label: "Graduated", value: "Graduated" },
+    { label: "Dropped out", value: "dropped out" },
   ];
+
+const cohortOptions = [
+  "2017-18",
+  "2018-19",
+  "January 2019",
+  "July 2019",
+  "January 2020",
+  "August 2020",
+  "January 2021",
+  "July 2021",
+  "January 2022",
+  "August 2022",
+  "January 2023",
+  "August 2023",
+  "November-24",
+  "April-2025",
+];
 
   const fetchData = async () => {
     try {
@@ -399,17 +419,34 @@ function Startups() {
       startup.program?.toLowerCase() === filterStatus.toLowerCase() ||
       startup.startup_status?.toLowerCase() === filterStatus.toLowerCase();
 
+    const matchesCohort =
+      filterCohort === "All" ||
+      startup.startup_cohort?.toLowerCase() === filterCohort.toLowerCase();
+
     const matchesSearch =
       startup.startup_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       startup.founder_name?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    return matchesFilter && matchesSearch;
+    return matchesFilter && matchesCohort && matchesSearch;
   });
 
-  const indexOfLastItem = currentPage * rowsPerPage;
-  const indexOfFirstItem = indexOfLastItem - rowsPerPage;
-  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+  const itemsPerPage = rowsPerPage;
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const currentItems = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleStatusFilter = (status) => {
+    setFilterStatus(status);
+    setCurrentPage(1);
+  };
+
+  const handleCohortFilter = (cohort) => {
+    setFilterCohort(cohort);
+    setCurrentPage(1);
+    setShowCohortDropdown(false);
+  };
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -514,10 +551,7 @@ function Startups() {
                 {statusTabs.map((tab) => (
                   <button
                     key={tab.value}
-                    onClick={() => {
-                      setFilterStatus(tab.value);
-                      setCurrentPage(1);
-                    }}
+                    onClick={() => handleStatusFilter(tab.value)}
                     className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm transition-all whitespace-nowrap
                     ${
                       filterStatus === tab.value
@@ -531,17 +565,70 @@ function Startups() {
                 ))}
               </div>
 
-              {/* Search & Add */}
-              <div className="flex justify-between px-5 mt-3">
-                <div className="relative w-72">
-                  <input
-                    type="text"
-                    placeholder="Search by name or founder..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full p-2 px-4 text-sm border border-gray-300 rounded-lg bg-gray-50"
-                  />
+              {/* Search, Cohort Filter & Add */}
+              <div className="flex justify-between items-center gap-4 px-5 mt-3">
+                <div className="flex items-center gap-4">
+                  {/* Search Input */}
+                  <div className="relative w-72">
+                    <input
+                      type="text"
+                      placeholder="Search by name or founder..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full p-2 px-4 text-sm border border-gray-300 rounded-lg bg-gray-50"
+                    />
+                  </div>
+
+                  {/* Cohort Filter Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowCohortDropdown(!showCohortDropdown)}
+                      className={`flex items-center gap-2 px-4 py-2 text-sm border rounded-lg transition-all ${
+                        filterCohort !== "All"
+                          ? "bg-[#45C74D] text-white border-[#45C74D]"
+                          : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+                      }`}
+                    >
+                      <FaFilter className="text-xs" />
+                      <span>
+                        {filterCohort === "All" ? "All Cohorts" : filterCohort}
+                      </span>
+                      <FaChevronDown
+                        className={`text-xs transition-transform ${
+                          showCohortDropdown ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    {/* Dropdown Menu */}
+                    {showCohortDropdown && (
+                      <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-30 max-h-60 overflow-y-auto">
+                        {cohortOptions.map((cohort) => (
+                          <button
+                            key={cohort}
+                            onClick={() => handleCohortFilter(cohort)}
+                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
+                              filterCohort === cohort
+                                ? "bg-[#45C74D] text-white hover:bg-[#3BAF43]"
+                                : "text-gray-700"
+                            }`}
+                          >
+                            {cohort === "All" ? "All Cohorts" : cohort}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Click outside to close dropdown */}
+                    {showCohortDropdown && (
+                      <div
+                        className="fixed inset-0 z-20"
+                        onClick={() => setShowCohortDropdown(false)}
+                      />
+                    )}
+                  </div>
                 </div>
+
                 <a
                   href="/addstartup"
                   className="bg-[#45C74D] text-white px-4 py-2 rounded-lg text-sm font-semibold"
@@ -549,6 +636,35 @@ function Startups() {
                   Add New Start-up
                 </a>
               </div>
+
+              {/* Active Filters Display */}
+              {(filterStatus !== "All" || filterCohort !== "All") && (
+                <div className="flex items-center gap-2 px-5 mt-3">
+                  <span className="text-sm text-gray-600">Active filters:</span>
+                  {filterStatus !== "All" && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#45C74D] text-white text-xs rounded-full">
+                      Status: {filterStatus}
+                      <button
+                        onClick={() => handleStatusFilter("All")}
+                        className="ml-1 text-white hover:text-gray-200"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                  {filterCohort !== "All" && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
+                      Cohort: {filterCohort}
+                      <button
+                        onClick={() => handleCohortFilter("All")}
+                        className="ml-1 text-white hover:text-gray-200"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                </div>
+              )}
 
               {/* Content */}
               {loading ? (
@@ -574,9 +690,11 @@ function Startups() {
                           >
                             <div className="flex justify-between items-center mb-3">
                               <div
-                                className={`px-2 py-1 rounded-xl text-xs ${getStatusColor(startup.startup_status)}`}
+                                className={`px-2 py-1 rounded-xl text-xs ${getStatusColor(
+                                  startup.startup_status
+                                )}`}
                               >
-                                {startup.startup_status || "Active"}
+                                {startup.startup_status || ""}
                               </div>
                               <div className="relative">
                                 <button
@@ -630,44 +748,25 @@ function Startups() {
                               {startup.startup_name || "Start-up Name"}
                             </div>
                             <div className="text-center text-sm text-gray-500 mb-2">
-                              {startup.startup_cohort
-                                ? new Date(
-                                    startup.startup_cohort
-                                  ).toLocaleDateString("en-US", {
-                                    month: "2-digit",
-                                    year: "2-digit",
-                                  })
-                                : "MM-YY"}
+                              {startup.startup_cohort || "Cohort"}
                             </div>
                             <div className="flex justify-between text-sm mt-4 text-gray-600">
                               <div>
                                 <div className="font-semibold">Founder</div>
-                                <div>
-                                  {startup.founder_name ||
-                                    "N/A"}
-                                </div>
+                                <div>{startup.founder_name || "N/A"}</div>
                               </div>
                               <div>
                                 <div className="font-semibold">Sector</div>
-                                <div>
-                                  {startup.startup_sector ||
-                                    "N/A"}
-                                </div>
+                                <div>{startup.startup_sector || "N/A"}</div>
                               </div>
                             </div>
-                            
-                            
-                            {/* Optional Progress Bar */}
-                            {/* <div className="w-full bg-gray-200 h-1 rounded mt-3">
-                            <div className="bg-green-500 h-1 rounded" style={{ width: `${getProgressPercentage(startup.stage)}%` }} />
-                          </div> */}
                           </div>
                         ))
                       ) : (
                         <div className="col-span-3 text-center py-20 text-gray-500">
                           <div className="text-xl mb-2">No startups found</div>
                           <div className="text-sm">
-                            Try changing your filters
+                            Try changing your filters or search term
                           </div>
                         </div>
                       )}
@@ -691,7 +790,7 @@ function Startups() {
                         Previous
                       </button>
                       <span className="text-sm text-gray-600">
-                        Page {currentPage} of {totalPages}
+                        Page {currentPage} of {totalPages} ({filteredData.length} startups)
                       </span>
                       <button
                         onClick={() =>

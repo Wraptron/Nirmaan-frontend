@@ -182,13 +182,11 @@
 
 // export default EditAboutForm;
 
-
-
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { ApiUpdateStartupAbout } from "../../../../API/API";
 
-const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
+const EditAboutForm = ({ initialData, onClose }) => {
   const [formData, setFormData] = useState({
     sector: "",
     program: "",
@@ -197,13 +195,19 @@ const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
     email_address: "",
   });
 
-  // Dropdown options
-  const startupTypeOptions = ["Industry 4.0", "Sustainability", "Health Care", "FinTech" , "Mobility" , "EdTech"];
+  const startupTypeOptions = ["Industry 4.0", "Sustainability", "Health Care", "FinTech", "Mobility", "EdTech"];
+
   const sectorOptions = [
     "Manufacturing and industry", "Social and leisure", "Hardware & IOT", "EdTech",
     "Energy & Environment", "Software & Data", "Services", "Ecommerce & Retail", "Agriculture & Food"
   ];
-  const programOptions = ["Pratham", "Akshar", "Graduated"];
+
+  const programOptions = [
+    { label: "Akshar", value: "akshar" },
+    { label: "Pratham", value: "pratham" },
+    { label: "Graduated", value: "Graduated" },
+    { label: "Dropped out", value: "Dropped out" }
+  ];
 
   useEffect(() => {
     if (initialData) {
@@ -231,7 +235,6 @@ const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // === Validation ===
     if (!formData.startup_domain.trim()) {
       toast.error("Startup Domain is required");
       return;
@@ -284,7 +287,7 @@ const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
-              {/* Startup Type */}
+              {/* Startup Domain */}
               <div>
                 <label className="block text-sm mb-1.5">
                   Startup Domain <span className="text-red-500">*</span>
@@ -332,8 +335,8 @@ const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
                   className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
                 >
                   <option value="">Select program</option>
-                  {programOptions.map((program, idx) => (
-                    <option key={idx} value={program}>{program}</option>
+                  {programOptions.map((option, idx) => (
+                    <option key={idx} value={option.value}>{option.label}</option>
                   ))}
                 </select>
               </div>
@@ -354,8 +357,7 @@ const EditAboutForm = ({ initialData, onClose, onSubmit }) => {
               />
             </div>
 
-           
-
+            {/* Buttons */}
             <div className="flex justify-end gap-4 pt-4">
               <button
                 type="button"

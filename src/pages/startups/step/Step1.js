@@ -594,6 +594,24 @@ const Step1 = forwardRef(
       "Other",
     ];
 
+const cohortOptions = [
+  "2017-18",
+  "2018-19",
+  "January 2019",
+  "July 2019",
+  "January 2020",
+  "August 2020",
+  "January 2021",
+  "July 2021",
+  "January 2022",
+  "August 2022",
+  "January 2023",
+  "August 2023",
+  "November-24",
+  "April-2025",
+];
+
+
     const graduatedToOptions = ["IITM-IC ", "Other"];
 
     const validateField = (name, value) => {
@@ -819,28 +837,34 @@ const Step1 = forwardRef(
         )}
 
         {/* Cohort */}
-        <div>
-          <label className="block font-medium text-gray-700">
-            Start-up Cohort <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="month"
-            name="startup_cohort"
-            value={formData.startup_cohort || ""}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-            min="2000-01"
-            max="2099-12"
-            className={`mt-1 block w-full p-2 text-sm rounded-lg border focus:ring-[#45C74D] focus:border-[#45C74D] ${
-              touched.startup_cohort && errors.startup_cohort
-                ? "border-red-500 bg-red-50"
-                : "border-gray-300"
-            }`}
-          />
-          {touched.startup_cohort && errors.startup_cohort && (
-            <p className="text-sm text-red-600 mt-1">{errors.startup_cohort}</p>
-          )}
-        </div>
+        {/* Start-up Cohort Dropdown */}
+<div>
+  <label className="block font-medium text-gray-700">
+    Start-up Cohort <span className="text-red-500">*</span>
+  </label>
+  <select
+    name="startup_cohort"
+    value={formData.startup_cohort || ""}
+    onChange={handleInputChange}
+    onBlur={handleBlur}
+    className={`mt-1 block w-full p-2 text-sm rounded-lg border focus:ring-[#45C74D] focus:border-[#45C74D] ${
+      touched.startup_cohort && errors.startup_cohort
+        ? "border-red-500 bg-red-50"
+        : "border-gray-300"
+    }`}
+  >
+    <option value="">Select cohort</option>
+    {cohortOptions.map((option) => (
+      <option key={option} value={option}>
+        {option}
+      </option>
+    ))}
+  </select>
+  {touched.startup_cohort && errors.startup_cohort && (
+    <p className="text-sm text-red-600 mt-1">{errors.startup_cohort}</p>
+  )}
+</div>
+
 
         {/* Year of Graduation */}
         {renderInput(
