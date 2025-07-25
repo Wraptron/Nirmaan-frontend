@@ -434,7 +434,9 @@ function StartupProfile() {
     await FetchData();
     setShowAboutForm(false);
   };
-  const handleAddAwardClose = () => setShowAddAwardForm(false);
+  const handleAddAwardClose =async () => {
+    await FetchData()
+    setShowAddAwardForm(false);}
   const handleTeamMembersClose = async () => {
     await FetchData();
     setShowTeamMembersForm(false);
@@ -525,13 +527,21 @@ function StartupProfile() {
   const FetchData = async () => {
     try {
       const API = await ApiFetchStartup();
+      const APIAward = await ApiFetchAward();
       const allStartup = API?.rows || [];
+      const award = APIAward?.rows || [];
       const selectedstartup = allStartup.find(
         (startup) =>
           String(startup.email_address) === String(official_email_address)
       );
+      const filteredAwards = award.filter(
+        (award) =>
+          String(award.official_email_address) ===
+          String(official_email_address)
+      );
       console.log("Selected startup:", selectedstartup);
       setStartupData(selectedstartup || null);
+      setAwards(filteredAwards || []);
     } catch (err) {
       console.error("Error fetching mentor data:", err);
     }
@@ -704,6 +714,7 @@ function StartupProfile() {
                   </div>
                 </div>
                 {/* Awards & Recognitions Card */}
+                {/* Awards & Recognitions Card */}
                 <div className="bg-white rounded-2xl shadow p-6 min-h-[180px] relative flex flex-col justify-between">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-bold text-lg text-[#232323]">
@@ -720,36 +731,50 @@ function StartupProfile() {
                   </div>
                   {/* Award List */}
                   <div className="flex flex-col gap-3 mt-2">
-                    <div className="flex items-start gap-2">
-                      <span className="mt-1 w-2 h-2 bg-[#232323] rounded-full inline-block" />
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <span className="font-semibold text-sm text-[#232323]">
-                            Award/ Recognition Name
-                          </span>
-                          <button className="p-1 hover:bg-gray-100 rounded-full">
-                            <FiEdit2 size={16} className="text-[#A1A1A1]" />
-                          </button>
+                    {awards.length === 0 ? (
+                      <p className="text-sm text-gray-500">
+                        No awards added yet.
+                      </p>
+                    ) : (
+                      awards.map((awards) => (
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 w-2 h-2 bg-[#232323] rounded-full inline-block" />
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <span className="font-semibold text-sm text-[#232323]">
+                                 {awards.award_name}/ {awards.award_org}
+                              </span>
+                              <button className="p-1 hover:bg-gray-100 rounded-full">
+                                <FiEdit2 size={16} className="text-[#A1A1A1]" />
+                              </button>
+                            </div>
+                            <div className="text-xs text-[#232323]">
+                              {new Date(awards.awarded_date).toLocaleDateString(
+                                "en-IN",
+                                {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                }
+                              )}
+                            </div>
+                            <div className="text-xs text-[#A1A1A1] mb-1">
+                              {awards.description ? awards.description : " -"}
+                            </div>
+                            <div className="inline-flex items-center gap-2 bg-[#F8FAFB] rounded-lg px-3 py-1 mt-1 border border-[#E6E6E6]">
+                              <img
+                                src="/src/assets/images/Frame (8).svg"
+                                alt="PDF"
+                                className="w-5 h-5"
+                              />
+                              <span className="text-xs text-[#232323] font-medium truncate max-w-[120px]">
+                                Document Name.pdf
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-xs text-[#232323]">
-                          Award/ Recognition Org - Awarded date
-                        </div>
-                        <div className="text-xs text-[#A1A1A1] mb-1">
-                          Description
-                        </div>
-                        <div className="inline-flex items-center gap-2 bg-[#F8FAFB] rounded-lg px-3 py-1 mt-1 border border-[#E6E6E6]">
-                          <img
-                            src="/src/assets/images/Frame (8).svg"
-                            alt="PDF"
-                            className="w-5 h-5"
-                          />
-                          <span className="text-xs text-[#232323] font-medium truncate max-w-[120px]">
-                            Document Name.pdf
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                              
+                      ))
+                    )}
                   </div>
                 </div>
               </div>
@@ -1108,7 +1133,7 @@ function StartupProfile() {
       )}
       {showAddAwardForm && (
         <AddAwardForm
-          initialData={{}}
+          officialEmail={startupData?.email_address}
           onClose={handleAddAwardClose}
           onSubmit={handleAddAwardSubmit}
         />

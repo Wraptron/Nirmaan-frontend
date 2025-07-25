@@ -185,7 +185,7 @@ function Home() {
                                         <div className="shadow-md border border-sm rounded-lg p-2">
                                             <div className="pb-1"><FaRocket size={20} className="text-[#45C74D]"/></div>
                                             <div className="text-2xl font-semibold">
-                                                {isLoaded ? ((analysedData?.startup_total || 0) + (analysedData?.dropped_startups || 0)) : <SkeletonLoader />}
+                                                {isLoaded ? (analysedData?.startup_total || 0)  : <SkeletonLoader />}
                                             </div>
                                             <div className="text-sm">Total Start-ups</div>
                                         </div>
@@ -235,7 +235,7 @@ function Home() {
                                         <div className="flex-1">
                                             <div className="text-sm font-medium text-gray-500">IP's Created</div>
                                         </div>
-                                        <div className="text-2xl font-bold text-gray-800 ml-4">100</div>
+                                        <div className="text-2xl font-bold text-gray-800 ml-4">0</div>
                                     </div>
                                     <hr className="my-2" />
                                     <div className="flex items-center mb-8">
@@ -245,7 +245,7 @@ function Home() {
                                         <div className="flex-1">
                                             <div className="text-sm font-medium text-gray-500">PIA</div>
                                         </div>
-                                        <div className="text-2xl font-bold text-gray-800 ml-4">24</div>
+                                        <div className="text-2xl font-bold text-gray-800 ml-4">{analysedData.PIA}</div>
                                     </div>
                                     <hr className="my-2" />
                                     <div className="flex items-center">
@@ -255,7 +255,7 @@ function Home() {
                                         <div className="flex-1">
                                             <div className="text-sm font-medium text-gray-500">IITMIC</div>
                                         </div>
-                                        <div className="text-2xl font-bold text-gray-800 ml-4">120</div>
+                                        <div className="text-2xl font-bold text-gray-800 ml-4">{analysedData.IITMIC}</div>
                                     </div>
                                 </div>
                             </div>

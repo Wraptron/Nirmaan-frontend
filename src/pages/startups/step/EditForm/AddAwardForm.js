@@ -352,7 +352,7 @@ const AddAwardForm = ({ officialEmail, onClose, onSuccess }) => {
                     className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
                   />
                   <IoCalendarOutline
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                    className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
                     size={20}
                   />
                 </div>
