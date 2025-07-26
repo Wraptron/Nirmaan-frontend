@@ -578,12 +578,10 @@ const Step3 = ({formData, handleChange}) => {
               placeholder="Academic-Background"
             >
               <option value="">Choose a Academic </option>
-              <option>Bsc Datascience</option>
-              <option>B.Tech</option>
-              <option>M.Tech</option>
-              <option>Msc</option>
-              <option>MBA</option>
-              <option>Msc in Research</option>
+              <option>B.Tech/BS</option>
+              <option>M.Tech/MBA/MS/Ph.D</option>
+              <option>MS(E)</option>
+              <option>BS Data Science</option>
               <option>External</option>
             </select>
           </div>
