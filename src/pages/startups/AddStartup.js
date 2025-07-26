@@ -371,7 +371,7 @@ function AddStartup() {
         let requiredFields = [];
 
         if (steps === 0) {
-            requiredFields = ['startup_name', 'startup_sector', 'startup_domain',  'startup_technology', 'startup_Community', 'startup_cohort',  'graduated_to', 'program'];
+            requiredFields = ['startup_name', 'startup_sector', 'startup_domain', 'startup_Community', 'startup_cohort', 'program'];
             for (let field of requiredFields) {
                 if (!formData.basic[field]) {
                     toast.error(`Please fill ${field.replaceAll('_', ' ')}`);

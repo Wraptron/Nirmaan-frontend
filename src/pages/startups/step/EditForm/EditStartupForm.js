@@ -267,7 +267,7 @@ import { ApiUpdateStartupPersonalInfo } from "../../../../API/API";
 const statusOptions = [
   { value: "Active", label: "Active" },
   { value: "Inactive", label: "Inactive" },
-  { value: "Graduated", label: "Graduated" },
+  
 ];
 
 const EditStartupForm = ({ initialData, onClose, onSubmit }) => {

@@ -463,7 +463,7 @@ const cohortOptions = [
   const handleGraduate = async (email) => {
     try {
       await axios.put(
-        `http://13.127.7.121/api/v1/update-status?startup_status=Graduated&official_email_address=${email}`
+        `http://localhost:3003/api/v1/update-status?startup_status=Graduated&official_email_address=${email}`
       );
       toast.success("Marked as Graduated");
       fetchData();
@@ -475,7 +475,7 @@ const cohortOptions = [
   const handleDrop = async (email) => {
     try {
       await axios.put(
-        `http://13.127.7.121/api/v1/update-status?startup_status=Dropped&official_email_address=${email}`
+        `http://localhost:3003/api/v1/update-status?startup_status=Dropped&official_email_address=${email}`
       );
       toast.success("Marked as Dropped");
       fetchData();
