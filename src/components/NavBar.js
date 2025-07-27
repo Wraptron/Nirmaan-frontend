@@ -345,11 +345,11 @@ function NavBar({ onSelectionChange, selectedIndex }) {
           </div>
           <div className="">
             <a href="/addstartup">
-            <span className="text-lg">Add New Start-up</span></a>
+            <span className="text-lg">Add New Start-up</span>
             <div className="text-xs">
               Search and connect with start-ups across sectors, industry &
               experience.
-            </div>
+            </div></a>
           </div>
         </div>
         <div className="flex justfiy-between px-2 gap-4 mt-5 border p-3">

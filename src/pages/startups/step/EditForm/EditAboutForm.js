@@ -203,8 +203,8 @@ const EditAboutForm = ({ initialData, onClose }) => {
   ];
 
   const programOptions = [
-    { label: "Akshar", value: "akshar" },
-    { label: "Pratham", value: "pratham" },
+    { label: "Akshar", value: "Akshar" },
+    { label: "Pratham", value: "Pratham" },
     { label: "Graduated", value: "Graduated" },
     { label: "Dropped out", value: "Dropped out" }
   ];

@@ -383,7 +383,7 @@
 import React, { useEffect, useState } from "react";
 import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
-import { FiEdit2, FiShare2, FiGlobe } from "react-icons/fi";
+import { FiEdit2, FiShare2, FiGlobe, FiX } from "react-icons/fi";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { MdOutlineAdd, MdCall, MdChevronLeft } from "react-icons/md";
 import bgImg from "../../assets/images/Rectangle 5.svg";
@@ -415,9 +415,14 @@ function StartupProfile() {
 
   const [startupData, setStartupData] = useState(null);
   const [awards, setAwards] = useState([]);
+  const [showReadMore, setShowReadMore] = useState(false);
 
   const navigate = useNavigate();
 
+
+
+
+  
   // Edit handlers
   const handleEditClick = () => setShowEditForm(true);
   const handleAboutClick = () => setShowAboutForm(true);
@@ -481,6 +486,19 @@ function StartupProfile() {
       toast.error("Failed to add award");
     }
   };
+const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case "active":
+        return "bg-[#D8F3D9] text-[#45C74D]";
+      case "graduated":
+        return "bg-[#E8F5E8] text-[#2E7D32]";
+      case "dropped":
+        return "bg-[#FFEBEE] text-[#D32F2F]";
+      default:
+        return "bg-gray-100 text-gray-600";
+    }
+  };
+
 
   const handleTeamMembersSubmit = async (updatedData) => {
     try {
@@ -555,6 +573,68 @@ function StartupProfile() {
     return <div>Loading startup details</div>;
   }
 
+
+
+
+
+
+
+
+
+
+  // Read More Popup Component
+const ReadMorePopup = ({ isOpen, onClose, title, content }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-[#232323]">{title}</h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <FiX size={20} className="text-[#A1A1A1]" />
+            </button>
+          </div>
+          <div className="text-[#232323] text-sm leading-relaxed">
+            {content}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Function to truncate text
+const truncateText = (text, maxLength = 150) => {
+  if (!text) return "";
+  return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+};
+
+// Check if text needs truncation
+const needsTruncation = (text, maxLength = 150) => {
+  return text && text.length > maxLength;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   return (
     <div className="flex font-[\'DM Sans\',sans-serif]">
       <SideBar />
@@ -616,9 +696,15 @@ function StartupProfile() {
                     <span className="font-bold text-xl text-[#232323]">
                       {startupData.startup_name}
                     </span>
-                    {/* <span className="bg-[#E9F7F1] text-[#45C74D] text-xs font-semibold px-2 py-0.5 rounded ml-1">
-                      Active
-                    </span> */}
+                    <span className="bg-[#E9F7F1] text-[#45C74D] text-xs font-semibold px-2 py-0.5 rounded ml-1">
+                      <div
+                                className={`px-2 py-1 rounded-xl text-xs ${getStatusColor(
+                                  startupData.startup_status
+                                )}`}
+                              >
+                                {startupData.startup_status || ""}
+                              </div>
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-[#232323] mb-1">
                     <span className="flex items-center gap-1">
@@ -694,8 +780,16 @@ function StartupProfile() {
                     </button>
                   </div>
                   <div className="text-[#232323] text-sm mb-4">
-                    {startupData.startup_description}
-                  </div>
+                  {truncateText(startupData.startup_description)}
+                  {needsTruncation(startupData.startup_description) && (
+                    <button
+                      onClick={() => setShowReadMore(true)}
+                      className="text-[#45C74D] hover:text-[#36a03d] font-medium ml-2 underline"
+                    >
+                      Read More
+                    </button>
+                  )}
+                </div>
                   <div className="flex w-full gap-4 text-sm font-medium text-[#232323]">
                     <div className="flex-1">
                       <div className="text-[#A1A1A1] text-xs mb-1">
@@ -1153,6 +1247,17 @@ function StartupProfile() {
           onSubmit={handleMentorEditSubmit}
         />
       )}
+
+
+
+       <ReadMorePopup
+        isOpen={showReadMore}
+        onClose={() => setShowReadMore(false)}
+        title="About Us"
+        content={startupData.startup_description}
+      />
+
+
     </div>
   );
 }
