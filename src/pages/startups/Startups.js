@@ -690,11 +690,14 @@ const cohortOptions = [
                           >
                             <div className="flex justify-between items-center mb-3">
                               <div
-                                className={`px-2 py-1 rounded-xl text-xs ${getStatusColor(
-                                  startup.startup_status
-                                )}`}
+                                className={`px-3 py-1 rounded-xl text-xs font-medium transition-all duration-200 ${
+                                  startup.program === "Graduated" ||
+                                  startup.program === "Dropped out"
+                                    ? "invisible"
+                                    : getStatusColor(startup.startup_status)
+                                }`}
                               >
-                                {startup.startup_status || ""}
+                                {startup.startup_status || "Status"}
                               </div>
                               <div className="relative">
                                 <button

@@ -193,20 +193,35 @@ const EditAboutForm = ({ initialData, onClose }) => {
     startup_domain: "",
     about: "",
     email_address: "",
+    startup_status:""
   });
 
-  const startupTypeOptions = ["Industry 4.0", "Sustainability", "Health Care", "FinTech", "Mobility", "EdTech"];
+  const startupTypeOptions = [
+    "Industry 4.0",
+    "Sustainability",
+    "Health Care",
+    "FinTech",
+    "Mobility",
+    "EdTech",
+  ];
 
   const sectorOptions = [
-    "Manufacturing and industry", "Social and leisure", "Hardware & IOT", "EdTech",
-    "Energy & Environment", "Software & Data", "Services", "Ecommerce & Retail", "Agriculture & Food"
+    "Manufacturing and industry",
+    "Social and leisure",
+    "Hardware & IOT",
+    "EdTech",
+    "Energy & Environment",
+    "Software & Data",
+    "Services",
+    "Ecommerce & Retail",
+    "Agriculture & Food",
   ];
 
   const programOptions = [
     { label: "Akshar", value: "Akshar" },
     { label: "Pratham", value: "Pratham" },
     { label: "Graduated", value: "Graduated" },
-    { label: "Dropped out", value: "Dropped out" }
+    { label: "Dropped out", value: "Dropped out" },
   ];
 
   useEffect(() => {
@@ -217,16 +232,24 @@ const EditAboutForm = ({ initialData, onClose }) => {
         startup_domain: initialData.startup_domain || "",
         about: initialData.startup_description || "",
         email_address: initialData.email_address || "",
+         startup_status: initialData.startup_status || "",
       });
     }
   }, [initialData]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
+     const { name, value } = e.target;
+   setFormData((prev) => {
+    let updatedData = {
       ...prev,
       [name]: value,
-    }));
+    };
+    if (name === "program" && value === "Dropped out" || name === "program" && value === "Graduated") {
+      updatedData.startup_status = "Inactive";
+    }
+
+    return updatedData;
+  });
   };
 
   const isValidEmail = (email) =>
