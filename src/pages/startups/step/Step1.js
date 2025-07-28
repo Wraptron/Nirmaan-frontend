@@ -961,7 +961,7 @@ const cohortOptions = [
             <option value="E-cell">E-cell</option>
             <option value="CZC">CZC</option>
             <option value="PALS">PALS</option>
-            <option value="IZI">IZI</option>
+            <option value="I2L">I2L</option>
             <option value="Direct entry">Direct entry</option>
             <option value="Non-iit">Non-iit</option>
           </select>

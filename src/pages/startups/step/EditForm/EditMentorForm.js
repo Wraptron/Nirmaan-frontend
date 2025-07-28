@@ -30,7 +30,7 @@ const modeOfEntryOptions = [
   "E-cell",
   "CZC",
   "PALS",
-  "IZI",
+  "I2L",
   "Direct entry",
   "Non-iit",
 ];
