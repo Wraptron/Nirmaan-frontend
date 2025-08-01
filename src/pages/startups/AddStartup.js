@@ -370,49 +370,137 @@ function AddStartup() {
     const validateStep = () => {
         let requiredFields = [];
 
-        if (steps === 0) {
-            requiredFields = ['startup_name', 'startup_sector', 'startup_domain', 'startup_Community', 'startup_cohort', 'program'];
-            for (let field of requiredFields) {
-                if (!formData.basic[field]) {
-                    toast.error(`Please fill ${field.replaceAll('_', ' ')}`);
-                    return false;
-                }
-            }
-        }
+    //     if (steps === 0) {
+    //         requiredFields = ['startup_name', 'startup_sector', 'startup_domain', 'startup_Community', 'startup_cohort', 'program'];
+    //         for (let field of requiredFields) {
+    //             if (!formData.basic[field]) {
+    //                 toast.error(`Please fill ${field.replaceAll('_', ' ')}`);
+    //                 return false;
+    //             }
+    //         }
+    //     }
 
-        if (steps === 1) {
-            requiredFields = ['official_contact_number', 'official_email_address', 'mentor_associated', 'role_of_faculty', 'funding_stage', 'official_registered', 'pia_state'];
-            for (let field of requiredFields) {
-                if (!formData.official[field]) {
-                    toast.error(`Please fill ${field.replaceAll('_', ' ')}`);
-                    return false;
-                }
-            }
+    //     if (steps === 1) {
+    //         requiredFields = ['official_contact_number', 'official_email_address', 'mentor_associated', 'role_of_faculty', 'funding_stage', 'official_registered', 'pia_state'];
+    //         for (let field of requiredFields) {
+    //             if (!formData.official[field]) {
+    //                 toast.error(`Please fill ${field.replaceAll('_', ' ')}`);
+    //                 return false;
+    //             }
+    //         }
             
-        }
+    //     }
 
-        if (steps === 2) {
-            requiredFields = ['founder_name', 'founder_email', 'founder_number'];
-            for (let field of requiredFields) {
-                if (!formData.founder[field]) {
-                    toast.error(`Please fill ${field.replaceAll('_', ' ')}`);
-                    return false;
-                }
-            }
-        }
+    //     if (steps === 2) {
+    //         requiredFields = ['founder_name', 'founder_email', 'founder_number'];
+    //         for (let field of requiredFields) {
+    //             if (!formData.founder[field]) {
+    //                 toast.error(`Please fill ${field.replaceAll('_', ' ')}`);
+    //                 return false;
+    //             }
+    //         }
+    //     }
 
-        if (steps === 3) {
-            requiredFields = ['startup_description'];
-            for (let field of requiredFields) {
-                if (!formData.description[field]) {
-                    toast.error(`Please fill ${field.replaceAll('_', ' ')}`);
-                    return false;
-                }
-            }
-        }
+    //     if (steps === 3) {
+    //         requiredFields = ['startup_description'];
+    //         for (let field of requiredFields) {
+    //             if (!formData.description[field]) {
+    //                 toast.error(`Please fill ${field.replaceAll('_', ' ')}`);
+    //                 return false;
+    //             }
+    //         }
+    //     }
 
+    //     return true;
+    // };
+
+
+
+
+
+    if (steps === 0) {
+      let requiredFields = [];
+      if (formData.basic.program === "Dropped out") {
+        requiredFields = ["startup_name"];
+      } else {
+        requiredFields = [
+          "startup_name",
+          "startup_sector",
+          "startup_domain",
+          "startup_Community",
+          "startup_cohort",
+          "program",
+        ];
+      }
+
+      for (let field of requiredFields) {
+        if (!formData.basic[field]) {
+          toast.error(`Please fill ${field.replaceAll("_", " ")}`);
+          return false;
+        }
+      }
+    }
+
+    if (steps === 1) {
+      let requiredFields = [];
+
+      if (formData.basic.program === "Dropped out") {
+        requiredFields = ["official_email_address"];
+      } else {
+        requiredFields = [
+          "official_contact_number",
+          "official_email_address",
+          "funding_stage",
+          "official_registered",
+          "pia_state",
+        ];
+      }
+
+      for (let field of requiredFields) {
+        if (!formData.official[field]) {
+          toast.error(`Please fill ${field.replaceAll("_", " ")}`);
+          return false;
+        }
+      }
+    }
+
+    if (steps === 2) {
+      // Skip validation completely if program is "Dropped out"
+      if (formData.basic.program === "Dropped out") {
         return true;
-    };
+      }
+
+      // Fields to validate if NOT dropped out
+      const requiredFields = [
+        "founder_name",
+        "founder_email",
+        "founder_number",
+      ];
+
+      for (let field of requiredFields) {
+        if (!formData.founder[field]) {
+          toast.error(`Please fill ${field.replaceAll("_", " ")}`);
+          return false;
+        }
+      }
+
+      return true; // All fields passed
+    }
+
+    if (steps === 3) {
+      requiredFields = ["startup_description"];
+      for (let field of requiredFields) {
+        if (!formData.description[field]) {
+          toast.error(`Please fill ${field.replaceAll("_", " ")}`);
+          return false;
+        }
+      }
+    }
+
+    return true;
+  };
+
+
 
     const handlestepsincrement = (e) => {
         e.preventDefault();
@@ -468,80 +556,156 @@ function AddStartup() {
     };
 
     return (
-        <div className="flex">
-            <div>
-                <SideBar />
-            </div>
-            <div className="ms-[221px] flex-grow">
-                <div>
-                    <NavBar />
-                </div>
-                <div className="bg-gray-100">
-                    <div className={`mx-10 py-5 content ${showw ? "visible" : ""}`}>
-                        <div className="bg-white">
-                            <div className="p-3">
-                                <div className="text-sm text-[#808080]">Dashboard {'>'} Start-ups {'>'} Add New Start-up</div>
-                                <div className="flex mt-4">
-                                    <div className="text-lg">Add New Start-up</div>
-                                </div>
-                                <div className="mt-4">Stage <span className="text-red-600">*</span></div>
-                                <div className="mt-2">
-                                    <select
-                                        name="program"
-                                        value={formData.basic.program}
-                                        onChange={(e) => handleChange(e, 'basic')}
-                                        className="border p-2 rounded"
-                                        required
-                                    >
-                                        <option value="">Select Stage</option>
-                                        <option value="Pratham">Pratham</option>
-                                        <option value="Akshar">Akshar</option>
-                                        <option value="Graduated">Graduated</option>
-                                        <option value="Dropped out">Dropped out</option>
-                                    </select>
-                                </div>
-
-                                {/* Step Indicators */}
-                                <div className="grid grid-cols-4 mt-10 mx-7">
-                                    {[
-                                        { icon: exclamtionsvg, iconAlt: exclamationsvgblack, label: "Basic" },
-                                        { icon: settingsvgwhite, iconAlt: settingsvgblack, label: "Official" },
-                                        { icon: foundersvgwhite, iconAlt: foundersvgblack, label: "Founder" },
-                                        { icon: messagesvgwhite, iconAlt: messagesvgblack, label: "Description" },
-                                    ].map((step, index) => (
-                                        <div key={index} className={`${steps === index ? 'bg-[#45C74D]' : 'bg-[#D8F3D9]'} text-white flex justify-center items-center text-lg gap-2 md:py-2`}
-                                            style={{ clipPath: index === 0 ? "polygon(0% 0%, 90% 0%, 100% 50%, 90% 100%, 0% 100%)" : index === 3 ? "polygon(100% 0%, 100% 49%, 100% 100%, 0% 100%, 9% 50%, 0% 0%)" : "polygon(89% 0%, 100% 50%, 89% 100%, 0% 100%, 9% 50%, 0% 0%)" }}>
-                                            <span>
-                                                <img src={steps === index ? step.icon : step.iconAlt} alt={step.label} />
-                                            </span>
-                                            <span className={`my-2 text-lg ${steps === index ? 'text-white' : 'text-black'}`}>{step.label}</span>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                {/* Step Form */}
-                                {steps === 0 && <Step1 formData={formData.basic} handleChange={(e) => handleChange(e, 'basic')} />}
-                                {steps === 1 && <Step2 formData={formData.official} handleChange={(e) => handleChange(e, 'official')} selectedProgram={formData.basic.program} />}
-                                {steps === 2 && <Step3 formData={formData.founder} handleChange={(e) => handleChange(e, 'founder')} />}
-                                {steps === 3 && <Step4 formData={formData.description} handleChange={(e) => handleChange(e, 'description')} />}
-
-                                {/* Navigation Buttons */}
-                                <div className="flex justify-center items-center mt-3 gap-5">
-                                    {steps > 0 && (
-                                        <button className="border-[#45c74d] border p-2 rounded-lg text-[#45c74d] font-semibold" onClick={handlestepsdecrement}>Back</button>
-                                    )}
-                                    {steps === 3 ? (
-                                        <button className="bg-[#45c74d] p-2 rounded-lg text-white font-semibold" onClick={handleSubmit}>Submit</button>
-                                    ) : (
-                                        <button className="bg-[#45c74d] p-2 rounded-lg text-white font-semibold" onClick={handlestepsincrement}>Next</button>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div className="flex">
+        <div>
+          <SideBar />
         </div>
+        <div className="ms-[221px] flex-grow">
+          <div>
+            <NavBar />
+          </div>
+          <div className="bg-gray-100">
+            <div className={`mx-10 py-5 content ${showw ? "visible" : ""}`}>
+              <div className="bg-white">
+                <div className="p-3">
+                  <div className="text-sm text-[#808080]">
+                    Dashboard {">"} Start-ups {">"} Add New Start-up
+                  </div>
+                  <div className="flex mt-4">
+                    <div className="text-lg">Add New Start-up</div>
+                  </div>
+                  <div className="mt-4">
+                    Stage <span className="text-red-600">*</span>
+                  </div>
+                  <div className="mt-2">
+                    <select
+                      name="program"
+                      value={formData.basic.program}
+                      onChange={(e) => handleChange(e, "basic")}
+                      className="border p-2 rounded"
+                      required
+                    >
+                      <option value="">Select Stage</option>
+                      <option value="Pratham">Pratham</option>
+                      <option value="Akshar">Akshar</option>
+                      <option value="Graduated">Graduated</option>
+                      <option value="Dropped out">Dropped out</option>
+                    </select>
+                  </div>
+
+                  {/* Step Indicators */}
+                  <div className="grid grid-cols-4 mt-10 mx-7">
+                    {[
+                      {
+                        icon: exclamtionsvg,
+                        iconAlt: exclamationsvgblack,
+                        label: "Basic",
+                      },
+                      {
+                        icon: settingsvgwhite,
+                        iconAlt: settingsvgblack,
+                        label: "Official",
+                      },
+                      {
+                        icon: foundersvgwhite,
+                        iconAlt: foundersvgblack,
+                        label: "Founder",
+                      },
+                      {
+                        icon: messagesvgwhite,
+                        iconAlt: messagesvgblack,
+                        label: "Description",
+                      },
+                    ].map((step, index) => (
+                      <div
+                        key={index}
+                        className={`${steps === index ? "bg-[#45C74D]" : "bg-[#D8F3D9]"} text-white flex justify-center items-center text-lg gap-2 md:py-2`}
+                        style={{
+                          clipPath:
+                            index === 0
+                              ? "polygon(0% 0%, 90% 0%, 100% 50%, 90% 100%, 0% 100%)"
+                              : index === 3
+                                ? "polygon(100% 0%, 100% 49%, 100% 100%, 0% 100%, 9% 50%, 0% 0%)"
+                                : "polygon(89% 0%, 100% 50%, 89% 100%, 0% 100%, 9% 50%, 0% 0%)",
+                        }}
+                      >
+                        <span>
+                          <img
+                            src={steps === index ? step.icon : step.iconAlt}
+                            alt={step.label}
+                          />
+                        </span>
+                        <span
+                          className={`my-2 text-lg ${steps === index ? "text-white" : "text-black"}`}
+                        >
+                          {step.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Step Form */}
+                  {steps === 0 && (
+                    <Step1
+                      formData={formData.basic}
+                      handleChange={(e) => handleChange(e, "basic")}
+                      selectedProgram={formData.basic.program}
+                    />
+                  )}
+                  {steps === 1 && (
+                    <Step2
+                      formData={formData.official}
+                      handleChange={(e) => handleChange(e, "official")}
+                      selectedProgram={formData.basic.program}
+                    />
+                  )}
+                  {steps === 2 && (
+                    <Step3
+                      formData={formData.founder}
+                      handleChange={(e) => handleChange(e, "founder")}
+                      selectedProgram={formData.basic.program}
+                    />
+                  )}
+                  
+                  {steps === 3 && (
+                    <Step4
+                      formData={formData.description}
+                      handleChange={(e) => handleChange(e, "description")}
+                    />
+                  )}
+
+                  {/* Navigation Buttons */}
+                  <div className="flex justify-center items-center mt-3 gap-5">
+                    {steps > 0 && (
+                      <button
+                        className="border-[#45c74d] border p-2 rounded-lg text-[#45c74d] font-semibold"
+                        onClick={handlestepsdecrement}
+                      >
+                        Back
+                      </button>
+                    )}
+                    {steps === 3 ? (
+                      <button
+                        className="bg-[#45c74d] p-2 rounded-lg text-white font-semibold"
+                        onClick={handleSubmit}
+                      >
+                        Submit
+                      </button>
+                    ) : (
+                      <button
+                        className="bg-[#45c74d] p-2 rounded-lg text-white font-semibold"
+                        onClick={handlestepsincrement}
+                      >
+                        Next
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     );
 }
 

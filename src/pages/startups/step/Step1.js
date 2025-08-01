@@ -550,6 +550,433 @@
 // };
 
 // export default Step1;
+// import React, {
+//   useState,
+//   useEffect,
+//   useImperativeHandle,
+//   forwardRef,
+// } from "react";
+
+// const Step1 = forwardRef(
+//   ({ formData, handleChange, errors = {}, setErrors = () => {} }, ref) => {
+//     const [touched, setTouched] = useState({});
+
+//     const sectorOptions = [
+//       "Manufacturing and industry ",
+//       "Social and leisure",
+//       "Hardware & IOT",
+//       "EdTech",
+//       "Energy & Environment",
+//       "Software & Data",
+//       "Services",
+//       "Ecommerce & Retail",
+//       "Agriculture & Food",
+//     ];
+
+//     const domainOptions = [
+//       "Industry 4.0",
+//       "Sustainability",
+//       "Health Care",
+//       "FinTech",
+//       "E-Mobility",
+//       "EdTech",
+//     ];
+
+//     const technologyOptions = [
+//       "3D Printing & Fabrication",
+//       "App Development",
+//       "Artificial Intelligence (AI) & Machine Learning (ML)",
+//       "Augmented Reality (AR) & Virtual Reality (VR)",
+//       "BioMimicry Applications",
+//       "Blockchain",
+//       "Deep Technology (Anything with a deep technical expertise)",
+//       "Internet of Things (IoT)",
+//       "Other",
+//     ];
+
+// const cohortOptions = [
+//   "2017-18",
+//   "2018-19",
+//   "January 2019",
+//   "July 2019",
+//   "January 2020",
+//   "August 2020",
+//   "January 2021",
+//   "July 2021",
+//   "January 2022",
+//   "August 2022",
+//   "January 2023",
+//   "August 2023",
+//   "November-24",
+//   "April-2025",
+// ];
+
+//     const graduatedToOptions = ["IITM-IC ", "Other"];
+
+//     const validateField = (name, value) => {
+//       const trimmed = typeof value === "string" ? value.trim() : value;
+
+//       if (name === "graduated_to_other") {
+//         if (formData.graduated_to === "Other" && !trimmed) {
+//           return "This field is required when 'Other' is selected";
+//         }
+//         if (formData.graduated_to === "Other" && trimmed) {
+//           if (!/^[a-zA-Z][a-zA-Z\s-]*$/.test(trimmed)) {
+//             return "Only letters, spaces and hyphens allowed";
+//           }
+//           if (trimmed.length < 2) return "Minimum 2 characters required";
+//         }
+//         return "";
+//       }
+
+//       if (!trimmed) return "This field is required";
+
+//       switch (name) {
+//         case "startup_name":
+//         case "startup_industry":
+//           if (!/^[a-zA-Z][a-zA-Z\s-]*$/.test(trimmed)) {
+//             return "Only letters, spaces and hyphens allowed";
+//           }
+//           if (trimmed.length < 2) return "Minimum 2 characters required";
+//           break;
+
+//         case "startup_yog":
+//           if (trimmed && !/^\d{4}$/.test(value))
+//             return "Must be 4 digits (e.g., 2023)";
+//           if (trimmed) {
+//             const year = parseInt(value, 10);
+//             const currentYear = new Date().getFullYear();
+//             if (year > currentYear) return "Year cannot be in the future";
+//             if (year < 2000) return "Year should be after 2000";
+//           }
+//           break;
+
+//         case "startup_technology":
+//         case "startup_sector":
+//         case "startup_domain":
+//         case "graduated_to":
+//         case "startup_Community":
+//           if (!value) return "Please select an option";
+//           break;
+
+//         case "startup_cohort":
+//           if (!value) return "Please select a valid month/year";
+//           break;
+
+//         default:
+//           break;
+//       }
+
+//       return "";
+//     };
+
+//     const validateAllFields = () => {
+//       const requiredFields = [
+//         "startup_name",
+//         "startup_domain",
+//         "startup_sector",
+//         "startup_technology",
+//         "startup_cohort",
+//         "graduated_to",
+//         "startup_Community",
+//       ];
+
+//       if (formData.graduated_to === "Other") {
+//         requiredFields.push("graduated_to_other");
+//       }
+
+//       const newErrors = {};
+//       const newTouched = {};
+//       let isValid = true;
+
+//       requiredFields.forEach((field) => {
+//         const error = validateField(field, formData[field]);
+//         if (error) {
+//           newErrors[field] = error;
+//           newTouched[field] = true;
+//           isValid = false;
+//         }
+//       });
+
+//       setErrors((prev) => ({ ...prev, ...newErrors }));
+//       setTouched((prev) => ({ ...prev, ...newTouched }));
+
+//       return isValid;
+//     };
+
+//     useImperativeHandle(ref, () => ({
+//       validateAllFields,
+//     }));
+
+//     const handleInputChange = (e) => {
+//       const { name, value } = e.target;
+
+//       const cleanedValue = value.startsWith(" ") ? value.trimStart() : value;
+
+//       handleChange({ target: { name, value: cleanedValue } });
+
+//       if (name === "graduated_to" && cleanedValue !== "Other") {
+//         handleChange({ target: { name: "graduated_to_other", value: "" } });
+//         setErrors((prev) => ({ ...prev, graduated_to_other: "" }));
+//         setTouched((prev) => ({ ...prev, graduated_to_other: false }));
+//       }
+
+//       if (
+//         name === "graduated_to" &&
+//         cleanedValue === "Other" &&
+//         touched.graduated_to_other
+//       ) {
+//         const error = validateField(
+//           "graduated_to_other",
+//           formData.graduated_to_other || ""
+//         );
+//         setErrors((prev) => ({ ...prev, graduated_to_other: error }));
+//       }
+
+//       if (touched[name]) {
+//         const error = validateField(name, cleanedValue);
+//         setErrors((prev) => ({ ...prev, [name]: error }));
+//       }
+//     };
+
+//     const handleBlur = (e) => {
+//       const { name, value } = e.target;
+//       setTouched((prev) => ({ ...prev, [name]: true }));
+//       const error = validateField(name, value);
+//       setErrors((prev) => ({ ...prev, [name]: error }));
+//     };
+
+//     const renderInput = (
+//       label,
+//       name,
+//       placeholder,
+//       type = "text",
+//       maxLength = 50,
+//       extraProps = {},
+//       required = true
+//     ) => (
+//       <div>
+//         <label className="block font-medium text-gray-700">
+//           {label} {required && <span className="text-red-500">*</span>}
+//         </label>
+//         <input
+//           type={type}
+//           name={name}
+//           placeholder={placeholder}
+//           maxLength={maxLength}
+//           value={formData[name] || ""}
+//           onChange={handleInputChange}
+//           onBlur={handleBlur}
+//           className={`mt-1 block w-full p-2 text-sm rounded-lg border focus:ring-[#45C74D] focus:border-[#45C74D] ${
+//             touched[name] && errors[name]
+//               ? "border-red-500 bg-red-50"
+//               : "border-gray-300"
+//           }`}
+//           {...extraProps}
+//         />
+//         {touched[name] && errors[name] && (
+//           <p className="text-sm text-red-600 mt-1">{errors[name]}</p>
+//         )}
+//       </div>
+//     );
+
+//     const renderSelect = (label, name, options, placeholder) => (
+//       <div>
+//         <label className="block font-medium text-gray-700">
+//           {label} <span className="text-red-500">*</span>
+//         </label>
+//         <select
+//           name={name}
+//           value={formData[name] || ""}
+//           onChange={handleInputChange}
+//           onBlur={handleBlur}
+//           className={`mt-1 block w-full p-2 text-sm rounded-lg border focus:ring-[#45C74D] focus:border-[#45C74D] ${
+//             touched[name] && errors[name]
+//               ? "border-red-500 bg-red-50"
+//               : "border-gray-300"
+//           }`}
+//         >
+//           <option value="">{placeholder}</option>
+//           {options.map((option, index) => (
+//             <option key={index} value={option}>
+//               {option}
+//             </option>
+//           ))}
+//         </select>
+//         {touched[name] && errors[name] && (
+//           <p className="text-sm text-red-600 mt-1">{errors[name]}</p>
+//         )}
+//       </div>
+//     );
+
+//     return (
+//       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 px-6">
+//         {renderInput(
+//           "Name of the Start-up",
+//           "startup_name",
+//           "Enter startup name"
+//         )}
+//         {renderSelect(
+//           "Start-up Domain",
+//           "startup_domain",
+//           domainOptions,
+//           "Select startup domain"
+//         )}
+//         {renderSelect(
+//           "Sector",
+//           "startup_sector",
+//           sectorOptions,
+//           "Select sector"
+//         )}
+//         {renderSelect(
+//           "Start-up Technology",
+//           "startup_technology",
+//           technologyOptions,
+//           "Select technology"
+//         )}
+
+//         {/* Cohort */}
+//         {/* Start-up Cohort Dropdown */}
+// <div>
+//   <label className="block font-medium text-gray-700">
+//     Start-up Cohort <span className="text-red-500">*</span>
+//   </label>
+//   <select
+//     name="startup_cohort"
+//     value={formData.startup_cohort || ""}
+//     onChange={handleInputChange}
+//     onBlur={handleBlur}
+//     className={`mt-1 block w-full p-2 text-sm rounded-lg border focus:ring-[#45C74D] focus:border-[#45C74D] ${
+//       touched.startup_cohort && errors.startup_cohort
+//         ? "border-red-500 bg-red-50"
+//         : "border-gray-300"
+//     }`}
+//   >
+//     <option value="">Select cohort</option>
+//     {cohortOptions.map((option) => (
+//       <option key={option} value={option}>
+//         {option}
+//       </option>
+//     ))}
+//   </select>
+//   {touched.startup_cohort && errors.startup_cohort && (
+//     <p className="text-sm text-red-600 mt-1">{errors.startup_cohort}</p>
+//   )}
+// </div>
+
+//         {/* Year of Graduation */}
+//         {renderInput(
+//           "Year of Graduation",
+//           "startup_yog",
+//           "Only Fill Graduated Year",
+//           "text",
+//           4,
+//           {
+//             inputMode: "numeric",
+//             pattern: "\\d{4}",
+//             onInput: (e) => {
+//               e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
+//             },
+//           },
+//           false
+//         )}
+
+//         {/* Graduated To + Other input inline */}
+//         <div>
+//           <label className="block font-medium text-gray-700">
+//             Graduated To <span className="text-red-500">*</span>
+//           </label>
+//           <div className="flex gap-2">
+//             <select
+//               name="graduated_to"
+//               value={formData.graduated_to || ""}
+//               onChange={handleInputChange}
+//               onBlur={handleBlur}
+//               className={`mt-1 w-1/2 p-2 text-sm rounded-lg border focus:ring-[#45C74D] focus:border-[#45C74D] ${
+//                 touched.graduated_to && errors.graduated_to
+//                   ? "border-red-500 bg-red-50"
+//                   : "border-gray-300"
+//               }`}
+//             >
+//               <option value="">Select graduation status</option>
+//               {graduatedToOptions.map((option, index) => (
+//                 <option key={index} value={option}>
+//                   {option}
+//                 </option>
+//               ))}
+//             </select>
+
+//             {formData.graduated_to === "Other" && (
+//               <input
+//                 type="text"
+//                 name="graduated_to_other"
+//                 placeholder="Please specify"
+//                 maxLength={100}
+//                 value={formData.graduated_to_other || ""}
+//                 onChange={handleInputChange}
+//                 onBlur={handleBlur}
+//                 className={`mt-1 w-1/2 p-2 text-sm rounded-lg border focus:ring-[#45C74D] focus:border-[#45C74D] ${
+//                   touched.graduated_to_other && errors.graduated_to_other
+//                     ? "border-red-500 bg-red-50"
+//                     : "border-gray-300"
+//                 }`}
+//               />
+//             )}
+//           </div>
+//           {/* Validation messages */}
+//           {touched.graduated_to && errors.graduated_to && (
+//             <p className="text-sm text-red-600 mt-1">{errors.graduated_to}</p>
+//           )}
+//           {formData.graduated_to === "Other" &&
+//             touched.graduated_to_other &&
+//             errors.graduated_to_other && (
+//               <p className="text-sm text-red-600 mt-1">
+//                 {errors.graduated_to_other}
+//               </p>
+//             )}
+//         </div>
+
+//         {/* Community */}
+//         <div>
+//           <label className="block font-medium text-gray-700">
+//             Mode of Entry to Nirmaan <span className="text-red-500">*</span>
+//           </label>
+//           <select
+//             name="startup_Community"
+//             value={formData.startup_Community || ""}
+//             onChange={handleInputChange}
+//             onBlur={handleBlur}
+//             className={`mt-1 block w-full p-2 text-sm rounded-lg border focus:ring-[#45C74D] focus:border-[#45C74D] ${
+//               touched.startup_Community && errors.startup_Community
+//                 ? "border-red-500 bg-red-50"
+//                 : "border-gray-300"
+//             }`}
+//           >
+//             <option value="" disabled>
+//               Select Mode of entry to nirmaan{" "}
+//             </option>
+//             <option value="CFI">CFI</option>
+//             <option value="E-cell">E-cell</option>
+//             <option value="CZC">CZC</option>
+//             <option value="PALS">PALS</option>
+//             <option value="I2L">I2L</option>
+//             <option value="Direct entry">Direct entry</option>
+//             <option value="Non-iit">Non-iit</option>
+//           </select>
+//           {touched.startup_Community && errors.startup_Community && (
+//             <p className="text-sm text-red-600 mt-1">
+//               {errors.startup_Community}
+//             </p>
+//           )}
+//         </div>
+//       </div>
+//     );
+//   }
+// );
+
+// Step1.displayName = "Step1";
+// export default Step1;
+
 import React, {
   useState,
   useEffect,
@@ -558,7 +985,16 @@ import React, {
 } from "react";
 
 const Step1 = forwardRef(
-  ({ formData, handleChange, errors = {}, setErrors = () => {} }, ref) => {
+  (
+    {
+      formData,
+      handleChange,
+      errors = {},
+      setErrors = () => {},
+      selectedProgram,
+    },
+    ref
+  ) => {
     const [touched, setTouched] = useState({});
 
     const sectorOptions = [
@@ -594,23 +1030,28 @@ const Step1 = forwardRef(
       "Other",
     ];
 
-const cohortOptions = [
-  "2017-18",
-  "2018-19",
-  "January 2019",
-  "July 2019",
-  "January 2020",
-  "August 2020",
-  "January 2021",
-  "July 2021",
-  "January 2022",
-  "August 2022",
-  "January 2023",
-  "August 2023",
-  "November-24",
-  "April-2025",
-];
+    const cohortOptions = [
+      "2017-18",
+      "2018-19",
+      "January 2019",
+      "July 2019",
+      "January 2020",
+      "August 2020",
+      "January 2021",
+      "July 2021",
+      "January 2022",
+      "August 2022",
+      "January 2023",
+      "August 2023",
+      "November-24",
+      "April-2025",
+    ];
 
+    useEffect(() => {
+      console.log("Step1 selectedProgram:", selectedProgram); // Debugging
+    }, [selectedProgram]);
+
+    const isDroppedOut = selectedProgram === "Dropped out";
 
     const graduatedToOptions = ["IITM-IC ", "Other"];
 
@@ -652,7 +1093,7 @@ const cohortOptions = [
           }
           break;
 
-        case "startup_technology":
+        // case "startup_technology":
         case "startup_sector":
         case "startup_domain":
         case "graduated_to":
@@ -676,7 +1117,7 @@ const cohortOptions = [
         "startup_name",
         "startup_domain",
         "startup_sector",
-        "startup_technology",
+        // "startup_technology",
         "startup_cohort",
         "graduated_to",
         "startup_Community",
@@ -784,7 +1225,7 @@ const cohortOptions = [
     const renderSelect = (label, name, options, placeholder) => (
       <div>
         <label className="block font-medium text-gray-700">
-          {label} <span className="text-red-500">*</span>
+          {label} {!isDroppedOut && <span className="text-red-500">*</span>}
         </label>
         <select
           name={name}
@@ -829,119 +1270,150 @@ const cohortOptions = [
           sectorOptions,
           "Select sector"
         )}
-        {renderSelect(
+        {/* {renderSelect(
           "Start-up Technology",
           "startup_technology",
           technologyOptions,
           "Select technology"
-        )}
+        )} */}
 
         {/* Cohort */}
         {/* Start-up Cohort Dropdown */}
-<div>
-  <label className="block font-medium text-gray-700">
-    Start-up Cohort <span className="text-red-500">*</span>
-  </label>
-  <select
-    name="startup_cohort"
-    value={formData.startup_cohort || ""}
-    onChange={handleInputChange}
-    onBlur={handleBlur}
-    className={`mt-1 block w-full p-2 text-sm rounded-lg border focus:ring-[#45C74D] focus:border-[#45C74D] ${
-      touched.startup_cohort && errors.startup_cohort
-        ? "border-red-500 bg-red-50"
-        : "border-gray-300"
-    }`}
-  >
-    <option value="">Select cohort</option>
-    {cohortOptions.map((option) => (
-      <option key={option} value={option}>
-        {option}
-      </option>
-    ))}
-  </select>
-  {touched.startup_cohort && errors.startup_cohort && (
-    <p className="text-sm text-red-600 mt-1">{errors.startup_cohort}</p>
-  )}
-</div>
-
-
-        {/* Year of Graduation */}
-        {renderInput(
-          "Year of Graduation",
-          "startup_yog",
-          "Only Fill Graduated Year",
-          "text",
-          4,
-          {
-            inputMode: "numeric",
-            pattern: "\\d{4}",
-            onInput: (e) => {
-              e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
-            },
-          },
-          false
-        )}
-
-        {/* Graduated To + Other input inline */}
         <div>
           <label className="block font-medium text-gray-700">
-            Graduated To <span className="text-red-500">*</span>
+            Start-up Technology
           </label>
-          <div className="flex gap-2">
-            <select
-              name="graduated_to"
-              value={formData.graduated_to || ""}
-              onChange={handleInputChange}
-              onBlur={handleBlur}
-              className={`mt-1 w-1/2 p-2 text-sm rounded-lg border focus:ring-[#45C74D] focus:border-[#45C74D] ${
-                touched.graduated_to && errors.graduated_to
-                  ? "border-red-500 bg-red-50"
-                  : "border-gray-300"
-              }`}
-            >
-              <option value="">Select graduation status</option>
-              {graduatedToOptions.map((option, index) => (
-                <option key={index} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
+          <select
+            name="startup_technology"
+            value={formData.startup_technology || ""}
+            onChange={handleInputChange}
+            onBlur={handleBlur}
+            className={`mt-1 block w-full p-2 text-sm rounded-lg border focus:ring-[#45C74D] focus:border-[#45C74D] ${
+              touched.startup_technology && errors.startup_technology
+                ? "border-red-500 bg-red-50"
+                : "border-gray-300"
+            }`}
+          >
+            <option value="">Select technology</option>
+            {technologyOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+          {touched.startup_cohort && errors.startup_cohort && (
+            <p className="text-sm text-red-600 mt-1">{errors.startup_cohort}</p>
+          )}
+        </div>
+        <div>
+          <label className="block font-medium text-gray-700">
+            Start-up Cohort{" "}
+            {!isDroppedOut && <span className="text-red-500">*</span>}
+          </label>
+          <select
+            name="startup_cohort"
+            value={formData.startup_cohort || ""}
+            onChange={handleInputChange}
+            onBlur={handleBlur}
+            className={`mt-1 block w-full p-2 text-sm rounded-lg border focus:ring-[#45C74D] focus:border-[#45C74D] ${
+              touched.startup_cohort && errors.startup_cohort
+                ? "border-red-500 bg-red-50"
+                : "border-gray-300"
+            }`}
+          >
+            <option value="">Select cohort</option>
+            {cohortOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+          {touched.startup_cohort && errors.startup_cohort && (
+            <p className="text-sm text-red-600 mt-1">{errors.startup_cohort}</p>
+          )}
+        </div>
 
-            {formData.graduated_to === "Other" && (
-              <input
-                type="text"
-                name="graduated_to_other"
-                placeholder="Please specify"
-                maxLength={100}
-                value={formData.graduated_to_other || ""}
+        {/* Year of Graduation */}
+        {selectedProgram === "Graduated" &&
+          renderInput(
+            "Year of Graduation",
+            "startup_yog",
+            "Only Fill Graduated Year",
+            "text",
+            4,
+            {
+              inputMode: "numeric",
+              pattern: "\\d{4}",
+              onInput: (e) => {
+                e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
+              },
+            },
+            false
+          )}
+
+        {/* Graduated To + Other input inline */}
+
+        {selectedProgram === "Graduated" && (
+          <div>
+            <label className="block font-medium text-gray-700">
+              Graduated To <span className="text-red-500">*</span>
+            </label>
+            <div className="flex gap-2">
+              <select
+                name="graduated_to"
+                value={formData.graduated_to || ""}
                 onChange={handleInputChange}
                 onBlur={handleBlur}
                 className={`mt-1 w-1/2 p-2 text-sm rounded-lg border focus:ring-[#45C74D] focus:border-[#45C74D] ${
-                  touched.graduated_to_other && errors.graduated_to_other
+                  touched.graduated_to && errors.graduated_to
                     ? "border-red-500 bg-red-50"
                     : "border-gray-300"
                 }`}
-              />
+              >
+                <option value="">Select graduation status</option>
+                {graduatedToOptions.map((option, index) => (
+                  <option key={index} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+
+              {formData.graduated_to === "Other" && (
+                <input
+                  type="text"
+                  name="graduated_to_other"
+                  placeholder="Please specify"
+                  maxLength={100}
+                  value={formData.graduated_to_other || ""}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  className={`mt-1 w-1/2 p-2 text-sm rounded-lg border focus:ring-[#45C74D] focus:border-[#45C74D] ${
+                    touched.graduated_to_other && errors.graduated_to_other
+                      ? "border-red-500 bg-red-50"
+                      : "border-gray-300"
+                  }`}
+                />
+              )}
+            </div>
+            {/* Validation messages */}
+            {touched.graduated_to && errors.graduated_to && (
+              <p className="text-sm text-red-600 mt-1">{errors.graduated_to}</p>
             )}
+            {formData.graduated_to === "Other" &&
+              touched.graduated_to_other &&
+              errors.graduated_to_other && (
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.graduated_to_other}
+                </p>
+              )}
           </div>
-          {/* Validation messages */}
-          {touched.graduated_to && errors.graduated_to && (
-            <p className="text-sm text-red-600 mt-1">{errors.graduated_to}</p>
-          )}
-          {formData.graduated_to === "Other" &&
-            touched.graduated_to_other &&
-            errors.graduated_to_other && (
-              <p className="text-sm text-red-600 mt-1">
-                {errors.graduated_to_other}
-              </p>
-            )}
-        </div>
+        )}
 
         {/* Community */}
         <div>
           <label className="block font-medium text-gray-700">
-            Mode of Entry to Nirmaan <span className="text-red-500">*</span>
+            Mode of Entry to Nirmaan{" "}
+            {!isDroppedOut && <span className="text-red-500">*</span>}
           </label>
           <select
             name="startup_Community"

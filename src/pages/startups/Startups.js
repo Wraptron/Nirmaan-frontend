@@ -95,7 +95,6 @@
 //     }
 //   };
 
-
 //   return (
 //     <div className="flex">
 //       <SideBar />
@@ -340,7 +339,6 @@
 
 // export default Startups;
 
-
 import React, { useEffect, useState } from "react";
 import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
@@ -348,7 +346,12 @@ import axios from "axios";
 import ExportSvg from "../../assets/images/export excel.svg";
 import FrameSvg from "../../assets/images/Frame.svg";
 import toast from "react-hot-toast";
-import { FaSpinner, FaEllipsisV, FaFilter, FaChevronDown } from "react-icons/fa";
+import {
+  FaSpinner,
+  FaEllipsisV,
+  FaFilter,
+  FaChevronDown,
+} from "react-icons/fa";
 import { ApiDeletStartupData } from "../../API/API";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
 import { useNavigate } from "react-router-dom";
@@ -376,22 +379,22 @@ function Startups() {
     { label: "Dropped out", value: "dropped out" },
   ];
 
-const cohortOptions = [
-  "2017-18",
-  "2018-19",
-  "January 2019",
-  "July 2019",
-  "January 2020",
-  "August 2020",
-  "January 2021",
-  "July 2021",
-  "January 2022",
-  "August 2022",
-  "January 2023",
-  "August 2023",
-  "November-24",
-  "April-2025",
-];
+  const cohortOptions = [
+    "2017-18",
+    "2018-19",
+    "January 2019",
+    "July 2019",
+    "January 2020",
+    "August 2020",
+    "January 2021",
+    "July 2021",
+    "January 2022",
+    "August 2022",
+    "January 2023",
+    "August 2023",
+    "November-24",
+    "April-2025",
+  ];
 
   const fetchData = async () => {
     try {
@@ -793,7 +796,8 @@ const cohortOptions = [
                         Previous
                       </button>
                       <span className="text-sm text-gray-600">
-                        Page {currentPage} of {totalPages} ({filteredData.length} startups)
+                        Page {currentPage} of {totalPages} (
+                        {filteredData.length} startups)
                       </span>
                       <button
                         onClick={() =>
