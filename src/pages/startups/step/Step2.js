@@ -1093,9 +1093,12 @@ const Step2 = ({ formData, handleChange, selectedProgram }) => {
 
   const validateOfficialEmailAddress = (value) => {
     if (!value) return "Official email address is required";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "Please enter a valid email address";
+    if (!/^[^\s@]+@gmail\.com$/.test(value))
+      return "Please enter a valid Gmail address";
     return "";
   };
+
+
 
   const validateWebsiteLink = (value) => {
     if (value && !/^https?:\/\/.+\..+/.test(value)) return "Please enter a valid website URL";

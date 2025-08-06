@@ -521,7 +521,7 @@ function AddStartup() {
         try {
             // 1. Add startup
             const result = await axios.post(
-              "http://13.127.7.121/api/v1/add-startup",
+              "http://localhost:3003/api/v1/add-startup",
               formData,
               {
                 headers: {
@@ -541,7 +541,7 @@ function AddStartup() {
                 Swal.fire({
                     icon: "success",
                     title: "Startup added successfully!",
-                    timer: 1500
+                    timer: 800
                 });
                 navigate('/startups');
             }

@@ -28,8 +28,8 @@ function Home() {
   useEffect(() => {
     setShoww(true);
   }, []);
-  const url = "http://13.127.7.121/api/v1/count-startupdata";
-  const url2 = "http://13.127.7.121/api/v1/fetch-startup";
+  const url = "http://localhost:3003/api/v1/count-startupdata";
+  const url2 = "http://localhost:3003/api/v1/fetch-startup";
   const AnalysisData = async () => {
     try {
       const result = await axios.get(url);

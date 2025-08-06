@@ -4,6 +4,7 @@ import NavBar from "../../components/NavBar";
 import { FiEdit2, FiShare2, FiGlobe, FiX } from "react-icons/fi";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { MdOutlineAdd, MdCall, MdChevronLeft } from "react-icons/md";
+import { FaSync } from "react-icons/fa";
 import bgImg from "../../assets/images/Rectangle 5.svg";
 import profileImg from "../../assets/images/296fe121-5dfa-43f4-98b5-db50019738a7.jpg";
 import pinSvg from "../../assets/images/Frame (9).svg";
@@ -12,11 +13,16 @@ import { useParams } from "react-router-dom";
 import EditStartupForm from "../startups/step/EditForm/EditStartupForm";
 import EditAboutForm from "../startups/step/EditForm/EditAboutForm";
 import AddAwardForm from "../startups/step/EditForm/AddAwardForm";
-import EditTeamMembersForm from "../startups/step/EditForm/EditTeamMembersForm";
+import FounderForm from "./step/EditForm/FounderForm"; // adjust the path if needed
+
 import EditFundingForm from "../startups/step/EditForm/EditFundingForm";
 import toast from "react-hot-toast";
 import EditMentorForm from "../startups/step/EditForm/EditMentorForm";
-import { ApiFetchAward, ApiFetchStartup } from "../../API/API";
+import {
+  ApiFetchAward,
+  ApiFetchFundingAmount,
+  ApiFetchStartup,
+} from "../../API/API";
 import { Route } from "react-router-dom";
 import { FaLinkedin } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
@@ -24,20 +30,27 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
+import AddFunding from "../Home/Funding/AddFunding";
 
 function StartupProfile() {
-  const { official_email_address } = useParams();
-  console.log("Param official_email_address:", official_email_address);
+  const { startup_id } = useParams();
+  console.log("id:", startup_id);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showAboutForm, setShowAboutForm] = useState(false);
   const [showAddAwardForm, setShowAddAwardForm] = useState(false);
-  const [showTeamMembersForm, setShowTeamMembersForm] = useState(false);
+
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [showFoundersForm, setShowFoundersForm] = useState(false);
+  const [showFounderEditForm, setShowFounderEditForm] = useState(false);
   const [showFundingForm, setShowFundingForm] = useState(false);
   const [showMentorForm, setShowMentorForm] = useState(false);
+  // const [showFundingModal, setShowFundingModal] = useState(false);
 
   const [startupData, setStartupData] = useState(null);
   const [awards, setAwards] = useState([]);
   const [showReadMore, setShowReadMore] = useState(false);
+  const [fundingAmount, setFundingAmount] = useState([]);
+  const [selectedFounder, setSelectedFounder] = useState(null);
 
   const navigate = useNavigate();
 
@@ -45,9 +58,10 @@ function StartupProfile() {
   const handleEditClick = () => setShowEditForm(true);
   const handleAboutClick = () => setShowAboutForm(true);
   const handleAddAwardClick = () => setShowAddAwardForm(true);
-  const handleTeamMembersClick = () => setShowTeamMembersForm(true);
+  const handleTeamMembersClick = () => setShowFoundersForm(true);
   const handleFundingClick = () => setShowFundingForm(true);
   const handleMentorEditClick = () => setShowMentorForm(true);
+  // const handleFundingModalClick = () => setShowFundingForm(true);
 
   const handleEditClose = async () => {
     await FetchData();
@@ -63,13 +77,26 @@ function StartupProfile() {
   };
   const handleTeamMembersClose = async () => {
     await FetchData();
-    setShowTeamMembersForm(false);
+    setShowFoundersForm(false);
   };
-  const handleFundingClose = () => setShowFundingForm(false);
+  const handleFundingClose = async() =>{
+    await FetchData();
+     setShowFundingForm(false);}
   const handleMentorEditClose = async () => {
     await FetchData();
     setShowMentorForm(false);
   };
+  // const handleFundingModalClose = () => setShowFundingForm(false);
+
+  const handleFounderEditClose = async () => {
+    await FetchData();
+    setShowFounderEditForm(false);
+  };
+
+  // Sample funding data - replace with real data from your API
+  // const [fundingData, setFundingData] = useState([]);
+
+  // Funding Modal Component
 
   const handleEditSubmit = async (updatedData) => {
     try {
@@ -160,34 +187,49 @@ function StartupProfile() {
     }
   };
 
+// Api FetchData
   const FetchData = async () => {
     try {
+
+      // ---Startup Detail Fetch ---
       const API = await ApiFetchStartup();
-      const APIAward = await ApiFetchAward();
-      const allStartup = API?.rows || [];
-      const award = APIAward?.rows || [];
-      const selectedstartup = allStartup.find(
+        const allStartup = API?.rows || [];
+          const selectedstartup = allStartup.find(
         (startup) =>
-          String(startup.email_address) === String(official_email_address)
+          String(startup.startup_id) === String(startup_id)
       );
-      const filteredAwards = award.filter(
-        (award) =>
-          String(award.official_email_address) ===
-          String(official_email_address)
-      );
-      console.log("Selected startup:", selectedstartup);
-      console.log("Awards data:", filteredAwards);
-      console.log("Awards length:", filteredAwards?.length);
       setStartupData(selectedstartup || null);
-      setAwards(filteredAwards || []);
-    } catch (err) {
+      // console.log(selectedstartup)
+
+       // ---Award Details Fetch ---
+      const APIAward = await ApiFetchAward();
+       const award = APIAward?.rows || [];
+         const filteredAwards = award.filter(
+        (award) =>
+          String(award.startup_id) ===
+          String(startup_id)
+      );
+       setAwards(filteredAwards || []);
+
+      // --- Funding Amount Details Fetch Fetch ---
+      const ApiFundingAmount = await ApiFetchFundingAmount();
+      const amount = ApiFundingAmount || {};
+      const fundamount = selectedstartup?.startup_name ? amount[selectedstartup.startup_name] || null : null;
+       setFundingAmount(fundamount || []);
+
+
+      // console.log("Selected startup:", selectedstartup);
+      // console.log("Awards data:", filteredAwards);
+      // console.log("Awards length:", filteredAwards?.length);
+      
+     } catch (err) {
       console.error("Error fetching mentor data:", err);
     }
   };
 
   useEffect(() => {
     FetchData();
-  }, [official_email_address]);
+  }, [startup_id]);
 
   if (!startupData) {
     return <div>Loading startup details</div>;
@@ -241,7 +283,7 @@ function StartupProfile() {
           <div className="mx-auto max-w-6xl py-6">
             {/* Display the id for confirmation */}
             <div className="mb-4 p-2 bg-yellow-100 text-yellow-800 rounded">
-              Profile ID: {startupData?.id || official_email_address}
+              Profile ID: {startupData?.startup_id }
             </div>
             {/* Breadcrumb */}
             <div className="text-xs text-[#A1A1A1] mb-2 flex items-center gap-2">
@@ -588,10 +630,33 @@ function StartupProfile() {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    className="p-1 hover:bg-gray-100 rounded-full"
-                    onClick={handleTeamMembersClick}
+                    onClick={() => {
+                      // Pass the startup data with the email address
+                      const founderData = {
+                        ...startupData,
+                        email_address:
+                          startupData.email_address ||
+                          startupData.official_email_address,
+                      };
+                      setSelectedFounder(founderData);
+                      setShowFounderEditForm(true);
+                    }}
                   >
                     <FiEdit2 size={22} className="text-[#45C74D]" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      // Pass the startup's email address for the API to identify which startup to update
+                      const founderData = {
+                        email_address:
+                          startupData.email_address ||
+                          startupData.official_email_address,
+                      };
+                      setSelectedFounder(founderData);
+                      setShowAddForm(true);
+                    }}
+                  >
+                    <MdOutlineAdd size={22} className="text-[#45C74D]" />
                   </button>
                   {/* <button className="p-1 hover:bg-gray-100 rounded-full"><BsThreeDotsVertical size={22} className="text-[#A1A1A1]" /></button> */}
                 </div>
@@ -616,160 +681,153 @@ function StartupProfile() {
                     </div>
                   </div>
                 </div>
-                {/* Founder 2 */}
-                {/* <div className="flex items-center gap-4">
-                  <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Founder" className="w-14 h-14 rounded-lg object-cover" />
-                  <div className="flex-1">
-                    <div className="font-semibold text-base">Name (Role)</div>
-                    <div className="text-sm text-[#A1A1A1]">ed19b063@smail.iitm.ac.in  |  +91 98400 46978</div>
-                    <div className="text-sm text-[#A1A1A1]">Linked in</div>
-                  </div>
-                  <button className="p-1 hover:bg-gray-100 rounded-full"><BsThreeDotsVertical size={20} className="text-[#A1A1A1]" /></button>
-                </div> */}
 
                 {/* Funding Section */}
-                <div className="mb-8">
+                <div className=" mt-11">
                   <div className="flex items-center justify-between mb-4">
                     <span className="font-bold text-lg text-[#232323]">
                       Funding
                     </span>
                     <div className="flex items-center gap-2">
-                      <button
+                      {/* <button
                         className="bg-[#45C74D] text-white px-8 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition"
                         onClick={handleFundingClick}
                       >
                         View
-                      </button>
-                      <button className="p-1 hover:bg-gray-100 rounded-full">
+                      </button> */}
+                      <button
+                        className="p-1 hover:bg-gray-100 rounded-full"
+                        onClick={handleFundingClick}
+                      >
                         <MdOutlineAdd size={22} className="text-[#45C74D]" />
                       </button>
                     </div>
                   </div>
-                  <div className="grid grid-cols-4 gap-6">
-                    <div
-                      className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
-                      style={{
-                        background:
-                          "linear-gradient(0deg, #E9F7F1 60%, #fff 100%)",
-                      }}
-                    >
-                      <span className="font-semibold text-sm text-[#232323] mb-1">
-                        Funding Disbursed
-                      </span>
-                      <span className="font-bold text-2xl text-[#232323] mb-2">
-                        Rs. 0
-                      </span>
-                      <img
-                        src="/src/assets/images/Frame (9).svg"
-                        alt="icon"
-                        className="absolute top-4 right-4 w-6 h-6 opacity-30"
-                      />
-                      <svg
-                        className="absolute bottom-2 left-2 w-20 h-8"
-                        viewBox="0 0 80 32"
+                    <div className="grid grid-cols-4 gap-6">
+                      <div
+                        className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
+                        style={{
+                          background:
+                            "linear-gradient(0deg, #E9F7F1 60%, #fff 100%)",
+                        }}
                       >
-                        <polyline
-                          points="0,32 20,20 40,28 60,10 80,16"
-                          fill="none"
-                          stroke="#45C74D"
-                          strokeWidth="3"
+                        <span className="font-semibold text-sm text-[#232323] mb-1">
+                          Funding Disbursed
+                        </span>
+                        <span className="font-bold text-2xl text-[#232323] mb-2">
+                           Rs. {fundingAmount?.funding_disbursed || 0}
+                        </span>
+                        <img
+                          src="/src/assets/images/Frame (9).svg"
+                          alt="icon"
+                          className="absolute top-4 right-4 w-6 h-6 opacity-30"
                         />
-                      </svg>
-                    </div>
+                        <svg
+                          className="absolute bottom-2 left-2 w-20 h-8"
+                          viewBox="0 0 80 32"
+                        >
+                          <polyline
+                            points="0,32 20,20 40,28 60,10 80,16"
+                            fill="none"
+                            stroke="#45C74D"
+                            strokeWidth="3"
+                          />
+                        </svg>
+                      </div>
 
-                    <div
-                      className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
-                      style={{
-                        background:
-                          "linear-gradient(0deg, #FFF7E6 60%, #fff 100%)",
-                      }}
-                    >
-                      <span className="font-semibold text-sm text-[#232323] mb-1">
-                        Funding Utilized
-                      </span>
-                      <span className="font-bold text-2xl text-[#232323] mb-2">
-                        Rs. 0
-                      </span>
-                      <img
-                        src="/src/assets/images/Frame (9).svg"
-                        alt="icon"
-                        className="absolute top-4 right-4 w-6 h-6 opacity-30"
-                      />
-                      <svg
-                        className="absolute bottom-2 left-2 w-20 h-8"
-                        viewBox="0 0 80 32"
+                      <div
+                        className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
+                        style={{
+                          background:
+                            "linear-gradient(0deg, #FFF7E6 60%, #fff 100%)",
+                        }}
                       >
-                        <polyline
-                          points="0,32 20,20 40,28 60,10 80,16"
-                          fill="none"
-                          stroke="#FFA726"
-                          strokeWidth="3"
+                        <span className="font-semibold text-sm text-[#232323] mb-1">
+                          Funding Utilized
+                        </span>
+                        <span className="font-bold text-2xl text-[#232323] mb-2">
+                           Rs. {fundingAmount?.funding_utilized || 0}
+                        </span>
+                        <img
+                          src="/src/assets/images/Frame (9).svg"
+                          alt="icon"
+                          className="absolute top-4 right-4 w-6 h-6 opacity-30"
                         />
-                      </svg>
-                    </div>
+                        <svg
+                          className="absolute bottom-2 left-2 w-20 h-8"
+                          viewBox="0 0 80 32"
+                        >
+                          <polyline
+                            points="0,32 20,20 40,28 60,10 80,16"
+                            fill="none"
+                            stroke="#FFA726"
+                            strokeWidth="3"
+                          />
+                        </svg>
+                      </div>
 
-                    <div
-                      className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
-                      style={{
-                        background:
-                          "linear-gradient(0deg, #FFE6E6 60%, #fff 100%)",
-                      }}
-                    >
-                      <span className="font-semibold text-sm text-[#232323] mb-1">
-                        Balance
-                      </span>
-                      <span className="font-bold text-2xl text-[#232323] mb-2">
-                        Rs. 0
-                      </span>
-                      <img
-                        src="/src/assets/images/Frame (9).svg"
-                        alt="icon"
-                        className="absolute top-4 right-4 w-6 h-6 opacity-30"
-                      />
-                      <svg
-                        className="absolute bottom-2 left-2 w-20 h-8"
-                        viewBox="0 0 80 32"
+                      <div
+                        className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
+                        style={{
+                          background:
+                            "linear-gradient(0deg, #FFE6E6 60%, #fff 100%)",
+                        }}
                       >
-                        <polyline
-                          points="0,32 20,20 40,28 60,10 80,16"
-                          fill="none"
-                          stroke="#FF5252"
-                          strokeWidth="3"
+                        <span className="font-semibold text-sm text-[#232323] mb-1">
+                          Balance
+                        </span>
+                        <span className="font-bold text-2xl text-[#232323] mb-2">
+                          Rs. {fundingAmount?.balance || 0}
+                        </span>
+                        <img
+                          src="/src/assets/images/Frame (9).svg"
+                          alt="icon"
+                          className="absolute top-4 right-4 w-6 h-6 opacity-30"
                         />
-                      </svg>
-                    </div>
+                        <svg
+                          className="absolute bottom-2 left-2 w-20 h-8"
+                          viewBox="0 0 80 32"
+                        >
+                          <polyline
+                            points="0,32 20,20 40,28 60,10 80,16"
+                            fill="none"
+                            stroke="#FF5252"
+                            strokeWidth="3"
+                          />
+                        </svg>
+                      </div>
 
-                    <div
-                      className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
-                      style={{
-                        background:
-                          "linear-gradient(0deg, #E6F0FF 60%, #fff 100%)",
-                      }}
-                    >
-                      <span className="font-semibold text-sm text-[#232323] mb-1">
-                        External Funding
-                      </span>
-                      <span className="font-bold text-2xl text-[#232323] mb-2">
-                        Rs. 0
-                      </span>
-                      <img
-                        src="/src/assets/images/Frame (9).svg"
-                        alt="icon"
-                        className="absolute top-4 right-4 w-6 h-6 opacity-30"
-                      />
-                      <svg
-                        className="absolute bottom-2 left-2 w-20 h-8"
-                        viewBox="0 0 80 32"
+                      <div
+                        className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
+                        style={{
+                          background:
+                            "linear-gradient(0deg, #E6F0FF 60%, #fff 100%)",
+                        }}
                       >
-                        <polyline
-                          points="0,32 20,20 40,28 60,10 80,16"
-                          fill="none"
-                          stroke="#42A5F5"
-                          strokeWidth="3"
+                        <span className="font-semibold text-sm text-[#232323] mb-1">
+                          External Funding
+                        </span>
+                        <span className="font-bold text-2xl text-[#232323] mb-2">
+                          Rs. {fundingAmount?.external_funding}
+                        </span>
+                        <img
+                          src="/src/assets/images/Frame (9).svg"
+                          alt="icon"
+                          className="absolute top-4 right-4 w-6 h-6 opacity-30"
                         />
-                      </svg>
+                        <svg
+                          className="absolute bottom-2 left-2 w-20 h-8"
+                          viewBox="0 0 80 32"
+                        >
+                          <polyline
+                            points="0,32 20,20 40,28 60,10 80,16"
+                            fill="none"
+                            stroke="#42A5F5"
+                            strokeWidth="3"
+                          />
+                        </svg>
+                      </div>
                     </div>
-                  </div>
                 </div>
 
                 {/* Gallery & Documents Section */}
@@ -843,15 +901,41 @@ function StartupProfile() {
       {showAddAwardForm && (
         <AddAwardForm
           officialEmail={startupData?.email_address}
+          startup_id={startupData?.startup_id}
           onClose={handleAddAwardClose}
           onSubmit={handleAddAwardSubmit}
         />
       )}
-      {showTeamMembersForm && (
-        <EditTeamMembersForm
-          initialData={startupData}
-          onClose={handleTeamMembersClose}
-          onSubmit={handleTeamMembersSubmit}
+      {showFounderEditForm && (
+        <FounderForm
+          initialData={selectedFounder}
+          onClose={handleFounderEditClose}
+          onSubmit={() => {
+            handleFounderEditClose();
+            // refresh founders if needed
+          }}
+        />
+      )}
+
+      {showAddForm && (
+        <FounderForm
+          initialData={null}
+          onClose={() => setShowAddForm(false)}
+          onSubmit={() => {
+            setShowAddForm(false);
+            // refresh founders if needed
+          }}
+        />
+      )}
+      {showFundingForm && (
+        <AddFunding
+          startup_name={startupData.startup_name}
+          officialEmail={startupData?.email_address}
+          onClose={handleFundingClose}
+          onSubmit={() => {
+            setShowFundingForm(false);
+            // refresh founders if needed
+          }}
         />
       )}
 

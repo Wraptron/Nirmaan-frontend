@@ -603,6 +603,7 @@ const statusOptions = [
 
 const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
+    startup_id : "",
     startup_name: "",
     startup_status: "Active",
     email_address: "",
@@ -623,6 +624,7 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
     console.log(initialData)
     if (initialData) {
       setFormData({
+        startup_id: initialData.startup_id || "",
         startup_name: initialData.startup_name || "",
         startup_status: initialData.startup_status || "",
         email_address: initialData.email_address || "",
@@ -705,6 +707,7 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
     }
 
     const formPayload = new FormData();
+    formPayload.append("startup_id", formData.startup_id);
     formPayload.append("startup_name", formData.startup_name);
     formPayload.append("email_address", formData.email_address);
     formPayload.append("startup_status", formData.startup_status);
@@ -825,7 +828,7 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
                   className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500 focus:outline-none"
                 />
               </div>
-              
+
               {/* Conditionally render Status field only for akshar and pratham programs */}
               {isStatusFieldVisible() && (
                 <div>
@@ -865,6 +868,19 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
                   className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500 focus:outline-none"
                 />
               </div>
+              <div>
+                <label className="block text-sm mb-1.5 font-medium">Email Id <span className="text-red-500">*</span></label>                 
+                <input
+                   type="email"
+                  name="email_address"
+                   value={formData.email_address}
+                   onChange={handleChange}
+                  placeholder="Enter email address"
+                   required
+                   className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500 focus:outline-none"
+                />
+              </div>
+              
               <div>
                 <label className="block text-sm mb-1.5 font-medium">
                   Website Link

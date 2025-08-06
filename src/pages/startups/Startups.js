@@ -400,7 +400,7 @@ function Startups() {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://13.127.7.121/api/v1/fetch-startup"
+        "http://localhost:3003/api/v1/fetch-startup"
       );
       setData(response.data.rows || []);
     } catch (error) {
@@ -433,7 +433,7 @@ function Startups() {
     return matchesFilter && matchesCohort && matchesSearch;
   });
 
-  const itemsPerPage = rowsPerPage;
+  const itemsPerPage = 9;
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const currentItems = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
@@ -518,13 +518,13 @@ function Startups() {
     return index >= 0 ? ((index + 1) / stages.length) * 100 : 25;
   };
 
-  const handleDelete = async (email) => {
+  const handleDelete = async (id) => {
     try {
-      const API = await ApiDeletStartupData(email);
+      const API = await ApiDeletStartupData(id);
       if (API) {
         toast.success("Details deleted successfully!");
         const updatedList = data.filter(
-          (startup) => startup.email_address !== email
+          (startup) => startup.startup_id !== id
         );
         setData(updatedList);
         setOpenDropdownId(null);
@@ -687,7 +687,7 @@ function Startups() {
                             onClick={(e) => {
                               e.stopPropagation();
                               navigate(
-                                `/startupprofile/${startup.email_address}`
+                                `/startupprofile/${startup.startup_id}`
                               );
                             }}
                           >
@@ -726,7 +726,7 @@ function Startups() {
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           navigate(
-                                            `/startupprofile/${startup.email_address}`
+                                            `/startupprofile/${startup.startup_id}`
                                           );
                                           setOpenDropdownId(null);
                                         }}
@@ -737,7 +737,7 @@ function Startups() {
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          setStartupData(startup.email_address);
+                                          setStartupData(startup.startup_id);
                                           setOpenEstablishPopUp(true);
                                           setOpenDropdownId(null);
                                         }}

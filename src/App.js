@@ -257,7 +257,7 @@ function App() {
 
           {/* Startup Profile Routes (Admin: 2 + Students: 5) */}
           <Route element={<ProtectedRoutes allowedRoles={["2", "5"]} />}>
-            <Route path="/startupprofile/:official_email_address" element={<Startupprofile />} />
+            <Route path="/startupprofile/:startup_id" element={<Startupprofile />} />
             <Route path="/events/request-speaker" element={<RequestSpeaker />} />
           </Route>
 

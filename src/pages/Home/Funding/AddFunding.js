@@ -1,0 +1,255 @@
+import React from "react";
+import { useState, useEffect } from "react";
+import { FiX } from "react-icons/fi";
+import toast from "react-hot-toast";
+import { ApiAddFunding } from "../../../API/API";
+
+const AddFunding = ({ onClose, onSuccess, startup_name, officialEmail }) => {
+  const [formData, setFormData] = useState({
+    startup_name: "",
+    type: "",
+    amount: "",
+    status: "",
+    purpose: "",
+    date: "",
+    refNo: "",
+    document: null,
+  });
+  useEffect(() => {
+    if (startup_name) {
+      setFormData((prev) => ({
+        ...prev,
+        startup_name: startup_name || "",
+      }));
+    }
+  }, [startup_name]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      document: e.target.files[0],
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formPayload = new FormData();
+    formPayload.append("startup_name", startup_name);
+    formPayload.append("official_email_address", officialEmail);
+    formPayload.append("funding_type", formData.type);
+    formPayload.append("amount", formData.amount);
+    formPayload.append("status", formData.status);
+    formPayload.append("purpose", formData.purpose);
+    formPayload.append("funding_date", formData.date);
+    formPayload.append("reference_number", formData.refNo);
+
+    // if (formData.document) {
+    //   formPayload.append("document", formData.document);
+    // }
+    try {
+      const response = await ApiAddFunding(formPayload);
+      // console.log("Response from API:", response);
+
+      toast.success("Funding added successfully");
+      if (onSuccess) onSuccess();
+      onClose();
+    } catch (error) {
+      toast.error("Failed to add award");
+    }
+
+    // Reset form
+    setFormData({
+      type: "",
+      amount: "",
+      status: "",
+      purpose: "",
+      date: "",
+      refNo: "",
+      document: null,
+    });
+  };
+
+  const handleCancel = () => {
+    setFormData({
+      type: "",
+      amount: "",
+      status: "",
+      purpose: "",
+      date: "",
+      refNo: "",
+      document: null,
+    });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-[#232323]">
+              Add Funding Entry
+            </h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <FiX size={20} className="text-[#A1A1A1]" />
+            </button>
+          </div>
+
+          {/* Form */}
+          <div className="bg-gray-50 rounded-lg p-6">
+            <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-[#232323] mb-1">
+                  Startup_name
+                </label>
+                <input
+                  type="text"
+                  name="startup_name"
+                  value={formData.startup_name}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#45C74D]"
+                  placeholder="Enter Starup_name"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#232323] mb-1">
+                  Type
+                </label>
+                <select
+                  name="type"
+                  value={formData.type}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#45C74D]"
+                  required
+                >
+                  <option value="">Select Type</option>
+                  <option value="Funding Disbursed">Funding Disbursed</option>
+                  <option value="Funding Utilized">Funding Utilized</option>
+                  <option value="External Funding">External Funding</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#232323] mb-1">
+                  Amount
+                </label>
+                <input
+                  type="number"
+                  name="amount"
+                  value={formData.amount}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#45C74D]"
+                  placeholder="Enter amount"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#232323] mb-1">
+                  Status
+                </label>
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#45C74D]"
+                  required
+                >
+                  <option value="">Select Status</option>
+                  <option value="Credit">Credit</option>
+                  <option value="Debit">Debit</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#232323] mb-1">
+                  Purpose
+                </label>
+                <input
+                  type="text"
+                  name="purpose"
+                  value={formData.purpose}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#45C74D]"
+                  placeholder="Enter purpose"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#232323] mb-1">
+                  Date
+                </label>
+                <input
+                  type="date"
+                  name="date"
+                  value={formData.date}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#45C74D]"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#232323] mb-1">
+                  Ref No
+                </label>
+                <input
+                  type="text"
+                  name="refNo"
+                  value={formData.refNo}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#45C74D]"
+                  placeholder="Enter reference number"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-[#232323] mb-1">
+                  Document
+                </label>
+                <input
+                  type="file"
+                  name="document"
+                  onChange={handleFileChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#45C74D]"
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                />
+              </div>
+
+              <div className="col-span-2 flex gap-3">
+                <button
+                  type="submit"
+                  className="bg-[#45C74D] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#36a03d] transition"
+                >
+                  Add Entry
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AddFunding;
