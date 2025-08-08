@@ -4,7 +4,13 @@ import { FiX } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { ApiAddFunding } from "../../../API/API";
 
-const AddFunding = ({ onClose, onSuccess, startup_name, officialEmail }) => {
+const AddFunding = ({
+  onClose,
+  onSuccess,
+  startup_name,
+  officialEmail,
+  startup_id,
+}) => {
   const [formData, setFormData] = useState({
     startup_name: "",
     type: "",
@@ -42,8 +48,8 @@ const AddFunding = ({ onClose, onSuccess, startup_name, officialEmail }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formPayload = new FormData();
+    formPayload.append("startup_id", startup_id);
     formPayload.append("startup_name", startup_name);
-    formPayload.append("official_email_address", officialEmail);
     formPayload.append("funding_type", formData.type);
     formPayload.append("amount", formData.amount);
     formPayload.append("status", formData.status);
@@ -62,7 +68,7 @@ const AddFunding = ({ onClose, onSuccess, startup_name, officialEmail }) => {
       if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
-      toast.error("Failed to add award");
+      toast.error("Failed to add Funding");
     }
 
     // Reset form

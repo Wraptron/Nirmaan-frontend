@@ -214,8 +214,10 @@ function StartupProfile() {
       // --- Funding Amount Details Fetch Fetch ---
       const ApiFundingAmount = await ApiFetchFundingAmount();
       const amount = ApiFundingAmount || {};
-      const fundamount = selectedstartup?.startup_name ? amount[selectedstartup.startup_name] || null : null;
-       setFundingAmount(fundamount || []);
+      const fundamount = selectedstartup?.startup_id
+        ? amount[selectedstartup.startup_id] || null
+        : null;
+      setFundingAmount(fundamount || []);
 
 
       // console.log("Selected startup:", selectedstartup);
@@ -283,7 +285,7 @@ function StartupProfile() {
           <div className="mx-auto max-w-6xl py-6">
             {/* Display the id for confirmation */}
             <div className="mb-4 p-2 bg-yellow-100 text-yellow-800 rounded">
-              Profile ID: {startupData?.startup_id }
+              Profile ID: {startupData?.startup_id}
             </div>
             {/* Breadcrumb */}
             <div className="text-xs text-[#A1A1A1] mb-2 flex items-center gap-2">
@@ -703,131 +705,131 @@ function StartupProfile() {
                       </button>
                     </div>
                   </div>
-                    <div className="grid grid-cols-4 gap-6">
-                      <div
-                        className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
-                        style={{
-                          background:
-                            "linear-gradient(0deg, #E9F7F1 60%, #fff 100%)",
-                        }}
+                  <div className="grid grid-cols-4 gap-6">
+                    <div
+                      className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
+                      style={{
+                        background:
+                          "linear-gradient(0deg, #E9F7F1 60%, #fff 100%)",
+                      }}
+                    >
+                      <span className="font-semibold text-sm text-[#232323] mb-1">
+                        Funding Disbursed
+                      </span>
+                      <span className="font-bold text-2xl text-[#232323] mb-2">
+                        Rs. {fundingAmount?.funding_disbursed || 0}
+                      </span>
+                      <img
+                        src="/src/assets/images/Frame (9).svg"
+                        alt="icon"
+                        className="absolute top-4 right-4 w-6 h-6 opacity-30"
+                      />
+                      <svg
+                        className="absolute bottom-2 left-2 w-20 h-8"
+                        viewBox="0 0 80 32"
                       >
-                        <span className="font-semibold text-sm text-[#232323] mb-1">
-                          Funding Disbursed
-                        </span>
-                        <span className="font-bold text-2xl text-[#232323] mb-2">
-                           Rs. {fundingAmount?.funding_disbursed || 0}
-                        </span>
-                        <img
-                          src="/src/assets/images/Frame (9).svg"
-                          alt="icon"
-                          className="absolute top-4 right-4 w-6 h-6 opacity-30"
+                        <polyline
+                          points="0,32 20,20 40,28 60,10 80,16"
+                          fill="none"
+                          stroke="#45C74D"
+                          strokeWidth="3"
                         />
-                        <svg
-                          className="absolute bottom-2 left-2 w-20 h-8"
-                          viewBox="0 0 80 32"
-                        >
-                          <polyline
-                            points="0,32 20,20 40,28 60,10 80,16"
-                            fill="none"
-                            stroke="#45C74D"
-                            strokeWidth="3"
-                          />
-                        </svg>
-                      </div>
-
-                      <div
-                        className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
-                        style={{
-                          background:
-                            "linear-gradient(0deg, #FFF7E6 60%, #fff 100%)",
-                        }}
-                      >
-                        <span className="font-semibold text-sm text-[#232323] mb-1">
-                          Funding Utilized
-                        </span>
-                        <span className="font-bold text-2xl text-[#232323] mb-2">
-                           Rs. {fundingAmount?.funding_utilized || 0}
-                        </span>
-                        <img
-                          src="/src/assets/images/Frame (9).svg"
-                          alt="icon"
-                          className="absolute top-4 right-4 w-6 h-6 opacity-30"
-                        />
-                        <svg
-                          className="absolute bottom-2 left-2 w-20 h-8"
-                          viewBox="0 0 80 32"
-                        >
-                          <polyline
-                            points="0,32 20,20 40,28 60,10 80,16"
-                            fill="none"
-                            stroke="#FFA726"
-                            strokeWidth="3"
-                          />
-                        </svg>
-                      </div>
-
-                      <div
-                        className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
-                        style={{
-                          background:
-                            "linear-gradient(0deg, #FFE6E6 60%, #fff 100%)",
-                        }}
-                      >
-                        <span className="font-semibold text-sm text-[#232323] mb-1">
-                          Balance
-                        </span>
-                        <span className="font-bold text-2xl text-[#232323] mb-2">
-                          Rs. {fundingAmount?.balance || 0}
-                        </span>
-                        <img
-                          src="/src/assets/images/Frame (9).svg"
-                          alt="icon"
-                          className="absolute top-4 right-4 w-6 h-6 opacity-30"
-                        />
-                        <svg
-                          className="absolute bottom-2 left-2 w-20 h-8"
-                          viewBox="0 0 80 32"
-                        >
-                          <polyline
-                            points="0,32 20,20 40,28 60,10 80,16"
-                            fill="none"
-                            stroke="#FF5252"
-                            strokeWidth="3"
-                          />
-                        </svg>
-                      </div>
-
-                      <div
-                        className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
-                        style={{
-                          background:
-                            "linear-gradient(0deg, #E6F0FF 60%, #fff 100%)",
-                        }}
-                      >
-                        <span className="font-semibold text-sm text-[#232323] mb-1">
-                          External Funding
-                        </span>
-                        <span className="font-bold text-2xl text-[#232323] mb-2">
-                          Rs. {fundingAmount?.external_funding}
-                        </span>
-                        <img
-                          src="/src/assets/images/Frame (9).svg"
-                          alt="icon"
-                          className="absolute top-4 right-4 w-6 h-6 opacity-30"
-                        />
-                        <svg
-                          className="absolute bottom-2 left-2 w-20 h-8"
-                          viewBox="0 0 80 32"
-                        >
-                          <polyline
-                            points="0,32 20,20 40,28 60,10 80,16"
-                            fill="none"
-                            stroke="#42A5F5"
-                            strokeWidth="3"
-                          />
-                        </svg>
-                      </div>
+                      </svg>
                     </div>
+
+                    <div
+                      className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
+                      style={{
+                        background:
+                          "linear-gradient(0deg, #FFF7E6 60%, #fff 100%)",
+                      }}
+                    >
+                      <span className="font-semibold text-sm text-[#232323] mb-1">
+                        Funding Utilized
+                      </span>
+                      <span className="font-bold text-2xl text-[#232323] mb-2">
+                        Rs. {fundingAmount?.funding_utilized || 0}
+                      </span>
+                      <img
+                        src="/src/assets/images/Frame (9).svg"
+                        alt="icon"
+                        className="absolute top-4 right-4 w-6 h-6 opacity-30"
+                      />
+                      <svg
+                        className="absolute bottom-2 left-2 w-20 h-8"
+                        viewBox="0 0 80 32"
+                      >
+                        <polyline
+                          points="0,32 20,20 40,28 60,10 80,16"
+                          fill="none"
+                          stroke="#FFA726"
+                          strokeWidth="3"
+                        />
+                      </svg>
+                    </div>
+
+                    <div
+                      className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
+                      style={{
+                        background:
+                          "linear-gradient(0deg, #FFE6E6 60%, #fff 100%)",
+                      }}
+                    >
+                      <span className="font-semibold text-sm text-[#232323] mb-1">
+                        Balance
+                      </span>
+                      <span className="font-bold text-2xl text-[#232323] mb-2">
+                        Rs. {fundingAmount?.balance || 0}
+                      </span>
+                      <img
+                        src="/src/assets/images/Frame (9).svg"
+                        alt="icon"
+                        className="absolute top-4 right-4 w-6 h-6 opacity-30"
+                      />
+                      <svg
+                        className="absolute bottom-2 left-2 w-20 h-8"
+                        viewBox="0 0 80 32"
+                      >
+                        <polyline
+                          points="0,32 20,20 40,28 60,10 80,16"
+                          fill="none"
+                          stroke="#FF5252"
+                          strokeWidth="3"
+                        />
+                      </svg>
+                    </div>
+
+                    <div
+                      className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
+                      style={{
+                        background:
+                          "linear-gradient(0deg, #E6F0FF 60%, #fff 100%)",
+                      }}
+                    >
+                      <span className="font-semibold text-sm text-[#232323] mb-1">
+                        External Funding
+                      </span>
+                      <span className="font-bold text-2xl text-[#232323] mb-2">
+                        Rs. {fundingAmount?.external_funding}
+                      </span>
+                      <img
+                        src="/src/assets/images/Frame (9).svg"
+                        alt="icon"
+                        className="absolute top-4 right-4 w-6 h-6 opacity-30"
+                      />
+                      <svg
+                        className="absolute bottom-2 left-2 w-20 h-8"
+                        viewBox="0 0 80 32"
+                      >
+                        <polyline
+                          points="0,32 20,20 40,28 60,10 80,16"
+                          fill="none"
+                          stroke="#42A5F5"
+                          strokeWidth="3"
+                        />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Gallery & Documents Section */}
@@ -931,6 +933,7 @@ function StartupProfile() {
         <AddFunding
           startup_name={startupData.startup_name}
           officialEmail={startupData?.email_address}
+          startup_id={startupData?.startup_id}
           onClose={handleFundingClose}
           onSubmit={() => {
             setShowFundingForm(false);
