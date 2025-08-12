@@ -521,7 +521,7 @@ function AddStartup() {
         try {
             // 1. Add startup
             const result = await axios.post(
-              "http://localhost:3003/api/v1/add-startup",
+              "http://13.127.7.121/api/v1/add-startup",
               formData,
               {
                 headers: {

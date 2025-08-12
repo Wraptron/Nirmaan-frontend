@@ -1007,8 +1007,8 @@ const isDevelopment = process.env.NODE_ENV === "development";
 
 // API Base URLs
 const API_URLS = {
-   DEVELOPMENT: "http://localhost:3003",
-  PRODUCTION: "http://localhost:3003",
+  DEVELOPMENT: "http://13.127.7.121",
+  PRODUCTION: "http://13.127.7.121",
 };
 
 // Current API Base URL based on environment
@@ -1486,6 +1486,18 @@ async function ApiUpdateStartupMentorDetails(payload) {
   }
 }
 
+
+async function ApiFetchFunding() {
+  try {
+    const result = await axios.get(`${API_BASE_URL}/api/v1/finance/funding`);
+    return result.data;
+  } catch (error) {
+    console.error("Error in API", error);
+    throw error;
+  }
+}
+
+
 // ==================== AWARD APIs ====================
 async function ApiAddAward(formdata) {
   try {
@@ -1630,6 +1642,7 @@ export {
   ApiUpdateStartupPersonalInfo,
   ApiUpdateStartupAbout,
   ApiUpdateStartupMentorDetails,
+  ApiFetchFunding,
 
   // Award APIs
   ApiAddAward,

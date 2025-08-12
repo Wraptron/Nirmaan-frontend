@@ -31,67 +31,70 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import AddFunding from "../Home/Funding/AddFunding";
+import FundingDetail from "../Home/Funding/FundingDetail";
 
 function StartupProfile() {
   const { startup_id } = useParams();
   console.log("id:", startup_id);
-  const [showEditForm, setShowEditForm] = useState(false);
-  const [showAboutForm, setShowAboutForm] = useState(false);
-  const [showAddAwardForm, setShowAddAwardForm] = useState(false);
+const [showEditForm, setShowEditForm] = useState(false);
+const [showAboutForm, setShowAboutForm] = useState(false);
+const [showAddAwardForm, setShowAddAwardForm] = useState(false);
 
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [showFoundersForm, setShowFoundersForm] = useState(false);
-  const [showFounderEditForm, setShowFounderEditForm] = useState(false);
-  const [showFundingForm, setShowFundingForm] = useState(false);
-  const [showMentorForm, setShowMentorForm] = useState(false);
-  // const [showFundingModal, setShowFundingModal] = useState(false);
+const [showAddForm, setShowAddForm] = useState(false);
+const [showFoundersForm, setShowFoundersForm] = useState(false);
+const [showFounderEditForm, setShowFounderEditForm] = useState(false);
+const [showFundingForm, setShowFundingForm] = useState(false);
+const [showMentorForm, setShowMentorForm] = useState(false);
+const [showFundingModal, setShowFundingModal] = useState(false);
 
-  const [startupData, setStartupData] = useState(null);
-  const [awards, setAwards] = useState([]);
-  const [showReadMore, setShowReadMore] = useState(false);
-  const [fundingAmount, setFundingAmount] = useState([]);
-  const [selectedFounder, setSelectedFounder] = useState(null);
+const [startupData, setStartupData] = useState(null);
+const [awards, setAwards] = useState([]);
+const [showReadMore, setShowReadMore] = useState(false);
+const [fundingAmount, setFundingAmount] = useState([]);
+const [selectedFounder, setSelectedFounder] = useState(null);
+const [founders, setFounders] = useState([]);
 
-  const navigate = useNavigate();
+const navigate = useNavigate();
 
-  // Edit handlers
-  const handleEditClick = () => setShowEditForm(true);
-  const handleAboutClick = () => setShowAboutForm(true);
-  const handleAddAwardClick = () => setShowAddAwardForm(true);
-  const handleTeamMembersClick = () => setShowFoundersForm(true);
-  const handleFundingClick = () => setShowFundingForm(true);
-  const handleMentorEditClick = () => setShowMentorForm(true);
-  // const handleFundingModalClick = () => setShowFundingForm(true);
+// Edit handlers
+const handleEditClick = () => setShowEditForm(true);
+const handleAboutClick = () => setShowAboutForm(true);
+const handleAddAwardClick = () => setShowAddAwardForm(true);
+const handleTeamMembersClick = () => setShowFoundersForm(true);
+const handleFundingClick = () => setShowFundingForm(true);
+const handleMentorEditClick = () => setShowMentorForm(true);
+const handleFundingModalClick = () => setShowFundingModal(true);
 
-  const handleEditClose = async () => {
-    await FetchData();
-    setShowEditForm(false);
-  };
-  const handleAboutClose = async () => {
-    await FetchData();
-    setShowAboutForm(false);
-  };
-  const handleAddAwardClose = async () => {
-    await FetchData();
-    setShowAddAwardForm(false);
-  };
-  const handleTeamMembersClose = async () => {
-    await FetchData();
-    setShowFoundersForm(false);
-  };
-  const handleFundingClose = async() =>{
-    await FetchData();
-     setShowFundingForm(false);}
-  const handleMentorEditClose = async () => {
-    await FetchData();
-    setShowMentorForm(false);
-  };
-  // const handleFundingModalClose = () => setShowFundingForm(false);
+const handleEditClose = async () => {
+  await FetchData();
+  setShowEditForm(false);
+};
+const handleAboutClose = async () => {
+  await FetchData();
+  setShowAboutForm(false);
+};
+const handleAddAwardClose = async () => {
+  await FetchData();
+  setShowAddAwardForm(false);
+};
+const handleTeamMembersClose = async () => {
+  await FetchData();
+  setShowFoundersForm(false);
+};
+const handleFundingClose = async () => {
+  await FetchData();
+  setShowFundingForm(false);
+};
+const handleMentorEditClose = async () => {
+  await FetchData();
+  setShowMentorForm(false);
+};
+const handleFundingModalClose = () => setShowFundingModal(false);
 
-  const handleFounderEditClose = async () => {
-    await FetchData();
-    setShowFounderEditForm(false);
-  };
+const handleFounderEditClose = async () => {
+  await FetchData();
+  setShowFounderEditForm(false);
+};
 
   // Sample funding data - replace with real data from your API
   // const [fundingData, setFundingData] = useState([]);
@@ -691,12 +694,12 @@ function StartupProfile() {
                       Funding
                     </span>
                     <div className="flex items-center gap-2">
-                      {/* <button
+                      <button
                         className="bg-[#45C74D] text-white px-8 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition"
-                        onClick={handleFundingClick}
+                        onClick={handleFundingModalClick}
                       >
                         View
-                      </button> */}
+                      </button>
                       <button
                         className="p-1 hover:bg-gray-100 rounded-full"
                         onClick={handleFundingClick}
@@ -941,6 +944,14 @@ function StartupProfile() {
           }}
         />
       )}
+
+      {showFundingModal && (
+        <FundingDetail
+          onClose={handleFundingModalClose}
+          startup_id={startupData?.startup_id}
+        />
+      )}
+
 
       {showMentorForm && (
         <EditMentorForm
