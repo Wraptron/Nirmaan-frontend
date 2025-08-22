@@ -4,13 +4,7 @@ import { FiX } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { ApiAddFunding } from "../../../API/API";
 
-const AddFunding = ({
-  onClose,
-  onSuccess,
-  startup_name,
-  officialEmail,
-  startup_id,
-}) => {
+const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
   const [formData, setFormData] = useState({
     startup_name: "",
     type: "",
@@ -32,10 +26,19 @@ const AddFunding = ({
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+
+    if (name === "type") {
+      setFormData((prev) => ({
+        ...prev,
+        type: value,
+        status: value === "Funding Utilized" ? "Debit" : "Credit",
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleFileChange = (e) => {
@@ -62,13 +65,16 @@ const AddFunding = ({
     // }
     try {
       const response = await ApiAddFunding(formPayload);
-      // console.log("Response from API:", response);
 
       toast.success("Funding added successfully");
       if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
-      toast.error("Failed to add Funding");
+      if (error.response) {
+        toast.error(error.response.data);
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
     }
 
     // Reset form
@@ -207,20 +213,21 @@ const AddFunding = ({
                   required
                 />
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[#232323] mb-1">
-                  Ref No
-                </label>
-                <input
-                  type="text"
-                  name="refNo"
-                  value={formData.refNo}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#45C74D]"
-                  placeholder="Enter reference number"
-                />
-              </div>
+              {formData.type !== "Funding Disbursed" && (
+                <div>
+                  <label className="block text-sm font-medium text-[#232323] mb-1">
+                    Ref No
+                  </label>
+                  <input
+                    type="text"
+                    name="refNo"
+                    value={formData.refNo}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#45C74D]"
+                    placeholder="Enter reference number"
+                  />
+                </div>
+              )}
 
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-[#232323] mb-1">

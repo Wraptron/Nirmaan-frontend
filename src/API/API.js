@@ -1375,53 +1375,7 @@ async function ApiDeletStartupData(id) {
   }
 }
 
-async function ApiUpdateStartupFounder(payload) {
-  try {
-    let headers = {};
-    let dataToSend = payload;
-    
-    // Try JSON format first, then FormData if needed
-    if (payload instanceof FormData) {
-      // Convert FormData to JSON object
-      const jsonData = {};
-      for (let [key, value] of payload.entries()) {
-        jsonData[key] = value;
-      }
-      dataToSend = jsonData;
-      headers["Content-Type"] = "application/json";
-    } else {
-      headers["Content-Type"] = "application/json";
-    }
-    
-    // Log the exact request details
-    console.log("API Update Startup Founder - Request Details:");
-    console.log("URL:", `${API_BASE_URL}/api/v1/edit-startup/founder`);
-    console.log("Headers:", headers);
-    console.log("Data being sent:", dataToSend);
-    
-    const response = await axios.put(
-      `${API_BASE_URL}/api/v1/edit-startup/founder`,
-      dataToSend,
-      { headers }
-    );
-    
-    console.log("API Update Startup Founder - Success Response:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("API Update Startup Founder - Error Details:");
-    console.error("Error message:", error.message);
-    console.error("Response status:", error.response?.status);
-    console.error("Response data:", error.response?.data);
-    console.error("Request config:", {
-      url: error.config?.url,
-      method: error.config?.method,
-      headers: error.config?.headers,
-      data: error.config?.data
-    });
-    
-    throw new Error("Failed to update startup details");
-  }
-}
+
 
 async function ApiUpdateStartupPersonalInfo(payload) {
   try {
@@ -1527,11 +1481,22 @@ async function ApiFetchAward() {
   }
 }
 
-// Delete award by ID
-async function ApiDeleteAward(awardId) {
+async function ApiUpdateAward(payload) {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/api/v1/updateaward`,
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in ApiUpdateAward", error);
+    throw new Error("Failed to update award details");
+  }
+}   
+async function ApiDeleteAward(id) {
   try {
     const result = await axios.delete(
-      `${API_BASE_URL}/api/v1/delete-award/${awardId}`
+      `${API_BASE_URL}/api/v1/delete-award/${id}`
     );
     return result.data;
   } catch (err) {
@@ -1540,16 +1505,43 @@ async function ApiDeleteAward(awardId) {
   }
 }
 
-// Delete award by email and award name (if no ID available)
-async function ApiDeleteAwardByEmailAndName(email, awardName) {
+
+async function ApiAddFounder(payload) {
   try {
-    const result = await axios.delete(
-      `${API_BASE_URL}/api/v1/delete-award?email=${encodeURIComponent(email)}&award_name=${encodeURIComponent(awardName)}`
+    const result = await axios.post(
+      `${API_BASE_URL}/api/v1/addfounder`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return result.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+async function ApiFetchFounder(id) {
+  try {
+    const result = await axios.get(`${API_BASE_URL}/api/v1/fetchfounder/${id}`,
     );
     return result.data;
   } catch (err) {
-    console.error("Error in ApiDeleteAwardByEmailAndName", err);
-    throw err;
+    console.log(err);
+  }
+}  async function ApiUpdateStartupFounder(payload) {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/api/v1/edit-startup/founder`,
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in ApiUpdateStartupAbout", error);
+    throw new Error("Failed to update startup details");
   }
 }
 
@@ -1589,6 +1581,21 @@ async function ApiFetchFundingAmount() {
     console.log(err);
   }
 }
+
+
+async function ApiUpdateFunding(payload) {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/api/v1/funding/edit`,
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    throw error
+  }
+}
+
+
 // ==================== UTILITY FUNCTIONS ====================
 // Function to manually switch environments (useful for testing)
 export const switchEnvironment = (environment) => {
@@ -1648,12 +1655,14 @@ export {
   ApiAddAward,
   ApiFetchAward,
   ApiDeleteAward,
-  ApiDeleteAwardByEmailAndName,
-
+  ApiUpdateAward,
+  ApiFetchFounder,
+  ApiAddFounder,
   // Events APIs
   ApiFetchEvents,
   ApiAddFunding,
   ApiFetchFundingAmount,
+  ApiUpdateFunding,
   // Configuration
   API_BASE_URL,
   API_URLS,

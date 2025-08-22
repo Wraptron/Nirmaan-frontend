@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from "react";
+
+import { FiEdit2 } from "react-icons/fi";
 import { ApiFetchFunding, ApiFetchFundingAmount } from "../../../API/API";
+import EditFundingForm from "../../startups/step/EditForm/EditFundingForm";
+import toast from "react-hot-toast";
 
 const FundingDetail = ({ onClose, startup_id }) => {
   const [fundingData, setFundingData] = useState([]);
   const [fundingAmount, setFundingAmount] = useState([]);
+  const [editFunding, setEditFunding] = useState(null);
+
+  const [showEditFundingForm, setShowEditFundingForm] = useState(false);
+  const handleEditFundingClick = () => setShowEditFundingForm(true);
 
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 3;
@@ -14,13 +22,30 @@ const FundingDetail = ({ onClose, startup_id }) => {
 
   const totalPages = Math.ceil(fundingData.length / rowsPerPage);
 
+  const handleEditFundingClose = async () => {
+    setShowEditFundingForm(false);
+  };
+  const handleEditFundingSubmit = async (updatedData) => {
+    try {
+      setFundingData((prev) =>
+        prev.map((fund) =>
+          fund.id === updatedData.id ? { ...fund, ...updatedData } : fund
+        )
+      );
+      toast.success("Funding updated successfully");
+    } catch (error) {
+      console.error("Error updating funding section:", error);
+      toast.error("Failed to update funding section");
+    }
+  };
+
   const FetchData = async () => {
     try {
       const API = await ApiFetchFunding();
       const funding = API?.rows || [];
-      const filteredFunding = funding.filter(
-        (funding) => String(funding.startup_id) === String(startup_id)
-      );
+      const filteredFunding = funding
+        .filter((funding) => String(funding.startup_id) === String(startup_id))
+        .sort((a, b) => a.id - b.id);
       setFundingData(filteredFunding || []);
 
       const ApiFundingAmount = await ApiFetchFundingAmount();
@@ -61,14 +86,15 @@ const FundingDetail = ({ onClose, startup_id }) => {
                 <th className="px-4 py-2">Date</th>
                 <th className="px-4 py-2">Ref No</th>
                 <th className="px-4 py-2">Document</th>
+                <th className="px-4 py-2">Edit</th>
               </tr>
             </thead>
             <tbody>
               {currentRows.length === 0 ? (
                 <p className="text-lg text-gray-500">No funding added yet.</p>
               ) : (
-                currentRows.map((fund, index) => (
-                  <tr key={index} className="border-b border-dotted">
+                currentRows.map((fund) => (
+                  <tr key={fund.id} className="border-b border-dotted">
                     <td className="px-4 py-2">{fund.funding_type || "-"}</td>
                     <td className="px-4 py-2">
                       {" "}
@@ -84,6 +110,15 @@ const FundingDetail = ({ onClose, startup_id }) => {
                       {fund.reference_number || "-"}
                     </td>
                     <td className="px-4 py-2">{fund.document || "-"}</td>
+                    <td className="px-4 py-2">
+                      <FiEdit2
+                        onClick={() => {
+                          setEditFunding(fund);
+                          setShowEditFundingForm(true);
+                        }}
+                        className="text-[#45C74D]"
+                      />
+                    </td>
                   </tr>
                 ))
               )}
@@ -124,6 +159,14 @@ const FundingDetail = ({ onClose, startup_id }) => {
           </div>
         </div>
       </div>
+      {showEditFundingForm && (
+        <EditFundingForm
+          initialData={editFunding}
+          startup_id={fundingData?.startup_id}
+          onClose={handleEditFundingClose}
+          onSubmit={handleEditFundingSubmit}
+        />
+      )}
     </div>
   );
 };

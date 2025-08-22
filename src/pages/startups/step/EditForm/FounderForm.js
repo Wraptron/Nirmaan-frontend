@@ -1,46 +1,28 @@
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { ApiUpdateStartupFounder } from "../../../../API/API";
+import { ApiAddFounder} from "../../../../API/API";
 
-const FounderForm = ({ initialData, onClose, onSubmit }) => {
+const FounderForm = ({ startup_id, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     founder_name: "",
     founder_email: "",
     founder_number: "",
-    founder_gender: "",
-    email_address: "",
+    founder_designation: "",
+    startup_id: "",
   });
 
   const [errors, setErrors] = useState({});
+ useEffect(() => {
+  if (startup_id && formData.startup_id !== startup_id) {
+    setFormData((prev) => ({
+      ...prev,
+      startup_id: startup_id,
+    }));
+  }
+}, [startup_id]);
+console.log(formData)
 
-  useEffect(() => {
-    console.log("FounderForm initialData:", initialData);
-    if (initialData) {
-      // If we're adding a new founder, initialData might only have email_address
-      if (initialData.email_address && !initialData.founder_name) {
-        // This is a new founder - only set the email_address
-        setFormData({
-          founder_name: "",
-          founder_email: "",
-          founder_number: "",
-          founder_gender: "",
-          email_address: initialData.email_address,
-        });
-      } else {
-        // This is editing an existing founder
-        setFormData({
-          founder_name: initialData.founder_name || "",
-          founder_email: initialData.founder_email || "",
-          founder_number: initialData.founder_number || "",
-          founder_gender: initialData.founder_gender || "",
-          email_address:
-            initialData.email_address ||
-            initialData.official_email_address ||
-            "",
-        });
-      }
-    }
-  }, [initialData]);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,18 +41,26 @@ const FounderForm = ({ initialData, onClose, onSubmit }) => {
       newErrors.founder_name = "Founder name is required";
     }
 
-    if (!formData.founder_email.trim()) {
-      newErrors.founder_email = "Founder email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.founder_email)) {
-      newErrors.founder_email = "Please enter a valid email address";
-    }
+const allowedDomains = ["gmail.com", "outlook.com", "yahoo.com","iitm.in.co"];
+
+const emailParts = formData.founder_email.trim().split("@");
+const domain = emailParts[1];
+
+if (!formData.founder_email.trim()) {
+  newErrors.founder_email = "Founder email is required";
+} else if (!/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(formData.founder_email)) {
+  newErrors.founder_email = "Please enter a valid email address";
+} else if (!allowedDomains.includes(domain)) {
+  newErrors.founder_email = `Please use a valid email domain (e.g., gmail.com, outlook.com)`;
+}
+
 
     if (!formData.founder_number.trim()) {
       newErrors.founder_number = "Phone number is required";
     }
 
-    if (!formData.founder_gender) {
-      newErrors.founder_gender = "Gender is required";
+    if (!formData.founder_designation) {
+      newErrors.founder_designation = "Designation is required";
     }
 
     setErrors(newErrors);
@@ -79,59 +69,19 @@ const FounderForm = ({ initialData, onClose, onSubmit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+      formData.founder_email = formData.founder_email.trim().toLowerCase();
 
     if (!validateForm()) {
       toast.error("Please fill all required fields correctly");
       return;
     }
-
-    console.log("Submitting founder data:", formData);
+     const formPayload = {
+      ...formData,
+    };
 
     try {
-      // Create FormData instead of sending JSON
-      const formPayload = new FormData();
-
-      // Add all form fields to FormData
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== "") {
-          formPayload.append(key, value);
-        }
-      });
-
-      // Get the startup email address - try multiple sources
-      let startupEmail =
-        formData.email_address ||
-        initialData?.email_address ||
-        initialData?.official_email_address;
-
-      // If we still don't have the startup email, get it from the URL
-      if (!startupEmail) {
-        // Extract email from URL path (e.g., /startups/startupprofile/email@example.com)
-        const pathParts = window.location.pathname.split("/");
-        startupEmail = pathParts[pathParts.length - 1];
-
-        // Validate that it looks like an email
-        if (!startupEmail || !startupEmail.includes("@")) {
-          toast.error(
-            "Could not identify startup. Please refresh the page and try again."
-          );
-          return;
-        }
-      }
-
-      // Always add the startup email address
-      if (!formPayload.has("email_address")) {
-        formPayload.append("email_address", startupEmail);
-      }
-
-      console.log("FormData entries:");
-      for (let [key, value] of formPayload.entries()) {
-        // console.log(${key}: ${value});
-      }
-
-      console.log("Startup email being sent:", startupEmail);
-
-      await ApiUpdateStartupFounder(formPayload);
+    
+      await ApiAddFounder(formPayload)
       toast.success("Founder saved successfully");
       onSubmit();
       onClose();
@@ -159,7 +109,7 @@ const FounderForm = ({ initialData, onClose, onSubmit }) => {
         </button>
         <div className="p-6">
           <h2 className="text-xl font-semibold text-[#232323] mb-6">
-            {initialData ? "Edit Founder" : "Add Founder"}
+            Add Founder
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -186,24 +136,24 @@ const FounderForm = ({ initialData, onClose, onSubmit }) => {
 
               <div>
                 <label className="block text-sm mb-1.5 font-medium">
-                  Gender <span className="text-red-500">*</span>
+                 Designation <span className="text-red-500">*</span>
                 </label>
                 <select
-                  name="founder_gender"
-                  value={formData.founder_gender}
+                  name="founder_designation"
+                  value={formData.founder_designation}
                   onChange={handleChange}
                   className={`w-full h-10 px-3 text-sm border rounded-lg focus:ring-1 focus:ring-green-500 ${
                     errors.founder_gender ? "border-red-500" : "border-gray-300"
                   }`}
                 >
-                  <option value="">Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
+                  <option value="" disabled>Select Designation</option>
+                  <option value="Founder">Founder</option>
+                  <option value="Co Founder">Co Founder</option>
+                  {/* <option value="Other">Other</option> */}
                 </select>
-                {errors.founder_gender && (
+                {errors.founder_designation && (
                   <div className="text-red-500 text-xs mt-1">
-                    {errors.founder_gender}
+                    {errors.founder_designation}
                   </div>
                 )}
               </div>
@@ -273,7 +223,7 @@ const FounderForm = ({ initialData, onClose, onSubmit }) => {
                 type="submit"
                 className="px-10 py-2 text-base font-semibold text-white bg-[#45C74D] rounded-lg hover:bg-[#3bae42] transition-colors"
               >
-                {initialData ? "Update" : "Add"}
+                Add
               </button>
             </div>
           </form>

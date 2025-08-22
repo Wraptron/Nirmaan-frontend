@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
 import { FiEdit2, FiShare2, FiGlobe, FiX } from "react-icons/fi";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { MdOutlineAdd, MdCall, MdChevronLeft } from "react-icons/md";
-import { FaSync } from "react-icons/fa";
+import {
+  MdOutlineAdd,
+  MdCall,
+  MdChevronLeft,
+  MdChevronRight,
+} from "react-icons/md";
+import { FaSync, FaTrash } from "react-icons/fa";
 import bgImg from "../../assets/images/Rectangle 5.svg";
 import profileImg from "../../assets/images/296fe121-5dfa-43f4-98b5-db50019738a7.jpg";
 import pinSvg from "../../assets/images/Frame (9).svg";
@@ -19,85 +24,110 @@ import EditFundingForm from "../startups/step/EditForm/EditFundingForm";
 import toast from "react-hot-toast";
 import EditMentorForm from "../startups/step/EditForm/EditMentorForm";
 import {
+  ApiDeleteAward,
   ApiFetchAward,
+  ApiFetchFounder,
   ApiFetchFundingAmount,
   ApiFetchStartup,
 } from "../../API/API";
 import { Route } from "react-router-dom";
-import { FaLinkedin } from "react-icons/fa";
+import { FaLinkedin, FaEllipsisV } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import AddFunding from "../Home/Funding/AddFunding";
+import EditTeamMembersForm from "./step/EditForm/EditTeamMembersForm";
+
+import DeleteConfirmation from "../../components/DeleteConfirmation";
+import EditAwardForm from "./step/EditForm/EditAwardForm";
 import FundingDetail from "../Home/Funding/FundingDetail";
 
 function StartupProfile() {
   const { startup_id } = useParams();
-  console.log("id:", startup_id);
-const [showEditForm, setShowEditForm] = useState(false);
-const [showAboutForm, setShowAboutForm] = useState(false);
-const [showAddAwardForm, setShowAddAwardForm] = useState(false);
+  const scrollRef = useRef(null);
+  // console.log("id:", startup_id);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [showAboutForm, setShowAboutForm] = useState(false);
+  const [showAddAwardForm, setShowAddAwardForm] = useState(false);
+  const [showEditAwardForm, setShowEditAwardForm] = useState(false);
+  const [editaward, setEditAward] = useState(null);
 
-const [showAddForm, setShowAddForm] = useState(false);
-const [showFoundersForm, setShowFoundersForm] = useState(false);
-const [showFounderEditForm, setShowFounderEditForm] = useState(false);
-const [showFundingForm, setShowFundingForm] = useState(false);
-const [showMentorForm, setShowMentorForm] = useState(false);
-const [showFundingModal, setShowFundingModal] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [showFoundersForm, setShowFoundersForm] = useState(false);
+  const [showFounderEditForm, setShowFounderEditForm] = useState(false);
+  const [showFundingForm, setShowFundingForm] = useState(false);
+  const [showMentorForm, setShowMentorForm] = useState(false);
+  const [showFundingModal, setShowFundingModal] = useState(false);
+  const [openDropdownId, setOpenDropdownId] = useState(null);
+  const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
 
-const [startupData, setStartupData] = useState(null);
-const [awards, setAwards] = useState([]);
-const [showReadMore, setShowReadMore] = useState(false);
-const [fundingAmount, setFundingAmount] = useState([]);
-const [selectedFounder, setSelectedFounder] = useState(null);
-const [founders, setFounders] = useState([]);
+  const [startupData, setStartupData] = useState(null);
+  const [awards, setAwards] = useState([]);
+  const [awarddelete, setAwardDelete] = useState(null);
+  const [showReadMore, setShowReadMore] = useState(false);
+  const [fundingAmount, setFundingAmount] = useState([]);
+  const [selectedFounder, setSelectedFounder] = useState(null);
+  const [founders, setFounders] = useState([]);
 
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
-// Edit handlers
-const handleEditClick = () => setShowEditForm(true);
-const handleAboutClick = () => setShowAboutForm(true);
-const handleAddAwardClick = () => setShowAddAwardForm(true);
-const handleTeamMembersClick = () => setShowFoundersForm(true);
-const handleFundingClick = () => setShowFundingForm(true);
-const handleMentorEditClick = () => setShowMentorForm(true);
-const handleFundingModalClick = () => setShowFundingModal(true);
+  // Edit handlers
+  const handleEditClick = () => setShowEditForm(true);
+  const handleAboutClick = () => setShowAboutForm(true);
+  const handleAddAwardClick = () => setShowAddAwardForm(true);
 
-const handleEditClose = async () => {
-  await FetchData();
-  setShowEditForm(false);
-};
-const handleAboutClose = async () => {
-  await FetchData();
-  setShowAboutForm(false);
-};
-const handleAddAwardClose = async () => {
-  await FetchData();
-  setShowAddAwardForm(false);
-};
-const handleTeamMembersClose = async () => {
-  await FetchData();
-  setShowFoundersForm(false);
-};
-const handleFundingClose = async () => {
-  await FetchData();
-  setShowFundingForm(false);
-};
-const handleMentorEditClose = async () => {
-  await FetchData();
-  setShowMentorForm(false);
-};
-const handleFundingModalClose = () => setShowFundingModal(false);
+  const handleTeamMembersClick = () => setShowFoundersForm(true);
+  const handleFundingClick = () => setShowFundingForm(true);
+  const handleMentorEditClick = () => setShowMentorForm(true);
+  const handleFundingModalClick = () => setShowFundingModal(true);
 
-const handleFounderEditClose = async () => {
-  await FetchData();
-  setShowFounderEditForm(false);
-};
+  const handleEditClose = async () => {
+    await FetchData();
+    setShowEditForm(false);
+  };
+  const handleAboutClose = async () => {
+    await FetchData();
+    setShowAboutForm(false);
+  };
+  const handleAddAwardClose = async () => {
+    await FetchData();
+    setShowAddAwardForm(false);
+  };
+  const handleEditAwardClose = async () => {
+    await FetchData();
+    setShowEditAwardForm(false);
+  };
+  const handleTeamMembersClose = async () => {
+    await FetchData();
+    setShowFoundersForm(false);
+  };
+  const handleFundingClose = async () => {
+    await FetchData();
+    setShowFundingForm(false);
+  };
+  const handleMentorEditClose = async () => {
+    await FetchData();
+    setShowMentorForm(false);
+  };
+  const handleFundingModalClose = () => setShowFundingModal(false);
 
-  // Sample funding data - replace with real data from your API
-  // const [fundingData, setFundingData] = useState([]);
+  const handleFounderEditClose = async () => {
+    await FetchData();
+    setShowFounderEditForm(false);
+  };
+
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      const scrollAmount = 300; 
+      if (direction === "left") {
+        scrollRef.current.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+      } else {
+        scrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+      }
+    }
+  };
 
   // Funding Modal Component
 
@@ -134,6 +164,23 @@ const handleFounderEditClose = async () => {
       console.error("Error adding award:", error);
       toast.error("Failed to add award");
     }
+  };
+
+  const handleEditAwardSubmit = async (updatedData) => {
+    try {
+      setAwards((prev) => ({
+        ...prev,
+        awards: [updatedData.awards],
+      }));
+    } catch (error) {
+      console.error("Error updating award section:", error);
+      toast.error("Failed to update award section");
+    }
+  };
+
+  const handleEditAwardClick = (award) => {
+    setEditAward(award); 
+    setShowEditAwardForm(true);
   };
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -189,30 +236,25 @@ const handleFounderEditClose = async () => {
       toast.error("Failed to update mentors");
     }
   };
-
-// Api FetchData
-  const FetchData = async () => {
+  // Api FetchData
+  const FetchData = async (userId) => {
     try {
-
       // ---Startup Detail Fetch ---
       const API = await ApiFetchStartup();
-        const allStartup = API?.rows || [];
-          const selectedstartup = allStartup.find(
-        (startup) =>
-          String(startup.startup_id) === String(startup_id)
+      const allStartup = API?.rows || [];
+      const selectedstartup = allStartup.find(
+        (startup) => String(startup.startup_id) === String(startup_id)
       );
       setStartupData(selectedstartup || null);
       // console.log(selectedstartup)
 
-       // ---Award Details Fetch ---
+      // ---Award Details Fetch ---
       const APIAward = await ApiFetchAward();
-       const award = APIAward?.rows || [];
-         const filteredAwards = award.filter(
-        (award) =>
-          String(award.startup_id) ===
-          String(startup_id)
-      );
-       setAwards(filteredAwards || []);
+      const award = APIAward?.rows || [];
+      const filteredAwards = award
+        .filter((award) => String(award.startup_id) === String(startup_id))
+        .sort((a, b) => a.id - b.id);
+      setAwards(filteredAwards || []);
 
       // --- Funding Amount Details Fetch Fetch ---
       const ApiFundingAmount = await ApiFetchFundingAmount();
@@ -222,12 +264,12 @@ const handleFounderEditClose = async () => {
         : null;
       setFundingAmount(fundamount || []);
 
-
+      const data = await ApiFetchFounder(startup_id);
+      setFounders(data);
       // console.log("Selected startup:", selectedstartup);
       // console.log("Awards data:", filteredAwards);
       // console.log("Awards length:", filteredAwards?.length);
-      
-     } catch (err) {
+    } catch (err) {
       console.error("Error fetching mentor data:", err);
     }
   };
@@ -240,6 +282,21 @@ const handleFounderEditClose = async () => {
     return <div>Loading startup details</div>;
   }
 
+  const handleDelete = async (id) => {
+    try {
+      const API = await ApiDeleteAward(id);
+      if (API) {
+        toast.success("Award deleted successfully");
+        const updateddata = awards.filter((award) => award.id !== id);
+        setAwards(updateddata);
+        setOpenDropdownId(null);
+      } else {
+        toast.error("Failed to delete startup.");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
   // Read More Popup Component
   const ReadMorePopup = ({ isOpen, onClose, title, content }) => {
     if (!isOpen) return null;
@@ -422,7 +479,7 @@ const handleFounderEditClose = async () => {
                       className="p-1 hover:bg-gray-100 rounded-full"
                       onClick={handleAboutClick}
                     >
-                      <FiEdit2 size={16} className="text-[#A1A1A1]" />
+                      <FiEdit2 size={16} className="text-[#45C74D]" />
                     </button>
                   </div>
                   <div className="text-[#232323] text-sm mb-4">
@@ -469,73 +526,100 @@ const handleFounderEditClose = async () => {
                     </div>
                   </div>
                   {/* Only the awards list is a slider */}
-                  <div className="mt-2">
+                  <div className="mt-2 ">
                     {awards.length === 0 ? (
                       <p className="text-sm text-gray-500">
                         No awards added yet.
                       </p>
                     ) : (
-                      <Swiper
-                        modules={[Navigation]}
-                        spaceBetween={100}
-                        slidesPerView={1}
-                        navigation={true}
-                        breakpoints={{
-                          640: { slidesPerView: 1 },
-                          768: { slidesPerView: 2 },
-                          1024: { slidesPerView: 3 },
-                        }}
-                        className="awards-swiper"
-                        style={{ position: "relative" }}
-                      >
-                        {awards.map((award, idx) => (
-                          <SwiperSlide key={idx}>
-                            <div className="flex items-start gap-2">
-                              <span className="mt-1 w-2 h-2 bg-[#232323] rounded-full inline-block" />
-                              <div className="flex-1">
-                                <div className="flex items-center justify-between">
-                                  <span className="font-semibold text-sm text-[#232323]">
-                                    {award.award_name}/ {award.award_org}
-                                  </span>
-                                  <button className="p-1 hover:bg-gray-100 rounded-full">
+                      <div className="relative">
+                        {/* Left Button */}
+                        <button
+                          onClick={() => scroll("left")}
+                          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow p-2 rounded-full hover:bg-gray-100"
+                        >
+                          <MdChevronLeft size={24} />
+                        </button>
+
+                        {/* Scrollable container */}
+                        <div
+                          ref={scrollRef}
+                          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-8"
+                        >
+                          {awards.map((award) => (
+                            <div
+                              key={award.id}
+                              className="min-w-[200px] max-w-[300px] flex-shrink-0 border rounded-lg p-3 bg-white shadow-sm"
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className="font-semibold text-sm text-[#232323]">
+                                  {award.award_name}/ {award.award_org}
+                                </span>
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    className=" hover:bg-gray-100 rounded-full"
+                                    onClick={() => handleEditAwardClick(award)}
+                                  >
                                     <FiEdit2
-                                      size={16}
-                                      className="text-[#A1A1A1]"
+                                      size={15}
+                                      className="text-[#45C74D]"
                                     />
                                   </button>
-                                </div>
-                                <div className="text-xs text-[#232323]">
-                                  {new Date(
-                                    award.awarded_date
-                                  ).toLocaleDateString("en-IN", {
-                                    year: "numeric",
-                                    month: "short",
-                                    day: "numeric",
-                                  })}
-                                </div>
-                                <div className="text-xs text-[#A1A1A1] mb-1">
-                                  {award.description ? award.description : " -"}
-                                </div>
-                                <div className="inline-flex items-center gap-2 bg-[#F8FAFB] rounded-lg px-3 py-1 mt-1 border border-[#E6E6E6]">
-                                  <img
-                                    src="/src/assets/images/Frame (8).svg"
-                                    alt="PDF"
-                                    className="w-5 h-5"
-                                  />
-                                  <span className="text-xs text-[#232323] font-medium truncate max-w-[120px]">
-                                    Document Name.pdf
-                                  </span>
+                                  <button
+                                    className="text-red-600 p-1 hover:bg-gray-100 rounded-full"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setAwardDelete(award.id);
+                                      setOpenEstablishPopUp(true);
+                                      setOpenDropdownId(null);
+                                    }}
+                                  >
+                                    <FaTrash size={15} />
+                                  </button>
                                 </div>
                               </div>
+
+                              <div className="text-xs text-[#232323]">
+                                {new Date(
+                                  award.awarded_date
+                                ).toLocaleDateString("en-IN", {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                })}
+                              </div>
+                              <div className="text-xs text-[#A1A1A1] mb-1">
+                                {award.description ? award.description : " -"}
+                              </div>
+
+                              <div className="inline-flex items-center gap-2 bg-[#F8FAFB] rounded-lg px-3 py-1 mt-1 border border-[#E6E6E6]">
+                                <img
+                                  src="/src/assets/images/Frame (8).svg"
+                                  alt="PDF"
+                                  className="w-5 h-5"
+                                />
+                                <span className="text-xs text-[#232323] font-medium truncate max-w-[120px]">
+                                  Document Name.pdf
+                                </span>
+                              </div>
                             </div>
-                          </SwiperSlide>
-                        ))}
-                      </Swiper>
+                          ))}
+                        </div>
+
+                        {/* Right Button */}
+                        <button
+                          onClick={() => scroll("right")}
+                          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow p-2 rounded-full hover:bg-gray-100"
+                        >
+                          <MdChevronRight size={24} />
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
               </div>
             </div>
+
             {/* Details Grid Section */}
             <div className="bg-white rounded-2xl shadow p-6 mb-8 grid grid-cols-3 gap-8 text-sm font-medium text-[#232323] relative">
               {/* Edit button at top right */}
@@ -636,28 +720,6 @@ const handleFounderEditClose = async () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => {
-                      // Pass the startup data with the email address
-                      const founderData = {
-                        ...startupData,
-                        email_address:
-                          startupData.email_address ||
-                          startupData.official_email_address,
-                      };
-                      setSelectedFounder(founderData);
-                      setShowFounderEditForm(true);
-                    }}
-                  >
-                    <FiEdit2 size={22} className="text-[#45C74D]" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      // Pass the startup's email address for the API to identify which startup to update
-                      const founderData = {
-                        email_address:
-                          startupData.email_address ||
-                          startupData.official_email_address,
-                      };
-                      setSelectedFounder(founderData);
                       setShowAddForm(true);
                     }}
                   >
@@ -666,26 +728,42 @@ const handleFounderEditClose = async () => {
                   {/* <button className="p-1 hover:bg-gray-100 rounded-full"><BsThreeDotsVertical size={22} className="text-[#A1A1A1]" /></button> */}
                 </div>
               </div>
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 ">
                 {/* Founder 1 */}
-                <div className="flex items-center gap-4">
-                  <img
-                    src="https://randomuser.me/api/portraits/men/32.jpg"
-                    alt="Founder"
-                    className="w-14 h-14 rounded-lg object-cover"
-                  />
-                  <div className="flex-1">
-                    <div className="font-semibold text-base">
-                      {startupData.founder_name}
+                {Array.isArray(founders) &&
+                  founders.map((f, index) => (
+                    <div key={index} className="flex items-center gap-4">
+                      <img
+                        src="https://randomuser.me/api/portraits/men/32.jpg"
+                        alt="Founder"
+                        className="w-14 h-14 rounded-lg object-cover"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center  ">
+                          <div className="font-semibold text-base">
+                            {f.founder.founder_name}
+                          </div>
+                          <button
+                            onClick={() => {
+                              setSelectedFounder(f.founder);
+                              setShowFounderEditForm(true);
+                            }}
+                          >
+                            <FiEdit2
+                              size={15}
+                              className="text-[#45C74D] ml-2"
+                            />
+                          </button>
+                        </div>
+                        <div className="text-sm text-[#A1A1A1]">
+                          {f.founder.founder_email}
+                        </div>
+                        <div className="text-sm text-[#A1A1A1]">
+                          {f.founder.founder_number}
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-sm text-[#A1A1A1]">
-                      {startupData.founder_email}
-                    </div>
-                    <div className="text-sm text-[#A1A1A1]">
-                      {startupData.founder_number}
-                    </div>
-                  </div>
-                </div>
+                  ))}
 
                 {/* Funding Section */}
                 <div className=" mt-11">
@@ -813,7 +891,7 @@ const handleFounderEditClose = async () => {
                         External Funding
                       </span>
                       <span className="font-bold text-2xl text-[#232323] mb-2">
-                        Rs. {fundingAmount?.external_funding}
+                        Rs. {fundingAmount?.external_funding || 0}
                       </span>
                       <img
                         src="/src/assets/images/Frame (9).svg"
@@ -889,6 +967,30 @@ const handleFounderEditClose = async () => {
           </div>
         </div>
       </div>
+      <DeleteConfirmation
+        isVisible={openEstablishPopUp}
+        onClose={() => setOpenEstablishPopUp(false)}
+      >
+        <h1 className="text-center font-semibold text-2xl">Are you sure?</h1>
+        <div className="grid grid-cols-2 gap-4 mt-8">
+          <button
+            className="text-gray-500 font-semibold p-2 rounded-xl shadow"
+            onClick={() => {
+              handleDelete(awarddelete);
+              setOpenEstablishPopUp(false);
+            }}
+          >
+            Yes
+          </button>
+          <button
+            className="text-gray-500 font-semibold p-2 rounded-xl shadow"
+            onClick={() => setOpenEstablishPopUp(false)}
+          >
+            No
+          </button>
+        </div>
+      </DeleteConfirmation>
+
       {showEditForm && (
         <EditStartupForm
           initialData={startupData}
@@ -911,9 +1013,18 @@ const handleFounderEditClose = async () => {
           onSubmit={handleAddAwardSubmit}
         />
       )}
+      {showEditAwardForm && (
+        <EditAwardForm
+          initialData={editaward}
+          startup_id={startupData?.startup_id}
+          onClose={handleEditAwardClose}
+          onSubmit={handleEditAwardSubmit}
+        />
+      )}
       {showFounderEditForm && (
-        <FounderForm
+        <EditTeamMembersForm
           initialData={selectedFounder}
+          startup_id={startupData?.startup_id}
           onClose={handleFounderEditClose}
           onSubmit={() => {
             handleFounderEditClose();
@@ -924,7 +1035,7 @@ const handleFounderEditClose = async () => {
 
       {showAddForm && (
         <FounderForm
-          initialData={null}
+          startup_id={startupData?.startup_id}
           onClose={() => setShowAddForm(false)}
           onSubmit={() => {
             setShowAddForm(false);
@@ -935,7 +1046,6 @@ const handleFounderEditClose = async () => {
       {showFundingForm && (
         <AddFunding
           startup_name={startupData.startup_name}
-          officialEmail={startupData?.email_address}
           startup_id={startupData?.startup_id}
           onClose={handleFundingClose}
           onSubmit={() => {
@@ -944,14 +1054,12 @@ const handleFounderEditClose = async () => {
           }}
         />
       )}
-
       {showFundingModal && (
         <FundingDetail
           onClose={handleFundingModalClose}
           startup_id={startupData?.startup_id}
         />
       )}
-
 
       {showMentorForm && (
         <EditMentorForm
