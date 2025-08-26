@@ -120,7 +120,7 @@ function StartupProfile() {
 
   const scroll = (direction) => {
     if (scrollRef.current) {
-      const scrollAmount = 300; 
+      const scrollAmount = 300;
       if (direction === "left") {
         scrollRef.current.scrollBy({ left: -scrollAmount, behavior: "smooth" });
       } else {
@@ -179,7 +179,7 @@ function StartupProfile() {
   };
 
   const handleEditAwardClick = (award) => {
-    setEditAward(award); 
+    setEditAward(award);
     setShowEditAwardForm(true);
   };
   const getStatusColor = (status) => {
@@ -600,7 +600,7 @@ function StartupProfile() {
                                 />
                                 <span className="text-xs text-[#232323] font-medium truncate max-w-[120px]">
                                   Document Name.pdf
-                                </span>
+                                  </span>
                               </div>
                             </div>
                           ))}

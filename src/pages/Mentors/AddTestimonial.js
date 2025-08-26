@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ApiTestimonials } from "../../API/API";
 import { useNavigate } from "react-router-dom";
 
-const AddTestimonial = ({ onClose, mentorRefId, onTestimonialAdded }) => {
+const AddTestimonial = ({ onClose, mentor_id, onTestimonialAdded }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
@@ -21,18 +21,16 @@ const AddTestimonial = ({ onClose, mentorRefId, onTestimonialAdded }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const payload = {
-      mentor_ref_id: mentorRefId,
+      mentor_ref_id: mentor_id,
       ...formData,
     };
     try {
       await ApiTestimonials(payload);
-      console.log("posted");
-      console.log(payload);
       onClose(); // Close modal after save
       // Refresh testimonials before navigation
       await onTestimonialAdded();
       // Navigate back to mentor profile after successful submission
-      navigate(`/mentor/mentor_profile/${mentorRefId}`);
+      navigate(`/mentor/mentor_profile/${mentor_id}`);
     } catch (error) {
       console.log(error);
     }

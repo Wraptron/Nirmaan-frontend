@@ -71,7 +71,7 @@ function AddNewMentor() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formDataa = new FormData();
-    formDataa.append("choose_logo", formData.description.choose_logo);
+    // formDataa.append("choose_logo", formData.description.choose_logo);
     formDataa.append("description", JSON.stringify(formData.description));
     formDataa.append("professional", JSON.stringify(formData.professional));
     formDataa.append("contact", JSON.stringify(formData.contact));

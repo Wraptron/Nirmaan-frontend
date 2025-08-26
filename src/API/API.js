@@ -1314,7 +1314,7 @@ async function ApiFetchFeedback(meetingId) {
 async function ApiTestimonials(payload) {
   try {
     const result = await axios.post(
-      `${API_BASE_URL}/api/v1/testimonial`,
+      `${API_BASE_URL}/api/v1/mentor/add-testimonial`,
       payload,
       {
         headers: {
@@ -1329,10 +1329,10 @@ async function ApiTestimonials(payload) {
   }
 }
 
-async function ApiFetchTestimonials(mentor_id) {
+async function ApiFetchTestimonials() {
   try {
     const result = await axios.get(
-      `${API_BASE_URL}/api/v1/fetchtestimonial/${mentor_id}`
+      `${API_BASE_URL}/api/v1/mentor/fetch-testimonial`
     );
     return result.data;
   } catch (err) {

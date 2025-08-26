@@ -20,7 +20,7 @@ import "swiper/css/navigation";
 import { FaChevronLeft, FaChevronRight, FaQuoteLeft } from "react-icons/fa";
 import TestimonialForm from "./AddTestimonial";
 import EditMentorForm from "./EditMentorPage";
-import SideBar from '../../components/sidebar';
+import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
 
 function MentorProfile() {
@@ -84,12 +84,20 @@ function MentorProfile() {
         );
         setMentor(selectedMentor || null);
 
-        const MeetAPI = await ApiFetchScheduleMeetings(selectedMentor?.mentor_id);
+        const MeetAPI = await ApiFetchScheduleMeetings(
+          selectedMentor?.mentor_id
+        );
         const meetings = MeetAPI?.STATUS?.rows || [];
         setMeeting(meetings);
 
-        await fetchTestimonials(selectedMentor?.mentor_id);
-
+        const APITestimonial = await ApiFetchTestimonials();
+        const Testimonial = APITestimonial?.STATUS?.rows || [];
+        const filteredTestimonial = Testimonial.filter(
+          (data) =>
+            String(data.mentor_ref_id) === String(selectedMentor?.mentor_id)
+        );
+        setTestimonial(filteredTestimonial);
+        console.log(filteredTestimonial);
         for (const session of meetings) {
           await fetchFeedback(session.meeting_id);
         }
@@ -117,7 +125,6 @@ function MentorProfile() {
   if (!mentor) {
     return <div className="p-10 text-gray-500">Loading mentor profile...</div>;
   }
-
 
   const getLinkedInUrl = (urlOrUsername) => {
     if (!urlOrUsername) return "#";
@@ -190,7 +197,7 @@ function MentorProfile() {
       <SideBar />
       <div className="ms-[220px] bg-gray-100 flex-grow">
         <NavBar />
-        <div className="max-w-7xl mx-auto">
+        <div className="ml-5 max-w-5xl">
           <div className="flex items-center mb-4">
             <p className="text-sm text-gray-600">
               Dashboard &gt; Mentors &gt; Profile
@@ -368,9 +375,7 @@ function MentorProfile() {
                       {session.meeting_mode || "-"}
                     </div>
                     <div>
-                      <button
-                        className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600"
-                      >
+                      <button className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600">
                         Visit Feedback
                       </button>
                     </div>
@@ -392,7 +397,7 @@ function MentorProfile() {
             )}
           </div>
           {/* Testimonials */}
-          <div className="bg-white p-6 rounded-lg mb-6">
+          <div className="bg-white p-6 rounded-lg mb-6  overflow-x-hidden max-w-full ">
             <div className="border shadow-sm py-6 rounded-md w-full">
               <div className="flex justify-between ">
                 <h2 className="text-xl font-semibold mb-4 text-gray-800 px-5">
@@ -406,23 +411,21 @@ function MentorProfile() {
               <Swiper
                 modules={[Navigation]}
                 spaceBetween={20}
-                slidesPerView={3.25} // 3 full, 1 partial
+                slidesPerView={3} // 3 full, 1 partial
+               
                 navigation={{
                   prevEl: navigationPrevRef.current,
                   nextEl: navigationNextRef.current,
                 }}
-                onBeforeInit={(swiper) => {
-                  swiper.params.navigation.prevEl = navigationPrevRef.current;
-                  swiper.params.navigation.nextEl = navigationNextRef.current;
-                }}
+              
                 breakpoints={{
-                  1024: { slidesPerView: 3.25 },
-                  768: { slidesPerView: 2.25 },
-                  0: { slidesPerView: 1.25 },
+                  1024: { slidesPerView: 3 },
+                  768: { slidesPerView: 2},
+                  0: { slidesPerView: 1 },
                 }}
               >
                 {testimonial.map((item, index) => (
-                  <SwiperSlide key={index}>
+                  <SwiperSlide key={index} >
                     <div className="bg-[#F9F9F9] shadow-md rounded-xl p-6 h-full flex flex-col justify-between mx-2">
                       <FaQuoteLeft className="text-[#808080] text-2xl mb-4" />
                       <p className="text-gray-700 text-sm italic">
@@ -467,9 +470,9 @@ function MentorProfile() {
 
         {showModal && (
           <TestimonialForm
-            mentorRefId={id}
+            mentor_id={mentor.mentor_id}
             onClose={() => setShowModal(false)}
-            onTestimonialAdded={() => fetchTestimonials(id)}
+            onTestimonialAdded={() => fetchTestimonials(mentor.mentor_id)}
           />
         )}
       </div>
