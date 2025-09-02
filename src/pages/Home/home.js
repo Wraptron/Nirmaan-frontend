@@ -430,7 +430,6 @@ function Home() {
                   })}
                 </div>
               </div>
-              );
               {/* New Start-ups Chart Section */}
               <div className="mb-8">
                 <div className="bg-white rounded-xl p-6 shadow-sm border">
