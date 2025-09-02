@@ -289,11 +289,11 @@ import foundersvgwhite from '../../assets/images/Frame (16).svg';
 import foundersvgblack from '../../assets/images/Frame (20).svg';
 import messagesvgwhite from '../../assets/images/Frame (17).svg';
 import messagesvgblack from '../../assets/images/Frame (21).svg';
-import axios from "axios";
 import { toast } from "react-hot-toast";
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import { useNavigate } from 'react-router-dom';
+import { ApiAddStartup } from "../../API/API";
 
 function AddStartup() {
     const [formData, setFormData] = useState({
@@ -517,43 +517,33 @@ function AddStartup() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateStep()) return;
+    try {
+        const response = await ApiAddStartup(formData);
 
-        try {
-            // 1. Add startup
-            const result = await axios.post(
-              "http://13.127.7.121/api/v1/add-startup",
-              formData,
-              {
-                headers: {
-                  "Cache-Control": "no-cache",
-                  "Content-Type": "application/json",
-                },
-              }
-            );
+        if (response.data?.status?.status === "data already exists") {
+            toast.error('Startup already exists');
+        } else {
+            Swal.fire({
+                icon: "success",
+                title: "Startup added successfully!",
+                timer: 800
+            });
 
-            if (result.data?.status?.status === "data already exists") {
-                toast.error('Startup already exists');
+            if (response.data?.result?.role === '5') {
+                navigate(`/startupprofile/${response.data.result.id}`);
             } else {
-                if (result.data?.result?.role === '5') {
-                    navigate(`/startupprofile/${result.data.result.id}`);
-                }
-
-                Swal.fire({
-                    icon: "success",
-                    title: "Startup added successfully!",
-                    timer: 800
-                });
                 navigate('/startups');
             }
-        } catch (err) {
-            const backendMsg = err?.response?.data?.error || "Server Error: Something went wrong. Please try again.";
-            Swal.fire({
-                icon: "error",
-                title: "Server Error",
-                text: backendMsg
-            });
         }
-    };
+    } catch (err) {
+        const backendMsg = err?.response?.data?.error || "Server Error: Something went wrong. Please try again.";
+        Swal.fire({
+            icon: "error",
+            // title: "Server Error",
+            text: backendMsg
+        });
+    }
+};
 
     return (
       <div className="flex">

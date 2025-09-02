@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { ApiUpdateStartupFounder } from "../../../../API/API";
 
-const EditTeamMembersForm = ({ initialData, onClose, onSubmit }) => {
+const EditTeamMembersForm = ({ initialData, onClose, onSubmit,startup_id }) => {
  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     founder_name: "",
@@ -13,12 +13,14 @@ const EditTeamMembersForm = ({ initialData, onClose, onSubmit }) => {
   useEffect(() => {
     if (initialData) {
       console.log("imitial:",initialData)
+      console.log(startup_id)
       setFormData({
         founder_name: initialData.founder_name || "",
         founder_email: initialData.founder_email || "",
         founder_number: initialData.founder_number || "",
         founder_designation:initialData.founder_designation|| "",
-        founder_id:initialData.founder_id|| ""
+        founder_id:initialData.founder_id|| "",
+        user_id:startup_id
       });
     }
   }, [initialData]);
@@ -74,7 +76,7 @@ if (!formData.founder_email.trim()) {
       return;
     }
 
-    console.log("Submitting data:", formData);
+    // console.log("Submitting data:", formData);
 
     try {
       await ApiUpdateStartupFounder(formData);

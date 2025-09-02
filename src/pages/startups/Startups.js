@@ -352,7 +352,7 @@ import {
   FaFilter,
   FaChevronDown,
 } from "react-icons/fa";
-import { ApiDeletStartupData } from "../../API/API";
+import { ApiDeletStartupData, ApiFetchStartup } from "../../API/API";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
 import { useNavigate } from "react-router-dom";
 
@@ -399,10 +399,9 @@ function Startups() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        "http://13.127.7.121/api/v1/fetch-startup"
-      );
-      setData(response.data.rows || []);
+    const ApiStartup = await ApiFetchStartup();
+    const startupdata = Array.isArray(ApiStartup?.rows) ? ApiStartup.rows : [];
+    setData(startupdata);
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.error("Failed to fetch startup data");

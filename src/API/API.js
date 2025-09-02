@@ -1339,11 +1339,23 @@ async function ApiFetchTestimonials() {
     console.log(err);
   }
 }
+async function ApiUpdateTestimonial(payload) {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/api/v1/mentor/update-testimonial`,
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in ApiUpdatetestimonial", error);
+    throw new Error("Failed to update testimonial details");
+  }
+}   
 
-export const ApiDeleteTestimonial = async (testimonialId) => {
+const ApiDeleteTestimonial = async (id) => {
   try {
     const res = await axios.delete(
-      `${API_BASE_URL}/testimonial/${testimonialId}`
+      `${API_BASE_URL}/api/v1/mentor/delete-testimonial/${id}`
     );
     return res.data;
   } catch (error) {
@@ -1353,9 +1365,36 @@ export const ApiDeleteTestimonial = async (testimonialId) => {
 };
 
 // ==================== STARTUP APIs ====================
+async function ApiAddStartup(formdata) {
+  try {
+    const result = await axios.post(
+      `${API_BASE_URL}/api/v1/add-startup`,
+      formdata,
+      {
+        headers: {
+          "Cache-Control": "no-cache",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return result.data;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
 async function ApiFetchStartup() {
   try {
     const result = await axios.get(`${API_BASE_URL}/api/v1/fetch-startup`);
+    return result.data;
+  } catch (error) {
+    console.error("Error in API", error);
+    throw error;
+  }
+}
+async function ApiFetchStartupCount() {
+  try {
+    const result = await axios.get(`${API_BASE_URL}/api/v1/count-startupdata`);
     return result.data;
   } catch (error) {
     console.error("Error in API", error);
@@ -1450,6 +1489,15 @@ async function ApiFetchFunding() {
     throw error;
   }
 }
+async function ApiFetchFundingDetain() {
+  try {
+    const result = await axios.get(`${API_BASE_URL}/api/v1/funding`);
+    return result.data;
+  } catch (error) {
+    console.error("Error in API", error);
+    throw error;
+  }
+}
 
 
 // ==================== AWARD APIs ====================
@@ -1532,7 +1580,8 @@ async function ApiFetchFounder(id) {
   } catch (err) {
     console.log(err);
   }
-}  async function ApiUpdateStartupFounder(payload) {
+}  
+async function ApiUpdateStartupFounder(payload) {
   try {
     const response = await axios.put(
       `${API_BASE_URL}/api/v1/edit-startup/founder`,
@@ -1641,15 +1690,20 @@ export {
   // Testimonial APIs
   ApiTestimonials,
   ApiFetchTestimonials,
+  ApiUpdateTestimonial,
+  ApiDeleteTestimonial,
 
   // Startup APIs
+  ApiAddStartup,
   ApiFetchStartup,
+  ApiFetchStartupCount,
   ApiDeletStartupData,
   ApiUpdateStartupFounder,
   ApiUpdateStartupPersonalInfo,
   ApiUpdateStartupAbout,
   ApiUpdateStartupMentorDetails,
   ApiFetchFunding,
+  ApiFetchFundingDetain,
 
   // Award APIs
   ApiAddAward,

@@ -3,7 +3,6 @@ import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
 import { FaGraduationCap, FaRocket } from "react-icons/fa";
 import { SkeletonLoader } from "../../components/SkeletonLoader";
-import axios from "axios";
 import Teams from "./Teams/Teams";
 import Mentor from "./Mentors/Mentor";
 import dayjs from "dayjs";
@@ -16,6 +15,11 @@ import {
   Area,
   AreaChart,
 } from "recharts";
+import {
+  ApiFetchFundingDetain,
+  ApiFetchStartup,
+  ApiFetchStartupCount,
+} from "../../API/API";
 
 function Home() {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -24,18 +28,37 @@ function Home() {
   const [showw, setShoww] = useState(false);
   const [startupData, setStartupData] = useState([]);
   const [selectedYear, setSelectedYear] = useState("all");
+  const [funding, setFunding] = useState({});
 
   useEffect(() => {
     setShoww(true);
   }, []);
-  const url = "http://13.127.7.121/api/v1/count-startupdata";
-  const url2 = "http://13.127.7.121/api/v1/fetch-startup";
-  const AnalysisData = async () => {
+  const FetchData = async () => {
     try {
-      const result = await axios.get(url);
-      const result2 = await axios.get(url2);
+      //Dashboard Data
+      const result = await ApiFetchStartupCount();
+      const startupcount = result || {};
 
-      const FullData = result2.data.rows;
+      const fundingcount = await ApiFetchFundingDetain();
+      const totalfunding = fundingcount || {};
+      const fundingWithChartData = {};
+      Object.entries(totalfunding).forEach(([key, value]) => {
+        // simple 5-point rising array
+        const points = [
+          { value: 0 },
+          { value: value * 0.25 },
+          { value: value * 0.5 },
+          { value: value * 0.75 },
+          { value: value },
+        ];
+        fundingWithChartData[key] = points;
+      });
+      setFunding(fundingWithChartData);
+      // FlowChart
+      const result2 = await ApiFetchStartup();
+      const startupdata = result2 || {};
+
+      const FullData = startupdata.rows || [];
       const monthMap = {};
 
       //Count startups per cohort month
@@ -56,7 +79,7 @@ function Home() {
       );
 
       setStartupData(formattedChartData);
-      setAnalysedData(result.data);
+      setAnalysedData(startupcount);
       setIsLoaded(true);
     } catch (err) {
       console.log(err);
@@ -65,9 +88,30 @@ function Home() {
 
   useEffect(() => {
     setTimeout(() => {
-      AnalysisData();
+      FetchData();
     }, 2000);
   }, []);
+
+  const fundingConfig = {
+    funding_disbursed: {
+      title: "Funding Disbursed",
+      color: "#4CAF50",
+      bgColor: "bg-green-50",
+      icon: <div className="w-4 h-4 bg-green-500 rounded-full"></div>,
+    },
+    funding_utilized: {
+      title: "Funding Utilized",
+      color: "#FF9800",
+      bgColor: "bg-orange-50",
+      icon: <div className="w-4 h-4 bg-orange-500 rounded-full"></div>,
+    },
+    external_funding: {
+      title: "External Funding",
+      color: "#F44336",
+      bgColor: "bg-red-50",
+      icon: <div className="w-4 h-4 bg-red-500 rounded-full"></div>,
+    },
+  };
 
   // Extract years from startupData for dropdown
   const years = Array.from({ length: 2025 - 2017 + 1 }, (_, i) => 2017 + i);
@@ -128,40 +172,6 @@ function Home() {
     setSelectedIndex(index);
   };
 
-  // Sample data for charts
-  const fundingDisbursedData = [
-    { value: 20 },
-    { value: 45 },
-    { value: 30 },
-    { value: 60 },
-    { value: 40 },
-    { value: 80 },
-    { value: 55 },
-    { value: 70 },
-  ];
-
-  const fundingUtilizedData = [
-    { value: 30 },
-    { value: 60 },
-    { value: 40 },
-    { value: 75 },
-    { value: 50 },
-    { value: 85 },
-    { value: 65 },
-    { value: 45 },
-  ];
-
-  const externalFundingData = [
-    { value: 60 },
-    { value: 40 },
-    { value: 70 },
-    { value: 30 },
-    { value: 55 },
-    { value: 25 },
-    { value: 45 },
-    { value: 35 },
-  ];
-
   const mentoringData = [
     {
       name: "STINGA",
@@ -193,7 +203,7 @@ function Home() {
     },
   ];
 
-  const FundingCard = ({ title, amount, icon, color, bgColor, data }) => (
+  const FundingCard = ({ title, amount, color, bgColor, icon, data }) => (
     <div className="bg-white rounded-xl p-6 shadow-sm border">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-medium text-gray-600">{title}</h3>
@@ -377,7 +387,6 @@ function Home() {
                   </div>
                 </div>
               </div>
-
               {/* New Funding Section */}
               <div className="mb-8">
                 <div className="flex items-center justify-between mb-6">
@@ -400,40 +409,28 @@ function Home() {
                     </svg>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-6 mb-8">
-                  <FundingCard
-                    title="Funding Disbursed"
-                    amount="Rs. 7,130,400"
-                    icon={
-                      <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-                    }
-                    color="#4CAF50"
-                    bgColor="bg-green-50"
-                    data={fundingDisbursedData}
-                  />
-                  <FundingCard
-                    title="Funding Utilized"
-                    amount="Rs. 2,873,778"
-                    icon={
-                      <div className="w-4 h-4 bg-orange-500 rounded-full"></div>
-                    }
-                    color="#FF9800"
-                    bgColor="bg-orange-50"
-                    data={fundingUtilizedData}
-                  />
-                  <FundingCard
-                    title="External Funding"
-                    amount="Rs. 10,070,000"
-                    icon={
-                      <div className="w-4 h-4 bg-red-500 rounded-full"></div>
-                    }
-                    color="#F44336"
-                    bgColor="bg-red-50"
-                    data={externalFundingData}
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  {Object.entries(funding).map(([key, data]) => {
+                    const config = fundingConfig[key];
+                    if (!config) return null;
+
+                    const latestValue = data[data.length - 1].value || 0;
+
+                    return (
+                      <FundingCard
+                        key={key}
+                        title={config.title}
+                        amount={`Rs. ${latestValue.toLocaleString()}`}
+                        icon={config.icon}
+                        color={config.color}
+                        bgColor={config.bgColor}
+                        data={data}
+                      />
+                    );
+                  })}
                 </div>
               </div>
-
+              );
               {/* New Start-ups Chart Section */}
               <div className="mb-8">
                 <div className="bg-white rounded-xl p-6 shadow-sm border">

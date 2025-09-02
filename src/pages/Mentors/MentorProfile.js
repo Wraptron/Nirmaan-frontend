@@ -6,12 +6,17 @@ import dummysvg from "../../assets/images/image (1).svg";
 import linkedinsvg from "../../assets/images/Frame (9).svg";
 import Testimonials from "../../assets/images/testimonial.png";
 import editsvg from "../../assets/images/Frame (12).svg";
+import toast from "react-hot-toast";
+import { FiEdit2 } from "react-icons/fi";
+import { FaTrash } from "react-icons/fa";
 
 import {
   ApiFetchMentor,
   ApiFetchScheduleMeetings,
   ApiFetchTestimonials,
   ApiFetchFeedback,
+  ApiUpdateTestimonial,
+  ApiDeleteTestimonial,
 } from "../../API/API";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -22,15 +27,22 @@ import TestimonialForm from "./AddTestimonial";
 import EditMentorForm from "./EditMentorPage";
 import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
+import EditTestimonial from "./EditTestimonial";
+import DeleteConfirmation from "../../components/DeleteConfirmation";
 
 function MentorProfile() {
   const { id } = useParams();
   const [mentor, setMentor] = useState(null);
   const [meeting, setMeeting] = useState(null);
   const [testimonial, setTestimonial] = useState([]);
+  const [edittestimonial, setEditTestimonial] = useState(null);
+  const [deletetestimonial,setdeletetestimonial]=useState(null)
 
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showEditTestimonialForm, setShowEditTestimonialForm] = useState(false);
+    const [openDropdownId, setOpenDropdownId] = useState(null);
+    const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
   const navigationPrevRef = useRef(null);
   const navigationNextRef = useRef(null);
   const navigate = useNavigate();
@@ -49,6 +61,7 @@ function MentorProfile() {
     }
   };
 
+  
   const fetchTestimonials = async (mentorId) => {
     try {
       const TestimonialAPI = await ApiFetchTestimonials(mentorId);
@@ -74,7 +87,6 @@ function MentorProfile() {
     }
   };
 
-  useEffect(() => {
     const FetchData = async () => {
       try {
         const API = await ApiFetchMentor();
@@ -105,12 +117,56 @@ function MentorProfile() {
         console.error("Error fetching mentor data:", err);
       }
     };
+
+      useEffect(() => {
     FetchData();
   }, [id]);
+
+    const handleEditTestimonialsClose = async () => {
+    setShowEditTestimonialForm(false);
+    //  await FetchData();
+  };
+  const handleEditTestimonialClick = (testimonial) => {
+    setEditTestimonial(testimonial);
+    setShowEditTestimonialForm(true);
+  };
+  const handleEditTestimonialSubmit = async (updatedData) => {
+   try {
+       await ApiUpdateTestimonial(updatedData);
+setTestimonial((prev) =>
+      prev.map((t) =>
+        t.testimonial_id === updatedData.testimonial_id ? { ...t, ...updatedData } : t
+      )
+    );
+
+    } catch (error) {
+      console.error("Error updating Testimonial section:", error);
+      toast.error("Failed to update Testimonial section");
+    }
+  };
+
+  const handledelete=async (id)=>{
+    try{
+      const API=await ApiDeleteTestimonial(id)
+      if(API){
+        toast.success("Testimonial Deleted Successfully")
+        const updatestestimonial=testimonial.filter((data)=>data.testimonial_id !==id)
+        setTestimonial(updatestestimonial)
+          setOpenDropdownId(null);
+      }
+      else{
+        toast.error("Failed to delete")
+      }
+    }
+    catch(err){
+      console.log(err)
+    }
+  }
 
   const handleEditSubmit = (updatedData) => {
     setMentor((prev) => ({ ...prev, ...updatedData }));
   };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (activeDropdown && !event.target.closest(".dropdown-container")) {
@@ -412,22 +468,41 @@ function MentorProfile() {
                 modules={[Navigation]}
                 spaceBetween={20}
                 slidesPerView={3} // 3 full, 1 partial
-               
                 navigation={{
                   prevEl: navigationPrevRef.current,
                   nextEl: navigationNextRef.current,
                 }}
-              
                 breakpoints={{
                   1024: { slidesPerView: 3 },
-                  768: { slidesPerView: 2},
+                  768: { slidesPerView: 2 },
                   0: { slidesPerView: 1 },
                 }}
               >
                 {testimonial.map((item, index) => (
-                  <SwiperSlide key={index} >
+                  <SwiperSlide key={index}>
                     <div className="bg-[#F9F9F9] shadow-md rounded-xl p-6 h-full flex flex-col justify-between mx-2">
+                      <div className="flex items-center justify-between">
                       <FaQuoteLeft className="text-[#808080] text-2xl mb-4" />
+                      <div className="flex items-center gap-2">
+                        <button
+                          className=" hover:bg-gray-100 rounded-full"
+                          onClick={() => handleEditTestimonialClick(item)}
+                        >
+                          <FiEdit2 size={16} className="text-[#45C74D]" />
+                        </button>
+                        <button
+                          className="text-red-600 p-1 hover:bg-gray-100 rounded-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setdeletetestimonial(item.testimonial_id);
+                            setOpenEstablishPopUp(true);
+                            setOpenDropdownId(null);
+                          }}
+                        >
+                          <FaTrash size={16} />
+                        </button>
+                      </div>
+                      </div>
                       <p className="text-gray-700 text-sm italic">
                         "{item.description}"
                       </p>
@@ -472,11 +547,43 @@ function MentorProfile() {
           <TestimonialForm
             mentor_id={mentor.mentor_id}
             onClose={() => setShowModal(false)}
-            onTestimonialAdded={() => fetchTestimonials(mentor.mentor_id)}
+            onTestimonialAdded={() => FetchData(mentor.mentor_id)}
           />
         )}
+        {showEditTestimonialForm && (
+          <EditTestimonial
+            initialData={edittestimonial}
+            onClose={handleEditTestimonialsClose}
+            onSubmit={handleEditTestimonialSubmit}
+          />
+        )}
+         <DeleteConfirmation
+                isVisible={openEstablishPopUp}
+                onClose={() => setOpenEstablishPopUp(false)}
+              >
+                <h1 className="text-center font-semibold text-2xl">Are you sure?</h1>
+                <div className="grid grid-cols-2 gap-4 mt-8">
+                  <button
+                    className="text-gray-500 font-semibold p-2 rounded-xl shadow"
+                    onClick={() => {
+                      handledelete(deletetestimonial);
+                      setOpenEstablishPopUp(false);
+                    }}
+                  >
+                    Yes
+                  </button>
+                  <button
+                    className="text-gray-500 font-semibold p-2 rounded-xl shadow"
+                    onClick={() => setOpenEstablishPopUp(false)}
+                  >
+                    No
+                  </button>
+                </div>
+              </DeleteConfirmation>
       </div>
     </div>
+    
+    
   );
 }
 

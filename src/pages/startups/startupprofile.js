@@ -291,7 +291,7 @@ function StartupProfile() {
         setAwards(updateddata);
         setOpenDropdownId(null);
       } else {
-        toast.error("Failed to delete startup.");
+        toast.error("Failed to delete award.");
       }
     } catch (err) {
       console.error(err);
