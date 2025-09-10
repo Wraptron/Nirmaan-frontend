@@ -16,7 +16,7 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
     expertise: initialData.area_of_expertise || "",
     linkedin_id: initialData.linkedin_id || "",
   });
-  console.log(initialData);
+  // console.log(initialData);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,11 +30,11 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
     e.preventDefault();
     try {
       // Log the complete form data
-      console.log(
-        "Form Data being submitted:",
-        JSON.stringify(formData, null, 2)
-      );
-      console.log("Mentor ID:", initialData.mentor_id);
+      // console.log(
+      //   "Form Data being submitted:",
+      //   JSON.stringify(formData, null, 2)
+      // );
+      // console.log("Mentor ID:", initialData.mentor_id);
 
       // Validate required fields
       const requiredFields = ["mentor_name", "email_address"];

@@ -1,13 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import NavBar from "../../components/NavBar";
 import SideBar from "../../components/sidebar";
 import mentorsvg from "../../assets/images/Frame (11).svg";
-import { ApiScheduleMeeting } from "../../API/API";
+import {
+  ApiFetchStartup,
+  ApiScheduleMeeting,
+} from "../../API/API";
 
 function ScheduleMeeting() {
+  const [startupname, setStartupName] = useState([]);
   const [meetingdata, setMeetingdata] = useState({
-    start_up_name: "",
+    startup_name: "",
+    startup_id: "",
     founder_name: "",
     meeting_mode: "Virtual",
     meeting_link: "",
@@ -21,60 +26,73 @@ function ScheduleMeeting() {
   const { mentor_id } = useParams();
   const navigate = useNavigate();
 
+  const fetchData = async () => {
+    try {
+      // startup_name dropdown options
+      const response = await ApiFetchStartup();
+      const startupnames = response.rows.map((item) => ({
+        id: item.startup_id,
+        startup_name: item.startup_name,
+      }));
+      setStartupName(startupnames);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, [mentor_id]);
 
-  // Drop down options
-  const startupOptions = [
-    "Seed Stage Startups",
-    "Growth Stage Startups",
-    "Enterprise Level",
-  ];
-
-
-  const participantsOptions = ["John Doe", "Dev"];
   const durationOptions = ["30 mins", "1 hour", "2 hour"];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setMeetingdata((prev) => ({ ...prev, [name]: value }));
+    if (name === "startup_name") {
+      const selectedStartup = startupname.find((s) => s.startup_name === value);
+      setMeetingdata((prev) => ({
+        ...prev,
+        startup_name: value,
+        startup_id: selectedStartup.id,
+      }));
+    } else {
+      setMeetingdata((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const newdate=new Date(meetingdata.date).toISOString().split("T")[0]
+    const newdate = new Date(meetingdata.date).toISOString().split("T")[0];
     const payload = {
       mentor_reference_id: mentor_id,
       ...meetingdata,
       date: newdate, // Format date as YYYY-MM-DD
       time: meetingdata.time + ":00",
     };
-    console.log(payload);
     try {
       await ApiScheduleMeeting(payload);
-      console.log(payload);
-      console.log("posted");
       // Navigate back to mentor profile after successful scheduling
       navigate(`/mentor/mentor_profile/${mentor_id}`);
     } catch (error) {
       console.log("error", error);
     }
 
-    handleReset()
+    // handleReset();
   };
 
-  const handleReset = () => {
-    setMeetingdata({
-      start_up_name: "",
-      founder_name: "",
-      meeting_mode: "",
-      meeting_link: "",
-      meeting_location: "",
-      participants: "",
-      date: "",
-      time: "",
-      meeting_duration: "",
-      meeting_agenda: "",
-    });
-  };
+  // const handleReset = () => {
+  //   setMeetingdata({
+  //     start_up_name: "",
+  //     founder_name: "",
+  //     meeting_mode: "",
+  //     meeting_link: "",
+  //     meeting_location: "",
+  //     participants: "",
+  //     date: "",
+  //     time: "",
+  //     meeting_duration: "",
+  //     meeting_agenda: "",
+  //   });
+  // };
   return (
     <div className="flex min-h-screen bg-gray-100">
       <SideBar />
@@ -105,16 +123,23 @@ function ScheduleMeeting() {
                   </label>
                   <select
                     className="w-full border border-gray-300 rounded px-3 py-2"
-                    name="start_up_name"
-                    value={meetingdata.start_up_name}
+                    name="startup_name"
+                    value={meetingdata.startup_name || ""}
                     onChange={handleChange}
                   >
-                    <option value="">Select Start-up Name</option>
-                    {startupOptions.map((startup, index) => (
-                      <option key={index} value={startup}>
-                        {startup}
-                      </option>
-                    ))}
+                    <option value="" disabled>
+                      Select Start-up Name
+                    </option>
+                    {startupname
+                      .slice()
+                      .sort((a, b) =>
+                        a.startup_name.localeCompare(b.startup_name)
+                      )
+                      .map((startup) => (
+                        <option key={startup.id} value={startup.startup_name}>
+                          {startup.startup_name}
+                        </option>
+                      ))}
                   </select>
                 </div>
 
@@ -201,19 +226,14 @@ function ScheduleMeeting() {
                 {/* Participants */}
                 <div>
                   <label className="block font-medium mb-1">Participants</label>
-                  <select
-                    className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+                  <input
+                    type="number"
                     name="participants"
                     value={meetingdata.participants}
                     onChange={handleChange}
-                  >
-                    <option value="">Select Participants</option>
-                    {participantsOptions.map((participants, index) => (
-                      <option key={index} value={participants}>
-                        {participants}
-                      </option>
-                    ))}
-                  </select>
+                    placeholder="Enter Number of Participants"
+                    className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+                  />
                 </div>
 
                 {/* Date */}
@@ -283,7 +303,7 @@ function ScheduleMeeting() {
                 <button
                   type="reset"
                   className="px-4 py-2 border border-gray-300 text-gray-700 rounded"
-                  onClick={handleReset}
+                  // onClick={handleReset}
                 >
                   Clear Form
                 </button>

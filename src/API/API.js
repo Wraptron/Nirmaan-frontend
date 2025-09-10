@@ -1261,7 +1261,7 @@ async function ApiUpdateMentor(payload) {
 async function ApiScheduleMeeting(payload) {
   try {
     const result = await axios.post(
-      `${API_BASE_URL}/api/v1/schedulemeeting`,
+      `${API_BASE_URL}/api/v1/mentor/meeting`,
       payload,
       {
         headers: {
@@ -1279,7 +1279,7 @@ async function ApiScheduleMeeting(payload) {
 async function ApiFetchScheduleMeetings(mentor_id) {
   try {
     const result = await axios.get(
-      `${API_BASE_URL}/api/v1/fetchmeeting/${mentor_id}`
+      `${API_BASE_URL}/api/v1/mentor/fetch-meeting/${mentor_id}`
     );
     return result.data;
   } catch (err) {
