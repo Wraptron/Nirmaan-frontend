@@ -354,17 +354,14 @@ import {
 } from "react-icons/fa";
 import { ApiDeletStartupData, ApiFetchStartup } from "../../API/API";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function Startups() {
   const [data, setData] = useState([]);
   const [startupdata, setStartupData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showw, setShoww] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage] = useState(6);
-  const [filterStatus, setFilterStatus] = useState("All");
-  const [filterCohort, setFilterCohort] = useState("All"); // Added cohort filter state
+
   const [showCohortDropdown, setShowCohortDropdown] = useState(false); // Dropdown visibility
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
@@ -399,9 +396,12 @@ function Startups() {
   const fetchData = async () => {
     try {
       setLoading(true);
-    const ApiStartup = await ApiFetchStartup();
-    const startupdata = Array.isArray(ApiStartup?.rows) ? ApiStartup.rows : [];
-    setData(startupdata);
+      const ApiStartup = await ApiFetchStartup();
+      const startupdata = Array.isArray(ApiStartup?.rows)
+        ? ApiStartup.rows
+        : [];
+      const startup = startupdata.sort((a, b) => a.startup_id - b.startup_id);
+      setData(startup);
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.error("Failed to fetch startup data");
@@ -415,6 +415,16 @@ function Startups() {
     setShoww(true);
   }, []);
 
+  // pagination and cohert filter
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const pageFromQuery = parseInt(queryParams.get("page")) || 1;
+  const initialStatus = queryParams.get("status") || "All";
+  const initialCohort = queryParams.get("cohort") || "All";
+  const [currentPage, setCurrentPage] = useState(pageFromQuery);
+  const [filterStatus, setFilterStatus] = useState(initialStatus);
+  const [filterCohort, setFilterCohort] = useState(initialCohort);
+  const [rowsPerPage] = useState(6);
   const filteredData = data.filter((startup) => {
     const matchesFilter =
       filterStatus === "All" ||
@@ -432,16 +442,25 @@ function Startups() {
     return matchesFilter && matchesCohort && matchesSearch;
   });
 
-  const itemsPerPage = 9;
+  const itemsPerPage = 6;
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const currentItems = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
+  // page redirect to same page when back button click
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    params.set("page", currentPage);
+    params.set("status", filterStatus);
+    params.set("cohort", filterCohort);
+    navigate({ search: params.toString() }, { replace: true });
+  }, [currentPage, filterStatus, filterCohort, location.search, navigate]);
+
   const handleStatusFilter = (status) => {
     setFilterStatus(status);
-    setCurrentPage(1);
+    setCurrentPage(pageFromQuery);
   };
 
   const handleCohortFilter = (cohort) => {
@@ -522,9 +541,7 @@ function Startups() {
       const API = await ApiDeletStartupData(id);
       if (API) {
         toast.success("Details deleted successfully!");
-        const updatedList = data.filter(
-          (startup) => startup.startup_id !== id
-        );
+        const updatedList = data.filter((startup) => startup.startup_id !== id);
         setData(updatedList);
         setOpenDropdownId(null);
       } else {
@@ -686,7 +703,7 @@ function Startups() {
                             onClick={(e) => {
                               e.stopPropagation();
                               navigate(
-                                `/startupprofile/${startup.startup_id}`
+                                `/startupprofile/${startup.startup_id}?page=${currentPage}&status=${filterStatus}&cohort=${filterCohort}`
                               );
                             }}
                           >
@@ -778,6 +795,7 @@ function Startups() {
                     </div>
                   </div>
 
+                  {/* Pagination */}
                   {/* Pagination */}
                   {totalPages > 1 && (
                     <div className="flex justify-center items-center gap-4 py-6">

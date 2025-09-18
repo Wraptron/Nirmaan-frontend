@@ -67,9 +67,6 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
     } catch (error) {
       // console.error("Error updating mentor:", error);
       if (error.response) {
-        // console.error("Error response data:", error.response.data);
-        // console.error("Error response status:", error.response.status);
-        // console.error("Error response headers:", error.response.headers);
         toast.error(
           `Failed to update mentor profile: ${error.response.data?.error || error.response.data?.message || "Server error"}`
         );

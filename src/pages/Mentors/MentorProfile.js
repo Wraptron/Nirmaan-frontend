@@ -17,6 +17,7 @@ import {
   ApiFetchFeedback,
   ApiUpdateTestimonial,
   ApiDeleteTestimonial,
+  ApiFetchMeetingFeedback,
 } from "../../API/API";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -30,11 +31,18 @@ import NavBar from "../../components/NavBar";
 import EditTestimonial from "./EditTestimonial";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
 import dayjs from "dayjs";
+import FeedbackForm from "./FeedbackForm";
 
 function MentorProfile() {
   const { id } = useParams();
   const [mentor, setMentor] = useState(null);
-  const [meeting, setMeeting] = useState(null);
+  const [meeting, setMeeting] = useState([]);
+
+  //Feedback
+  const [showAddFeedbackForm, setShowAddFeedbackForm] = useState(false);
+  const [feedback, setFeedback] = useState([]);
+  const [selectedSession, setSelectedSession] = useState(null);
+  const [initialFeedback, setInitialFeedback] = useState(null);
 
   //testimonial
   const [testimonial, setTestimonial] = useState([]);
@@ -64,21 +72,22 @@ function MentorProfile() {
     }
   };
 
- 
-  const fetchFeedback = async (meetingId) => {
-    try {
-      const response = await ApiFetchFeedback(meetingId);
-      if (response?.STATUS?.rows?.[0]) {
-        // const feedbackData = response.STATUS.rows[0];
-        // setSessionFeedbacks((prev) => ({
-        //   ...prev,
-        //   [meetingId]: feedbackData.feedback || "",
-        // }));
-      }
-    } catch (error) {
-      console.error("Error fetching feedback:", error);
-    }
-  };
+
+
+  // const fetchFeedback = async (meetingId) => {
+  //   try {
+  //     const response = await ApiFetchFeedback(meetingId);
+  //     if (response?.STATUS?.rows?.[0]) {
+  //       // const feedbackData = response.STATUS.rows[0];
+  //       // setSessionFeedbacks((prev) => ({
+  //       //   ...prev,
+  //       //   [meetingId]: feedbackData.feedback || "",
+  //       // }));
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching feedback:", error);
+  //   }
+  // };
 
   const FetchData = async () => {
     try {
@@ -100,9 +109,17 @@ function MentorProfile() {
           String(data.mentor_ref_id) === String(selectedMentor?.mentor_id)
       );
       setTestimonial(filteredTestimonial);
-      for (const session of meetings) {
-        await fetchFeedback(session.meeting_id);
-      }
+
+      const feedbackPromises = meetings.map((meet) =>
+        ApiFetchMeetingFeedback(selectedMentor.mentor_id, meet.startup_id).then(
+          (res) => res || []
+        )
+      );
+      const allFeedbackArrays = await Promise.all(feedbackPromises);
+
+      // Flatten into a single array
+      const allFeedback = allFeedbackArrays.flat();
+      setFeedback(allFeedback);
     } catch (err) {
       console.error("Error fetching mentor data:", err);
     }
@@ -112,10 +129,28 @@ function MentorProfile() {
     FetchData();
   }, [id]);
 
-  //Testimonial 
+  //FeedBack Form open
+  const handleAddFeedbackClick = () => setShowAddFeedbackForm(true);
+    const openFeedbackModal = (session) => {
+    const currentFeedback = feedback.find(
+      (feed) => String(feed.meet_id) === String(session?.meet_id)
+    );
+    setInitialFeedback(currentFeedback || null);
+    setSelectedSession(session);
+    handleAddFeedbackClick();
+  };
+
+  const handleAddFeedbackClose = () => {
+    FetchData()
+    setSelectedSession(null);
+    setInitialFeedback(null);
+    setShowAddFeedbackForm(false);
+  };
+
+
+  //Testimonial Form Open
   const handleEditTestimonialsClose = async () => {
     setShowEditTestimonialForm(false);
-    //  await FetchData();
   };
   const handleEditTestimonialClick = (testimonial) => {
     setEditTestimonial(testimonial);
@@ -155,6 +190,9 @@ function MentorProfile() {
   };
 
   const handleEditSubmit = (updatedData) => {
+    if (updatedData.mentor_description) {
+      updatedData.mento_description = updatedData.mentor_description;
+    }
     setMentor((prev) => ({ ...prev, ...updatedData }));
   };
 
@@ -446,9 +484,19 @@ function MentorProfile() {
                       {session.meeting_mode || "-"}
                     </div>
                     <div>
-                      <button className="bg-[#45C74D] text-white px-4 py-2 rounded-md text-sm ">
-                        Visit Feedback
-                      </button>
+                      <div>
+                        <button
+                          className="bg-[#45C74D] text-white px-4 py-2 rounded-md text-sm "
+                          onClick={() => openFeedbackModal(session)}
+                        >
+                          {feedback.some(
+                            (feed) =>
+                              String(feed.meet_id) === String(session?.meet_id)
+                          )
+                            ? "View Notes"
+                            : "Add Notes"}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))
@@ -555,6 +603,17 @@ function MentorProfile() {
             initialData={mentor}
             onClose={() => setShowEditModal(false)}
             onSubmit={handleEditSubmit}
+          />
+        )}
+        {showAddFeedbackForm && selectedSession && (
+          <FeedbackForm
+            key={selectedSession.meet_id}
+            isOpen={showAddFeedbackForm}
+            mentor_id={mentor.mentor_id}
+            meet_id={selectedSession.meet_id}
+            startup_id={selectedSession.startup_id}
+            onClose={handleAddFeedbackClose}
+            initialFeedback={initialFeedback}
           />
         )}
 

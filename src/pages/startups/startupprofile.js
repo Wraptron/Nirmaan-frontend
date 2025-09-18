@@ -14,7 +14,7 @@ import bgImg from "../../assets/images/Rectangle 5.svg";
 import profileImg from "../../assets/images/296fe121-5dfa-43f4-98b5-db50019738a7.jpg";
 import pinSvg from "../../assets/images/Frame (9).svg";
 import pdfSvg from "../../assets/images/Frame (8).svg";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import EditStartupForm from "../startups/step/EditForm/EditStartupForm";
 import EditAboutForm from "../startups/step/EditForm/EditAboutForm";
 import AddAwardForm from "../startups/step/EditForm/AddAwardForm";
@@ -47,6 +47,13 @@ import FundingDetail from "../Home/Funding/FundingDetail";
 function StartupProfile() {
   const { startup_id } = useParams();
   const scrollRef = useRef(null);
+  const location = useLocation();
+
+  // get ?page= from URL
+  const queryParams = new URLSearchParams(location.search);
+  const page = queryParams.get("page") || 1;
+  const status = queryParams.get("status") || "All";
+  const cohort = queryParams.get("cohort") || "All";
   // console.log("id:", startup_id);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showAboutForm, setShowAboutForm] = useState(false);
@@ -244,6 +251,7 @@ function StartupProfile() {
       const allStartup = API?.rows || [];
       const selectedstartup = allStartup.find(
         (startup) => String(startup.startup_id) === String(startup_id)
+        
       );
       setStartupData(selectedstartup || null);
       // console.log(selectedstartup)
@@ -262,7 +270,7 @@ function StartupProfile() {
       const fundamount = selectedstartup?.startup_id
         ? amount[selectedstartup.startup_id] || null
         : null;
-      setFundingAmount(fundamount || []);
+      setFundingAmount(fundamount || {});
 
       const data = await ApiFetchFounder(startup_id);
       setFounders(data);
@@ -351,7 +359,11 @@ function StartupProfile() {
             <div className="text-xs text-[#A1A1A1] mb-2 flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => navigate("/startups")}
+                onClick={() =>
+                  navigate(
+                    `/startups?page=${page}&status=${status}&cohort=${cohort}`
+                  )
+                }
                 className="hover:text-[#45C74D] focus:outline-none"
                 title="Back to Startups"
               >
@@ -600,7 +612,7 @@ function StartupProfile() {
                                 />
                                 <span className="text-xs text-[#232323] font-medium truncate max-w-[120px]">
                                   Document Name.pdf
-                                  </span>
+                                </span>
                               </div>
                             </div>
                           ))}
@@ -800,11 +812,6 @@ function StartupProfile() {
                       <span className="font-bold text-2xl text-[#232323] mb-2">
                         Rs. {fundingAmount?.funding_disbursed || 0}
                       </span>
-                      <img
-                        src="/src/assets/images/Frame (9).svg"
-                        alt="icon"
-                        className="absolute top-4 right-4 w-6 h-6 opacity-30"
-                      />
                       <svg
                         className="absolute bottom-2 left-2 w-20 h-8"
                         viewBox="0 0 80 32"
@@ -831,11 +838,6 @@ function StartupProfile() {
                       <span className="font-bold text-2xl text-[#232323] mb-2">
                         Rs. {fundingAmount?.funding_utilized || 0}
                       </span>
-                      <img
-                        src="/src/assets/images/Frame (9).svg"
-                        alt="icon"
-                        className="absolute top-4 right-4 w-6 h-6 opacity-30"
-                      />
                       <svg
                         className="absolute bottom-2 left-2 w-20 h-8"
                         viewBox="0 0 80 32"
@@ -862,11 +864,6 @@ function StartupProfile() {
                       <span className="font-bold text-2xl text-[#232323] mb-2">
                         Rs. {fundingAmount?.balance || 0}
                       </span>
-                      <img
-                        src="/src/assets/images/Frame (9).svg"
-                        alt="icon"
-                        className="absolute top-4 right-4 w-6 h-6 opacity-30"
-                      />
                       <svg
                         className="absolute bottom-2 left-2 w-20 h-8"
                         viewBox="0 0 80 32"
@@ -893,11 +890,11 @@ function StartupProfile() {
                       <span className="font-bold text-2xl text-[#232323] mb-2">
                         Rs. {fundingAmount?.external_funding || 0}
                       </span>
-                      <img
+                      {/* <img
                         src="/src/assets/images/Frame (9).svg"
                         alt="icon"
                         className="absolute top-4 right-4 w-6 h-6 opacity-30"
-                      />
+                      /> */}
                       <svg
                         className="absolute bottom-2 left-2 w-20 h-8"
                         viewBox="0 0 80 32"

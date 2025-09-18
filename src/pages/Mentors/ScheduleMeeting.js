@@ -3,13 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import NavBar from "../../components/NavBar";
 import SideBar from "../../components/sidebar";
 import mentorsvg from "../../assets/images/Frame (11).svg";
-import {
-  ApiFetchStartup,
-  ApiScheduleMeeting,
-} from "../../API/API";
+import { ApiFetchStartup, ApiScheduleMeeting } from "../../API/API";
 
 function ScheduleMeeting() {
   const [startupname, setStartupName] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
   const [meetingdata, setMeetingdata] = useState({
     startup_name: "",
     startup_id: "",
@@ -45,20 +44,45 @@ function ScheduleMeeting() {
 
   const durationOptions = ["30 mins", "1 hour", "2 hour"];
 
+  const filteredStartups = startupname
+    .filter((startup) =>
+      startup.startup_name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => a.startup_name.localeCompare(b.startup_name));
+
+  const handleSelect = (startup) => {
+    setMeetingdata((prev) => {
+      const updated = {
+        ...prev,
+        startup_name: startup.startup_name,
+        startup_id: startup.id,
+      };
+      return updated;
+    });
+    setSearchTerm(startup.startup_name);
+    setShowDropdown(false);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "startup_name") {
-      const selectedStartup = startupname.find((s) => s.startup_name === value);
-      setMeetingdata((prev) => ({
-        ...prev,
-        startup_name: value,
-        startup_id: selectedStartup.id,
-      }));
+      setSearchTerm(value);
+      setShowDropdown(true);
+      setMeetingdata((prev) => {
+        const updated = {
+          ...prev,
+          startup_name: value,
+          startup_id: "",
+        };
+        return updated;
+      });
     } else {
-      setMeetingdata((prev) => ({ ...prev, [name]: value }));
+      setMeetingdata((prev) => {
+        const updated = { ...prev, [name]: value };
+        return updated;
+      });
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newdate = new Date(meetingdata.date).toISOString().split("T")[0];
@@ -121,26 +145,32 @@ function ScheduleMeeting() {
                   <label className="block font-medium mb-1">
                     Start-up Name *
                   </label>
-                  <select
-                    className="w-full border border-gray-300 rounded px-3 py-2"
-                    name="startup_name"
-                    value={meetingdata.startup_name || ""}
-                    onChange={handleChange}
-                  >
-                    <option value="" disabled>
-                      Select Start-up Name
-                    </option>
-                    {startupname
-                      .slice()
-                      .sort((a, b) =>
-                        a.startup_name.localeCompare(b.startup_name)
-                      )
-                      .map((startup) => (
-                        <option key={startup.id} value={startup.startup_name}>
+                  <input
+                    type="text"
+                    placeholder="Select Startup Name"
+                    value={searchTerm}
+                    onFocus={() => setShowDropdown(true)}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setShowDropdown(true);
+                    }}
+                    onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+                    className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+                  />
+
+                  {showDropdown && filteredStartups.length > 0 && (
+                    <ul className="absolute w-[27rem] p-2 text-sm text-gray-900 border border-gray-300 max-h-48 overflow-y-auto rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]">
+                      {filteredStartups.map((startup) => (
+                        <li
+                          key={startup.id}
+                          onMouseDown={() => handleSelect(startup)}
+                          className="px-3 py-2 cursor-pointer hover:bg-gray-100"
+                        >
                           {startup.startup_name}
-                        </option>
+                        </li>
                       ))}
-                  </select>
+                    </ul>
+                  )}
                 </div>
 
                 {/* Founder/Team Member Name */}

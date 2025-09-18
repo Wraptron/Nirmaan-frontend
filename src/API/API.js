@@ -1287,22 +1287,16 @@ async function ApiFetchScheduleMeetings(mentor_id) {
   }
 }
 
-async function ApiSaveFeedback(meetingId, feedback) {
+async function ApiSaveFeedback(feedback) {
   try {
     const result = await axios.post(
-      `${API_BASE_URL}/api/v1/mentor/feedback/save`,
-      {
-        meeting_id: meetingId,
-        feedback_text: feedback,
-        created_at: new Date().toISOString(),
-      },
+      `${API_BASE_URL}/api/v1/mentor/feedback`,feedback,
       {
         headers: {
           "Content-Type": "application/json",
         },
       }
     );
-    console.log("Save Feedback API Response:", result.data);
     return result.data;
   } catch (error) {
     console.error("Error in ApiSaveFeedback", error);
@@ -1310,16 +1304,27 @@ async function ApiSaveFeedback(meetingId, feedback) {
   }
 }
 
-async function ApiFetchFeedback(meetingId) {
+async function ApiUpdateFeedback(feedback) {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/api/v1/mentor/update-feedback`,
+      feedback
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in ApiUpdateFeedback", error);
+    throw new Error("Failed to update feedback details");
+  }
+}   
+
+async function ApiFetchMeetingFeedback(mentor_id,startup_id) {
   try {
     const result = await axios.get(
-      `${API_BASE_URL}/api/v1/mentor/feedback/${meetingId}`
+      `${API_BASE_URL}/api/v1/mentor/fetch-feedback/${mentor_id}/${startup_id}`
     );
-    console.log("Fetch Feedback API Response:", result.data);
     return result.data;
-  } catch (error) {
-    console.error("Error fetching feedback:", error);
-    throw error;
+  } catch (err) {
+    console.log(err);
   }
 }
 
@@ -1698,7 +1703,8 @@ export {
   ApiScheduleMeeting,
   ApiFetchScheduleMeetings,
   ApiSaveFeedback,
-  ApiFetchFeedback,
+  ApiUpdateFeedback,
+  ApiFetchMeetingFeedback,
 
   // Testimonial APIs
   ApiTestimonials,
