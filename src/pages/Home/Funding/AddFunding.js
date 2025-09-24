@@ -124,7 +124,7 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
             <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-[#232323] mb-1">
-                  Startup_name
+                  Startup Name
                 </label>
                 <input
                   type="text"
@@ -150,7 +150,6 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
                   <option value="">Select Type</option>
                   <option value="Funding Disbursed">Funding Disbursed</option>
                   <option value="Funding Utilized">Funding Utilized</option>
-                  <option value="External Funding">External Funding</option>
                 </select>
               </div>
 

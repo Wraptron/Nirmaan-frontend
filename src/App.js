@@ -60,7 +60,6 @@
 
 // function App() {
 
-
 //   return (
 //     <div>
 //       <Toaster position="top-right" reverseOrder={false} />
@@ -137,79 +136,71 @@
 
 // export default App;
 
-
-
-
-
-
-
-
-
-
-
-import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { PDFViewer } from '@react-pdf/renderer';
-import 'sweetalert2/dist/sweetalert2.min.css';
+import { PDFViewer } from "@react-pdf/renderer";
+import "sweetalert2/dist/sweetalert2.min.css";
 
 // Pages
-import Home from './pages/Home/home';
-import Login from './pages/Login';
-import Connections from './pages/Connections/connection';
-import Forms from './components/Forms';
-import Startups from './pages/startups/Startups';
-import AddStartup from './pages/startups/AddStartup';
-import Events from './pages/Events/Events';
-import MentorShip from './pages/Mentorship/MentorShip';
-import Settings from './pages/Settings/Settings';
-import CreateNewEvent from './pages/Events/CreateNewEvent';
-import AddNewMentor from './pages/Mentors/AddNewMentor';
-import Contacts from './pages/Connections/Contacts';
-import Reports from './pages/Reports/Reports';
-import RequestSpeaker from './pages/Events/RequestSpeaker';
-import UploadFile from './pages/UploadFile/UploadFile';
-import ViewComponents from './pages/UploadFile/ViewComponents';
-import Cms from './pages/cms/Cms';
-import Profile from './pages/profile/Profile';
-import FinTech from './pages/startups/FinTech/FinTech';
-import Industry from './pages/startups/Industry/Industry';
-import Sustainability from './pages/startups/Sustainability/Sustainability';
-import Healthcare from './pages/startups/Healthcare/Healthcare';
-import Mobility from './pages/startups/Mobility/Mobility';
-import IndividualStartups from './pages/startups/IndividualStartups';
-import Pdf from './pages/Reports/Pdf';
-import Bills from './Finance/Pages/Startup/Bills';
-import ScheduleMeeting from './pages/Mentors/ScheduleMeeting';
-import Startupprofile from './pages/startups/startupprofile';
-import MentorProfile from './pages/Mentors/MentorProfile';
-import Mentor from './pages/Mentors/Mentor';
-import OfficeHome from './Office/Pages/OfficeHome';
+import Home from "./pages/Home/home";
+import Login from "./pages/Login";
+import Connections from "./pages/Connections/connection";
+import Forms from "./components/Forms";
+import Startups from "./pages/startups/Startups";
+import AddStartup from "./pages/startups/AddStartup";
+import Events from "./pages/Events/Events";
+import MentorShip from "./pages/Mentorship/MentorShip";
+import Settings from "./pages/Settings/Settings";
+import CreateNewEvent from "./pages/Events/CreateNewEvent";
+import AddNewMentor from "./pages/Mentors/AddNewMentor";
+import Contacts from "./pages/Connections/Contacts";
+import Reports from "./pages/Reports/Reports";
+import RequestSpeaker from "./pages/Events/RequestSpeaker";
+import UploadFile from "./pages/UploadFile/UploadFile";
+import ViewComponents from "./pages/UploadFile/ViewComponents";
+import Cms from "./pages/cms/Cms";
+import Profile from "./pages/profile/Profile";
+import FinTech from "./pages/startups/FinTech/FinTech";
+import Industry from "./pages/startups/Industry/Industry";
+import Sustainability from "./pages/startups/Sustainability/Sustainability";
+import Healthcare from "./pages/startups/Healthcare/Healthcare";
+import Mobility from "./pages/startups/Mobility/Mobility";
+import IndividualStartups from "./pages/startups/IndividualStartups";
+import Pdf from "./pages/Reports/Pdf";
+import Bills from "./Finance/Pages/Startup/Bills";
+import ScheduleMeeting from "./pages/Mentors/ScheduleMeeting";
+import Startupprofile from "./pages/startups/startupprofile";
+import MentorProfile from "./pages/Mentors/MentorProfile";
+import Mentor from "./pages/Mentors/Mentor";
+import OfficeHome from "./Office/Pages/OfficeHome";
 
 // Customer pages
-import CustomerHome from './Customer/Pages/Home/home';
-import Resume from './Customer/Pages/Resume/Resume';
-import CustomerProfile from './Customer/Pages/Profile/Profile';
-import Resource from './Customer/Pages/Resources/Resources';
-import CustomerMentor from './Customer/Pages/Mentor/Mentor';
-import Jobs from './Customer/Pages/Job/Jobs';
-import Addjob from './Customer/Pages/Job/AddJob';
-import Profileapply from './Customer/Pages/Profile/ProfileApply';
-import RaiseRequest from './Customer/Pages/Request/RaiseRequest';
-import DisEnt from './Customer/Pages/DistEnt/DistEnt';
-import CustomerStartup from './Customer/Pages/Sartups/Startups';
-import CustomerContacts from './Customer/Pages/Contact/contact';
+import CustomerHome from "./Customer/Pages/Home/home";
+import Resume from "./Customer/Pages/Resume/Resume";
+import CustomerProfile from "./Customer/Pages/Profile/Profile";
+import Resource from "./Customer/Pages/Resources/Resources";
+import CustomerMentor from "./Customer/Pages/Mentor/Mentor";
+import Jobs from "./Customer/Pages/Job/Jobs";
+import Addjob from "./Customer/Pages/Job/AddJob";
+import Profileapply from "./Customer/Pages/Profile/ProfileApply";
+import RaiseRequest from "./Customer/Pages/Request/RaiseRequest";
+import DisEnt from "./Customer/Pages/DistEnt/DistEnt";
+import CustomerStartup from "./Customer/Pages/Sartups/Startups";
+import CustomerContacts from "./Customer/Pages/Contact/contact";
 
 // Finance
-import FinanceHome from './Finance/Pages/Home/Home';
-import FinanceUpdateFunding from './Finance/Pages/Startup/Updatefunding';
+import FinanceHome from "./Finance/Pages/Home/Home";
+import FinanceUpdateFunding from "./Finance/Pages/Startup/Updatefunding";
+import FinanceStartupdetails from "./Finance/Pages/Startup/Finstartup";
 
 // Utility
-import ProtectedRoutes from './utils/ProtectedRoutes';
+import ProtectedRoutes from "./utils/ProtectedRoutes";
+import Finstartup from "./Finance/Pages/Startup/Finstartup";
 
 function App() {
   useEffect(() => {
-    localStorage.getItem('token');
+    localStorage.getItem("token");
   }, []);
 
   return (
@@ -241,24 +232,39 @@ function App() {
             <Route path="/events/new" element={<CreateNewEvent />} />
             <Route path="/contacts" element={<Contacts />} />
             <Route path="/mentor/new" element={<AddNewMentor />} />
-            <Route path="/scheduleMeeting/:mentor_id" element={<ScheduleMeeting />} />
-            <Route path="/mentor/mentor_profile/:id" element={<MentorProfile />} />
+            <Route
+              path="/scheduleMeeting/:mentor_id"
+              element={<ScheduleMeeting />}
+            />
+            <Route
+              path="/mentor/mentor_profile/:id"
+              element={<MentorProfile />}
+            />
             <Route path="/reports" element={<Reports />} />
             <Route path="/uploads" element={<UploadFile />} />
             <Route path="/view/uploads" element={<ViewComponents />} />
             <Route path="/cms" element={<Cms />} />
             <Route path="/startup/:id" element={<IndividualStartups />} />
-            <Route path="/pdf" element={
-              <PDFViewer className="w-full h-screen">
-                <Pdf />
-              </PDFViewer>
-            } />
+            <Route
+              path="/pdf"
+              element={
+                <PDFViewer className="w-full h-screen">
+                  <Pdf />
+                </PDFViewer>
+              }
+            />
           </Route>
 
           {/* Startup Profile Routes (Admin: 2 + Students: 5) */}
           <Route element={<ProtectedRoutes allowedRoles={["2", "5"]} />}>
-            <Route path="/startupprofile/:startup_id" element={<Startupprofile />} />
-            <Route path="/events/request-speaker" element={<RequestSpeaker />} />
+            <Route
+              path="/startupprofile/:startup_id"
+              element={<Startupprofile />}
+            />
+            <Route
+              path="/events/request-speaker"
+              element={<RequestSpeaker />}
+            />
           </Route>
 
           {/* Student Only Routes (Role: 5) */}
@@ -280,8 +286,12 @@ function App() {
           {/* Finance Routes (Role: 3) */}
           <Route element={<ProtectedRoutes allowedRoles={["3"]} />}>
             <Route path="/finance/home" element={<FinanceHome />} />
-            <Route path="/fin/updatefunding" element={<FinanceUpdateFunding />} />
+            <Route
+              path="/fin/updatefunding"
+              element={<FinanceUpdateFunding />}
+            />
             <Route path="/bills" element={<Bills />} />
+            <Route path="/finance/startup" element={<Finstartup/>} />
           </Route>
         </Routes>
       </BrowserRouter>
@@ -290,4 +300,3 @@ function App() {
 }
 
 export default App;
-
