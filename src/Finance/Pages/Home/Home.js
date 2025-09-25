@@ -5,6 +5,7 @@ import { FaBusinessTime, FaGlobeAsia, FaGraduationCap, FaHeartbeat, FaLightbulb,
 import { SkeletonLoader } from "../../../components/SkeletonLoader";
 import dayjs from "dayjs";
 import { FaHandHoldingDollar } from "react-icons/fa6";
+import { ApiFetchFundingProject } from "../../../API/API";
 
 function Home() {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -18,133 +19,23 @@ function Home() {
   useEffect(() => {
     setShoww(true);
   }, []);
-//   const FetchData = async () => {
-//     try {
-//       //Dashboard Data
-//       const result = await ApiFetchStartupCount();
-//       const startupcount = result || {};
+  const FetchData = async () => {
+    try {
 
-//       const fundingcount = await ApiFetchFundingDetain();
-//       const totalfunding = fundingcount || {};
-//       const fundingWithChartData = {};
-//       Object.entries(totalfunding).forEach(([key, value]) => {
-//         // simple 5-point rising array
-//         const points = [
-//           { value: 0 },
-//           { value: value * 0.25 },
-//           { value: value * 0.5 },
-//           { value: value * 0.75 },
-//           { value: value },
-//         ];
-//         fundingWithChartData[key] = points;
-//       });
-//       setFunding(fundingWithChartData);
-//       // FlowChart
-//       const result2 = await ApiFetchStartup();
-//       const startupdata = result2 || {};
-
-//       const FullData = startupdata.rows || [];
-//       const monthMap = {};
-
-//       //Count startups per cohort month
-//       FullData.forEach((item) => {
-//         const cohortData = item.startup_cohort;
-//         if (cohortData) {
-//           const formattedMonth = dayjs(cohortData).format("MMM YY");
-//           monthMap[formattedMonth] = (monthMap[formattedMonth] || 0) + 1;
-//         }
-//       });
-
-//       // Convert monthMap to chart data
-//       const formattedChartData = Object.entries(monthMap).map(
-//         ([month, count]) => ({
-//           month,
-//           value: count,
-//         })
-//       );
-
-//       setStartupData(formattedChartData);
-//       setAnalysedData(startupcount);
-//       setIsLoaded(true);
-//     } catch (err) {
-//       console.log(err);
-//     }
-//   };
-
-//   useEffect(() => {
-//     setTimeout(() => {
-//       FetchData();
-//     }, 2000);
-//   }, []);
-
-  const fundingConfig = {
-    funding_disbursed: {
-      title: "Funding Disbursed",
-      color: "#4CAF50",
-      bgColor: "bg-green-50",
-      icon: <div className="w-4 h-4 bg-green-500 rounded-full"></div>,
-    },
-    funding_utilized: {
-      title: "Funding Utilized",
-      color: "#FF9800",
-      bgColor: "bg-orange-50",
-      icon: <div className="w-4 h-4 bg-orange-500 rounded-full"></div>,
-    },
-    external_funding: {
-      title: "External Funding",
-      color: "#F44336",
-      bgColor: "bg-red-50",
-      icon: <div className="w-4 h-4 bg-red-500 rounded-full"></div>,
-    },
+      const fundingcount = await ApiFetchFundingProject();
+      const totalfunding = fundingcount || {};
+      setFunding(totalfunding)
+      setIsLoaded(true);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  // Extract years from startupData for dropdown
-  const years = Array.from({ length: 2025 - 2017 + 1 }, (_, i) => 2017 + i);
-
-  // Set default selected year to latest (2025) if not set
-  // No need to set default selectedYear, already set to 'all'
-
-  // Filter data for selected year and fill missing months with zero
-  const monthsArr = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  let fullYearData;
-  if (selectedYear === "all") {
-    // Aggregate all years: sum values for each month across all years
-    fullYearData = monthsArr.map((month) => {
-      // Sum all values for this month (regardless of year)
-      const total = startupData
-        .filter((d) => d.month.startsWith(month))
-        .reduce((sum, d) => sum + (d.value || 0), 0);
-      return {
-        month, // just 'Jan', 'Feb', etc.
-        value: total,
-      };
-    });
-  } else {
-    // Show only selected year
-    fullYearData = monthsArr.map((month) => {
-      const yearShort = String(selectedYear).slice(-2);
-      const label = `${month} ${yearShort}`;
-      const found = startupData.find((d) => d.month === label);
-      return {
-        month: label, // 'Jan 24', etc.
-        value: found ? found.value : 0,
-      };
-    });
-  }
- 
+  useEffect(() => {
+    setTimeout(() => {
+      FetchData();
+    }, 2000);
+  }, []);
 
   const handleNavbarSelection = (index) => {
     setSelectedIndex(index);
@@ -176,14 +67,14 @@ function Home() {
                   </div>
                   {/* <div className="py-2 px-7 text-lg ">Overview</div> */}
                   <div className="py-2 px-7 text-2xl text-[#45C74D]  ">Nirmaan</div>
-                  <div className="grid grid-cols-4 gap-10 px-7 py-2 ">
-                    <div className="shadow-md border border-sm rounded-lg p-2">
+                  <div className="grid grid-cols-3 gap-10 px-7 py-2 ">
+                    <div className="shadow-md border border-sm rounded-lg p-2 min-w-[200px]">
                       <div className="pb-1">
                         <FaSeedling size={20} className="text-[#45C74D]" />
                       </div>
                       <div className="text-2xl font-semibold">
                         {isLoaded ? (
-                          analysedData?.startup_total || 0
+                          <>Rs. {(funding?.NirmaanSeedFunding || 0).toLocaleString("en-IN")}</>
                         ) : (
                           <SkeletonLoader />
                         )}
@@ -194,9 +85,9 @@ function Home() {
                       <div className="pb-1">
                         <FaHandHoldingDollar size={20} className="text-[#FFB866]" />
                       </div>
-                      <div className="text-2xl font-semibold">
+                      <div className="text-2xl font-semibold ">
                         {isLoaded ? (
-                          analysedData?.active_startups || 0
+                         <>Rs. {(funding?.ShankarEndownmentFund|| 0).toLocaleString("en-IN")}</> 
                         ) : (
                           <SkeletonLoader />
                         )}
@@ -209,7 +100,7 @@ function Home() {
                       </div>
                       <div className="text-2xl font-semibold">
                         {isLoaded ? (
-                          analysedData?.pratham || 0
+                          <>Rs. {(funding?.NirmaanExternal || 0).toLocaleString("en-IN")}</>
                         ) : (
                           <SkeletonLoader />
                         )}
@@ -222,7 +113,7 @@ function Home() {
                       </div>
                       <div className="text-2xl font-semibold">
                         {isLoaded ? (
-                          analysedData?.akshar || 0
+                          <>Rs. {(funding?.AIforHealthcare || 0).toLocaleString("en-IN")}</>
                         ) : (
                           <SkeletonLoader />
                         )}
@@ -235,7 +126,7 @@ function Home() {
                       </div>
                       <div className="text-2xl font-semibold">
                         {isLoaded ? (
-                          analysedData?.graduated_startups || 0
+                          <>Rs. {(funding?.UGFIR || 0).toLocaleString("en-IN")}</>
                         ) : (
                           <SkeletonLoader />
                         )}
@@ -248,7 +139,7 @@ function Home() {
                       </div>
                       <div className="text-2xl font-semibold">
                         {isLoaded ? (
-                          analysedData?.dropped_startups || 0
+                          <>RS. {(funding?.PGFIR || 0).toLocaleString("en-IN")}</>
                         ) : (
                           <SkeletonLoader />
                         )}
@@ -261,7 +152,7 @@ function Home() {
                       </div>
                       <div className="text-2xl font-semibold">
                         {isLoaded ? (
-                          analysedData?.dropped_startups || 0
+                          <>Rs. {(funding?.NirmaanthePre_Incubator || 0).toLocaleString("en-IN")}</>
                         ) : (
                           <SkeletonLoader />
                         )}
@@ -274,7 +165,7 @@ function Home() {
                       </div>
                       <div className="text-2xl font-semibold">
                         {isLoaded ? (
-                          analysedData?.dropped_startups || 0
+                          <>RS. {(funding?.AmexProgramforInnovationEntrepreneurship || 0).toLocaleString("en-IN")}</>
                         ) : (
                           <SkeletonLoader />
                         )}

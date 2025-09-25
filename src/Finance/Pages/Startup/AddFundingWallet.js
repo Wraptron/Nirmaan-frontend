@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
 import toast from "react-hot-toast";
-import { ApiAddFunding } from "../../../API/API";
+import {ApiAddFundingProject } from "../../../API/API";
 
 
 const AddFundingWallet = ({ onClose, onSuccess }) => {
@@ -67,7 +67,7 @@ const handleSubmit = async (e) => {
   const formPayload = { ...formData };
 
   try {
-    const res = await ApiAddFunding(formPayload);
+    const res = await ApiAddFundingProject(formPayload);
     console.log("API Response:", res);
 
     toast.success("Funding saved successfully");

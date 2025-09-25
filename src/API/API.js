@@ -1517,6 +1517,34 @@ async function ApiFetchFundingDetain() {
   }
 }
 
+async function ApiAddFundingProject(payload) {
+  try {
+    const result = await axios.post(
+      `${API_BASE_URL}/api/v1/finance/funding-project`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return result.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+async function ApiFetchFundingProject() {
+  try {
+    const result = await axios.get(`${API_BASE_URL}/api/v1/finance/fetch-funding-project`);
+    return result.data;
+  } catch (error) {
+    console.error("Error in API", error);
+    throw error;
+  }
+}
+
 
 // ==================== AWARD APIs ====================
 async function ApiAddAward(formdata) {
@@ -1723,6 +1751,8 @@ export {
   ApiUpdateStartupMentorDetails,
   ApiFetchFunding,
   ApiFetchFundingDetain,
+  ApiAddFundingProject,
+  ApiFetchFundingProject,
 
   // Award APIs
   ApiAddAward,

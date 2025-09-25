@@ -5,8 +5,10 @@ import toast from "react-hot-toast";
 import { ApiAddFunding } from "../../../API/API";
 
 const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
+   const [showDropdown, setShowDropdown] = useState(false);
   const [formData, setFormData] = useState({
     startup_name: "",
+    project_name:"",
     type: "",
     amount: "",
     status: "",
@@ -15,6 +17,17 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
     refNo: "",
     document: null,
   });
+
+    const Project_names = [
+    "Nirmaan Seed Funding",
+    "Shankar Endownment Fund",
+    "Nirmaan External",
+    "AI for Healthcare",
+    "UGFIR",
+    "PGFIR",
+    "Nirmaan the Pre-Incubator",
+    "Amex Program for Innovation & Entrepreneurship",
+  ];
   useEffect(() => {
     if (startup_name) {
       setFormData((prev) => ({
@@ -47,6 +60,17 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
       document: e.target.files[0],
     }));
   };
+   const handleSelect = (project) => {
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        project_name: project,
+      };
+      return updated;
+    });
+    setShowDropdown(false);
+  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -59,6 +83,7 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
     formPayload.append("purpose", formData.purpose);
     formPayload.append("funding_date", formData.date);
     formPayload.append("reference_number", formData.refNo);
+    formPayload.append("project_name",formData.project_name)
 
     // if (formData.document) {
     //   formPayload.append("document", formData.document);
@@ -79,6 +104,7 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
 
     // Reset form
     setFormData({
+      project_name:"",
       type: "",
       amount: "",
       status: "",
@@ -91,6 +117,7 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
 
   const handleCancel = () => {
     setFormData({
+      project_name:"",
       type: "",
       amount: "",
       status: "",
@@ -132,9 +159,50 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
                   value={formData.startup_name}
                   onChange={handleInputChange}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#45C74D]"
-                  placeholder="Enter Starup_name"
+                  placeholder="Enter Starup name"
                   required
                 />
+              </div>
+              <div>
+                 <label className="block text-sm font-medium text-[#232323] mb-1">
+                  Project Name
+                </label>
+
+                <input
+                  type="text"
+                  name="project_name"
+                  placeholder="Select Project name"
+                  value={formData.project_name}
+                  onFocus={() => setShowDropdown(true)}
+                  onChange={(e) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      project_name: e.target.value,
+                    }));
+                    setShowDropdown(true);
+                  }}
+                  onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+                  className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+                  autoComplete="off"
+                />
+
+                {showDropdown && Project_names.length > 0 && (
+                  <ul className="absolute z-10 w-[23rem] p-2 text-sm text-gray-900 border border-gray-300 max-h-48 overflow-y-auto rounded-lg bg-gray-50">
+                    {Project_names.filter((p) =>
+                      p
+                        .toLowerCase()
+                        .includes(formData.project_name.toLowerCase())
+                    ).map((project, index) => (
+                      <li
+                        key={index}
+                        className="px-3 py-2 cursor-pointer hover:bg-gray-100"
+                        onMouseDown={() => handleSelect(project)}
+                      >
+                        {project}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-[#232323] mb-1">
