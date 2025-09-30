@@ -1544,6 +1544,38 @@ async function ApiFetchFundingProject() {
     throw error;
   }
 }
+async function ApiUpdateFunding(payload) {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/api/v1/funding/edit`,
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    throw error
+  }
+}
+async function ApiFetchFundingProjectData() {
+  try {
+    const result = await axios.get(`${API_BASE_URL}/api/v1/fetch-funding-project`);
+    return result.data;
+  } catch (error) {
+    console.error("Error in API", error);
+    throw error;
+  }
+}
+
+async function ApiUpdateFundingProject(payload) {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/api/v1/update-funding-project`,
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    throw error
+  }
+}
 
 
 // ==================== AWARD APIs ====================
@@ -1678,17 +1710,7 @@ async function ApiFetchFundingAmount() {
 }
 
 
-async function ApiUpdateFunding(payload) {
-  try {
-    const response = await axios.put(
-      `${API_BASE_URL}/api/v1/funding/edit`,
-      payload
-    );
-    return response.data;
-  } catch (error) {
-    throw error
-  }
-}
+
 
 
 // ==================== UTILITY FUNCTIONS ====================
@@ -1753,7 +1775,8 @@ export {
   ApiFetchFundingDetain,
   ApiAddFundingProject,
   ApiFetchFundingProject,
-
+  ApiFetchFundingProjectData,
+ApiUpdateFundingProject,
   // Award APIs
   ApiAddAward,
   ApiFetchAward,

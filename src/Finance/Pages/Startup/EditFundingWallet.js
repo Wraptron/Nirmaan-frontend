@@ -1,0 +1,170 @@
+import React, { useState, useRef, useEffect } from "react";
+import toast from "react-hot-toast";
+import { IoCalendarOutline } from "react-icons/io5";
+import { ApiUpdateFunding, ApiUpdateFundingProject } from "../../../API/API";
+
+const EditFundingWallet = ({ initialData, onClose, onSubmit }) => {
+  const [formData, setFormData] = useState({
+    project_name: "",
+    funding_type: "",
+    amount: "",
+    date: "",
+  });
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        project_name: initialData.project_name || "",
+        funding_type: initialData.funding_type || "",
+        amount: initialData.amount || "",
+        date: initialData.date
+          ? new Date(initialData.date).toLocaleDateString("en-CA")
+          : "",
+      });
+    }
+  }, [initialData]);
+
+  console.log(formData);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      await ApiUpdateFundingProject({
+        ...formData,
+        project_id:initialData.project_id
+      });
+      onSubmit({
+        ...formData,
+         project_id:initialData.project_id
+      });
+      console.log("sumitted data:", {
+        ...formData,
+         project_id:initialData.project_id
+      });
+
+      toast.success("Funding updated successfully");
+      onClose();
+    } catch (error) {
+      if (error.response) {
+        const errorMessage =
+          error.response.data?.error || "Failed to update funding";
+        toast.error(errorMessage);
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
+    }
+  };
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-2xl shadow-lg w-[500px] relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path
+              d="M1 1L13 13M1 13L13 1"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+        <div className="p-6">
+          <h2 className="text-xl font-semibold text-[#232323] mb-6">
+            Edit Funding
+          </h2>
+          <div className="bg-gray-50 rounded-lg">
+            <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-[#232323] mb-1">
+                  Project Name
+                </label>
+                <input
+                  type="text"
+                  name="project_name"
+                  value={formData.project_name}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#45C74D]"
+                  placeholder="Enter Starup_name"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#232323] mb-1">
+                  Type
+                </label>
+                <select
+                  name="funding_type"
+                  value={formData.funding_type}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#45C74D]"
+                  required
+                >
+                  <option value="">Select Type</option>
+                  <option value="Funding Disbursed">Funding Disbursed</option>
+                  {/* <option value="Funding Utilized">Funding Utilized</option>
+                  <option value="External Funding">External Funding</option> */}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#232323] mb-1">
+                  Amount
+                </label>
+                <input
+                  type="number"
+                  name="amount"
+                  value={formData.amount}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#45C74D]"
+                  placeholder="Enter amount"
+                  required
+                />
+              </div>
+
+
+              <div>
+                <label className="block text-sm font-medium text-[#232323] mb-1">
+                  Date
+                </label>
+                <input
+                  type="date"
+                  name="date"
+                  value={formData.date}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#45C74D]"
+                  required
+                />
+              </div>
+
+              <div className="col-span-2 flex gap-3">
+                <button
+                  type="submit"
+                  className="bg-[#45C74D] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#36a03d] transition"
+                >
+                  Edit
+                </button>
+                {/* <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 transition"
+                >
+                  Cancel
+                </button> */}
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default EditFundingWallet;
