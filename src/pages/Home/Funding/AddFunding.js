@@ -163,6 +163,7 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
                   required
                 />
               </div>
+               {formData.type !== "Funding Utilized" && (
               <div>
                  <label className="block text-sm font-medium text-[#232323] mb-1">
                   Project Name
@@ -186,7 +187,7 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
                   autoComplete="off"
                 />
 
-                {showDropdown && Project_names.length > 0 && (
+                {showDropdown && Project_names.length > 0 &&  (
                   <ul className="absolute z-10 w-[23rem] p-2 text-sm text-gray-900 border border-gray-300 max-h-48 overflow-y-auto rounded-lg bg-gray-50">
                     {Project_names.filter((p) =>
                       p
@@ -204,6 +205,7 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
                   </ul>
                 )}
               </div>
+               )}
               <div>
                 <label className="block text-sm font-medium text-[#232323] mb-1">
                   Type

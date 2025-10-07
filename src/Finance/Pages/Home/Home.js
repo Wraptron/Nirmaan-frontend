@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import SideBar from "../../Components/Sidebar";
-import NavBar from "../../../components/NavBar";
 import {
   FaBusinessTime,
   FaGlobeAsia,
@@ -18,6 +17,7 @@ import { FaHandHoldingDollar } from "react-icons/fa6";
 import { ApiFetchFundingProject } from "../../../API/API";
 import { FiEdit2 } from "react-icons/fi";
 import ProjectFundingDetail from "../Startup/ProjectFundingDetails";
+import Navbar from "../../Components/Navbar";
 
 function Home() {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -64,7 +64,7 @@ function Home() {
       </div>
       <div className="ml-[221px] flex-grow">
         <div>
-          <NavBar
+          <Navbar
             onSelectionChange={handleNavbarSelection}
             selectedIndex={selectedIndex}
           />

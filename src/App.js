@@ -197,6 +197,7 @@ import FinanceStartupdetails from "./Finance/Pages/Startup/Finstartup";
 // Utility
 import ProtectedRoutes from "./utils/ProtectedRoutes";
 import Finstartup from "./Finance/Pages/Startup/Finstartup";
+import StartupFundingDetail from "./Finance/Pages/Startup/StartupfundingDetail";
 
 function App() {
   useEffect(() => {
@@ -292,6 +293,7 @@ function App() {
             />
             <Route path="/bills" element={<Bills />} />
             <Route path="/finance/startup" element={<Finstartup/>} />
+            <Route path="/finance/startupdetail/:startup_id" element={<StartupFundingDetail/>} />
           </Route>
         </Routes>
       </BrowserRouter>

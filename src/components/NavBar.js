@@ -483,6 +483,8 @@ import Usersvg from "../assets/images/User profile.svg";
 import moresvg from "../assets/images/more.svg";
 import More from "./More";
 import startupsvg from "../assets/images/Startups.svg";
+import { useNavigate } from "react-router-dom";
+import { useRef } from "react";
 
 function NavBar({ onSelectionChange, selectedIndex }) {
   const [messageNotify, setMessageNotification] = useState(false);
@@ -493,12 +495,34 @@ function NavBar({ onSelectionChange, selectedIndex }) {
   // Initialize tokenData as null instead of empty string
   const [tokenData, setTokenData] = useState(null);
   const [loading, setLoading] = useState(true);
+  // logout
+  const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const dropdownRef = useRef(null);
 
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleLogout = () => {
+    navigate("/");
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   const UpdatedFundingData = async () => {
     try {
-      const result = await axios.get(
-        "http://13.127.7.121/api/v1/notification"
-      );
+      const result = await axios.get("http://13.127.7.121/api/v1/notification");
       if (result.data && result.data.rows && result.data.rows.length > 0) {
         setTokenData(result.data.rows[0]);
       }
@@ -527,7 +551,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
 
   const GetProfilePhotoImage = useCallback(async () => {
     if (!tokenDecodedData?.user_mail) return;
-    
+
     try {
       await axios.get(
         `http://13.127.7.121/api/v1/prof?mail=${tokenDecodedData.user_mail}`
@@ -544,7 +568,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
   useEffect(() => {
     // Initial data fetch
     UpdatedFundingData();
-    
+
     // Set up interval for periodic updates
     const interval = setInterval(() => {
       UpdatedFundingData();
@@ -626,14 +650,16 @@ function NavBar({ onSelectionChange, selectedIndex }) {
                 placeholder="Search..."
               />
             </div>
-            <div className="relative hidden md:block">
-              <button
-                onClick={handleActionShow}
-                className="bg-[#45C74D] text-white block py-2 px-2 rounded-lg ms-3 text-sm font-semibold"
-              >
-                Action
-              </button>
-            </div>
+            {tokenData?.userRole !== 2 && (
+              <div className="relative hidden md:block">
+                <button
+                  onClick={handleActionShow}
+                  className="bg-[#45C74D] text-white block py-2 px-2 rounded-lg ms-3 text-sm font-semibold"
+                >
+                  Action
+                </button>
+              </div>
+            )}
             <div className="relative md:block">
               <div className="text-black px-2 py-2 ms-3">
                 <button>
@@ -648,12 +674,38 @@ function NavBar({ onSelectionChange, selectedIndex }) {
                 </button>
               </div>
             </div>
-            <div className="relative md:block">
+            <div className="relative md:block" ref={dropdownRef}>
               <div className="text-black px-2 py-2 ms-3">
-                <button>
+                <button onClick={toggleDropdown}>
                   <img src={Usersvg} alt="User" />
                 </button>
               </div>
+              {isOpen && (
+                <ul className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden animate-fadeIn">
+                  <li>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-700 transition-all duration-200 hover:bg-gradient-to-r hover:bg-[#45C74D] hover:text-white"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-4 h-4"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
+                        />
+                      </svg>
+                      Logout
+                    </button>
+                  </li>
+                </ul>
+              )}
             </div>
             <button
               data-collapse-toggle="navbar-search"
@@ -841,11 +893,12 @@ function NavBar({ onSelectionChange, selectedIndex }) {
           </div>
           <div className="">
             <a href="/addstartup">
-            <span className="text-lg">Add New Start-up</span>
-            <div className="text-xs">
-              Search and connect with start-ups across sectors, industry &
-              experience.
-            </div></a>
+              <span className="text-lg">Add New Start-up</span>
+              <div className="text-xs">
+                Search and connect with start-ups across sectors, industry &
+                experience.
+              </div>
+            </a>
           </div>
         </div>
         <div className="flex justfiy-between px-2 gap-4 mt-5 border p-3">
