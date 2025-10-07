@@ -18,18 +18,20 @@ function Mentor() {
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const API = await ApiFetchMentor();
-        setData(API.STATUS.rows);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+ useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const API = await ApiFetchMentor();
+      // sort by mentor_id or any unique field
+      const sortedData = API.STATUS.rows.sort((a, b) => a.mentor_id - b.mentor_id);
+      setData(sortedData);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-    fetchData();
-  }, []);
+  fetchData();
+}, []);
 
   // Click outside to close dropdown
   useEffect(() => {

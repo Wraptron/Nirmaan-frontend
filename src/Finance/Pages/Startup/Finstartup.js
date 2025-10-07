@@ -136,6 +136,7 @@ const handleFundingClose = () => {
                       <th className="px-4 py-2">Funding Disbursed</th>
                       <th className="px-4 py-2">Funding Utilized</th>
                       <th className="px-4 py-2">Balance</th>
+                      <th className="px-4 py-2">Status</th>
                       <th className="px-4 py-2">Actions</th>
                     </tr>
                   </thead>
@@ -157,6 +158,9 @@ const handleFundingClose = () => {
                         </td>
                         <td className="px-4 py-2">
                           {item.funding?.balance || 0}
+                        </td>
+                        <td className="px-4 py-2">
+                          {item.program}
                         </td>
                         <td className="px-4 py-2">
                           <div className="relative inline-block text-right">
