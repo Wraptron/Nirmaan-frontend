@@ -1111,6 +1111,7 @@ async function ApiFetchMentor() {
   try {
     const result = await axios.get(`${API_BASE_URL}/api/v1/get-mentor-details`);
     return result.data;
+
   } catch (error) {
     console.error("Error in API", error);
     throw error;

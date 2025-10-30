@@ -109,8 +109,8 @@ const EditFundingWallet = ({ initialData, onClose, onSubmit }) => {
                 >
                   <option value="">Select Type</option>
                   <option value="Funding Disbursed">Funding Disbursed</option>
-                  {/* <option value="Funding Utilized">Funding Utilized</option>
-                  <option value="External Funding">External Funding</option> */}
+                  <option value="Funding Utilized">Funding Utilized</option>
+                  {/* <option value="External Funding">External Funding</option> */}
                 </select>
               </div>
 

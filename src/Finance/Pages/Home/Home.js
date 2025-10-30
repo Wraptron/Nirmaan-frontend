@@ -3,21 +3,19 @@ import SideBar from "../../Components/Sidebar";
 import {
   FaBusinessTime,
   FaGlobeAsia,
-  FaGraduationCap,
   FaHeartbeat,
   FaLightbulb,
-  FaRocket,
   FaSeedling,
   FaUniversity,
   FaUserGraduate,
 } from "react-icons/fa";
 import { SkeletonLoader } from "../../../components/SkeletonLoader";
-import dayjs from "dayjs";
 import { FaHandHoldingDollar } from "react-icons/fa6";
 import { ApiFetchFundingProject } from "../../../API/API";
 import { FiEdit2 } from "react-icons/fi";
 import ProjectFundingDetail from "../Startup/ProjectFundingDetails";
 import Navbar from "../../Components/Navbar";
+import AddFundingWallet from "../Startup/AddFundingWallet";
 
 function Home() {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -26,7 +24,11 @@ function Home() {
   const [funding, setFunding] = useState({});
   const [selectedproject, setSelectedProject] = useState(null);
   const [showFundingModal, setShowFundingModal] = useState(false);
+  const [showFundingWalletForm, setShowFundingWalletForm] = useState(false);
+  const handleFundingWalletClick = () => setShowFundingWalletForm(true);
+   const handleFundingWalletClose = () => setShowFundingWalletForm(false);
   const handleFundingModalClose = () => setShowFundingModal(false);
+
   useEffect(() => {
     setShoww(true);
   }, []);
@@ -52,7 +54,7 @@ function Home() {
   };
 
   const handleFundingModalClick = (project) => {
-    FetchData()
+    FetchData();
     setShowFundingModal(true);
     setSelectedProject(project);
     setShowFundingModal(true);
@@ -79,8 +81,16 @@ function Home() {
                     Funding Dashboard
                   </div>
                   {/* <div className="py-2 px-7 text-lg ">Overview</div> */}
-                  <div className="py-2 px-7 text-2xl text-[#45C74D]  ">
-                    Nirmaan
+                  <div className="flex items-center justify-between">
+                    <div className="py-2 px-7 text-2xl text-[#45C74D]  ">
+                      Nirmaan
+                    </div>
+                    <button
+                      className="bg-[#45C74D] text-white px-5 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition"
+                      onClick={handleFundingWalletClick}
+                    >
+                      Add Funding Wallet
+                    </button>
                   </div>
                   <div className="grid grid-cols-3 gap-10 px-7 py-2 ">
                     <div className="shadow-md border border-sm rounded-lg p-2 min-w-[200px]">
@@ -110,6 +120,7 @@ function Home() {
                         )}
                       </div>
                       <div className="text-sm">Nirmaan Seed Funding</div>
+                      <div className="text-lg text-[#45C74D]">SB1920497ALUMCIEHOC</div>
                     </div>
                     <div className="shadow-md border border-sm rounded-lg p-2">
                       <div className="pb-1 flex justify-between">
@@ -140,6 +151,7 @@ function Home() {
                         )}
                       </div>
                       <div className="text-sm">Shankar Endownment Fund</div>
+                      <div className="text-lg text-[#45C74D]">SB25260212CPALUMCIEHOC</div>
                     </div>
                     <div className="shadow-md border border-sm rounded-lg p-2">
                       <div className="pb-1 flex justify-between">
@@ -167,6 +179,7 @@ function Home() {
                         )}
                       </div>
                       <div className="text-sm">Nirmaan External</div>
+                      <div className="text-lg text-[#45C74D]">CR23241466CPAAAACIEHOC </div>
                     </div>
                     <div className="shadow-md border border-sm rounded-lg p-2">
                       <div className="pb-1 flex justify-between">
@@ -194,6 +207,7 @@ function Home() {
                         )}
                       </div>
                       <div className="text-sm">AI for Healthcare</div>
+                      <div className="text-lg text-[#45C74D]">SB21220983CPIITMCIEHOC</div>
                     </div>
                     <div className="shadow-md border border-sm rounded-lg p-2">
                       <div className="pb-1 flex justify-between">
@@ -216,6 +230,7 @@ function Home() {
                         )}
                       </div>
                       <div className="text-sm">UGFIR</div>
+                      <div className="text-lg text-[#45C74D]">SB20210439CPIITMCIEHOC</div>
                     </div>
                     <div className="shadow-md border border-sm rounded-lg p-2">
                       <div className="pb-1 flex justify-between">
@@ -238,6 +253,7 @@ function Home() {
                         )}
                       </div>
                       <div className="text-sm">PGFIR</div>
+                      <div className="text-lg text-[#45C74D]">SB1920720CPIITMCIEHOC</div>
                     </div>
                     <div className="shadow-md border border-sm rounded-lg p-2">
                       <div className="pb-1 flex justify-between">
@@ -267,6 +283,7 @@ function Home() {
                         )}
                       </div>
                       <div className="text-sm">Nirmaan the Pre-Incubator</div>
+                      <div className="text-lg text-[#45C74D]">LM23242568MEIITMMEHOLX</div>
                     </div>
                     <div className="shadow-md border border-sm rounded-lg p-2">
                       <div className="pb-1 flex justify-between">
@@ -299,6 +316,7 @@ function Home() {
                       <div className="text-sm">
                         Amex Program for Innovation & Entrepreneurship
                       </div>
+                      <div className="text-lg text-[#45C74D]">CR/24-25/1670/ME/AMEX/008469</div>
                     </div>
                   </div>
                 </div>
@@ -313,6 +331,9 @@ function Home() {
           selectedProject={selectedproject}
         />
       )}
+       {showFundingWalletForm && (
+              <AddFundingWallet onClose={handleFundingWalletClose} />
+            )}
     </div>
   );
 }

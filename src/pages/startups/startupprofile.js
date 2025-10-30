@@ -1,26 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
 import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
-import { FiEdit2, FiShare2, FiGlobe, FiX } from "react-icons/fi";
-import { BsThreeDotsVertical } from "react-icons/bs";
+import { FiEdit2,FiGlobe, FiX } from "react-icons/fi";
 import {
   MdOutlineAdd,
   MdCall,
   MdChevronLeft,
   MdChevronRight,
 } from "react-icons/md";
-import { FaSync, FaTrash } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
 import bgImg from "../../assets/images/Rectangle 5.svg";
 import profileImg from "../../assets/images/296fe121-5dfa-43f4-98b5-db50019738a7.jpg";
-import pinSvg from "../../assets/images/Frame (9).svg";
-import pdfSvg from "../../assets/images/Frame (8).svg";
 import { useLocation, useParams } from "react-router-dom";
 import EditStartupForm from "../startups/step/EditForm/EditStartupForm";
 import EditAboutForm from "../startups/step/EditForm/EditAboutForm";
 import AddAwardForm from "../startups/step/EditForm/AddAwardForm";
-import FounderForm from "./step/EditForm/FounderForm"; // adjust the path if needed
-
-import EditFundingForm from "../startups/step/EditForm/EditFundingForm";
+import FounderForm from "./step/EditForm/FounderForm"; 
 import toast from "react-hot-toast";
 import EditMentorForm from "../startups/step/EditForm/EditMentorForm";
 import {
@@ -30,13 +25,10 @@ import {
   ApiFetchFundingAmount,
   ApiFetchStartup,
 } from "../../API/API";
-import { Route } from "react-router-dom";
-import { FaLinkedin, FaEllipsisV } from "react-icons/fa";
+import { FaLinkedin} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
-import { Navigation } from "swiper/modules";
 import AddFunding from "../Home/Funding/AddFunding";
 import EditTeamMembersForm from "./step/EditForm/EditTeamMembersForm";
 
@@ -258,7 +250,7 @@ function StartupProfile() {
 
       // ---Award Details Fetch ---
       const APIAward = await ApiFetchAward();
-      const award = APIAward?.rows || [];
+      const award = APIAward|| [];
       const filteredAwards = award
         .filter((award) => String(award.startup_id) === String(startup_id))
         .sort((a, b) => a.id - b.id);
@@ -604,17 +596,28 @@ function StartupProfile() {
                                 {award.description ? award.description : " -"}
                               </div>
 
-                              <div className="inline-flex items-center gap-2 bg-[#F8FAFB] rounded-lg px-3 py-1 mt-1 border border-[#E6E6E6]">
-                                <img
-                                  src="/src/assets/images/Frame (8).svg"
-                                  alt="PDF"
-                                  className="w-5 h-5"
-                                />
-                                <span className="text-xs text-[#232323] font-medium truncate max-w-[120px]">
-                                  Document Name.pdf
-                                </span>
-                              </div>
-                            </div>
+                            <div className="inline-flex items-center gap-2 bg-[#F8FAFB] rounded-lg px-3 py-1 mt-2 border border-[#E6E6E6]">
+  {award.document_url ? (
+    <a
+      href={award.document_url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-2"
+    >
+      <img
+        src="/src/assets/images/pdf-icon.svg"
+        alt="PDF"
+        className="w-5 h-5"
+      />
+      <span className="text-xs text-[#232323] font-medium truncate max-w-[120px]">
+        View Document
+      </span>
+    </a>
+  ) : (
+    <span className="text-xs text-gray-500">No document uploaded</span>
+  )}
+</div>
+</div>
                           ))}
                         </div>
 

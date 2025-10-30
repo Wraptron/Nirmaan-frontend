@@ -4,7 +4,7 @@ import { MdOutlineAdd, MdCall, MdChevronLeft } from "react-icons/md";
 import bgImg from "../../../assets/images/Rectangle 5.svg";
 import profileImg from "../../../assets/images/296fe121-5dfa-43f4-98b5-db50019738a7.jpg";
 import { useLocation, useParams } from "react-router-dom";
-import { FaLinkedin } from "react-icons/fa";
+import { FaChevronLeft, FaLinkedin } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "swiper/css";
 import "swiper/css/navigation";
@@ -61,14 +61,14 @@ function StartupFundingDetail() {
         return "bg-gray-100 text-gray-600";
     }
   };
-   const [currentPage, setCurrentPage] = useState(1);
-    const rowsPerPage = 3;
-  
-    const indexOfLastRow = currentPage * rowsPerPage;
-    const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-    const currentRows = fundingData.slice(indexOfFirstRow, indexOfLastRow);
-  
-    const totalPages = Math.ceil(fundingData.length / rowsPerPage);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 3;
+
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows = fundingData.slice(indexOfFirstRow, indexOfLastRow);
+
+  const totalPages = Math.ceil(fundingData.length / rowsPerPage);
 
   const FetchData = async (userId) => {
     try {
@@ -111,12 +111,20 @@ function StartupFundingDetail() {
     <div className="flex font-[\'DM Sans\',sans-serif]">
       <SideBar />
       <div className="ms-[221px] flex-grow">
-        <Navbar/>
+        <Navbar />
         <div className="bg-[#F8FAFB] min-h-screen">
           <div className="mx-auto max-w-6xl py-6">
             {/* Breadcrumb */}
-            <div className="text-xs text-[#A1A1A1] mb-2 flex items-center gap-2">
-              Funding &gt; Startup
+            <div className="flex">
+              <button
+                onClick={() => navigate("/finance/startup")}
+                className="mr-2 rounded-full hover:bg-gray-200"
+              >
+                <FaChevronLeft className="w-4 h-4" />
+              </button>
+              <div className="text-xs text-[#A1A1A1]  flex items-center gap-2">
+                Funding &gt; Startup
+              </div>
             </div>
             {/* Title */}
             <div className="font-semibold text-2xl mb-6 text-[#232323]">
@@ -314,52 +322,52 @@ function StartupFundingDetail() {
                 </div>
               </div>
             </div>
-              <div className="items-center justify-between mb-4">
-                  <span className="font-bold text-lg text-[#232323]">
-                    Transaction History
-                  </span>
-            <div className="border border-dotted rounded-lg overflow-x-auto mt-5">
-              <table className="min-w-full text-sm text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-dotted">
-                    <th className="px-4 py-2">Type</th>
-                    <th className="px-4 py-2">Amount</th>
-                    <th className="px-4 py-2">Status</th>
-                    <th className="px-4 py-2">Purpose</th>
-                    <th className="px-4 py-2">Date</th>
-                    <th className="px-4 py-2">Ref No</th>
-                    <th className="px-4 py-2">Document</th>
-                    {/* <th className="px-4 py-2">Edit</th> */}
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentRows.length === 0 ? (
-                    <p className="text-lg text-gray-500">
-                      No funding added yet.
-                    </p>
-                  ) : (
-                    currentRows.map((fund) => (
-                      <tr key={fund.id} className="border-b border-dotted">
-                        <td className="px-4 py-2">
-                          {fund.funding_type || "-"}
-                        </td>
-                        <td className="px-4 py-2">
-                          {" "}
-                          {Number(fund.amount).toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }) || "-"}
-                        </td>
-                        <td className="px-4 py-2">{fund.status || "-"}</td>
-                        <td className="px-4 py-2">{fund.purpose || "-"}</td>
-                        <td className="px-4 py-2">
-                          {fund.funding_date || "-"}
-                        </td>
-                        <td className="px-4 py-2">
-                          {fund.reference_number || "-"}
-                        </td>
-                        <td className="px-4 py-2">{fund.document || "-"}</td>
-                        {/* <td className="px-4 py-2">
+            <div className="items-center justify-between mb-4">
+              <span className="font-bold text-lg text-[#232323]">
+                Transaction History
+              </span>
+              <div className="border border-dotted rounded-lg overflow-x-auto mt-5">
+                <table className="min-w-full text-sm text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-dotted">
+                      <th className="px-4 py-2">Type</th>
+                      <th className="px-4 py-2">Amount</th>
+                      <th className="px-4 py-2">Status</th>
+                      <th className="px-4 py-2">Purpose</th>
+                      <th className="px-4 py-2">Date</th>
+                      <th className="px-4 py-2">Ref No</th>
+                      <th className="px-4 py-2">Document</th>
+                      {/* <th className="px-4 py-2">Edit</th> */}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentRows.length === 0 ? (
+                      <p className="text-lg text-gray-500">
+                        No funding added yet.
+                      </p>
+                    ) : (
+                      currentRows.map((fund) => (
+                        <tr key={fund.id} className="border-b border-dotted">
+                          <td className="px-4 py-2">
+                            {fund.funding_type || "-"}
+                          </td>
+                          <td className="px-4 py-2">
+                            {" "}
+                            {Number(fund.amount).toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }) || "-"}
+                          </td>
+                          <td className="px-4 py-2">{fund.status || "-"}</td>
+                          <td className="px-4 py-2">{fund.purpose || "-"}</td>
+                          <td className="px-4 py-2">
+                            {fund.funding_date || "-"}
+                          </td>
+                          <td className="px-4 py-2">
+                            {fund.reference_number || "-"}
+                          </td>
+                          <td className="px-4 py-2">{fund.document || "-"}</td>
+                          {/* <td className="px-4 py-2">
                           <FiEdit2
                             onClick={() => {
                               setEditFunding(fund);
@@ -368,45 +376,47 @@ function StartupFundingDetail() {
                             className="text-[#45C74D]"
                           />
                         </td> */}
-                      </tr>
-                    ))
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+
+                {/* Balance + Pagination */}
+                <div className="flex justify-between items-center px-4 py-2 border-t border-dotted">
+                  <span className="text-sm font-medium">
+                    Balance: Rs. {fundingAmount?.balance || 0}
+                  </span>
+
+                  {totalPages > 1 && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() =>
+                          setCurrentPage((prev) => Math.max(prev - 1, 1))
+                        }
+                        disabled={currentPage === 1}
+                        className="px-2 py-1 border border-gray-400 rounded disabled:opacity-50"
+                      >
+                        Prev
+                      </button>
+                      <span className="text-sm">
+                        Page {currentPage} of {totalPages}
+                      </span>
+                      <button
+                        onClick={() =>
+                          setCurrentPage((prev) =>
+                            Math.min(prev + 1, totalPages)
+                          )
+                        }
+                        disabled={currentPage === totalPages}
+                        className="px-2 py-1 border border-gray-400 rounded disabled:opacity-50"
+                      >
+                        Next
+                      </button>
+                    </div>
                   )}
-                </tbody>
-              </table>
-
-              {/* Balance + Pagination */}
-              <div className="flex justify-between items-center px-4 py-2 border-t border-dotted">
-                <span className="text-sm font-medium">
-                  Balance: Rs. {fundingAmount?.balance || 0}
-                </span>
-
-                {totalPages > 1 && (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() =>
-                        setCurrentPage((prev) => Math.max(prev - 1, 1))
-                      }
-                      disabled={currentPage === 1}
-                      className="px-2 py-1 border border-gray-400 rounded disabled:opacity-50"
-                    >
-                      Prev
-                    </button>
-                    <span className="text-sm">
-                      Page {currentPage} of {totalPages}
-                    </span>
-                    <button
-                      onClick={() =>
-                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                      }
-                      disabled={currentPage === totalPages}
-                      className="px-2 py-1 border border-gray-400 rounded disabled:opacity-50"
-                    >
-                      Next
-                    </button>
-                  </div>
-                )}
+                </div>
               </div>
-            </div>
             </div>
           </div>
         </div>

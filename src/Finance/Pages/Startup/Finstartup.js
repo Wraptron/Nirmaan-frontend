@@ -1,37 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SideBar from "../../../Finance/Components/Sidebar";
-import { FaEllipsisV, FaUser } from "react-icons/fa";
-import { FiEdit2 } from "react-icons/fi";
+import { FaEllipsisV} from "react-icons/fa";
 import AddFunding from "../../../pages/Home/Funding/AddFunding";
-import AddFundingWallet from "./AddFundingWallet";
 import toast from "react-hot-toast";
-import { ApiFetchFundingAmount, ApiFetchStartup } from "../../../API/API";
-import { Navigate } from "react-router-dom";
+import {
+  ApiFetchFundingAmount,
+  ApiFetchStartup,
+} from "../../../API/API";
 import Navbar from "../../Components/Navbar";
 
 const Finstartup = () => {
   const [showw, setShoww] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [openDropdownId, setOpenDropdownId] = useState(null);
-  const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
   const [showFundingForm, setShowFundingForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [selectedStartup, setSelectedStartup] = useState(null);
-  const [fundingAmount, setFundingAmount] = useState([]);
-   const navigate = useNavigate();
-const handleFundingClick = (startup) => {
-  setSelectedStartup(startup);
-  setShowFundingForm(true);
-};
-const handleFundingClose = () => {
-  setShowFundingForm(false);
-  setSelectedStartup(null);
-};
-  const [showFundingWalletForm, setShowFundingWalletForm] = useState(false);
-  const handleFundingWalletClick = () => setShowFundingWalletForm(true);
-  const handleFundingWalletClose = () => setShowFundingWalletForm(false);
+  const navigate = useNavigate();
+  const handleFundingClick = (startup) => {
+    setSelectedStartup(startup);
+    setShowFundingForm(true);
+  };
+  const handleFundingClose = () => {
+    setShowFundingForm(false);
+    setSelectedStartup(null);
+  };
 
   const fetchData = async () => {
     try {
@@ -72,16 +67,16 @@ const handleFundingClose = () => {
     setShoww(true);
   }, []);
 
-   const filteredStartup = data.filter((startup) =>
+  const filteredStartup = data.filter((startup) =>
   (startup.startup_name || "").toLowerCase().includes(searchTerm.toLowerCase())
-);
+  );
 
   return (
     <div className="flex">
       <SideBar />
       <div className="ms-[221px] flex-grow">
         <div className="fixed top-0 left-[221px] right-0 z-50 bg-white shadow">
-          <Navbar/>
+          <Navbar />
         </div>
         <div className="bg-gray-100 pt-20 min-h-screen">
           <div className={`mx-10 py-5 ${showw ? "visible" : ""}`}>
@@ -114,12 +109,6 @@ const handleFundingClose = () => {
                 </div>
                 <div className="flex items-center gap-5">
                   <button
-                    className="bg-[#45C74D] text-white px-5 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition"
-                    onClick={handleFundingWalletClick}
-                  >
-                    Add Funding Wallet
-                  </button>
-                  <button
                     className="bg-[#45C74D] text-white px-8 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition"
                     onClick={handleFundingClick}
                   >
@@ -132,9 +121,9 @@ const handleFundingClose = () => {
                   <thead>
                     <tr className="border-b border-dotted">
                       <th className="px-4 py-2">Name</th>
-                      <th className="px-4 py-2">Cohert</th>
-                      <th className="px-4 py-2">Funding Disbursed</th>
-                      <th className="px-4 py-2">Funding Utilized</th>
+                      <th className="px-4 py-2">Cohort</th>
+                      <th className="px-4 py-2">Fund Disbursed</th>
+                      <th className="px-4 py-2">Fund Utilized</th>
                       <th className="px-4 py-2">Balance</th>
                       <th className="px-4 py-2">Status</th>
                       <th className="px-4 py-2">Actions</th>
@@ -165,61 +154,50 @@ const handleFundingClose = () => {
                         <td className="px-4 py-2">
                           <div className="relative inline-block text-right">
                             {/* Ellipsis Button */}
-                            <button
-                              className="rounded-full p-2 hover:bg-gray-100"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenDropdownId(
-                                  openDropdownId === item.startup_id ? null : item.startup_id
-                                );
-                              }}
-                            >
-                              <FaEllipsisV className="text-gray-500" />
-                            </button>
-
-                            {/* Dropdown Menu */}
-                            {openDropdownId === item.startup_id && (
-                              <div
-                                className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-50"
-                                style={{ minWidth: "150px" }}
-                                onClick={(e) => e.stopPropagation()}
+                              <button
+                                className="rounded-full p-2 hover:bg-gray-100"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setOpenDropdownId(
+                                    openDropdownId === item.startup_id
+                                      ? null
+                                      : item.startup_id
+                                  );
+                                }}
                               >
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                      navigate(
-                                            `/finance/startupdetail/${item.startup_id}`
-                                          );
-                                    setOpenDropdownId(null);
-                                  }}
-                                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                <FaEllipsisV className="text-gray-500" />
+                              </button>
+
+                              {openDropdownId === item.startup_id && (
+                                <div
+                                  className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-50 max-h-60 overflow-auto"
+                                  style={{ minWidth: "150px" }}
+                                  onClick={(e) => e.stopPropagation()}
                                 >
-                                  View
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                   handleFundingClick(item);
-                                    setOpenDropdownId(null);
-                                  }}
-                                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                >
-                                  Update
-                                </button>
-                                {/* <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenEstablishPopUp(true);
-                                    setOpenDropdownId(null);
-                                  }}
-                                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                                >
-                                  Delete
-                                </button> */}
-                              </div>
-                            )}
-                          </div>
-                        </td>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      navigate(`/finance/startupdetail/${item.startup_id}`);
+                                      setOpenDropdownId(null);
+                                    }}
+                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                  >
+                                    View
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleFundingClick(item);
+                                      setOpenDropdownId(null);
+                                    }}
+                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                  >
+                                    Update
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </td>
                       </tr>
                     ))}
                   </tbody>
@@ -229,9 +207,12 @@ const handleFundingClose = () => {
           </div>
         </div>
       </div>
-      {showFundingForm && <AddFunding onClose={handleFundingClose} startup_id={selectedStartup.startup_id} startup_name={selectedStartup.startup_name} />}
-      {showFundingWalletForm && (
-        <AddFundingWallet onClose={handleFundingWalletClose} />
+      {showFundingForm && (
+        <AddFunding
+          onClose={handleFundingClose}
+          startup_id={selectedStartup.startup_id}
+          startup_name={selectedStartup.startup_name}
+        />
       )}
     </div>
   );
