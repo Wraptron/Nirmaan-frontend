@@ -250,7 +250,7 @@ function StartupProfile() {
 
       // ---Award Details Fetch ---
       const APIAward = await ApiFetchAward();
-      const award = APIAward|| [];
+     const award = APIAward?.rows || [];
       const filteredAwards = award
         .filter((award) => String(award.startup_id) === String(startup_id))
         .sort((a, b) => a.id - b.id);
@@ -259,10 +259,13 @@ function StartupProfile() {
       // --- Funding Amount Details Fetch Fetch ---
       const ApiFundingAmount = await ApiFetchFundingAmount();
       const amount = ApiFundingAmount || {};
+      console.log(amount)
       const fundamount = selectedstartup?.startup_id
         ? amount[selectedstartup.startup_id] || null
         : null;
+        console.log(fundamount)
       setFundingAmount(fundamount || {});
+
 
       const data = await ApiFetchFounder(startup_id);
       setFounders(data);

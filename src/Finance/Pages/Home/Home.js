@@ -120,7 +120,12 @@ function Home() {
                         )}
                       </div>
                       <div className="text-sm">Nirmaan Seed Funding</div>
-                      <div className="text-lg text-[#45C74D]">SB1920497ALUMCIEHOC</div>
+                      <div className="flex gap-1">
+                        <div >
+                          ID -
+                        </div>
+                        <div className=" text-[#45C74D]">SB1920497ALUMCIEHOC</div>
+                      </div>
                     </div>
                     <div className="shadow-md border border-sm rounded-lg p-2">
                       <div className="pb-1 flex justify-between">
@@ -151,7 +156,12 @@ function Home() {
                         )}
                       </div>
                       <div className="text-sm">Shankar Endownment Fund</div>
-                      <div className="text-lg text-[#45C74D]">SB25260212CPALUMCIEHOC</div>
+                      <div className="flex gap-1">
+                         <div >
+                          ID -
+                        </div>
+                         <div className="text-lg text-[#45C74D]">SB25260212CPALUMCIEHOC</div>
+                      </div>
                     </div>
                     <div className="shadow-md border border-sm rounded-lg p-2">
                       <div className="pb-1 flex justify-between">
@@ -179,7 +189,12 @@ function Home() {
                         )}
                       </div>
                       <div className="text-sm">Nirmaan External</div>
-                      <div className="text-lg text-[#45C74D]">CR23241466CPAAAACIEHOC </div>
+                      <div className="flex gap-1">
+                         <div >
+                          ID -
+                        </div>
+                         <div className="text-[#45C74D]">CR23241466CPAAAACIEHOC </div>
+                      </div>
                     </div>
                     <div className="shadow-md border border-sm rounded-lg p-2">
                       <div className="pb-1 flex justify-between">
@@ -207,7 +222,12 @@ function Home() {
                         )}
                       </div>
                       <div className="text-sm">AI for Healthcare</div>
-                      <div className="text-lg text-[#45C74D]">SB21220983CPIITMCIEHOC</div>
+                      <div className="flex gap-1">
+                         <div >
+                          ID -
+                        </div>
+                         <div className="text-[#45C74D]">SB21220983CPIITMCIEHOC</div>
+                      </div>
                     </div>
                     <div className="shadow-md border border-sm rounded-lg p-2">
                       <div className="pb-1 flex justify-between">
@@ -230,7 +250,12 @@ function Home() {
                         )}
                       </div>
                       <div className="text-sm">UGFIR</div>
-                      <div className="text-lg text-[#45C74D]">SB20210439CPIITMCIEHOC</div>
+                      <div className="flex gap-1">
+                         <div >
+                          ID -
+                        </div>
+                        <div className="text-[#45C74D]">SB20210439CPIITMCIEHOC</div>
+                      </div>
                     </div>
                     <div className="shadow-md border border-sm rounded-lg p-2">
                       <div className="pb-1 flex justify-between">
@@ -253,7 +278,12 @@ function Home() {
                         )}
                       </div>
                       <div className="text-sm">PGFIR</div>
-                      <div className="text-lg text-[#45C74D]">SB1920720CPIITMCIEHOC</div>
+                      <div className="flex gap-1">
+                         <div >
+                          ID -
+                        </div>
+                        <div className=" text-[#45C74D]">SB1920720CPIITMCIEHOC</div>
+                      </div>
                     </div>
                     <div className="shadow-md border border-sm rounded-lg p-2">
                       <div className="pb-1 flex justify-between">
@@ -283,7 +313,12 @@ function Home() {
                         )}
                       </div>
                       <div className="text-sm">Nirmaan the Pre-Incubator</div>
-                      <div className="text-lg text-[#45C74D]">LM23242568MEIITMMEHOLX</div>
+                      <div className="flex gap-1">
+                         <div >
+                          ID -
+                        </div>
+                        <div className=" text-[#45C74D]">LM23242568MEIITMMEHOLX</div>
+                      </div>
                     </div>
                     <div className="shadow-md border border-sm rounded-lg p-2">
                       <div className="pb-1 flex justify-between">
@@ -316,7 +351,12 @@ function Home() {
                       <div className="text-sm">
                         Amex Program for Innovation & Entrepreneurship
                       </div>
-                      <div className="text-lg text-[#45C74D]">CR/24-25/1670/ME/AMEX/008469</div>
+                      <div className="flex gap-1">
+                         <div >
+                          ID -
+                        </div>
+                        <div className="text-[#45C74D]">CR/24-25/1670/ME/AMEX/008469</div>
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -1433,8 +1433,6 @@ async function ApiDeletStartupData(id) {
   }
 }
 
-
-
 async function ApiUpdateStartupPersonalInfo(payload) {
   try {
     let dataToSend = payload;
@@ -1710,6 +1708,15 @@ async function ApiFetchFundingAmount() {
   }
 }
 
+async function ApiFetchStartupData() {
+  try {
+    const result = await axios.get(`${API_BASE_URL}/api/v1//finance/startup-data`);
+    return result.data;
+  } catch (error) {
+    console.error("Error in API", error);
+    throw error;
+  }
+}
 
 
 
@@ -1778,6 +1785,7 @@ export {
   ApiFetchFundingProject,
   ApiFetchFundingProjectData,
 ApiUpdateFundingProject,
+ApiFetchStartupData,
   // Award APIs
   ApiAddAward,
   ApiFetchAward,

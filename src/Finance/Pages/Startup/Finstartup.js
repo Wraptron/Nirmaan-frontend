@@ -6,7 +6,7 @@ import AddFunding from "../../../pages/Home/Funding/AddFunding";
 import toast from "react-hot-toast";
 import {
   ApiFetchFundingAmount,
-  ApiFetchStartup,
+  ApiFetchStartupData,
 } from "../../../API/API";
 import Navbar from "../../Components/Navbar";
 
@@ -26,6 +26,7 @@ const Finstartup = () => {
   const handleFundingClose = () => {
     setShowFundingForm(false);
     setSelectedStartup(null);
+    fetchData()
   };
 
   const fetchData = async () => {
@@ -33,7 +34,7 @@ const Finstartup = () => {
       setLoading(true);
 
       // Fetch startups
-      const ApiStartup = await ApiFetchStartup();
+      const ApiStartup = await ApiFetchStartupData();
       const startupdata = Array.isArray(ApiStartup?.rows)
         ? ApiStartup.rows
         : [];

@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
 import toast from "react-hot-toast";
-import { ApiAddFunding, ApiFetchStartup } from "../../../API/API";
+import { ApiAddFunding, ApiFetchStartupData } from "../../../API/API";
 
 const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -33,7 +33,7 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
 
   const fetchData = async () => {
     try {
-      const ApiStartup = await ApiFetchStartup();
+      const ApiStartup = await ApiFetchStartupData();
       const startupdata = Array.isArray(ApiStartup?.rows)
         ? ApiStartup.rows
         : [];
