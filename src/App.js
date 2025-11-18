@@ -198,6 +198,8 @@ import FinanceStartupdetails from "./Finance/Pages/Startup/Finstartup";
 import ProtectedRoutes from "./utils/ProtectedRoutes";
 import Finstartup from "./Finance/Pages/Startup/Finstartup";
 import StartupFundingDetail from "./Finance/Pages/Startup/StartupfundingDetail";
+import StartupMentor from "./pages/startups/Mentor/Mentor"
+import Schedule from "./pages/Mentorship/Schedule";
 
 function App() {
   useEffect(() => {
@@ -254,6 +256,7 @@ function App() {
                 </PDFViewer>
               }
             />
+             <Route path="/mentorship/scheduleMeeting" element={<Schedule />} />
           </Route>
 
           {/* Startup Profile Routes (Admin: 2 + Students: 5) */}
@@ -270,7 +273,9 @@ function App() {
 
           {/* Student Only Routes (Role: 5) */}
           <Route element={<ProtectedRoutes allowedRoles={["5"]} />}>
+
             <Route path="/customer/Home" element={<CustomerHome />} />
+            {/* <Route path="/startupprofile/" element={<Startupprofile/>} /> */}
             <Route path="/customer/resume" element={<Resume />} />
             <Route path="/customer/resources" element={<Resource />} />
             <Route path="/customer/Mentor" element={<CustomerMentor />} />
@@ -282,6 +287,8 @@ function App() {
             <Route path="/customer/home/request" element={<RaiseRequest />} />
             <Route path="/customer/Startups" element={<CustomerStartup />} />
             <Route path="/customer/contacts" element={<CustomerContacts />} />
+            <Route path="/startup/mentor" element={<StartupMentor/>} />
+
           </Route>
 
           {/* Finance Routes (Role: 3) */}

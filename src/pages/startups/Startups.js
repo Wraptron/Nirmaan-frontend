@@ -544,6 +544,30 @@ function Startups() {
         const updatedList = data.filter((startup) => startup.startup_id !== id);
         setData(updatedList);
         setOpenDropdownId(null);
+
+          // Check if current page is now empty
+          const updatedFilteredData = updatedList.filter((startup) => {
+        const matchesFilter =
+          filterStatus === "All" ||
+          startup.program?.toLowerCase() === filterStatus.toLowerCase() ||
+          startup.startup_status?.toLowerCase() === filterStatus.toLowerCase();
+
+        const matchesCohort =
+          filterCohort === "All" ||
+          startup.startup_cohort?.toLowerCase() === filterCohort.toLowerCase();
+
+        const matchesSearch =
+          startup.startup_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          startup.founder_name?.toLowerCase().includes(searchTerm.toLowerCase());
+
+        return matchesFilter && matchesCohort && matchesSearch;
+      });
+
+      const totalPagesAfterDelete = Math.ceil(updatedFilteredData.length / 6);
+      // If current page > total pages, move back
+      if (currentPage > totalPagesAfterDelete && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      }
       } else {
         toast.error("Failed to delete startup.");
       }
