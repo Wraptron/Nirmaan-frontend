@@ -17,7 +17,7 @@ function SideBar({children}) {
                 <li className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/mentors" && "bg-[#45C74D] text-white rounded-xl"}`}><a href="/mentors" className="flex gap-5"><FaChalkboardTeacher size={20}/>Mentors</a></li>
                 <li className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/mentorship" && "bg-[#45C74D] text-white rounded-xl"}`}><a href="/mentorship" className="flex gap-5"><FaBookOpen size={20}/>Mentorships</a></li>
                 <li className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/events" && "bg-[#45C74D] text-white rounded-xl"}`}><a href="/events" className="flex gap-5"><FaRegCalendarCheck size={20} />Events</a></li>
-                {/* <li className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/connections" && "bg-[#45C74D] text-white rounded-xl"}`}><a href="/connections" className="flex gap-5"><FaPeopleGroup size={20} />Connections</a></li> */}
+                <li className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/connections" && "bg-[#45C74D] text-white rounded-xl"}`}><a href="/connections" className="flex gap-5"><FaPeopleGroup size={20} />Connections</a></li>
                 {/* <li className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/reports" && "bg-[#45C74D] text-white rounded-xl"}`}><a href="/reports" className="flex gap-5"><FaRegFile size={20} />Reports</a></li> */}
             </ul>
         </div>

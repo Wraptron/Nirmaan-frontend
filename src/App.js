@@ -146,6 +146,7 @@ import "sweetalert2/dist/sweetalert2.min.css";
 import Home from "./pages/Home/home";
 import Login from "./pages/Login";
 import Connections from "./pages/Connections/connection";
+import AddConnections from "./pages/Connections/addConnection";
 import Forms from "./components/Forms";
 import Startups from "./pages/startups/Startups";
 import AddStartup from "./pages/startups/AddStartup";
@@ -222,7 +223,7 @@ function App() {
             <Route path="/addstartup" element={<AddStartup />} />
             <Route path="/startups" element={<Startups />} />
             <Route path="/connections" element={<Connections />} />
-            <Route path="/addconnections" element={<Forms />} />
+            <Route path="/addconnections" element={<AddConnections/>} />
             <Route path="/mentors" element={<Mentor />} />
             <Route path="/events" element={<Events />} />
             <Route path="/mentorship" element={<MentorShip />} />
