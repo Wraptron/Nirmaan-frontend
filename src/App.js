@@ -199,9 +199,11 @@ import FinanceStartupdetails from "./Finance/Pages/Startup/Finstartup";
 import ProtectedRoutes from "./utils/ProtectedRoutes";
 import Finstartup from "./Finance/Pages/Startup/Finstartup";
 import StartupFundingDetail from "./Finance/Pages/Startup/StartupfundingDetail";
-import StartupMentor from "./pages/startups/Mentor/Mentor"
 import Schedule from "./pages/Mentorship/Schedule";
 
+// Startup Logi
+import StartupMentor from "./pages/startups/Mentor/Mentor";
+import StartupList from "./pages/startups/Startup/StartupList"
 function App() {
   useEffect(() => {
     localStorage.getItem("token");
@@ -289,6 +291,7 @@ function App() {
             <Route path="/customer/Startups" element={<CustomerStartup />} />
             <Route path="/customer/contacts" element={<CustomerContacts />} />
             <Route path="/startup/mentor" element={<StartupMentor/>} />
+            <Route path="/startup/startuplist" element={<StartupList/>} />
 
           </Route>
 

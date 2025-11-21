@@ -2,27 +2,37 @@ import React, { useEffect, useState } from "react";
 import SideBar from "../../../components/sidebar";
 import Navbar from "../../../components/NavBar";
 import { ApiFetchMentor } from "../../../API/API";
+import MentorAbout from "./MentorAbout";
 
 const Mentor = () => {
- const [data,setData]=useState([])
-   const [searchTerm, setSearchTerm] = useState("");
- const fetchData = async () => {
+  const [data, setData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedMentor, setSelectedMentor] = useState(null);
+  const [showmentorabout, setShowMentorAbout] = useState(false);
+  const handleaboutclose = () => {
+    setSelectedMentor(null);
+    setShowMentorAbout(false);
+  };
+  const fetchData = async () => {
     try {
       const API = await ApiFetchMentor();
       // sort by mentor_id or any unique field
-      const sortedData = API.STATUS.rows.sort((a, b) => a.mentor_id - b.mentor_id);
+      const sortedData = API.STATUS.rows.sort(
+        (a, b) => a.mentor_id - b.mentor_id
+      );
       setData(sortedData);
     } catch (err) {
       console.error(err);
     }
   };
-useEffect(()=>{
-  fetchData()
-},[])
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const filteredMentor = data.filter((mentor) =>
-  (mentor.mentor_name || "").toLowerCase().includes(searchTerm.toLowerCase())
+    (mentor.mentor_name || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
+
   return (
     <div className="flex">
       <SideBar />
@@ -34,7 +44,7 @@ useEffect(()=>{
           <div className={`mx-10 py-5 `}>
             <div className="border bg-white">
               <div className="px-5 pt-6 text-sm text-[#808080]">
-                 Start-ups {">"} Mentors
+                Start-ups {">"} Mentors
               </div>
               <div className="font-bold text-lg px-5 pt-3">Mentors</div>
               {/* Search and Add */}
@@ -74,32 +84,35 @@ useEffect(()=>{
                     <tr className="border-b border-dotted">
                       <th className="px-4 py-2">Name</th>
                       <th className="px-4 py-2">Institution</th>
+                      <th className="px-4 py-2">Startups </th>
                       <th className="px-4 py-2"></th>
                       <th className="px-4 py-2"></th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredMentor.map((mentor)=>(<tr
-                        className="border-b border-dotted"
-                      >
-                     <td className="px-4 py-2">{mentor.mentor_name}</td>
-                     <td className="px-4 py-2">{mentor.institution}</td>
-                     <td className="px-4 py-2">
-                     <button
-                        className="bg-[#45C74D] text-white px-8 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition"
-                      >
-                        View
-                      </button>
-                     </td>
-                     <td className="px-4 py-2"> 
-                   <button
-                        className="bg-[#45C74D] text-white px-8 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition"
-                      >
-                        Request
-                      </button>
-                      </td>
-                      </tr>))}
-                    
+                    {filteredMentor.map((mentor) => (
+                      <tr className="border-b border-dotted">
+                        <td className="px-4 py-2">{mentor.mentor_name}</td>
+                        <td className="px-4 py-2">{mentor.institution}</td>
+                        <td className="px-4 py-2">-</td>
+                        <td className="px-4 py-2">
+                          <button
+                            className="bg-[#45C74D] text-white px-8 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition"
+                            onClick={() => {
+                              setSelectedMentor(mentor);
+                              setShowMentorAbout(true);
+                            }}
+                          >
+                            View
+                          </button>
+                        </td>
+                        <td className="px-4 py-2">
+                          <button className="bg-[#45C74D] text-white px-8 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition">
+                            Request
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -107,6 +120,14 @@ useEffect(()=>{
           </div>
         </div>
       </div>
+      {showmentorabout && (
+        <MentorAbout
+          onClose={handleaboutclose}
+          mentor_name={selectedMentor.mentor_name}
+          about={selectedMentor.mento_description}
+          expertise={selectedMentor.area_of_expertise}
+        />
+      )}
     </div>
   );
 };
