@@ -164,7 +164,7 @@ function Schedule() {
             </div>
 
             {/* Form */}
-            <form >
+            <form>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                 {/* Start-up Name */}
                 <div>
@@ -215,23 +215,21 @@ function Schedule() {
                   />
                 </div>
 
-
                 <div>
                   <label className="block font-medium mb-1">
-                    Mentor Name{" "}
-                    <span className="text-red-500">*</span>
+                    Mentor Name <span className="text-red-500">*</span>
                   </label>
-                   <select 
+                  <select
                     name="mentor_name"
                     value={meetingdata.mentor_name}
                     onChange={handleChange}
                     className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
                   >
-                    <option >Select Mentor Name</option>
+                    <option>Select Mentor Name</option>
                     {mentorname.map((item, index) => (
-                     <option key={index} value={item}>
-                            {item}
-                     </option>
+                      <option key={index} value={item}>
+                        {item}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -315,32 +313,32 @@ function Schedule() {
 
                 {/* Date */}
                 <div className="flex gap-6">
-                <div className="w-1/2">
-                  <label className="block font-medium mb-1">
-                    Date <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    name="date"
-                    value={meetingdata.date}
-                    onChange={handleChange}
-                    className=" w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
-                  />
-                </div>
+                  <div className="w-1/2">
+                    <label className="block font-medium mb-1">
+                      Date <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      name="date"
+                      value={meetingdata.date}
+                      onChange={handleChange}
+                      className=" w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+                    />
+                  </div>
 
-                {/* Time */}
-                <div className="w-1/2">
-                  <label className="block font-medium mb-1">
-                    Time <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="time"
-                    name="time"
-                    value={meetingdata.time}
-                    onChange={handleChange}
-                    className="w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
-                  />
-                </div>
+                  {/* Time */}
+                  <div className="w-1/2">
+                    <label className="block font-medium mb-1">
+                      Time <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="time"
+                      name="time"
+                      value={meetingdata.time}
+                      onChange={handleChange}
+                      className="w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+                    />
+                  </div>
                 </div>
 
                 {/* Meeting Duration */}
@@ -378,20 +376,24 @@ function Schedule() {
               </div>
 
               {/* Buttons */}
-              <div className="flex justify-between pt-4">
+              <div className="flex justify-between pt-4 items-center">
                 <button
                   type="reset"
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded"
-                  // onClick={handleReset}
+                  className="px-4 py-2 text-[#45C74D] underline"
                 >
                   Clear Form
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-[#45C74D] text-white rounded"
-                >
-                  Schedule Meeting
-                </button>
+
+                <div className="flex-1 flex justify-center">
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-[#45C74D] text-white rounded-lg"
+                  >
+                    Schedule Meeting
+                  </button>
+                </div>
+                {/* Empty right side to balance layout */}
+                <div className="w-16"></div>
               </div>
             </form>
           </div>

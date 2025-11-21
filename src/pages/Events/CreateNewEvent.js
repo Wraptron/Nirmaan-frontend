@@ -3,6 +3,7 @@ import NavBar from "../../components/NavBar";
 import SideBar from "../../components/sidebar";
 import mentorsvg from "../../assets/images/Frame (11).svg";
 import { FiUpload } from "react-icons/fi";
+import EventPreview from "./EventPreview";
 
 function CreateNewEvent() {
   const [eventdata, setEventdata] = useState({
@@ -33,6 +34,11 @@ function CreateNewEvent() {
       }));
     }
   };
+
+  //Preview
+  const [showpreview, setshowPreview] = useState(false);
+  const handleshowpreviewclick = () => setshowPreview(true)
+  const handleshowpreviewclose = () => setshowPreview(false)
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -98,7 +104,7 @@ function CreateNewEvent() {
                         value="Private"
                         onChange={handleChange}
                         checked={eventdata.event_privacy === "Private"}
-                        className="mr-2"
+                        className="mr-2 text-[#45C74D]"
                       />
                       Private
                     </label>
@@ -109,7 +115,7 @@ function CreateNewEvent() {
                         value="Public"
                         onChange={handleChange}
                         checked={eventdata.event_privacy === "Public"}
-                        className="mr-2"
+                        className="mr-2 text-[#45C74D]"
                       />
                       Public
                     </label>
@@ -212,25 +218,34 @@ function CreateNewEvent() {
               </div>
 
               {/* Buttons */}
-              <div className="flex justify-between pt-4">
+              <div className="flex justify-between pt-4 items-center">
                 <button
                   type="reset"
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded"
-                  // onClick={handleReset}
+                  className="px-4 py-2 text-[#45C74D] underline"
                 >
                   Clear Form
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-[#45C74D] text-white rounded"
-                >
-                  Preview
-                </button>
+
+                <div className="flex-1 flex justify-center">
+                  <button
+                    type="button"
+                    className="px-4 py-2 bg-[#45C74D] text-white rounded-lg"
+                    onClick={handleshowpreviewclick}
+                  >
+                    Preview
+                  </button>
+                </div>
+
+                {/* Empty right side to balance layout */}
+                <div className="w-16"></div>
               </div>
             </form>
           </div>
         </div>
       </div>
+      {showpreview && (
+        <EventPreview eventdata={eventdata} onClose={handleshowpreviewclose} />
+      )}
     </div>
   );
 }
