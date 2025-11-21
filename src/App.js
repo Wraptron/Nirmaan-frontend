@@ -146,6 +146,7 @@ import "sweetalert2/dist/sweetalert2.min.css";
 import Home from "./pages/Home/home";
 import Login from "./pages/Login";
 import Connections from "./pages/Connections/connection";
+import AddConnections from "./pages/Connections/addConnection";
 import Forms from "./components/Forms";
 import Startups from "./pages/startups/Startups";
 import AddStartup from "./pages/startups/AddStartup";
@@ -198,7 +199,11 @@ import FinanceStartupdetails from "./Finance/Pages/Startup/Finstartup";
 import ProtectedRoutes from "./utils/ProtectedRoutes";
 import Finstartup from "./Finance/Pages/Startup/Finstartup";
 import StartupFundingDetail from "./Finance/Pages/Startup/StartupfundingDetail";
+import Schedule from "./pages/Mentorship/Schedule";
 
+// Startup Logi
+import StartupMentor from "./pages/startups/Mentor/Mentor";
+import StartupList from "./pages/startups/Startup/StartupList"
 function App() {
   useEffect(() => {
     localStorage.getItem("token");
@@ -220,7 +225,7 @@ function App() {
             <Route path="/addstartup" element={<AddStartup />} />
             <Route path="/startups" element={<Startups />} />
             <Route path="/connections" element={<Connections />} />
-            <Route path="/addconnections" element={<Forms />} />
+            <Route path="/addconnections" element={<AddConnections/>} />
             <Route path="/mentors" element={<Mentor />} />
             <Route path="/events" element={<Events />} />
             <Route path="/mentorship" element={<MentorShip />} />
@@ -254,6 +259,7 @@ function App() {
                 </PDFViewer>
               }
             />
+             <Route path="/mentorship/scheduleMeeting" element={<Schedule />} />
           </Route>
 
           {/* Startup Profile Routes (Admin: 2 + Students: 5) */}
@@ -270,7 +276,9 @@ function App() {
 
           {/* Student Only Routes (Role: 5) */}
           <Route element={<ProtectedRoutes allowedRoles={["5"]} />}>
+
             <Route path="/customer/Home" element={<CustomerHome />} />
+            {/* <Route path="/startupprofile/" element={<Startupprofile/>} /> */}
             <Route path="/customer/resume" element={<Resume />} />
             <Route path="/customer/resources" element={<Resource />} />
             <Route path="/customer/Mentor" element={<CustomerMentor />} />
@@ -282,6 +290,9 @@ function App() {
             <Route path="/customer/home/request" element={<RaiseRequest />} />
             <Route path="/customer/Startups" element={<CustomerStartup />} />
             <Route path="/customer/contacts" element={<CustomerContacts />} />
+            <Route path="/startup/mentor" element={<StartupMentor/>} />
+            <Route path="/startup/startuplist" element={<StartupList/>} />
+
           </Route>
 
           {/* Finance Routes (Role: 3) */}

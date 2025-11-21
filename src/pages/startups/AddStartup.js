@@ -296,6 +296,7 @@ import { useNavigate } from 'react-router-dom';
 import { ApiAddStartup } from "../../API/API";
 
 function AddStartup() {
+  const [issubmitting,setIsSubitting]=useState(false)
     const [formData, setFormData] = useState({
         basic: {
             startup_name: '',
@@ -516,12 +517,15 @@ function AddStartup() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if(issubmitting) return
         if (!validateStep()) return;
     try {
+      setIsSubitting(true)
         const response = await ApiAddStartup(formData);
 
         if (response.data?.status?.status === "data already exists") {
             toast.error('Startup already exists');
+            setIsSubitting(false)
         } else {
             Swal.fire({
                 icon: "success",
@@ -542,6 +546,7 @@ function AddStartup() {
             // title: "Server Error",
             text: backendMsg
         });
+        setIsSubitting(false)
     }
 };
 
@@ -674,13 +679,17 @@ function AddStartup() {
                         Back
                       </button>
                     )}
-                    {steps === 3 ? (
-                      <button
-                        className="bg-[#45c74d] p-2 rounded-lg text-white font-semibold"
-                        onClick={handleSubmit}
-                      >
-                        Submit
-                      </button>
+                  {steps === 3 ? (
+  <button
+    className={`bg-[#45c74d] p-2 rounded-lg text-white font-semibold ${
+      issubmitting ? "opacity-50 cursor-not-allowed" : ""
+    }`}
+    onClick={handleSubmit}
+    disabled={issubmitting}
+  >
+    {issubmitting ? "Submitting..." : "Submit"}
+  </button>
+
                     ) : (
                       <button
                         className="bg-[#45c74d] p-2 rounded-lg text-white font-semibold"

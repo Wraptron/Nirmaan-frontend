@@ -103,15 +103,15 @@ function Login() {
             {
                 const accessToken = response.data.result.accessToken;
                 const userRole = response.data.result.role;
-                const userEmail = response.data.result.id;
+                const startup_id  = response.data.result.userData?.startup_id
                 
-                console.log('Login response:', response.data);
-                console.log('User role:', userRole);
+                // console.log('Login response:', response.data);
+                // console.log('User role:', userRole);
                 
                 // Store token and role
                 localStorage.setItem('token', accessToken);
                 sessionStorage.setItem('role', userRole);
-                sessionStorage.setItem('userEmail', userEmail);
+                sessionStorage.setItem('startup_id', startup_id);
                 
                 setError('');
                 setLoading(false);
@@ -119,8 +119,8 @@ function Login() {
                 // Navigate based on role
                 if(userRole === 5) // Student role
                 {
-                    console.log('Navigating to startup profile for user:', userEmail);
-                    navigate(`/startupprofile/${userEmail}`);
+                    // console.log('Navigating to startup profile for user:', startup_id);
+                    navigate(`/startupprofile/${startup_id}`);
                 }
                 else if(userRole === 2) // Admin role
                 {
