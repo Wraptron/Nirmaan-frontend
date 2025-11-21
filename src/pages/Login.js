@@ -200,7 +200,7 @@ function Login() {
                                 </div>
                                 <div className='mt-3 flex flex-col gap-y-4'>
                                     <button 
-                                        type="submit"
+                                        onClick={handleSubmit}
                                         disabled={loading}
                                         className="active:scale-[.98] active:duration-75 hover:scale-[1.02] ease-in-out transition-all py-3 rounded-xl bg-green-500 text-white text-lg font-bold flex items-center justify-center disabled:opacity-50"
                                     >
