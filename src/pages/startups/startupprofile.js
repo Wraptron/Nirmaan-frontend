@@ -338,7 +338,15 @@ function StartupProfile() {
   const needsTruncation = (text, maxLength = 150) => {
     return text && text.length > maxLength;
   };
-
+  function encodeS3Url(url) {
+      if (!url || typeof url !== "string") return null;
+      const parts = url.split('/');
+      const fileName = parts.pop(); // last part
+      const encodedFileName = encodeURIComponent(fileName);
+      return parts.join('/') + '/' + encodedFileName;
+  } 
+  const profileImage = encodeS3Url(startupData?.profile_image) || profileImg;
+  //console.log(profileImage);
   return (
     <div className="flex font-[\'DM Sans\',sans-serif]">
       <SideBar />
@@ -392,7 +400,7 @@ function StartupProfile() {
                 <div className="absolute left-1/2 top-[90px] -translate-x-1/2 z-10">
                   <div className="w-24 h-24 rounded-full border-4 border-[#45C74D] bg-white flex items-center justify-center overflow-hidden">
                     <img
-                      src={profileImg}
+                      src={profileImage}
                       alt="Profile"
                       className="w-22 h-22 rounded-full object-cover"
                     />

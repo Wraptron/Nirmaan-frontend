@@ -668,7 +668,9 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
       setBgPreview(URL.createObjectURL(file));
     }
   };
-
+  //url encoding for urls - images
+      
+  //ending here
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -737,7 +739,14 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
       toast.error("Failed to update profile");
     }
   };
-
+  function encodeS3Url(url) {
+      const parts = url.split('/');
+      const fileName = parts.pop(); // last part
+      const encodedFileName = encodeURIComponent(fileName);
+      return parts.join('/') + '/' + encodedFileName;
+  } 
+  const profileImage = encodeS3Url(initialData.profile_image);
+  console.log(profileImage);
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl shadow-lg w-[500px] relative">
@@ -774,7 +783,7 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
               <div className="relative w-24 h-24">
                 {profilePreview ? (
                   <img
-                    src={profilePreview}
+                    src={profileImage}
                     alt="Profile"
                     className="w-24 h-24 rounded-xl border-4 border-white shadow-lg object-cover bg-gray-100"
                   />
