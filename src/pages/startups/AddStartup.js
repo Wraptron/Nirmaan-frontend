@@ -485,7 +485,7 @@ function AddStartup() {
         }
       }
 
-      return true; // All fields passed
+      return true;
     }
 
     if (steps === 3) {

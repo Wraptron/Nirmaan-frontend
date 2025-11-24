@@ -354,7 +354,8 @@ import {
 } from "react-icons/fa";
 import { ApiDeletStartupData, ApiFetchStartup } from "../../API/API";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 function Startups() {
   const [data, setData] = useState([]);
@@ -575,7 +576,10 @@ function Startups() {
       console.error(err);
     }
   };
-
+  let decoded = jwtDecode(localStorage.getItem("token"));
+  if (decoded.role != 2 && decoded.role != 5) {
+    return <Navigate to="/" replace />;
+  }
   return (
     <div className="flex">
       <SideBar />
