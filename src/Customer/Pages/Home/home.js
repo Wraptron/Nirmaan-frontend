@@ -1,5 +1,4 @@
-import React, { useEffect } from 'react';
-import lity from 'lity';
+import React from "react";
 import SideBar from '../../components/SideBar';
 import NavBar from '../../../components/NavBar';
 const CustomerHome = () => {

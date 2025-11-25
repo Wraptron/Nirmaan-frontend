@@ -1,7 +1,4 @@
-import React, {
-    useState,
-    useEffect
-} from "react";
+import React from "react";
 function ProfileModal({isVisible, onClose, children}){
     if(!isVisible) return null;
     const handleClose = (e) => {

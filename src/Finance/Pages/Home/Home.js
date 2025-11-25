@@ -1,102 +1,380 @@
-import React, {useState, useEffect} from 'react'
-import SideBar from '../../../Finance/Components/Sidebar'
-import NavBar from '../../../components/NavBar'
-import { FaIndianRupeeSign } from 'react-icons/fa6'
-import FundingAksharPieChart from '../../../components/FundingAkshar'
-import FundingPrathamPieChart from '../../../components/FundingPratham'
-import FundingUtilized from '../../../components/FundingUtilized'
-import FundsRemaining from '../../../components/FundsRemaining'
-import axios from 'axios'
-import HomeFinance from '../../../pages/Home/Finance/Finance'
-const FinanceHome = () => {
-  //console.log(props)
-  const [data, setData] = useState([]);
-  const Api = async() => {
-    try
-    {
-      const result = await axios.get('http://localhost:3003/api/v1/count-startupdata');
-      //console.log(result.rows);
-      // if(result)
-      console.log(result)
-      setData(result.data)
-    }
-    catch(err)
-    {
+import React, { useState, useEffect } from "react";
+import SideBar from "../../Components/Sidebar";
+import {
+  FaBusinessTime,
+  FaGlobeAsia,
+  FaHeartbeat,
+  FaLightbulb,
+  FaSeedling,
+  FaUniversity,
+  FaUserGraduate,
+} from "react-icons/fa";
+import { SkeletonLoader } from "../../../components/SkeletonLoader";
+import { FaHandHoldingDollar } from "react-icons/fa6";
+import { ApiFetchFundingProject } from "../../../API/API";
+import { FiEdit2 } from "react-icons/fi";
+import ProjectFundingDetail from "../Startup/ProjectFundingDetails";
+import Navbar from "../../Components/Navbar";
+import AddFundingWallet from "../Startup/AddFundingWallet";
+
+function Home() {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [showw, setShoww] = useState(false);
+  const [funding, setFunding] = useState({});
+  const [selectedproject, setSelectedProject] = useState(null);
+  const [showFundingModal, setShowFundingModal] = useState(false);
+  const [showFundingWalletForm, setShowFundingWalletForm] = useState(false);
+  const handleFundingWalletClick = () => setShowFundingWalletForm(true);
+   const handleFundingWalletClose = () => setShowFundingWalletForm(false);
+  const handleFundingModalClose = () => setShowFundingModal(false);
+
+  useEffect(() => {
+    setShoww(true);
+  }, []);
+  const FetchData = async () => {
+    try {
+      const fundingcount = await ApiFetchFundingProject();
+      const totalfunding = fundingcount || {};
+      setFunding(totalfunding);
+      setIsLoaded(true);
+    } catch (err) {
       console.log(err);
     }
-  }
-  useEffect(() => {
-      Api()
-      console.log('hello')
-  }, [])
-  return (
-              <div className="h-screen flex">
-                    <section className="fixed h-full">
-                          <SideBar />
-                    </section>
-                    <section className="flex-grow">
-                            <div className="fixed w-full">
-                                  <NavBar />
-                            </div>
-                            <div className="p-[90px;] h-full">
-                                    <div className="grid md:grid-cols-4 gap-4 mt-2 grid-cols-1">
-                                          <div className="col-span-3 gap-3">
-                                                  <div className="grid md:grid-cols-4 gap-2">
-                                                      <div className="shadow-md font-semibold rounded-lg w-[100%;]" style={{backgroundColor: '#afdade'}}>
-                                                              <div className="p-4 text-md text-gray-600">Pratham (in Total)</div>
-                                                              <div className="p-3 pt-3 text-3xl font-semibold pb-4 justify-end items-end flex text-gray-500"><span><FaIndianRupeeSign /></span>{data?.Funding_Distrubuted_data?.Pratham?.Total_funding_pratham || "NA"}</div>
-                                                      </div>
-                                                      <div className="shadow-md rounded-lg w-[100%;]" style={{backgroundColor: '#afd5de'}}>
-                                                          <div className="p-4 text-md font-semibold text-gray-600">Akshar (in Total)</div>
-                                                          <div className="p-3 pt-3 text-3xl font-semibold pb-4 justify-end items-end flex text-gray-500"><span><FaIndianRupeeSign /></span>{data?.Funding_Distrubuted_data?.Akshar?.Total_funding_Akshar}</div>
-                                                      </div>
-                                                      <div className="shadow-md rounded-lg w-[100%;]" style={{backgroundColor: '#afcdde'}}>
-                                                              <div className="p-4 text-md font-semibold text-gray-600">Total funds distributed</div>
-                                                              <div className="p-3 pt-3 text-3xl font-semibold pb-4 justify-end items-end flex text-gray-500"><span><FaIndianRupeeSign /></span>{data?.Funding_Distrubuted_data?.Total_funding_used?.Total_funding_distributed || "NA"}</div>
-                                                      </div>
-                                                      <div className="shadow-md rounded-lg w-[100%;]" style={{backgroundColor: '#7da1ad'}}>
-                                                              <div className="p-4 text-md font-semibold text-gray-600">Total funds utilized</div>
-                                                              <div className="p-3 pt-3 text-3xl font-semibold pb-4 justify-end items-end flex text-gray-600"><span><FaIndianRupeeSign /></span>{data?.Funding_Distrubuted_data?.Total_funding_used?.Total_funds_utilized || "NA"}</div>
-                                                      </div>
-                                                  </div>
-                                                  <div className="grid md:grid-cols-2 gap-6 mt-10 mb-2">
-                                                      <div className="shadow-md rounded-lg w-[100%;] border md:h-[435px;]">
-                                                              <div className="p-2 md:text-md text-gray-600 font-semibold">Funding Distributed across Sectors(Akshar)</div>
-                                                              <div className="justify-center items-center"><FundingAksharPieChart props={data} /></div>
-                                                      </div>
-                                                      <div className="shadow-md rounded-lg w-[100%;] border">
-                                                          <div className="p-3 pt-2 md:text-md text-gray-600 font-semibold">Funding Distributed across Sectors(Pratham)</div>
-                                                          <div className="justify-center items-center"><FundingPrathamPieChart props={data} /></div>
-                                                      </div>
-                                                  </div>
-                                          </div>
-                                          <div className="col-span-1  gap-3">
-                                                  <div className="grid grid-cols-1 gap-3 mb-2">
-                                                      <div className="shadow-md font-semibold rounded-lg w-full md:h-[300px;] border">
-                                                          <div className="p-2 pt-1 text-xs text-gray-600 font-semibold">Funding Utilized across sectors</div>
-                                                          <div className="flex justify-center items-center mb-1">
-                                                              <div className="w-50 h-50 overflow-hidden">
-                                                                      <FundingUtilized props={data}/>
-                                                              </div>
-                                                          </div>
-                                                      </div>
-                                                  </div>
-                                                  <div className="grid grid-cols-1 gap-3">
-                                                      <div className="shadow-md font-semibold rounded-lg w-full md:h-[300px;] border">
-                                                          <div className="p-2 pt-1 text-sm text-gray-600 font-semibold">Total Funds remaining</div>
-                                                          <div className="flex justify-center items-center mb-1">
-                                                              <div className="w-50 h-50 overflow-hidden">
-                                                                  <FundsRemaining props={data}/>
-                                                              </div>
-                                                          </div>
-                                                      </div>
-                                                  </div>
-                                          </div>
-                                    </div> 
-                            </div>
-                    </section>
-              </div>
-  )
-}
+  };
 
-export default FinanceHome;
+  useEffect(() => {
+    setTimeout(() => {
+      FetchData();
+    }, 2000);
+  }, []);
+
+  const handleNavbarSelection = (index) => {
+    setSelectedIndex(index);
+  };
+
+  const handleFundingModalClick = (project) => {
+    FetchData();
+    setShowFundingModal(true);
+    setSelectedProject(project);
+    setShowFundingModal(true);
+  };
+  return (
+    <div className="flex ">
+      <div className="">
+        <SideBar />
+      </div>
+      <div className="ml-[221px] flex-grow">
+        <div>
+          <Navbar
+            onSelectionChange={handleNavbarSelection}
+            selectedIndex={selectedIndex}
+          />
+        </div>
+        <div className="bg-gray-100 flex-grow overflow-y-auto">
+          {selectedIndex === 0 && (
+            <div className={`px-10 py-5 content ${showw ? "visible" : ""}`}>
+              {/* Your existing dashboard section remains unchanged */}
+              <div className="grid grid-cols-2 gap-5 mb-8 w-full ">
+                <div className="border bg-white  rounded-xl col-span-2 ">
+                  <div className="py-2 px-7 text-xl underline underline-offset-[13px] decoration-gray-200 ">
+                    Funding Dashboard
+                  </div>
+                  {/* <div className="py-2 px-7 text-lg ">Overview</div> */}
+                  <div className="flex items-center justify-between">
+                    <div className="py-2 px-7 text-2xl text-[#45C74D]  ">
+                      Nirmaan
+                    </div>
+                    <button
+                      className="bg-[#45C74D] text-white px-5 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition"
+                      onClick={handleFundingWalletClick}
+                    >
+                      Add Funding Wallet
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-10 px-7 py-2 ">
+                    <div className="shadow-md border border-sm rounded-lg p-2 min-w-[200px]">
+                      <div className="pb-1 flex justify-between">
+                        <FaSeedling size={20} className="text-[#45C74D]" />
+                        <button className=" hover:bg-gray-100 rounded-full">
+                          <FiEdit2
+                            size={16}
+                            className="text-[#45C74D]"
+                            onClick={() =>
+                              handleFundingModalClick("Nirmaan Seed Funding")
+                            }
+                          />
+                        </button>
+                      </div>
+
+                      <div className="text-2xl font-semibold">
+                        {isLoaded ? (
+                          <>
+                            Rs.{" "}
+                            {(funding?.NirmaanSeedFunding || 0).toLocaleString(
+                              "en-IN"
+                            )}
+                          </>
+                        ) : (
+                          <SkeletonLoader />
+                        )}
+                      </div>
+                      <div className="text-sm">Nirmaan Seed Funding</div>
+                      <div className="flex gap-1">
+                        <div >
+                          ID -
+                        </div>
+                        <div className=" text-[#45C74D]">SB1920497ALUMCIEHOC</div>
+                      </div>
+                    </div>
+                    <div className="shadow-md border border-sm rounded-lg p-2">
+                      <div className="pb-1 flex justify-between">
+                        <FaHandHoldingDollar
+                          size={20}
+                          className="text-[#FFB866]"
+                        />
+                        <button className=" hover:bg-gray-100 rounded-full">
+                          <FiEdit2
+                            size={16}
+                            className="text-[#45C74D]"
+                            onClick={() =>
+                              handleFundingModalClick("Shankar Endownment Fund")
+                            }
+                          />
+                        </button>
+                      </div>
+                      <div className="text-2xl font-semibold ">
+                        {isLoaded ? (
+                          <>
+                            Rs.{" "}
+                            {(
+                              funding?.ShankarEndownmentFund || 0
+                            ).toLocaleString("en-IN")}
+                          </>
+                        ) : (
+                          <SkeletonLoader />
+                        )}
+                      </div>
+                      <div className="text-sm">Shankar Endownment Fund</div>
+                      <div className="flex gap-1">
+                         <div >
+                          ID -
+                        </div>
+                         <div className="text-lg text-[#45C74D]">SB25260212CPALUMCIEHOC</div>
+                      </div>
+                    </div>
+                    <div className="shadow-md border border-sm rounded-lg p-2">
+                      <div className="pb-1 flex justify-between">
+                        <FaGlobeAsia size={20} className="text-[#45C74D]" />
+                        <button className=" hover:bg-gray-100 rounded-full">
+                          <FiEdit2
+                            size={16}
+                            className="text-[#45C74D]"
+                            onClick={() =>
+                              handleFundingModalClick("Nirmaan External")
+                            }
+                          />
+                        </button>
+                      </div>
+                      <div className="text-2xl font-semibold">
+                        {isLoaded ? (
+                          <>
+                            Rs.{" "}
+                            {(funding?.NirmaanExternal || 0).toLocaleString(
+                              "en-IN"
+                            )}
+                          </>
+                        ) : (
+                          <SkeletonLoader />
+                        )}
+                      </div>
+                      <div className="text-sm">Nirmaan External</div>
+                      <div className="flex gap-1">
+                         <div >
+                          ID -
+                        </div>
+                         <div className="text-[#45C74D]">CR23241466CPAAAACIEHOC </div>
+                      </div>
+                    </div>
+                    <div className="shadow-md border border-sm rounded-lg p-2">
+                      <div className="pb-1 flex justify-between">
+                        <FaHeartbeat size={20} className="text-[#45C74D]" />
+                        <button className=" hover:bg-gray-100 rounded-full">
+                          <FiEdit2
+                            size={16}
+                            className="text-[#45C74D]"
+                            onClick={() =>
+                              handleFundingModalClick("AI for Healthcare")
+                            }
+                          />
+                        </button>
+                      </div>
+                      <div className="text-2xl font-semibold">
+                        {isLoaded ? (
+                          <>
+                            Rs.{" "}
+                            {(funding?.AIforHealthcare || 0).toLocaleString(
+                              "en-IN"
+                            )}
+                          </>
+                        ) : (
+                          <SkeletonLoader />
+                        )}
+                      </div>
+                      <div className="text-sm">AI for Healthcare</div>
+                      <div className="flex gap-1">
+                         <div >
+                          ID -
+                        </div>
+                         <div className="text-[#45C74D]">SB21220983CPIITMCIEHOC</div>
+                      </div>
+                    </div>
+                    <div className="shadow-md border border-sm rounded-lg p-2">
+                      <div className="pb-1 flex justify-between">
+                        <FaUserGraduate size={20} className="text-[#FFB866]" />
+                        <button className=" hover:bg-gray-100 rounded-full">
+                          <FiEdit2
+                            size={16}
+                            className="text-[#45C74D]"
+                            onClick={() => handleFundingModalClick("UGFIR")}
+                          />
+                        </button>
+                      </div>
+                      <div className="text-2xl font-semibold">
+                        {isLoaded ? (
+                          <>
+                            Rs. {(funding?.UGFIR || 0).toLocaleString("en-IN")}
+                          </>
+                        ) : (
+                          <SkeletonLoader />
+                        )}
+                      </div>
+                      <div className="text-sm">UGFIR</div>
+                      <div className="flex gap-1">
+                         <div >
+                          ID -
+                        </div>
+                        <div className="text-[#45C74D]">SB20210439CPIITMCIEHOC</div>
+                      </div>
+                    </div>
+                    <div className="shadow-md border border-sm rounded-lg p-2">
+                      <div className="pb-1 flex justify-between">
+                        <FaUniversity size={20} className="text-[#45C74D]" />
+                        <button className=" hover:bg-gray-100 rounded-full">
+                          <FiEdit2
+                            size={16}
+                            className="text-[#45C74D]"
+                            onClick={() => handleFundingModalClick("PGFIR")}
+                          />
+                        </button>
+                      </div>
+                      <div className="text-2xl font-semibold">
+                        {isLoaded ? (
+                          <>
+                            RS. {(funding?.PGFIR || 0).toLocaleString("en-IN")}
+                          </>
+                        ) : (
+                          <SkeletonLoader />
+                        )}
+                      </div>
+                      <div className="text-sm">PGFIR</div>
+                      <div className="flex gap-1">
+                         <div >
+                          ID -
+                        </div>
+                        <div className=" text-[#45C74D]">SB1920720CPIITMCIEHOC</div>
+                      </div>
+                    </div>
+                    <div className="shadow-md border border-sm rounded-lg p-2">
+                      <div className="pb-1 flex justify-between">
+                        <FaLightbulb size={20} className="text-[#45C74D]" />
+                        <button className=" hover:bg-gray-100 rounded-full">
+                          <FiEdit2
+                            size={16}
+                            className="text-[#45C74D]"
+                            onClick={() =>
+                              handleFundingModalClick(
+                                "Nirmaan the Pre-Incubator"
+                              )
+                            }
+                          />
+                        </button>
+                      </div>
+                      <div className="text-2xl font-semibold">
+                        {isLoaded ? (
+                          <>
+                            Rs.{" "}
+                            {(
+                              funding?.NirmaanthePre_Incubator || 0
+                            ).toLocaleString("en-IN")}
+                          </>
+                        ) : (
+                          <SkeletonLoader />
+                        )}
+                      </div>
+                      <div className="text-sm">Nirmaan the Pre-Incubator</div>
+                      <div className="flex gap-1">
+                         <div >
+                          ID -
+                        </div>
+                        <div className=" text-[#45C74D]">LM23242568MEIITMMEHOLX</div>
+                      </div>
+                    </div>
+                    <div className="shadow-md border border-sm rounded-lg p-2">
+                      <div className="pb-1 flex justify-between">
+                        <FaBusinessTime size={20} className="text-[#FFB866]" />
+                        <button className=" hover:bg-gray-100 rounded-full">
+                          <FiEdit2
+                            size={16}
+                            className="text-[#45C74D]"
+                            onClick={() =>
+                              handleFundingModalClick(
+                                "Amex Program for Innovation & Entrepreneurship"
+                              )
+                            }
+                          />
+                        </button>
+                      </div>
+                      <div className="text-2xl font-semibold">
+                        {isLoaded ? (
+                          <>
+                            RS.{" "}
+                            {(
+                              funding?.AmexProgramforInnovationEntrepreneurship ||
+                              0
+                            ).toLocaleString("en-IN")}
+                          </>
+                        ) : (
+                          <SkeletonLoader />
+                        )}
+                      </div>
+                      <div className="text-sm">
+                        Amex Program for Innovation & Entrepreneurship
+                      </div>
+                      <div className="flex gap-1">
+                         <div >
+                          ID -
+                        </div>
+                        <div className="text-[#45C74D]">CR/24-25/1670/ME/AMEX/008469</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      {showFundingModal && (
+        <ProjectFundingDetail
+          onClose={handleFundingModalClose}
+          selectedProject={selectedproject}
+        />
+      )}
+       {showFundingWalletForm && (
+              <AddFundingWallet onClose={handleFundingWalletClose} />
+            )}
+    </div>
+  );
+}
+export default Home;

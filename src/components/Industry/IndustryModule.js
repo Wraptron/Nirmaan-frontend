@@ -69,7 +69,7 @@ function IndustryModule()
                                                         $2999
                                                     </td>
                                                     <td class="px-6 py-4">
-                                                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                                                        <button type="button" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</button>
                                                     </td>
                                                 </tr>
                                                 <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
@@ -86,7 +86,7 @@ function IndustryModule()
                                                         $1999
                                                     </td>
                                                     <td class="px-6 py-4">
-                                                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                                                        <button type="button" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</button>
                                                     </td>
                                                 </tr>
                                                 <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
@@ -103,7 +103,7 @@ function IndustryModule()
                                                         $99
                                                     </td>
                                                     <td class="px-6 py-4">
-                                                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                                                        <button type="button" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</button>
                                                     </td>
                                                 </tr>
                                                 <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
@@ -120,7 +120,7 @@ function IndustryModule()
                                                         $799
                                                     </td>
                                                     <td class="px-6 py-4">
-                                                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                                                        <button type="button" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</button>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -137,7 +137,7 @@ function IndustryModule()
                                                         $999
                                                     </td>
                                                     <td class="px-6 py-4">
-                                                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                                                        <button type="button" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</button>
                                                     </td>
                                                 </tr>
                                             </tbody>

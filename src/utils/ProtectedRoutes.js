@@ -1,19 +1,23 @@
-import { Navigate, Outlet } from 'react-router-dom'
-function ProtectedRoutes({ requiredRoles }){  
-  let role = sessionStorage.getItem('role');
-  let token  = localStorage.getItem('token')
-  let result = {'token': token, 'role': role}
-//   let auth = {'token':true}
-//     return (
-//         result.token && result.role ? <Outlet/> : <Navigate to='/'/>
-//     )
-    if(!token || !role)
-    {
-        return <Navigate to="/" />
-    }
-    if(requiredRoles && !requiredRoles.includes(role)){
-        return <Navigate to="/" />
-    }
-    return <Outlet />
+// utils/ProtectedRoutes.js
+import React from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
+
+function ProtectedRoutes({ requiredRoles = [] }) {
+  const token = localStorage.getItem('token');
+  const role = sessionStorage.getItem('role');
+
+  // If token or role is missing, redirect to login
+  if (!token || !role) {
+    return <Navigate to="/" replace />;
+  }
+
+  // If role is not in the allowed roles, redirect to login
+  if (requiredRoles.length > 0 && !requiredRoles.includes(role)) {
+    return <Navigate to="/" replace />;
+  }
+
+  // User is authenticated and authorized
+  return <Outlet />;
 }
+
 export default ProtectedRoutes;

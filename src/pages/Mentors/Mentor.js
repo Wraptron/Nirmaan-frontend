@@ -18,18 +18,20 @@ function Mentor() {
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const API = await ApiFetchMentor();
-        setData(API.STATUS.rows);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+ useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const API = await ApiFetchMentor();
+      // sort by mentor_id or any unique field
+      const sortedData = API.STATUS.rows.sort((a, b) => a.mentor_id - b.mentor_id);
+      setData(sortedData);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-    fetchData();
-  }, []);
+  fetchData();
+}, []);
 
   // Click outside to close dropdown
   useEffect(() => {
@@ -113,7 +115,7 @@ function Mentor() {
 
             <a
               href="/mentor/new"
-              className="mt-3 md:mt-0 bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg font-semibold text-sm"
+              className="mt-3 md:mt-0 bg-[#45C74D]  text-white px-5 py-2 rounded-lg font-semibold text-sm"
             >
               Add New Mentor
             </a>
@@ -127,7 +129,7 @@ function Mentor() {
                 className="bg-white rounded-2xl shadow-md p-4 flex items-center justify-between relative"
               >
                 <img
-                  src={mentor.mentor_logo.replace("/uploads/", "") || ImageSvg}
+                  src={mentor.mentor_logo || ImageSvg}
                   alt="Mentor"
                   className="rounded-full w-20 h-20 object-cover aspect-square"
                 />
@@ -210,7 +212,7 @@ function Mentor() {
                   onClick={() => setCurrentPage(i + 1)}
                   className={`px-3 py-1 text-sm rounded-md ${
                     currentPage === i + 1
-                      ? "bg-green-500 text-white"
+                      ? "bg-[#45C74D] text-white"
                       : "bg-gray-200"
                   }`}
                 >

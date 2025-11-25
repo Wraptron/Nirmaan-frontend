@@ -4,34 +4,13 @@ import NavBar from '../../components/NavBar';
 import {useParams} from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import {Icon} from 'react-icons-kit';  
-import { FaArrowAltCircleDown, FaArrowCircleDown, FaArrowCircleLeft, FaArrowDown, FaEnvelope, FaMoneyCheck, FaPhone } from 'react-icons/fa';
-import {arrowDownCircle} from 'react-icons-kit/feather/arrowDownCircle';
-import { IoIosCloseCircleOutline } from "react-icons/io";
-import { FaPencil } from 'react-icons/fa6';
-import {arrowUpCircle} from 'react-icons-kit/feather/arrowUpCircle';
-import money from '../../assets/images/money.png'
 import editsvg from '../../assets/images/Frame (13).svg';
 function IndividualStartups() {
  const {id} = useParams();
  const [data, getData] = useState(null);
- const [arrowChange, setArrowChange] = useState(arrowDownCircle);
- let [phase, setPhase] = useState(0);
- const handleToggle = () => {
-
-    if(phase == 0){
-        setArrowChange(arrowUpCircle)
-        setPhase(1)
-    }
-    else if(phase ==1)
-    {
-        setArrowChange(arrowDownCircle)
-        setPhase(0);
-    }
-}
 const GetData = async() => {
 try {
-    const result = await axios.get(`http://localhost:3003/api/v1/startup/${id}`);
+    const result = await axios.get(`http://13.127.7.121/api/v1/startup/${id}`);
     getData(result.data);
     //console.log(result.data);
 }
@@ -42,12 +21,10 @@ catch(err)
 }
  useEffect(() => {
     GetData();
+ // eslint-disable-next-line react-hooks/exhaustive-deps
  },[id])
-//  useEffect(() => {
-    if (!data) return <div>Loading...</div>;
-    console.log(data?.FundingDistributes)
-    const startupName = data?.generalData?.basic?.startup_name || "Not Available";
-//  }, [])
+ if (!data) return <div>Loading...</div>;
+ //console.log(data?.FundingDistributes)
   return (
     <div className="flex">
                    <div>
@@ -74,7 +51,7 @@ catch(err)
                                                 <div className="bg-white rounded-md border p-3 px-4">
                                                             <div className="font-semibold text-lg flex justify-between">
                                                                 <div>About Us</div>
-                                                                <div><button><img src={editsvg} /></button></div>
+                                                                <div><button><img src={editsvg} alt="edit" /></button></div>
                                                             </div>
                                                             <div className="pt-2 text-sm">Our Seat oF Joy manufacturers a child safety seat for Motorcycles that protects a child during accidents. Our Seat along with protecting the child, also slidable foldable and convertible into a storage box.</div>
                                                             <div className="flex justify-between pt-5">

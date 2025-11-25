@@ -2,11 +2,10 @@ import React,{useState, useEffect} from "react";
 import SideBar from "../../components/SideBar";
 import NavBar from "../../../components/NavBar";
 import axios from "axios";
-import alertify from "alertifyjs";
 import { jwtDecode } from "jwt-decode";
-import {Bounce, ToastContainer, toast} from "react-toastify"
+import {ToastContainer, toast} from "react-toastify"
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate} from "react-router-dom";
+// import { useNavigate} from "react-router-dom"; // Removed unused import
 import {socket} from '../../../socket';
 function ProfileApply() {
     let token = jwtDecode(localStorage.getItem('token'));
@@ -18,7 +17,6 @@ function ProfileApply() {
         aws_email: '',
         aws_description: ''
     })
-    const[tokenData, setTokenData] = useState('');
     // const[enc, setEnc] = useState('');
     const handleChange = (e) => {
         const {name, value} = e.target;
@@ -35,7 +33,7 @@ function ProfileApply() {
                 // 'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json'
             }});
-            if(result.status==200)
+            if(result.status===200)
             {
                 toast.success("We received your information");
                 setAwsCreditData({
@@ -48,7 +46,7 @@ function ProfileApply() {
         }
         catch(err)
         {
-            if(err.response.status == 400)
+            if(err.response.status === 400)
             {
                 // alertify.warning("Field should not be empty")
                 toast.warning('Field Should not be empty', {
@@ -62,7 +60,7 @@ function ProfileApply() {
                     theme: "light",
                 })
             }
-            else if(err.response.status == 401)
+            else if(err.response.status === 401)
             {
                 toast.warning('Email is not valid')
             }
@@ -70,7 +68,7 @@ function ProfileApply() {
             // {
             //     alertify.warning("Field should not be empty");
             // }
-            else if(err.response.status == 409)
+            else if(err.response.status === 409)
             {
                 toast.error("Try after 24 hours!");
             }
@@ -107,7 +105,6 @@ function ProfileApply() {
         // socket.on('FirstEvent' , (msg) => {
         //      console.log(msg)
         // })
-        var token = token.user_mail;
         socket?.emit('newUser', (token.user_mail))
         // console.log(socket.emit("newUser", (user) => {
         //     console.log(user)

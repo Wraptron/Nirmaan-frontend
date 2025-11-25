@@ -1,8 +1,4 @@
 import React, {useState} from "react";
-import SideBar from "../../../components/sidebar";
-import NavBar from "../../../components/NavBar";
-import PieChart from "../../../components/Graph";
-import DonutChart from "../../../components/DonutChart";
 import FundingPrathamPieChart from "../../../components/FundingPratham";
 import { FaIndianRupeeSign } from "react-icons/fa6";
 import FundingAksharPieChart from "../../../components/FundingAkshar";
@@ -13,17 +9,6 @@ import FundingByCohort from "../../../components/FundingByCohort";
 import numberWithCommas from "../../../components/CommaSeperation";
 function HomeFinance(props){
     console.log(props.props)
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const [color, setColor] = useState(['#afdade', '#afd5de', '#afcdde', '#99b6bf', '#afd5de']);
-    const [selectedIndex, setSelectedIndex] = useState(null);
-    const [screenSize, setScreenSize] = useState('sm:')
-    const darkColor = '#0b5f66';
-    const toggleSideBar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-    };
-    const handleButtonClick = (index) => {
-        setSelectedIndex(selectedIndex === index ? null : index);
-    };
     const [selectedTopSectors, setSelectedTopSectors] = useState(1);
     const handleSectorChange = (event) => {
         setSelectedTopSectors(Number(event.target.value));

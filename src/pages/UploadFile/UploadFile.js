@@ -1,10 +1,11 @@
-import React, {useState, useEffect} from "react";
+import React, {useState} from "react";
 import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
 import axios from "axios";
 import alertify from 'alertifyjs';
 import { FaEye } from "react-icons/fa";
 import APP_URL from "../../Config";
+
 function UploadFile(){
     const[formdata, setFormData] = useState({
         name:'',
@@ -32,7 +33,7 @@ function UploadFile(){
         {
             const response = await axios.post(APP_URL+'resumeupload', formdata)
             //console.log(response);
-            if(response.status == 200)
+            if(response.status === 200)
             {
                 alertify.success("Uploaded Successfully");
             }

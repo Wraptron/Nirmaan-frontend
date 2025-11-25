@@ -2,70 +2,64 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import mailsvg from "../../assets/images/Frame (6).svg";
 import phonesvg from "../../assets/images/Frame (7).svg";
-import whatsappsvg from "../../assets/images/Frame (8).svg";
 import dummysvg from "../../assets/images/image (1).svg";
 import linkedinsvg from "../../assets/images/Frame (9).svg";
-import bgsvg from "../../assets/images/Rectangle 5.svg";
 import Testimonials from "../../assets/images/testimonial.png";
 import editsvg from "../../assets/images/Frame (12).svg";
+import toast from "react-hot-toast";
+import { FiEdit2 } from "react-icons/fi";
+import { FaTrash } from "react-icons/fa";
 
 import {
   ApiFetchMentor,
   ApiFetchScheduleMeetings,
   ApiFetchTestimonials,
-  ApiDeleteTestimonial,
-  ApiSaveFeedback,
   ApiFetchFeedback,
+  ApiUpdateTestimonial,
+  ApiDeleteTestimonial,
+  ApiFetchMeetingFeedback,
 } from "../../API/API";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import { FaChevronLeft, FaChevronRight, FaQuoteLeft, FaEllipsisV } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaQuoteLeft } from "react-icons/fa";
 import TestimonialForm from "./AddTestimonial";
 import EditMentorForm from "./EditMentorPage";
-import SideBar from '../../components/sidebar';
+import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
-import FeedbackModal from './FeedbackModal';
+import EditTestimonial from "./EditTestimonial";
+import DeleteConfirmation from "../../components/DeleteConfirmation";
+import dayjs from "dayjs";
+import FeedbackForm from "./FeedbackForm";
 
 function MentorProfile() {
   const { id } = useParams();
   const [mentor, setMentor] = useState(null);
-  const [meeting, setMeeting] = useState(null);
+  const [meeting, setMeeting] = useState([]);
+
+  //Feedback
+  const [showAddFeedbackForm, setShowAddFeedbackForm] = useState(false);
+  const [feedback, setFeedback] = useState([]);
+  const [selectedSession, setSelectedSession] = useState(null);
+  const [initialFeedback, setInitialFeedback] = useState(null);
+
+  //testimonial
   const [testimonial, setTestimonial] = useState([]);
+  const [edittestimonial, setEditTestimonial] = useState(null);
+  const [deletetestimonial, setdeletetestimonial] = useState(null);
+  const [showEditTestimonialForm, setShowEditTestimonialForm] = useState(false);
+  const [openDropdownId, setOpenDropdownId] = useState(null);
+  const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const navigationPrevRef = useRef(null);
   const navigationNextRef = useRef(null);
-  const prevRef = useRef(null);
-  const nextRef = useRef(null);
   const navigate = useNavigate();
-  const [selectedTestimonial, setSelectedTestimonial] = useState(null);
-  const [editTestimonial, setEditTestimonial] = useState(null);
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [selectedSession, setSelectedSession] = useState(null);
-  const [sessionFeedbacks, setSessionFeedbacks] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [activityCurrentPage, setActivityCurrentPage] = useState(1);
   const itemsPerPage = 3;
-
-  // Mock activity data - replace with actual API call
-  const [activities] = useState([
-    {
-      id: 1,
-      startup: "Start-up - Name",
-      activity: "Activity",
-      status: "Upcoming",
-    },
-    { id: 2, startup: "Start-up - Name", activity: "Activity" },
-    { id: 3, startup: "Start-up - Name", activity: "Activity" },
-    { id: 4, startup: "Start-up - Name", activity: "Activity" },
-  ]);
-
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [testimonialToDelete, setTestimonialToDelete] = useState(null);
 
   const handleScheduleClick = () => {
     navigate(`/schedulemeeting/${mentor.mentor_id}`);
@@ -77,31 +71,22 @@ function MentorProfile() {
       alert("LinkedIn URL not available for this mentor");
     }
   };
-  console.log(mentor);
-  const fetchTestimonials = async (mentorId) => {
-    try {
-      const TestimonialAPI = await ApiFetchTestimonials(mentorId);
-      const testimonialData = TestimonialAPI?.STATUS?.rows || [];
-      setTestimonial(testimonialData);
-    } catch (err) {
-      console.error("Error fetching testimonials:", err);
-    }
-  };
 
-  const fetchFeedback = async (meetingId) => {
-    try {
-      const response = await ApiFetchFeedback(meetingId);
-      if (response?.STATUS?.rows?.[0]) {
-        const feedbackData = response.STATUS.rows[0];
-        setSessionFeedbacks((prev) => ({
-          ...prev,
-          [meetingId]: feedbackData.feedback || "",
-        }));
-      }
-    } catch (error) {
-      console.error("Error fetching feedback:", error);
-    }
-  };
+
+  // const fetchFeedback = async (meetingId) => {
+  //   try {
+  //     const response = await ApiFetchFeedback(meetingId);
+  //     if (response?.STATUS?.rows?.[0]) {
+  //       // const feedbackData = response.STATUS.rows[0];
+  //       // setSessionFeedbacks((prev) => ({
+  //       //   ...prev,
+  //       //   [meetingId]: feedbackData.feedback || "",
+  //       // }));
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching feedback:", error);
+  //   }
+  // };
 
   const FetchData = async () => {
     try {
@@ -113,14 +98,27 @@ function MentorProfile() {
       setMentor(selectedMentor || null);
 
       const MeetAPI = await ApiFetchScheduleMeetings(selectedMentor?.mentor_id);
-      const meetings = MeetAPI?.STATUS?.rows || [];
-      setMeeting(meetings);
+      const meetings = MeetAPI || [];
+      setMeeting(meetings.reverse());
 
-      await fetchTestimonials(selectedMentor?.mentor_id);
+      const APITestimonial = await ApiFetchTestimonials();
+      const Testimonial = APITestimonial?.STATUS?.rows || [];
+      const filteredTestimonial = Testimonial.filter(
+        (data) =>
+          String(data.mentor_ref_id) === String(selectedMentor?.mentor_id)
+      );
+      setTestimonial(filteredTestimonial);
 
-      for (const session of meetings) {
-        await fetchFeedback(session.meeting_id);
-      }
+      const feedbackPromises = meetings.map((meet) =>
+        ApiFetchMeetingFeedback(selectedMentor.mentor_id, meet.startup_id).then(
+          (res) => res || []
+        )
+      );
+      const allFeedbackArrays = await Promise.all(feedbackPromises);
+
+      // Flatten into a single array
+      const allFeedback = allFeedbackArrays.flat();
+      setFeedback(allFeedback);
     } catch (err) {
       console.error("Error fetching mentor data:", err);
     }
@@ -130,9 +128,73 @@ function MentorProfile() {
     FetchData();
   }, [id]);
 
+  //FeedBack Form open
+  const handleAddFeedbackClick = () => setShowAddFeedbackForm(true);
+    const openFeedbackModal = (session) => {
+    const currentFeedback = feedback.find(
+      (feed) => String(feed.meet_id) === String(session?.meet_id)
+    );
+    setInitialFeedback(currentFeedback || null);
+    setSelectedSession(session);
+    handleAddFeedbackClick();
+  };
+
+  const handleAddFeedbackClose = () => {
+    FetchData()
+    setSelectedSession(null);
+    setInitialFeedback(null);
+    setShowAddFeedbackForm(false);
+  };
+
+
+  //Testimonial Form Open
+  const handleEditTestimonialsClose = async () => {
+    setShowEditTestimonialForm(false);
+  };
+  const handleEditTestimonialClick = (testimonial) => {
+    setEditTestimonial(testimonial);
+    setShowEditTestimonialForm(true);
+  };
+  const handleEditTestimonialSubmit = async (updatedData) => {
+    try {
+      await ApiUpdateTestimonial(updatedData);
+      setTestimonial((prev) =>
+        prev.map((t) =>
+          t.testimonial_id === updatedData.testimonial_id
+            ? { ...t, ...updatedData }
+            : t
+        )
+      );
+    } catch (error) {
+      toast.error("Failed to update Testimonial section");
+    }
+  };
+
+  const handledelete = async (id) => {
+    try {
+      const API = await ApiDeleteTestimonial(id);
+      if (API) {
+        toast.success("Testimonial Deleted Successfully");
+        const updatestestimonial = testimonial.filter(
+          (data) => data.testimonial_id !== id
+        );
+        setTestimonial(updatestestimonial);
+        setOpenDropdownId(null);
+      } else {
+        toast.error("Failed to delete");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const handleEditSubmit = (updatedData) => {
+    if (updatedData.mentor_description) {
+      updatedData.mento_description = updatedData.mentor_description;
+    }
     setMentor((prev) => ({ ...prev, ...updatedData }));
   };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (activeDropdown && !event.target.closest(".dropdown-container")) {
@@ -148,30 +210,10 @@ function MentorProfile() {
     return <div className="p-10 text-gray-500">Loading mentor profile...</div>;
   }
 
-
   const getLinkedInUrl = (urlOrUsername) => {
     if (!urlOrUsername) return "#";
     if (urlOrUsername.startsWith("http")) return urlOrUsername;
     return `https://www.linkedin.com/in/${urlOrUsername}`;
-  };
-
-  const handleFeedbackSave = async (feedback) => {
-    try {
-      const response = await ApiSaveFeedback(
-        selectedSession.meeting_id,
-        feedback
-      );
-      if (response?.STATUS?.success) {
-        setSessionFeedbacks((prev) => ({
-          ...prev,
-          [selectedSession.meeting_id]: feedback,
-        }));
-      } else {
-        console.error("Failed to save feedback:", response?.STATUS?.message);
-      }
-    } catch (error) {
-      console.error("Error saving feedback:", error);
-    }
   };
 
   // Pagination logic for mentoring sessions
@@ -181,13 +223,13 @@ function MentorProfile() {
   const currentMeetings = meeting?.slice(startIndex, endIndex) || [];
 
   // Pagination logic for activities
-  const activityTotalPages = Math.ceil(activities.length / itemsPerPage);
-  const activityStartIndex = (activityCurrentPage - 1) * itemsPerPage;
-  const activityEndIndex = activityStartIndex + itemsPerPage;
-  const currentActivities = activities.slice(
-    activityStartIndex,
-    activityEndIndex
-  );
+  // const activityTotalPages = Math.ceil(activities.length / itemsPerPage);
+  // const activityStartIndex = (activityCurrentPage - 1) * itemsPerPage;
+  // const activityEndIndex = activityStartIndex + itemsPerPage;
+  // const currentActivities = activities.slice(
+  //   activityStartIndex,
+  //   activityEndIndex
+  // );
 
   const Pagination = ({
     currentPage,
@@ -213,7 +255,7 @@ function MentorProfile() {
               onClick={() => onPageChange(pageNum)}
               className={`px-3 py-1 rounded ${
                 currentPage === pageNum
-                  ? "bg-green-500 text-white"
+                  ? "bg-[#45C74D] text-white"
                   : "border border-gray-300 text-gray-700 hover:bg-gray-50"
               }`}
             >
@@ -254,7 +296,7 @@ function MentorProfile() {
       <SideBar />
       <div className="ms-[220px] bg-gray-100 flex-grow">
         <NavBar />
-        <div className="max-w-7xl mx-auto">
+        <div className="ml-5 max-w-5xl">
           <div className="flex items-center mb-4">
             <p className="text-sm text-gray-600">
               Dashboard &gt; Mentors &gt; Profile
@@ -326,7 +368,7 @@ function MentorProfile() {
             </div>
             <div className="flex justify-end mt-4">
               <button
-                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                className="bg-[#45C74D] text-white px-4 py-2 rounded-md"
                 onClick={handleScheduleClick}
               >
                 Schedule Session
@@ -421,10 +463,34 @@ function MentorProfile() {
                     key={index}
                     className="grid grid-cols-5 gap-3 py-3 items-center"
                   >
-                    <div className="text-sm font-medium">
-                      {session.start_up_name}
+                    <div className="text-sm font-medium flex items-center gap-2">
+                      {session.start_up_name} {/* Status Badge */}
+                      {dayjs(session.date, "D MMM YYYY").isAfter(
+                        dayjs(),
+                        "day"
+                      ) ? (
+                        <span className="text-green-600 bg-green-100 px-2 py-0.5 rounded-full text-xs font-medium">
+                          Upcoming
+                        </span>
+                      ) : dayjs(session.date, "D MMM YYYY").isSame(
+                          dayjs(),
+                          "day"
+                        ) ? (
+                        <span className="text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full text-xs font-medium">
+                          Today
+                        </span>
+                      ) : (
+                        ""
+                      )}
                     </div>
-                    <div className="text-sm text-gray-600">{session.date}</div>
+                    <div className="text-sm text-gray-600">
+                      {" "}
+                      {new Date(session.date).toLocaleDateString("en-IN", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </div>
                     <div className="text-sm text-gray-600">
                       {session.meeting_duration || "-"}
                     </div>
@@ -432,15 +498,19 @@ function MentorProfile() {
                       {session.meeting_mode || "-"}
                     </div>
                     <div>
-                      <button
-                        onClick={() => {
-                          setSelectedSession(session);
-                          navigate(`/mentor/${session.meeting_id}`);
-                        }}
-                        className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600"
-                      >
-                        Meeting Notes
-                      </button>
+                      <div>
+                        <button
+                          className="bg-[#45C74D] text-white px-4 py-2 rounded-md text-sm "
+                          onClick={() => openFeedbackModal(session)}
+                        >
+                          {feedback.some(
+                            (feed) =>
+                              String(feed.meet_id) === String(session?.meet_id)
+                          )
+                            ? "View Notes"
+                            : "Add Notes"}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))
@@ -460,7 +530,7 @@ function MentorProfile() {
             )}
           </div>
           {/* Testimonials */}
-          <div className="bg-white p-6 rounded-lg mb-6">
+          <div className="bg-white p-6 rounded-lg mb-6  overflow-x-hidden max-w-full ">
             <div className="border shadow-sm py-6 rounded-md w-full">
               <div className="flex justify-between ">
                 <h2 className="text-xl font-semibold mb-4 text-gray-800 px-5">
@@ -474,34 +544,42 @@ function MentorProfile() {
               <Swiper
                 modules={[Navigation]}
                 spaceBetween={20}
-                slidesPerView={3.25}
+                slidesPerView={3} // 3 full, 1 partial
                 navigation={{
                   prevEl: navigationPrevRef.current,
                   nextEl: navigationNextRef.current,
                 }}
-                onBeforeInit={(swiper) => {
-                  swiper.params.navigation.prevEl = navigationPrevRef.current;
-                  swiper.params.navigation.nextEl = navigationNextRef.current;
-                }}
                 breakpoints={{
-                  1024: { slidesPerView: 3.25 },
-                  768: { slidesPerView: 2.25 },
-                  0: { slidesPerView: 1.25 },
+                  1024: { slidesPerView: 3 },
+                  768: { slidesPerView: 2 },
+                  0: { slidesPerView: 1 },
                 }}
               >
                 {testimonial.map((item, index) => (
                   <SwiperSlide key={index}>
-                    <div className="bg-[#F9F9F9] shadow-md rounded-xl p-6 h-full flex flex-col justify-between mx-2 relative">
-                      <button
-                        onClick={() => {
-                          setTestimonialToDelete(item);
-                          setShowDeleteConfirm(true);
-                        }}
-                        className="absolute top-2 right-2 text-gray-500 hover:text-red-500"
-                      >
-                        <FaEllipsisV />
-                      </button>
-                      <FaQuoteLeft className="text-[#808080] text-2xl mb-4" />
+                    <div className="bg-[#F9F9F9] shadow-md rounded-xl p-6 h-full flex flex-col justify-between mx-2">
+                      <div className="flex items-center justify-between">
+                        <FaQuoteLeft className="text-[#808080] text-2xl mb-4" />
+                        <div className="flex items-center gap-2">
+                          <button
+                            className=" hover:bg-gray-100 rounded-full"
+                            onClick={() => handleEditTestimonialClick(item)}
+                          >
+                            <FiEdit2 size={16} className="text-[#45C74D]" />
+                          </button>
+                          <button
+                            className="text-red-600 p-1 hover:bg-gray-100 rounded-full"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setdeletetestimonial(item.testimonial_id);
+                              setOpenEstablishPopUp(true);
+                              setOpenDropdownId(null);
+                            }}
+                          >
+                            <FaTrash size={16} />
+                          </button>
+                        </div>
+                      </div>
                       <p className="text-gray-700 text-sm italic">
                         "{item.description}"
                       </p>
@@ -541,62 +619,58 @@ function MentorProfile() {
             onSubmit={handleEditSubmit}
           />
         )}
+        {showAddFeedbackForm && selectedSession && (
+          <FeedbackForm
+            key={selectedSession.meet_id}
+            isOpen={showAddFeedbackForm}
+            mentor_id={mentor.mentor_id}
+            meet_id={selectedSession.meet_id}
+            startup_id={selectedSession.startup_id}
+            onClose={handleAddFeedbackClose}
+            initialFeedback={initialFeedback}
+          />
+        )}
 
         {showModal && (
           <TestimonialForm
-            mentorRefId={id}
+            mentor_id={mentor.mentor_id}
             onClose={() => setShowModal(false)}
-            onTestimonialAdded={() => fetchTestimonials(id)}
+            onTestimonialAdded={() => FetchData(mentor.mentor_id)}
           />
         )}
-
-        {showFeedbackModal && selectedSession && (
-          <FeedbackModal
-            session={selectedSession}
-            onClose={() => {
-              setShowFeedbackModal(false);
-              setSelectedSession(null);
-            }}
-            onSave={handleFeedbackSave}
-            initialFeedback={sessionFeedbacks[selectedSession.meeting_id] || ""}
+        {showEditTestimonialForm && (
+          <EditTestimonial
+            initialData={edittestimonial}
+            onClose={handleEditTestimonialsClose}
+            onSubmit={handleEditTestimonialSubmit}
           />
         )}
-
-        {/* Delete Confirmation Modal */}
-        {showDeleteConfirm && testimonialToDelete && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
-              <h3 className="text-lg font-semibold mb-4">Delete Testimonial</h3>
-              <p className="text-gray-600 mb-6">
-                Are you sure you want to delete this testimonial? This action
-                cannot be undone.
-              </p>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={() => {
-                    setShowDeleteConfirm(false);
-                    setTestimonialToDelete(null);
-                  }}
-                  className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() =>
-                    handleDeleteTestimonial(testimonialToDelete.testimonial_id)
-                  }
-                  className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
+        <DeleteConfirmation
+          isVisible={openEstablishPopUp}
+          onClose={() => setOpenEstablishPopUp(false)}
+        >
+          <h1 className="text-center font-semibold text-2xl">Are you sure?</h1>
+          <div className="grid grid-cols-2 gap-4 mt-8">
+            <button
+              className="text-gray-500 font-semibold p-2 rounded-xl shadow"
+              onClick={() => {
+                handledelete(deletetestimonial);
+                setOpenEstablishPopUp(false);
+              }}
+            >
+              Yes
+            </button>
+            <button
+              className="text-gray-500 font-semibold p-2 rounded-xl shadow"
+              onClick={() => setOpenEstablishPopUp(false)}
+            >
+              No
+            </button>
           </div>
-        )}
+        </DeleteConfirmation>
       </div>
-         
     </div>
   );
 }
 
-export default MentorProfile;
+export default MentorProfile;

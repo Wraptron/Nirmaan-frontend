@@ -8,8 +8,7 @@ import { jwtDecode } from "jwt-decode";
 import alertify from "alertifyjs";
 function CustomerMentor() {
   const [showAddmentor, setAddmentor] = useState(false);
-  const [data, setFetchedData] = useState([]);
-  const [error, setError] = useState(null);
+  const [data, setData] = useState([]);
   const token = jwtDecode(localStorage.getItem('token'));
   const [addMentData, setAddMentData] = useState({
         team_mail: `${token.user_mail}`,
@@ -46,7 +45,7 @@ function CustomerMentor() {
         }
         catch(err)
         {
-           if(err.response.status == 401)
+           if(err.response.status === 401)
           {
             alertify.warning("Request already raised");
           }
@@ -57,11 +56,10 @@ function CustomerMentor() {
       try
       {
           const response = await axios.get('http://localhost:3003/api/v1/customer/fetch-mentor')
-          setFetchedData(response.data.result.rows);
+          setData(response.data.result.rows);
       }
       catch (err)
       {
-        setError(err);
         console.log(err);
       }
     }

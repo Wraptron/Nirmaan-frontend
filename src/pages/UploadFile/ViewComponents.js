@@ -6,9 +6,10 @@ import SideBar from '../../components/sidebar';
 import NavBar from '../../components/NavBar';
 import 'lity/dist/lity.css';
 import lity from 'lity';
-import { FaAngleRight, FaCheckCircle, FaEye, FaTrash } from 'react-icons/fa';
+import { FaEye, FaTrash } from 'react-icons/fa';
 import APP_URL from '../../Config';
 import alertify from 'alertifyjs';
+
 function ViewComponents() {
   const [data, setData] = useState([]);
   const ApprovalButtonRenderer = ({ value, data }) => {

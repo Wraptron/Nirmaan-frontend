@@ -6,27 +6,25 @@ import editsvg from "../../assets/images/Frame (12).svg";
 import axios from "axios";
 const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
-    mentor_id: initialData?.mentor_id ||"",
-    mentor_logo: initialData?.mentor_logo || "",
+    mentor_id: initialData.mentor_id || "",
     mentor_name: initialData.mentor_name || "",
     designation: initialData.designation || "",
-    about: initialData.about || "",
+    mentor_description: initialData.mento_description || "",
     email_address: initialData.email_address || "",
     contact_num: initialData.contact_num || "",
     qualification: initialData.qualification || "",
     institution: initialData.institution || "",
     year_of_passing_out: initialData.year_of_passing_out || "",
-    expertise: initialData.expertise || "",
-    linkedin_id: initialData.linkedin_id || ""
+    expertise: initialData.area_of_expertise || "",
+    linkedin_id: initialData.linkedin_id || "",
   });
-  const url = formData?.mentor_logo;
-  const cleanedurl = url.replace("/uploads/", "");
-  console.log(formData);
+  // console.log(initialData);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 //api for changing the photo of the user
@@ -76,58 +74,60 @@ const uploadData = async(event) => {
     e.preventDefault();
     try {
       // Log the complete form data
-      console.log('Form Data being submitted:', JSON.stringify(formData, null, 2));
-      console.log('Mentor ID:', initialData.mentor_id);
-      
+      // console.log(
+      //   "Form Data being submitted:",
+      //   JSON.stringify(formData, null, 2)
+      // );
+      // console.log("Mentor ID:", initialData.mentor_id);
+
       // Validate required fields
-      const requiredFields = ['mentor_name', 'email_address'];
-      const missingFields = requiredFields.filter(field => !formData[field]);
-      
+      const requiredFields = ["mentor_name", "email_address"];
+      const missingFields = requiredFields.filter((field) => !formData[field]);
+
       if (missingFields.length > 0) {
-        toast.error(`Missing required fields: ${missingFields.join(', ')}`);
+        toast.error(`Missing required fields: ${missingFields.join(", ")}`);
         return;
       }
 
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email_address)) {
-        toast.error('Please enter a valid email address');
+        toast.error("Please enter a valid email address");
         return;
       }
 
       // Validate phone number if provided
       if (formData.contact_num && !/^\d{10}$/.test(formData.contact_num)) {
-        toast.error('Please enter a valid 10-digit phone number');
+        toast.error("Please enter a valid 10-digit phone number");
         return;
       }
 
-      const response = await ApiUpdateMentor(initialData.mentor_id, formData);
-      console.log('Update response:', response);
-      
+      const response = await ApiUpdateMentor(formData);
+      // console.log("Update response:", response);
+
       toast.success("Mentor profile updated successfully");
       onSubmit(formData);
       onClose();
     } catch (error) {
-      console.error("Error updating mentor:", error);
+      // console.error("Error updating mentor:", error);
       if (error.response) {
-        console.error('Error response data:', error.response.data);
-        console.error('Error response status:', error.response.status);
-        console.error('Error response headers:', error.response.headers);
-        toast.error(`Failed to update mentor profile: ${error.response.data?.error || error.response.data?.message || 'Server error'}`);
+        toast.error(
+          `Failed to update mentor profile: ${error.response.data?.error || error.response.data?.message || "Server error"}`
+        );
       } else if (error.request) {
-        console.error('Error request:', error.request);
-        toast.error('No response received from server');
+        // console.error("Error request:", error.request);
+        toast.error("No response received from server");
       } else {
-        console.error('Error message:', error.message);
-        toast.error('Failed to update mentor profile');
+        // console.error("Error message:", error.message);
+        toast.error("Failed to update mentor profile");
       }
     }
   };
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative max-h-[90vh] overflow-y-auto">
-        <button 
-          onClick={onClose} 
+        <button
+          onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl"
         >
           &times;
@@ -155,7 +155,9 @@ const uploadData = async(event) => {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Name
+              </label>
               <input
                 name="mentor_name"
                 value={formData.mentor_name}
@@ -166,7 +168,9 @@ const uploadData = async(event) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Designation</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Designation
+              </label>
               <input
                 name="designation"
                 value={formData.designation}
@@ -176,7 +180,9 @@ const uploadData = async(event) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
               <input
                 type="email"
                 name="email_address"
@@ -188,7 +194,9 @@ const uploadData = async(event) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Contact Number
+              </label>
               <input
                 name="contact_num"
                 value={formData.contact_num}
@@ -198,7 +206,9 @@ const uploadData = async(event) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Qualification</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Qualification
+              </label>
               <input
                 name="qualification"
                 value={formData.qualification}
@@ -208,7 +218,9 @@ const uploadData = async(event) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Institution</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Institution
+              </label>
               <input
                 name="institution"
                 value={formData.institution}
@@ -218,7 +230,9 @@ const uploadData = async(event) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Year of Passing</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Year of Passing
+              </label>
               <input
                 type="number"
                 name="year_of_passing_out"
@@ -229,7 +243,9 @@ const uploadData = async(event) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Expertise</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Expertise
+              </label>
               <input
                 name="expertise"
                 value={formData.expertise}
@@ -239,7 +255,9 @@ const uploadData = async(event) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn ID</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                LinkedIn ID
+              </label>
               <input
                 name="linkedin_id"
                 value={formData.linkedin_id}
@@ -250,10 +268,12 @@ const uploadData = async(event) => {
             </div>
           </div>
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">About</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              About
+            </label>
             <textarea
-              name="about"
-              value={formData.about}
+              name="mentor_description"
+              value={formData.mentor_description}
               onChange={handleChange}
               placeholder="About the mentor"
               rows="4"
@@ -272,7 +292,7 @@ const uploadData = async(event) => {
               type="submit"
               className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
             >
-              Save Changes
+              Update
             </button>
           </div>
         </form>

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import { Pie } from 'react-chartjs-2';
 //import { useContext } from 'react';
 import axios from 'axios';
@@ -17,16 +17,16 @@ ChartJS.register(
 const TopFundingDistributed = (props) => {
     //let dataProps = props.selectedTopSectors;
 
-  const [dataa, setData] = useState([]);
+  // const [dataa, setData] = useState([]);
   const [labels, setLabels] = useState([]);
   const [values, setValues] = useState([]);
-  let ApiCall = async() => {
+  const ApiCall = useCallback(async() => {
         //let data = props.selectedTopSectors
         try 
         {
             const response = await axios.get(`http://localhost:3003/api/v1/st?id=${props.selectedTopSectors}`)
             const rows = response.data.rows;
-            setData(rows);
+            // setData(rows); // removed unused state
             setLabels(rows.map((dataObj) => dataObj.sector));
             setValues(rows.map((dataObj) => parseFloat(dataObj.sum)));
             //console.log(response);
@@ -35,10 +35,10 @@ const TopFundingDistributed = (props) => {
         {   
             console.log(err.message)
         }
-  }
+  }, [props.selectedTopSectors])
   useEffect(() => {
     ApiCall()
-  }, [props.selectedTopSectors,])
+  }, [ApiCall])
 
   useEffect(() => {
     console.log("Labels:", labels);

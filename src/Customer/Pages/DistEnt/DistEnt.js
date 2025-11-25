@@ -5,8 +5,7 @@ import NavBar from "../../../components/NavBar";
 function DisEnt() {
   const [progressMapping, setProgressMapping] = useState({});
   const [currentModule, setCurrentModule] = useState("Problem Identification");
-
-  const stepsMapping = {
+  const [stepsMapping] = useState({
     "Problem Identification": [
       "Market segmentation",
       "Select a beachhead market",
@@ -39,7 +38,7 @@ function DisEnt() {
       "Show that the dogs will eat the dog food",
       "Develop a product man",
     ],
-  };
+  });
 
   useEffect(() => {
     // Initialize progress for the current module if it doesn't exist
@@ -49,7 +48,7 @@ function DisEnt() {
         [currentModule]: new Array(stepsMapping[currentModule].length).fill(0),
       }));
     }
-  }, [currentModule]);
+  }, [currentModule, progressMapping, stepsMapping]);
 
   const handleProgressChange = (index, value) => {
     setProgressMapping((prev) => ({

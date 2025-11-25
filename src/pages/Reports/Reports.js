@@ -1,24 +1,10 @@
 import React,{useState, useEffect} from 'react'
 import SideBar from '../../components/sidebar'
 import NavBar from '../../components/NavBar'
-import { FaFilter, FaGraduationCap, FaCheck } from 'react-icons/fa';
 import filtersvg from '../../assets/images/Filter up and down.svg'
+
 function Reports() {
-  const[tick, setTick] = useState(false);
-  const[graduated, setGraduated] = useState(false)
-  const[dropped, setDropped] = useState(false)
-  const[type, setType] = useState('button');
-  const[icon, setIcon] = useState(FaCheck);
-  const handleActive = () => {
-        setTick(!tick);
-  }
-  const handleGraduated = () => {
-        setGraduated(!graduated);
-  }
-  const handleDropped = () => {
-        setDropped(!dropped);
-  }
-  const [showw, setShoww] = useState(false);
+  const[showw, setShoww] = useState(false);
       useEffect(() => {
           setShoww(true);
       }, [])
@@ -44,7 +30,7 @@ function Reports() {
                                                 </center>
                                         </div>
                                         <div className="flex gap-2 mt-5">
-                                                <div><img src={filtersvg} /></div>
+                                                <div><img src={filtersvg} alt="" /></div>
                                                 <div>Filter by</div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">

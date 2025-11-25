@@ -68,7 +68,7 @@ const SectorWise = (props) => {
   const textCenterr = {
     id: 'textCenter',
     beforeDatasetsDraw(chart, args, pluginOptions){
-      const {ctx, data} = chart;
+      const {ctx} = chart;
       ctx.save();
       ctx.font = 'bolder 15px sans-serif';
       ctx.fillStyle = '#464646';
