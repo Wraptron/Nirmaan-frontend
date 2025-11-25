@@ -72,7 +72,6 @@ function MentorProfile() {
     }
   };
 
-
   // const fetchFeedback = async (meetingId) => {
   //   try {
   //     const response = await ApiFetchFeedback(meetingId);
@@ -130,7 +129,7 @@ function MentorProfile() {
 
   //FeedBack Form open
   const handleAddFeedbackClick = () => setShowAddFeedbackForm(true);
-    const openFeedbackModal = (session) => {
+  const openFeedbackModal = (session) => {
     const currentFeedback = feedback.find(
       (feed) => String(feed.meet_id) === String(session?.meet_id)
     );
@@ -140,12 +139,11 @@ function MentorProfile() {
   };
 
   const handleAddFeedbackClose = () => {
-    FetchData()
+    FetchData();
     setSelectedSession(null);
     setInitialFeedback(null);
     setShowAddFeedbackForm(false);
   };
-
 
   //Testimonial Form Open
   const handleEditTestimonialsClose = async () => {
@@ -275,21 +273,6 @@ function MentorProfile() {
       <div className="text-sm text-gray-600">{showingText}</div>
     </div>
   );
-
-  const handleDeleteTestimonial = async (testimonialId) => {
-    try {
-      const response = await ApiDeleteTestimonial(testimonialId);
-      if (response?.STATUS?.success) {
-        await fetchTestimonials(id);
-        setShowDeleteConfirm(false);
-        setTestimonialToDelete(null);
-      } else {
-        console.error("Failed to delete testimonial:", response?.STATUS?.message);
-      }
-    } catch (error) {
-      console.error("Error deleting testimonial:", error);
-    }
-  };
 
   return (
     <div className="flex">
@@ -454,7 +437,7 @@ function MentorProfile() {
               <div>Date</div>
               <div>Mentor Hours</div>
               <div>Meeting Mode</div>
-              <div>Notes</div>
+              <div>Feedback</div>
             </div>
             <div className="space-y-3">
               {currentMeetings.length > 0 ? (

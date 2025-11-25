@@ -763,7 +763,7 @@ function Navbar({ onSelectionChange, selectedIndex }) {
                 {color.map((colors, index) => (
                   <button
                     key={index}
-                    className="block py-2 px-3 text-black md:p-0 text-[#45C74D] hover:underline hover:underline-offset-[22px] hover:decoration-4 hover:decoration-[#45C74D]"
+                    className="block py-2 px-3  md:p-0 text-[#45C74D] hover:underline hover:underline-offset-[22px] hover:decoration-4 hover:decoration-[#45C74D]"
                     onClick={() => {
                       onSelectionChange(index);
                     }}
@@ -844,7 +844,7 @@ function Navbar({ onSelectionChange, selectedIndex }) {
           />
           <input
             name="linkedin"
-            className="w-full border-2 border-2 border-gray-200 rounded-md p-2 mt-3 bg-transparent hover:border-green-300"
+            className="w-full  border-2 border-gray-200 rounded-md p-2 mt-3 bg-transparent hover:border-green-300"
             placeholder="Linked In"
           />
           <input

@@ -186,14 +186,14 @@ import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { ApiUpdateStartupAbout } from "../../../../API/API";
 
-const EditAboutForm = ({ initialData, onClose }) => {
+const EditAboutForm = ({ initialData, onClose, role }) => {
   const [formData, setFormData] = useState({
     sector: "",
     program: "",
     startup_domain: "",
     about: "",
     email_address: "",
-    startup_status:""
+    startup_status: "",
   });
 
   const startupTypeOptions = [
@@ -232,28 +232,30 @@ const EditAboutForm = ({ initialData, onClose }) => {
         startup_domain: initialData.startup_domain || "",
         about: initialData.startup_description || "",
         email_address: initialData.email_address || "",
-         startup_status: initialData.startup_status || "",
+        startup_status: initialData.startup_status || "",
       });
     }
   }, [initialData]);
 
   const handleChange = (e) => {
-     const { name, value } = e.target;
-   setFormData((prev) => {
-    let updatedData = {
-      ...prev,
-      [name]: value,
-    };
-    if (name === "program" && value === "Dropped out" || name === "program" && value === "Graduated") {
-      updatedData.startup_status = "Inactive";
-    }
+    const { name, value } = e.target;
+    setFormData((prev) => {
+      let updatedData = {
+        ...prev,
+        [name]: value,
+      };
+      if (
+        (name === "program" && value === "Dropped out") ||
+        (name === "program" && value === "Graduated")
+      ) {
+        updatedData.startup_status = "Inactive";
+      }
 
-    return updatedData;
-  });
+      return updatedData;
+    });
   };
 
-  const isValidEmail = (email) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -278,7 +280,10 @@ const EditAboutForm = ({ initialData, onClose }) => {
       return;
     }
 
-    if (!formData.email_address.trim() || !isValidEmail(formData.email_address)) {
+    if (
+      !formData.email_address.trim() ||
+      !isValidEmail(formData.email_address)
+    ) {
       toast.error("Valid email address is required");
       return;
     }
@@ -301,12 +306,19 @@ const EditAboutForm = ({ initialData, onClose }) => {
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M1 1L13 13M1 13L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path
+              d="M1 1L13 13M1 13L13 1"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
           </svg>
         </button>
 
         <div className="p-6">
-          <h2 className="text-xl font-semibold text-[#232323] mb-6">Edit About Us</h2>
+          <h2 className="text-xl font-semibold text-[#232323] mb-6">
+            Edit About Us
+          </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
@@ -319,11 +331,16 @@ const EditAboutForm = ({ initialData, onClose }) => {
                   name="startup_domain"
                   value={formData.startup_domain}
                   onChange={handleChange}
-                  className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
+                  disabled={role !== 2}
+                  className={`w-full h-10 px-3 text-sm border border-gray-300 rounded-lg 
+    ${role !== 2 ? "bg-gray-100 cursor-not-allowed" : ""}
+    focus:ring-1 focus:ring-green-500`}
                 >
                   <option value="">Select startup type</option>
                   {startupTypeOptions.map((type, idx) => (
-                    <option key={idx} value={type}>{type}</option>
+                    <option key={idx} value={type}>
+                      {type}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -336,12 +353,16 @@ const EditAboutForm = ({ initialData, onClose }) => {
                 <select
                   name="sector"
                   value={formData.sector}
-                  onChange={handleChange}
-                  className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
+                  disabled={role !== 2}
+                  className={`w-full h-10 px-3 text-sm border border-gray-300 rounded-lg 
+    ${role !== 2 ? "bg-gray-100 cursor-not-allowed" : ""}
+    focus:ring-1 focus:ring-green-500`}
                 >
                   <option value="">Select sector</option>
                   {sectorOptions.map((sector, idx) => (
-                    <option key={idx} value={sector}>{sector}</option>
+                    <option key={idx} value={sector}>
+                      {sector}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -355,11 +376,16 @@ const EditAboutForm = ({ initialData, onClose }) => {
                   name="program"
                   value={formData.program}
                   onChange={handleChange}
-                  className="w-full h-10 px-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
+                  disabled={role !== 2}
+                  className={`w-full h-10 px-3 text-sm border border-gray-300 rounded-lg 
+    ${role !== 2 ? "bg-gray-100 cursor-not-allowed" : ""}
+    focus:ring-1 focus:ring-green-500`}
                 >
                   <option value="">Select program</option>
                   {programOptions.map((option, idx) => (
-                    <option key={idx} value={option.value}>{option.label}</option>
+                    <option key={idx} value={option.value}>
+                      {option.label}
+                    </option>
                   ))}
                 </select>
               </div>

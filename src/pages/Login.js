@@ -109,7 +109,7 @@ function Login() {
                 // console.log('User role:', userRole);
                 
                 // Store token and role
-                localStorage.setItem('token', accessToken);
+                sessionStorage.setItem('token', accessToken);
                 sessionStorage.setItem('role', userRole);
                 sessionStorage.setItem('startup_id', startup_id);
                 

@@ -1,9 +1,7 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { ApiUpdateMentor } from "../../API/API";
 import toast from "react-hot-toast";
-import { FaChevronLeft } from "react-icons/fa";
-import editsvg from "../../assets/images/Frame (12).svg";
-import axios from "axios";
+
 const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     mentor_id: initialData.mentor_id || "",
@@ -27,49 +25,7 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
       [name]: value,
     }));
   };
-//api for changing the photo of the user
-const fileInputRef = useRef(null);
-// const formDataa = new FormData();
-//formDataa.append()
-const handleImageIconClick = () => {
-  fileInputRef.current.click();
-}
 
-const uploadData = async(event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const uploadData = new FormData();
-  uploadData.append("mentor_logo", file);
-
-  try {
-    const response = await fetch(`http://localhost:3003/api/v1/updateprofilephoto/${formData.mentor_id}`, {
-      method: "PUT",
-      body: uploadData,
-    });
-
-    if (!response.ok) {
-      throw new Error("Upload failed");
-    }
-
-    const newImageUrl = `/uploads/${formData.mentor_id}.jpg`; // adjust extension if needed
-
-
-    if (newImageUrl) {
-      setFormData(prev => ({
-        ...prev,
-        mentor_logo: newImageUrl,
-      }));
-      toast.success("Profile photo updated successfully");
-    } else {
-      toast.error("Failed to get updated image URL");
-    }
-  } catch (err) {
-    console.error("Upload error:", err);
-    toast.error("Error uploading profile photo");
-  }
-  }
-//end of this
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -123,6 +79,7 @@ const uploadData = async(event) => {
       }
     }
   };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative max-h-[90vh] overflow-y-auto">
@@ -134,25 +91,6 @@ const uploadData = async(event) => {
         </button>
         <h2 className="text-xl font-semibold mb-6">Edit Mentor Profile</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div class="relative">
-                <div class="flex justify-center items-center"><img src={cleanedurl} class="w-28 h-28 rounded-lg"/></div>
-                <div class="absolute left-[330px] top-1">
-                        <a className="bg-gray-200 rounded-md" onClick={handleImageIconClick}>
-                                <img
-                                  src={editsvg}
-                                  alt="edit"
-                                  className="w-7 h-7 cursor-pointer hover:opacity-80 bg-white rounded-md"
-                                />
-                        </a>
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={uploadData}
-                            accept="image/*"
-                            className="hidden"
-                        />
-                </div>
-          </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">

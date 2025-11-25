@@ -3,6 +3,8 @@ import SideBar from "../../../components/sidebar";
 import Navbar from "../../../components/NavBar";
 import { ApiFetchMentor } from "../../../API/API";
 import MentorAbout from "./MentorAbout";
+import { jwtDecode } from "jwt-decode";
+import { Navigate } from "react-router-dom";
 
 const Mentor = () => {
   const [data, setData] = useState([]);
@@ -33,6 +35,10 @@ const Mentor = () => {
     (mentor.mentor_name || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+   let decoded = jwtDecode(sessionStorage.getItem("token"));
+      if (decoded.role != 5) {
+        return <Navigate to="/" replace />;
+      }
   return (
     <div className="flex">
       <SideBar />

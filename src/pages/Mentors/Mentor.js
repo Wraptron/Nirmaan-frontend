@@ -6,8 +6,8 @@ import { ApiFetchMentor, ApiDeletMentorData } from "../../API/API";
 import toast from "react-hot-toast";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
 import ImageSvg from "../../assets/images/image.svg"; // Placeholder image
-import { useNavigate } from "react-router-dom";
-
+import { Navigate, useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 function Mentor() {
   const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
   const [data, setData] = useState([]);
@@ -78,6 +78,10 @@ function Mentor() {
   );
   const totalPages = Math.ceil(filteredMentors.length / rowsPerPage);
 
+    let decoded = jwtDecode(sessionStorage.getItem("token"));
+    if (decoded.role !== 2) {
+      return <Navigate to="/" replace />;
+    }
   return (
     <div className="flex">
       <SideBar />

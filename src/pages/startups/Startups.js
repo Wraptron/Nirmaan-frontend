@@ -576,8 +576,8 @@ function Startups() {
       console.error(err);
     }
   };
-  let decoded = jwtDecode(localStorage.getItem("token"));
-  if (decoded.role != 2 && decoded.role != 5) {
+  let decoded = jwtDecode(sessionStorage.getItem("token"));
+  if (decoded.role != 2 ) {
     return <Navigate to="/" replace />;
   }
   return (

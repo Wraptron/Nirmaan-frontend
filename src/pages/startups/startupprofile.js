@@ -11,7 +11,7 @@ import {
 import { FaTrash } from "react-icons/fa";
 import bgImg from "../../assets/images/Rectangle 5.svg";
 import profileImg from "../../assets/images/296fe121-5dfa-43f4-98b5-db50019738a7.jpg";
-import { useLocation, useParams } from "react-router-dom";
+import { Navigate, useLocation, useParams } from "react-router-dom";
 import EditStartupForm from "../startups/step/EditForm/EditStartupForm";
 import EditAboutForm from "../startups/step/EditForm/EditAboutForm";
 import AddAwardForm from "../startups/step/EditForm/AddAwardForm";
@@ -35,6 +35,7 @@ import EditTeamMembersForm from "./step/EditForm/EditTeamMembersForm";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
 import EditAwardForm from "./step/EditForm/EditAwardForm";
 import FundingDetail from "../Home/Funding/FundingDetail";
+import { jwtDecode } from "jwt-decode";
 
 function StartupProfile() {
   const { startup_id } = useParams();
@@ -259,11 +260,9 @@ function StartupProfile() {
       // --- Funding Amount Details Fetch Fetch ---
       const ApiFundingAmount = await ApiFetchFundingAmount();
       const amount = ApiFundingAmount || {};
-      console.log(amount)
       const fundamount = selectedstartup?.startup_id
         ? amount[selectedstartup.startup_id] || null
         : null;
-        console.log(fundamount)
       setFundingAmount(fundamount || {});
 
 
@@ -300,6 +299,11 @@ function StartupProfile() {
       console.error(err);
     }
   };
+
+    let decoded = jwtDecode(sessionStorage.getItem("token"));
+    if (decoded.role !== 2 && decoded.role !== 5) {
+      return <Navigate to="/" replace />;
+    }
   // Read More Popup Component
   const ReadMorePopup = ({ isOpen, onClose, title, content }) => {
     if (!isOpen) return null;
@@ -339,12 +343,12 @@ function StartupProfile() {
     return text && text.length > maxLength;
   };
   function encodeS3Url(url) {
-      if (!url || typeof url !== "string") return null;
-      const parts = url.split('/');
-      const fileName = parts.pop(); // last part
-      const encodedFileName = encodeURIComponent(fileName);
-      return parts.join('/') + '/' + encodedFileName;
-  } 
+    if (!url || typeof url !== "string") return null;
+    const parts = url.split("/");
+    const fileName = parts.pop(); // last part
+    const encodedFileName = encodeURIComponent(fileName);
+    return parts.join("/") + "/" + encodedFileName;
+  }
   const profileImage = encodeS3Url(startupData?.profile_image) || profileImg;
   //console.log(profileImage);
   return (
@@ -360,7 +364,7 @@ function StartupProfile() {
             </div>
             {/* Breadcrumb */}
             <div className="text-xs text-[#A1A1A1] mb-2 flex items-center gap-2">
-              <button
+              {decoded.role === 2 ?  <button
                 type="button"
                 onClick={() =>
                   navigate(
@@ -371,7 +375,7 @@ function StartupProfile() {
                 title="Back to Startups"
               >
                 <MdChevronLeft className="text-black text-3xl" />
-              </button>
+              </button> :""}
               Start-ups &gt; Profile
             </div>
             {/* Title */}
@@ -607,28 +611,30 @@ function StartupProfile() {
                                 {award.description ? award.description : " -"}
                               </div>
 
-                            <div className="inline-flex items-center gap-2 bg-[#F8FAFB] rounded-lg px-3 py-1 mt-2 border border-[#E6E6E6]">
-  {award.document_url ? (
-    <a
-      href={award.document_url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center gap-2"
-    >
-      <img
-        src="/src/assets/images/pdf-icon.svg"
-        alt="PDF"
-        className="w-5 h-5"
-      />
-      <span className="text-xs text-[#232323] font-medium truncate max-w-[120px]">
-        View Document
-      </span>
-    </a>
-  ) : (
-    <span className="text-xs text-gray-500">No document uploaded</span>
-  )}
-</div>
-</div>
+                              <div className="inline-flex items-center gap-2 bg-[#F8FAFB] rounded-lg px-3 py-1 mt-2 border border-[#E6E6E6]">
+                                {award.document_url ? (
+                                  <a
+                                    href={award.document_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2"
+                                  >
+                                    <img
+                                      src="/src/assets/images/pdf-icon.svg"
+                                      alt="PDF"
+                                      className="w-5 h-5"
+                                    />
+                                    <span className="text-xs text-[#232323] font-medium truncate max-w-[120px]">
+                                      View Document
+                                    </span>
+                                  </a>
+                                ) : (
+                                  <span className="text-xs text-gray-500">
+                                    No document uploaded
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           ))}
                         </div>
 
@@ -1012,6 +1018,7 @@ function StartupProfile() {
       {showAboutForm && (
         <EditAboutForm
           initialData={startupData}
+          role={decoded.role}
           onClose={handleAboutClose}
           onSubmit={handleAboutSubmit}
         />

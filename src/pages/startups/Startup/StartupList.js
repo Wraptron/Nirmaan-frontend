@@ -3,7 +3,8 @@ import SideBar from "../../../components/sidebar";
 import Navbar from "../../../components/NavBar";
 import { ApiFetchStartup } from "../../../API/API";
 import { FaEllipsisV } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const StartupList = () => {
   const [data, setData] = useState([]);
@@ -41,13 +42,36 @@ const StartupList = () => {
       setSelectedStartup(null); // close dropdown
     };
 
-    // Listen for clicks anywhere
+    // Listen for clicks anywhere 
     document.addEventListener("click", handleClickOutside);
 
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
+
+  //   const getTokenDecodedData = () => {
+  //       try {
+  //         const token = sessionStorage.getItem("token");
+  //         if (token) {
+  //           return jwtDecode(token);
+  //         }
+  //         return null;
+  //       } catch (err) {
+  //         console.log("Error decoding token:", err);
+  //         return null;
+  //       }
+  //     };
+    
+  // const tokenDecodedData = getTokenDecodedData();
+  // if (tokenDecodedData.role !== 5) {
+  //   return <Navigate to="/" replace />
+  // }
+
+   let decoded = jwtDecode(sessionStorage.getItem("token"));
+    if (decoded.role != 5) {
+      return <Navigate to="/" replace />;
+    }
   return (
     <div className="flex">
       <SideBar />
@@ -132,12 +156,12 @@ const StartupList = () => {
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    navigate(
-                                      `/startupprofile/${startup.startup_id}`
-                                    );
-                                  }}
+                                  // onClick={(e) => {
+                                  //   e.stopPropagation();
+                                  //   navigate(
+                                  //     `/startupprofile/${startup.startup_id}`
+                                  //   );
+                                  // }}
                                   className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-[#45C74D] hover:text-white"
                                 >
                                   View

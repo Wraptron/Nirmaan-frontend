@@ -20,6 +20,8 @@ import {
   ApiFetchStartup,
   ApiFetchStartupCount,
 } from "../../API/API";
+import { Navigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 function Home() {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -239,6 +241,11 @@ function Home() {
     </div>
   );
 
+   let decoded = jwtDecode(sessionStorage.getItem("token"));
+    if (decoded.role != 2 ) {
+      return <Navigate to="/" replace />;
+  }
+  
   return (
     <div className="flex">
       <div className="">
