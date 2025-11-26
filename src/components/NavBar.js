@@ -505,6 +505,10 @@ function NavBar({ onSelectionChange, selectedIndex }) {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.clear();
+    sessionStorage.removeItem("token");
+    sessionStorage.clear();
     navigate("/");
   };
 
@@ -682,7 +686,9 @@ function NavBar({ onSelectionChange, selectedIndex }) {
               </div>
               {isOpen && (
                 <ul className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden animate-fadeIn">
-                  <li className="px-4 py-2 text-sm text-gray-600">{ tokenDecodedData.user_name || tokenDecodedData.user_mail}</li>
+                  <li className="px-4 py-2 text-sm text-gray-600">
+                    {tokenDecodedData.user_name || tokenDecodedData.user_mail}
+                  </li>
 
                   <li>
                     <button

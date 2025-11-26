@@ -3,7 +3,7 @@ import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
 function ProtectedRoutes({ requiredRoles = [] }) {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   const role = sessionStorage.getItem('role');
 
   // If token or role is missing, redirect to login
