@@ -22,7 +22,7 @@ function AddNewMentor() {
   const [formData, setFormData] = useState({
     description: {
       mentor_name: "",
-      choose_logo: null,
+      mentor_logo: null,
       mentor_description: "",
     },
     professional: {
@@ -41,14 +41,14 @@ function AddNewMentor() {
       password: "",
     },
   });
-  console.log(formData.description.choose_logo);
+  console.log(formData.description.mentor_logo);
   const handleChange = (e, section) => {
-    const { name, value } = e.target;
+    const { name,files, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [section]: {
         ...prevData[section],
-        [name]: value,
+        [name]: files ? files[0] : value,
       },
     }));
   };
@@ -71,7 +71,7 @@ function AddNewMentor() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formDataa = new FormData();
-    // formDataa.append("choose_logo", formData.description.choose_logo);
+    formDataa.append("mentor_logo", formData.description.mentor_logo);
     formDataa.append("description", JSON.stringify(formData.description));
     formDataa.append("professional", JSON.stringify(formData.professional));
     formDataa.append("contact", JSON.stringify(formData.contact));
@@ -92,7 +92,7 @@ function AddNewMentor() {
         <NavBar />
         <div className="bg-gray-100 min-h-screen">
           <div className={`mx-10 py-5 ${showw ? "visible" : ""}`}>
-            <div className="bg-white rounded-sm bg-white rounded-sm px-10 py-10">
+            <div className="bg-white rounded-sm  px-10 py-10">
               <div className="text-sm text-[#808080]">
                 Dashboard &gt; Mentor &gt; Add New Mentor
               </div>

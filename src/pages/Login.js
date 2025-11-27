@@ -121,7 +121,7 @@ function Login() {
                 if(userRole === 5) // Student role
                 {
                     // console.log('Navigating to startup profile for user:', startup_id);
-                    navigate(`/startupprofile/${startup_id}`);
+                    navigate(`/startups/startupprofile/${startup_id}`);
                 }
                 else if(userRole === 2) // Admin role
                 {

@@ -5,6 +5,7 @@ import { ApiFetchStartup } from "../../../API/API";
 import { FaEllipsisV } from "react-icons/fa";
 import { Navigate, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import toast from "react-hot-toast";
 
 const StartupList = () => {
   const [data, setData] = useState([]);
@@ -21,11 +22,9 @@ const StartupList = () => {
       const API = await ApiFetchStartup();
       // sort by mentor_id or any unique field
       const sortedData = API.rows.sort((a, b) => a.startup_id - b.startup_id);
-      console.log(sortedData);
-      console.log(sortedData);
       setData(sortedData);
     } catch (err) {
-      console.error(err);
+      toast.error(err);
     }
   };
   useEffect(() => {
@@ -156,12 +155,12 @@ const StartupList = () => {
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <button
-                                  // onClick={(e) => {
-                                  //   e.stopPropagation();
-                                  //   navigate(
-                                  //     `/startupprofile/${startup.startup_id}`
-                                  //   );
-                                  // }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(
+                                      `/startups/startupprofile/${startup.startup_id}`
+                                    );
+                                  }}
                                   className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-[#45C74D] hover:text-white"
                                 >
                                   View

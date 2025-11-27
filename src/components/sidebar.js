@@ -1,16 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { FaChartPie, FaRocket, FaChalkboardTeacher, FaBookOpen, FaRegCalendarCheck } from 'react-icons/fa';
 import nirmaanlogo from '../assets/images/nirmaan-iitm.14fdf833.svg';
 import { FaPeopleGroup } from 'react-icons/fa6';
 import { jwtDecode } from 'jwt-decode';
-import { useParams } from 'react-router-dom';
-import { ApiFetchStartup } from '../API/API';
 function SideBar({ children }) {
-    const { startup_id } = useParams();
-    // const [userRole, setUserRole] = useState('customer');
-    // const currentPath = window.location.pathname;
-  // const ShowArrowIcon = currentPath === '/customer/Home';
-  const [data, setData] = useState([]);
   const currentPath = window.location.pathname;
     
     const getTokenDecodedData = () => {
@@ -28,23 +21,7 @@ function SideBar({ children }) {
   
   const tokenDecodedData = getTokenDecodedData();
 
-  const fetchData = async () => {
-     try{
-      const API = await ApiFetchStartup();
-          const allStartup = API?.rows || [];
-          const selectedstartup = allStartup.find(
-            (startup) => String(startup.startup_id) === String(startup_id)
-            
-          );
-          setData(selectedstartup.startup_id || null);
-      } catch (error) {
-        // console.error("Error fetching data:", error);
-      } 
-    };
-  
-    useEffect(() => {
-      fetchData();
-    }, []);
+ 
   return (
     <div className="fixed top-0 left-0 h-screen md:w-[220px] sm:w-9 w-9 m-0 flex flex-col text-black border-r-0 border-gray-500 shadow-md bg-white">
       <div className="md:px-[50px] pt-4">
@@ -61,7 +38,7 @@ function SideBar({ children }) {
               </a>
             </li>
             <li
-              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/startups" && "bg-[#45C74D] text-white rounded-xl"}`}
+              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath.startsWith("/startups") && "bg-[#45C74D] text-white rounded-xl"}`}
             >
               <a href="/startups" className="flex gap-5">
                 <FaRocket size={20} />
@@ -69,7 +46,7 @@ function SideBar({ children }) {
               </a>
             </li>
             <li
-              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/mentors" && "bg-[#45C74D] text-white rounded-xl"}`}
+              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath.startsWith("/mentors") && "bg-[#45C74D] text-white rounded-xl"}`}
             >
               <a href="/mentors" className="flex gap-5">
                 <FaChalkboardTeacher size={20} />
@@ -106,16 +83,20 @@ function SideBar({ children }) {
           <ul className="py-5 px-8">
             <li
               className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 mt-2 ${
-                currentPath === `/startupprofile/${data}` &&
+                currentPath ===
+                  `/startups/startupprofile/${tokenDecodedData.startup_id}` &&
                 "bg-[#45C74D] text-white rounded-xl"
               }`}
             >
-                <a href={`/startupprofile/${data}`} className="flex gap-5">
+              <a
+                href={`/startups/startupprofile/${tokenDecodedData.startup_id}`}
+                className="flex gap-5"
+              >
                 <FaChartPie size={20} /> Profile
               </a>
             </li>
             <li
-              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/startups" && "bg-[#45C74D] text-white rounded-xl"}`}
+              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/startup/startuplist" && "bg-[#45C74D] text-white rounded-xl"}`}
             >
               <a href="/startup/startuplist" className="flex gap-5">
                 <FaRocket size={20} />
@@ -123,7 +104,7 @@ function SideBar({ children }) {
               </a>
             </li>
             <li
-              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/mentors" && "bg-[#45C74D] text-white rounded-xl"}`}
+              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/startup/mentor" && "bg-[#45C74D] text-white rounded-xl"}`}
             >
               <a href="/startup/mentor" className="flex gap-5">
                 <FaChalkboardTeacher size={20} />

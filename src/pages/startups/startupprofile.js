@@ -359,24 +359,35 @@ function StartupProfile() {
         <div className="bg-[#F8FAFB] min-h-screen">
           <div className="mx-auto max-w-6xl py-6">
             {/* Display the id for confirmation */}
-            <div className="mb-4 p-2 bg-yellow-100 text-yellow-800 rounded">
-              Profile ID: {startupData?.startup_id}
-            </div>
+            {decoded.role === 2 ? (
+              <div className="mb-4 p-2 bg-yellow-100 text-yellow-800 rounded">
+                Profile ID: {startupData?.startup_id}
+              </div>
+            ) : (
+              ""
+            )}
+
             {/* Breadcrumb */}
             <div className="text-xs text-[#A1A1A1] mb-2 flex items-center gap-2">
-              {decoded.role === 2 ?  <button
-                type="button"
-                onClick={() =>
-                  navigate(
-                    `/startups?page=${page}&status=${status}&cohort=${cohort}`
-                  )
-                }
-                className="hover:text-[#45C74D] focus:outline-none"
-                title="Back to Startups"
-              >
-                <MdChevronLeft className="text-black text-3xl" />
-              </button> :""}
-              Start-ups &gt; Profile
+              {decoded.role === 2 ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigate(
+                        `/startups?page=${page}&status=${status}&cohort=${cohort}`
+                      )
+                    }
+                    className="hover:text-[#45C74D] focus:outline-none"
+                    title="Back to Startups"
+                  >
+                    <MdChevronLeft className="text-black text-3xl" />
+                  </button>
+                  <span>Start-ups &gt; Profile</span>
+                </>
+              ) : (
+                ""
+              )}
             </div>
             {/* Title */}
             <div className="font-semibold text-2xl mb-6 text-[#232323]">
@@ -655,13 +666,13 @@ function StartupProfile() {
             {/* Details Grid Section */}
             <div className="bg-white rounded-2xl shadow p-6 mb-8 grid grid-cols-3 gap-8 text-sm font-medium text-[#232323] relative">
               {/* Edit button at top right */}
-              <button
+              {decoded.role === 2 ? <button
                 className="absolute top-4 right-4 p-1 hover:bg-gray-100 rounded"
                 onClick={handleMentorEditClick}
                 title="Edit Mentor & Details"
               >
                 <FiEdit2 size={20} className="text-[#45C74D]" />
-              </button>
+              </button> : ""}
               <div>
                 <div className="flex items-center gap-1 mb-1 font-semibold">
                   Mentors

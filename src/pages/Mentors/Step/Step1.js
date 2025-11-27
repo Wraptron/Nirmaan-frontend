@@ -7,13 +7,14 @@ const Step1 = ({ formData, handleChange }) => {
     const file = e.target.files[0];
     if (file) {
       // Create a custom event to pass to handleChange
-      handleChange({
-        target: {
-          name: "choose_logo",
-          value: file,
+      handleChange(
+        {
+          target: {
+            name: "mentor_logo",
+            value: file,
+          },
         },
-      },
-      "description" // ✅ Pass the section name!
+        "description" // ✅ Pass the section name!
       );
     }
   };
@@ -47,8 +48,8 @@ const Step1 = ({ formData, handleChange }) => {
           <div className="mt-1 flex">
             <input
               type="text"
-              name="choose_logo"
-              value={formData.choose_logo ? formData.choose_logo.name : "" }
+              name="mentor_logo"
+              value={formData.mentor_logo ? formData.mentor_logo.name : ""}
               className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
               placeholder="No file chosen"
               readOnly

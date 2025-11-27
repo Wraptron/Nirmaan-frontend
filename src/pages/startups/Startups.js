@@ -731,7 +731,7 @@ function Startups() {
                             onClick={(e) => {
                               e.stopPropagation();
                               navigate(
-                                `/startupprofile/${startup.startup_id}?page=${currentPage}&status=${filterStatus}&cohort=${filterCohort}`
+                                `/startups/startupprofile/${startup.startup_id}?page=${currentPage}&status=${filterStatus}&cohort=${filterCohort}`
                               );
                             }}
                           >

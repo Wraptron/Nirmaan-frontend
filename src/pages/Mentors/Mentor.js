@@ -139,7 +139,7 @@ function Mentor() {
                 />
                 <div className="flex-1 ml-4">
                   <div className="text-md font-semibold">
-                    <a href={`/mentor/mentor_profile/${mentor.mentor_id}`}>
+                    <a href={`/mentors/mentor_profile/${mentor.mentor_id}`}>
                       {mentor.mentor_name}
                     </a>
                   </div>
@@ -167,7 +167,7 @@ function Mentor() {
                     <div className="dropdown-menu absolute right-0 mt-2 w-36 bg-white border rounded-md shadow-lg z-10 text-sm">
                       <button
                         onClick={() =>
-                          navigate(`/mentor/mentor_profile/${mentor.mentor_id}`)
+                          navigate(`/mentors/mentor_profile/${mentor.mentor_id}`)
                         }
                         className="w-full text-left px-4 py-2 hover:bg-gray-100"
                       >

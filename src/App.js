@@ -202,7 +202,7 @@ import StartupFundingDetail from "./Finance/Pages/Startup/StartupfundingDetail";
 import Schedule from "./pages/Mentorship/Schedule";
 
 // Startup Logi
-import StartupMentor from "./pages/startups/Mentor/Mentor";
+import StartupMentor from "./pages/startups/Mentor/MentorList";
 import StartupList from "./pages/startups/Startup/StartupList"
 function App() {
   useEffect(() => {
@@ -243,7 +243,7 @@ function App() {
               element={<ScheduleMeeting />}
             />
             <Route
-              path="/mentor/mentor_profile/:id"
+              path="/mentors/mentor_profile/:id"
               element={<MentorProfile />}
             />
             <Route path="/reports" element={<Reports />} />
@@ -265,7 +265,7 @@ function App() {
           {/* Startup Profile Routes (Admin: 2 + Students: 5) */}
           <Route element={<ProtectedRoutes allowedRoles={["2", "5"]} />}>
             <Route
-              path="/startupprofile/:startup_id"
+              path="/startups/startupprofile/:startup_id"
               element={<Startupprofile />}
             />
             <Route
