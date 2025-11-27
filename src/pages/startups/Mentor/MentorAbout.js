@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import ImageSvg from "../../../assets/images/image (1).svg"; 
 
-const MentorAbout = ({ onClose, mentor_name, about, expertise }) => {
+const MentorAbout = ({ onClose, mentor_name, about, expertise ,mentor_logo}) => {
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]"
@@ -34,7 +34,7 @@ const MentorAbout = ({ onClose, mentor_name, about, expertise }) => {
           />
           <div className="absolute left-1/2 transform -translate-x-1/2 bottom-[-70px]">
             <img
-              src={ImageSvg}
+              src={mentor_logo || ImageSvg}
               className="w-40 h-40 rounded-full border-4 border-white shadow-xl object-cover"
             />
           </div>

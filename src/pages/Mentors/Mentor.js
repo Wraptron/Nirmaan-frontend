@@ -18,20 +18,22 @@ function Mentor() {
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const navigate = useNavigate();
 
- useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const API = await ApiFetchMentor();
-      // sort by mentor_id or any unique field
-      const sortedData = API.STATUS.rows.sort((a, b) => a.mentor_id - b.mentor_id);
-      setData(sortedData);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const API = await ApiFetchMentor();
+        // sort by mentor_id or any unique field
+        const sortedData = API.STATUS.rows.sort(
+          (a, b) => a.mentor_id - b.mentor_id
+        );
+        setData(sortedData);
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
-  fetchData();
-}, []);
+    fetchData();
+  }, []);
 
   // Click outside to close dropdown
   useEffect(() => {
@@ -78,10 +80,10 @@ function Mentor() {
   );
   const totalPages = Math.ceil(filteredMentors.length / rowsPerPage);
 
-    let decoded = jwtDecode(sessionStorage.getItem("token"));
-    if (decoded.role !== 2) {
-      return <Navigate to="/" replace />;
-    }
+  let decoded = jwtDecode(sessionStorage.getItem("token"));
+  if (decoded.role !== 2) {
+    return <Navigate to="/" replace />;
+  }
   return (
     <div className="flex">
       <SideBar />
@@ -118,7 +120,7 @@ function Mentor() {
             </div>
 
             <a
-              href="/mentor/new"
+              href="/mentors/new"
               className="mt-3 md:mt-0 bg-[#45C74D]  text-white px-5 py-2 rounded-lg font-semibold text-sm"
             >
               Add New Mentor
@@ -126,112 +128,123 @@ function Mentor() {
           </div>
 
           {/* Mentor Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {currentMentors.map((mentor) => (
-              <div
-                key={mentor.mentor_id}
-                className="bg-white rounded-2xl shadow-md p-4 flex items-center justify-between relative"
-              >
-                <img
-                  src={mentor.mentor_logo || ImageSvg}
-                  alt="Mentor"
-                  className="rounded-full w-20 h-20 object-cover aspect-square"
-                />
-                <div className="flex-1 ml-4">
-                  <div className="text-md font-semibold">
-                    <a href={`/mentors/mentor_profile/${mentor.mentor_id}`}>
-                      {mentor.mentor_name}
-                    </a>
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {mentor.institution}
-                  </div>
-                </div>
-
-                {/* Menu Button and Dropdown */}
-                <div className="relative">
-                  <button
-                    onClick={() =>
-                      setOpenDropdownId(
-                        openDropdownId === mentor.mentor_id
-                          ? null
-                          : mentor.mentor_id
-                      )
-                    }
-                    className="ellipsis-button text-gray-400 hover:text-gray-600 focus:outline-none"
-                  >
-                    <FaEllipsisV />
-                  </button>
-
-                  {openDropdownId === mentor.mentor_id && (
-                    <div className="dropdown-menu absolute right-0 mt-2 w-36 bg-white border rounded-md shadow-lg z-10 text-sm">
-                      <button
-                        onClick={() =>
-                          navigate(`/mentors/mentor_profile/${mentor.mentor_id}`)
-                        }
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                      >
-                        View
-                      </button>
-                      <button
-                        onClick={() => toast("Message clicked")}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                      >
-                        Message
-                      </button>
-                      <button
-                        onClick={() => {
-                          setMentorData(mentor.mentor_id);
-                          setOpenEstablishPopUp(true);
-                          setOpenDropdownId(null);
-                        }}
-                        className="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Pagination */}
-          <div className="flex justify-between items-center mt-8">
-            <span className="text-sm text-gray-500">
-              Showing {currentMentors.length} of {filteredMentors.length}{" "}
-              results
-            </span>
-            <div className="flex gap-2">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => prev - 1)}
-                className="px-3 py-1 text-sm rounded-md bg-gray-200 disabled:opacity-50"
-              >
-                «
-              </button>
-              {[...Array(totalPages).keys()].map((i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentPage(i + 1)}
-                  className={`px-3 py-1 text-sm rounded-md ${
-                    currentPage === i + 1
-                      ? "bg-[#45C74D] text-white"
-                      : "bg-gray-200"
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((prev) => prev + 1)}
-                className="px-3 py-1 text-sm rounded-md bg-gray-200 disabled:opacity-50"
-              >
-                »
-              </button>
+          {currentMentors.length === 0 ? (
+            <div className="flex justify-center items-center text-center">
+              <p className="text-gray-500 text-lg">
+                No data available for mentor
+              </p>
             </div>
-          </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {currentMentors.map((mentor) => (
+                <div
+                  key={mentor.mentor_id}
+                  className="bg-white rounded-2xl shadow-md p-4 flex items-center justify-between relative"
+                >
+                  <img
+                    src={mentor.mentor_logo || ImageSvg}
+                    alt="Mentor"
+                    className="rounded-full w-20 h-20 object-cover aspect-square"
+                  />
+                  <div className="flex-1 ml-4">
+                    <div className="text-md font-semibold">
+                      <a href={`/mentors/mentor_profile/${mentor.mentor_id}`}>
+                        {mentor.mentor_name}
+                      </a>
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {mentor.institution}
+                    </div>
+                  </div>
+
+                  {/* Menu Button and Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() =>
+                        setOpenDropdownId(
+                          openDropdownId === mentor.mentor_id
+                            ? null
+                            : mentor.mentor_id
+                        )
+                      }
+                      className="ellipsis-button text-gray-400 hover:text-gray-600 focus:outline-none"
+                    >
+                      <FaEllipsisV />
+                    </button>
+
+                    {openDropdownId === mentor.mentor_id && (
+                      <div className="dropdown-menu absolute right-0 mt-2 w-36 bg-white border rounded-md shadow-lg z-10 text-sm">
+                        <button
+                          onClick={() =>
+                            navigate(
+                              `/mentors/mentor_profile/${mentor.mentor_id}`
+                            )
+                          }
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                        >
+                          View
+                        </button>
+                        <button
+                          onClick={() => toast("Message clicked")}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                        >
+                          Message
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMentorData(mentor.mentor_id);
+                            setOpenEstablishPopUp(true);
+                            setOpenDropdownId(null);
+                          }}
+                          className="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {/* Pagination */}
+          {currentMentors.length > 0 && (
+            <div className="flex justify-between items-center mt-8">
+              <span className="text-sm text-gray-500">
+                Showing {currentMentors.length} of {filteredMentors.length}{" "}
+                results
+              </span>
+              <div className="flex gap-2">
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((prev) => prev - 1)}
+                  className="px-3 py-1 text-sm rounded-md bg-gray-200 disabled:opacity-50"
+                >
+                  «
+                </button>
+                {[...Array(totalPages).keys()].map((i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentPage(i + 1)}
+                    className={`px-3 py-1 text-sm rounded-md ${
+                      currentPage === i + 1
+                        ? "bg-[#45C74D] text-white"
+                        : "bg-gray-200"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((prev) => prev + 1)}
+                  className="px-3 py-1 text-sm rounded-md bg-gray-200 disabled:opacity-50"
+                >
+                  »
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Delete Confirmation */}
           <DeleteConfirmation

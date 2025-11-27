@@ -557,10 +557,11 @@ function Startups() {
           filterCohort === "All" ||
           startup.startup_cohort?.toLowerCase() === filterCohort.toLowerCase();
 
-        const matchesSearch =
+          const matchesSearch =
           startup.startup_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           startup.founder_name?.toLowerCase().includes(searchTerm.toLowerCase());
-
+            console.log(searchTerm)
+            console.log(matchesSearch)
         return matchesFilter && matchesCohort && matchesSearch;
       });
 

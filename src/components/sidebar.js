@@ -46,7 +46,12 @@ function SideBar({ children }) {
               </a>
             </li>
             <li
-              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath.startsWith("/mentors") && "bg-[#45C74D] text-white rounded-xl"}`}
+              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${
+                currentPath.startsWith("/mentors") &&
+                currentPath !== "/mentorship"
+                  ? "bg-[#45C74D] text-white rounded-xl"
+                  : ""
+              }`}
             >
               <a href="/mentors" className="flex gap-5">
                 <FaChalkboardTeacher size={20} />
@@ -54,7 +59,7 @@ function SideBar({ children }) {
               </a>
             </li>
             <li
-              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/mentorship" && "bg-[#45C74D] text-white rounded-xl"}`}
+              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath.startsWith("/mentorship") && "bg-[#45C74D] text-white rounded-xl"}`}
             >
               <a href="/mentorship" className="flex gap-5">
                 <FaBookOpen size={20} />

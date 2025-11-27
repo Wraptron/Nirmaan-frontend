@@ -65,18 +65,8 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
       onSubmit(formData);
       onClose();
     } catch (error) {
-      // console.error("Error updating mentor:", error);
-      if (error.response) {
-        toast.error(
-          `Failed to update mentor profile: ${error.response.data?.error || error.response.data?.message || "Server error"}`
-        );
-      } else if (error.request) {
-        // console.error("Error request:", error.request);
-        toast.error("No response received from server");
-      } else {
-        // console.error("Error message:", error.message);
-        toast.error("Failed to update mentor profile");
-      }
+      // console.error("Error updating mentor:", error?.response?.data?.Error);
+      toast.error(error?.response?.data?.Error);
     }
   };
 
@@ -101,7 +91,7 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
                 value={formData.mentor_name}
                 onChange={handleChange}
                 placeholder="Mentor Name"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#45C74D] focus:border-[#45C74D]"
                 required
               />
             </div>
@@ -114,7 +104,7 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
                 value={formData.designation}
                 onChange={handleChange}
                 placeholder="Designation"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#45C74D] focus:border-[#45C74D]"
               />
             </div>
             <div>
@@ -127,7 +117,7 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
                 value={formData.email_address}
                 onChange={handleChange}
                 placeholder="Email Address"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#45C74D] focus:border-[#45C74D]"
                 required
               />
             </div>
@@ -140,7 +130,7 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
                 value={formData.contact_num}
                 onChange={handleChange}
                 placeholder="Contact Number"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#45C74D] focus:border-[#45C74D]"
               />
             </div>
             <div>
@@ -152,7 +142,7 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
                 value={formData.qualification}
                 onChange={handleChange}
                 placeholder="Qualification"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#45C74D] focus:border-[#45C74D]"
               />
             </div>
             <div>
@@ -164,7 +154,7 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
                 value={formData.institution}
                 onChange={handleChange}
                 placeholder="Institution"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#45C74D] focus:border-[#45C74D]"
               />
             </div>
             <div>
@@ -177,7 +167,7 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
                 value={formData.year_of_passing_out}
                 onChange={handleChange}
                 placeholder="Year of Passing"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#45C74D] focus:border-[#45C74D]"
               />
             </div>
             <div>
@@ -189,7 +179,7 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
                 value={formData.expertise}
                 onChange={handleChange}
                 placeholder="Area of Expertise"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#45C74D] focus:border-[#45C74D]"
               />
             </div>
             <div>
@@ -201,7 +191,7 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
                 value={formData.linkedin_id}
                 onChange={handleChange}
                 placeholder="LinkedIn Profile ID"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#45C74D] focus:border-[#45C74D]"
               />
             </div>
           </div>
@@ -215,7 +205,7 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
               onChange={handleChange}
               placeholder="About the mentor"
               rows="4"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#45C74D] focus:border-[#45C74D]"
             />
           </div>
           <div className="flex justify-end gap-4 mt-6">
@@ -228,7 +218,7 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+              className="px-4 py-2 bg-[#45C74D] text-white rounded-lg "
             >
               Update
             </button>

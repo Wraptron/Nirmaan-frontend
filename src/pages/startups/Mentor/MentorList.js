@@ -4,17 +4,22 @@ import Navbar from "../../../components/NavBar";
 import { ApiFetchMentor } from "../../../API/API";
 import MentorAbout from "./MentorAbout";
 import { jwtDecode } from "jwt-decode";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const Mentor = () => {
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMentor, setSelectedMentor] = useState(null);
   const [showmentorabout, setShowMentorAbout] = useState(false);
+  const navigate = useNavigate();
   const handleaboutclose = () => {
     setSelectedMentor(null);
     setShowMentorAbout(false);
   };
+
+   const handleScheduleClick = () => {
+     navigate(`/schedulemeeting`);
+   };
   const fetchData = async () => {
     try {
       const API = await ApiFetchMentor();
@@ -76,12 +81,12 @@ const Mentor = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-5">
-                  <button
+                  {/* <button
                     className="bg-[#45C74D] text-white px-8 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition"
-                    // onClick={handleFundingClick}
+                   onClick={handleScheduleClick}
                   >
                     Add Mentor Hour
-                  </button>
+                  </button> */}
                 </div>
               </div>
               <div className="border mt-5 border-dotted rounded-lg overflow-x-auto">
@@ -129,6 +134,7 @@ const Mentor = () => {
       {showmentorabout && (
         <MentorAbout
           onClose={handleaboutclose}
+          mentor_logo={selectedMentor.mentor_logo}
           mentor_name={selectedMentor.mentor_name}
           about={selectedMentor.mento_description}
           expertise={selectedMentor.area_of_expertise}

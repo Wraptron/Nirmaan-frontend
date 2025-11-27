@@ -225,7 +225,7 @@ function App() {
             <Route path="/addstartup" element={<AddStartup />} />
             <Route path="/startups" element={<Startups />} />
             <Route path="/connections" element={<Connections />} />
-            <Route path="/addconnections" element={<AddConnections/>} />
+            <Route path="/addconnections" element={<AddConnections />} />
             <Route path="/mentors" element={<Mentor />} />
             <Route path="/events" element={<Events />} />
             <Route path="/mentorship" element={<MentorShip />} />
@@ -237,9 +237,9 @@ function App() {
             <Route path="/mobilitystartups" element={<Mobility />} />
             <Route path="/events/new" element={<CreateNewEvent />} />
             <Route path="/contacts" element={<Contacts />} />
-            <Route path="/mentor/new" element={<AddNewMentor />} />
+            <Route path="/mentors/new" element={<AddNewMentor />} />
             <Route
-              path="/scheduleMeeting/:mentor_id"
+              path="/mentors/scheduleMeeting/:mentor_id"
               element={<ScheduleMeeting />}
             />
             <Route
@@ -259,7 +259,7 @@ function App() {
                 </PDFViewer>
               }
             />
-             <Route path="/mentorship/scheduleMeeting" element={<Schedule />} />
+            <Route path="/mentorship/scheduleMeeting" element={<Schedule />} />
           </Route>
 
           {/* Startup Profile Routes (Admin: 2 + Students: 5) */}
@@ -276,7 +276,6 @@ function App() {
 
           {/* Student Only Routes (Role: 5) */}
           <Route element={<ProtectedRoutes allowedRoles={["5"]} />}>
-
             <Route path="/customer/Home" element={<CustomerHome />} />
             {/* <Route path="/startupprofile/" element={<Startupprofile/>} /> */}
             <Route path="/customer/resume" element={<Resume />} />
@@ -290,9 +289,8 @@ function App() {
             <Route path="/customer/home/request" element={<RaiseRequest />} />
             <Route path="/customer/Startups" element={<CustomerStartup />} />
             <Route path="/customer/contacts" element={<CustomerContacts />} />
-            <Route path="/startup/mentor" element={<StartupMentor/>} />
-            <Route path="/startup/startuplist" element={<StartupList/>} />
-
+            <Route path="/startup/mentor" element={<StartupMentor />} />
+            <Route path="/startup/startuplist" element={<StartupList />} />
           </Route>
 
           {/* Finance Routes (Role: 3) */}
@@ -303,8 +301,11 @@ function App() {
               element={<FinanceUpdateFunding />}
             />
             <Route path="/bills" element={<Bills />} />
-            <Route path="/finance/startup" element={<Finstartup/>} />
-            <Route path="/finance/startupdetail/:startup_id" element={<StartupFundingDetail/>} />
+            <Route path="/finance/startup" element={<Finstartup />} />
+            <Route
+              path="/finance/startupdetail/:startup_id"
+              element={<StartupFundingDetail />}
+            />
           </Route>
         </Routes>
       </BrowserRouter>

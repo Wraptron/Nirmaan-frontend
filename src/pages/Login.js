@@ -90,7 +90,8 @@ function Login() {
         
         try
         {
-            const response = await axios.post(APP_URL+'login', formData);
+            const response = await axios.post(APP_URL + 'login', formData);
+            console.log(response)
             
             if(response.data.authentication === "Please enter username and password properly!")
             {

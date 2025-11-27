@@ -1253,8 +1253,8 @@ async function ApiUpdateMentor(payload) {
     );
     return response.data;
   } catch (error) {
-    console.error("Error in ApiUpdateMentor", error);
-    throw new Error("Failed to update Mentor details");
+    // console.error("Error in ApiUpdateMentor", error);
+    throw error;
   }
 }   
 

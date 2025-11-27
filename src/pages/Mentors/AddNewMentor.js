@@ -18,6 +18,7 @@ import settingsvgwhite from "../../assets/images/Frame (27).svg";
 
 function AddNewMentor() {
   const [currentStep, setCurrentStep] = useState(0);
+   const [issubmitting,setIsSubitting]=useState(false)
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     description: {
@@ -70,20 +71,22 @@ function AddNewMentor() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (issubmitting) return;
     const formDataa = new FormData();
     formDataa.append("mentor_logo", formData.description.mentor_logo);
     formDataa.append("description", JSON.stringify(formData.description));
     formDataa.append("professional", JSON.stringify(formData.professional));
     formDataa.append("contact", JSON.stringify(formData.contact));
     try {
+         setIsSubitting(true);
       await ApiAddNewMentor(formDataa);
       toast.success("Mentor added successfully");
       navigate("/mentors");
     } catch (error) {
-      console.error("Error in API", error);
-      toast.error("Something went wrong");
+      console.error("Error in API", error?.response?.data?.Error);
+      toast.error(error?.response?.data?.Error || "Failed to add mentor");
+         setIsSubitting(false);
     }
-    console.log(formData);
   };
   return (
     <div className="flex">
@@ -134,7 +137,9 @@ function AddNewMentor() {
                   }}
                 >
                   <img
-                    src={currentStep === 1 ? exclamtionwhite : professionalsvgblack}
+                    src={
+                      currentStep === 1 ? exclamtionwhite : professionalsvgblack
+                    }
                     className="w-5 mb-1"
                     alt="Step 2"
                   />
@@ -208,10 +213,13 @@ function AddNewMentor() {
                   {currentStep === 2 && (
                     <form onSubmit={handleSubmit}>
                       <button
+                        className={`bg-[#45c74d] p-2 rounded-lg text-white font-semibold ${
+                          issubmitting ? "opacity-50 cursor-not-allowed" : ""
+                          }`}
                         type="submit"
-                        className="bg-[#45C74D] p-2 text-white rounded-lg"
+                        disabled={issubmitting}
                       >
-                        Submit
+                        {issubmitting ? "Submitting..." : "Submit"}
                       </button>
                     </form>
                   )}

@@ -9,6 +9,7 @@ function ScheduleMeeting() {
   const [startupname, setStartupName] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
+  const navigation = useNavigate();
   const [meetingdata, setMeetingdata] = useState({
     startup_name: "",
     startup_id: "",
@@ -131,9 +132,9 @@ function ScheduleMeeting() {
 
             {/* Heading */}
             <div className="text-lg font-semibold pt-2 flex gap-3 items-center">
-              <a href="/mentors">
-                <img src={mentorsvg} alt="Back" />
-              </a>
+             
+                <img src={mentorsvg} alt="Back" onClick={()=>navigate(`/mentors/mentor_profile/${mentor_id}`)} />
+              
               <div className="text-lg font-semibold">Schedule New Meeting</div>
             </div>
 

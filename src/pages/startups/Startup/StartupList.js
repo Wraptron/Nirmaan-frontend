@@ -129,7 +129,9 @@ const StartupList = () => {
                         <td className="px-4 py-2">
                           {startup.startup_sector || "-"}
                         </td>
-                        <td className="px-4 py-2">-</td>
+                        <td className="px-4 py-2">
+                          {startup.mentor_associated || "-"}
+                        </td>
                         <td className="px-4 py-2">
                           <div className="relative inline-block text-right">
                             {/* Ellipsis Button */}
