@@ -433,16 +433,45 @@ function StartupProfile() {
                       {startupData.startup_name}
                     </span>
                     {/* Only show status if program is "akshar" or "partham" */}
-                    {(startupData.program?.toLowerCase() === "akshar" ||
+                    {/* {(startupData.program?.toLowerCase() === "akshar" ||
                       startupData.program?.toLowerCase() === "pratham") && (
                       <span className="bg-[#E9F7F1] text-[#45C74D] text-xs font-semibold px-2 py-0.5 rounded ml-1">
                         <div
                           className={`px-2 py-1 rounded-xl text-xs ${getStatusColor(startupData.startup_status)}`}
                         >
-                          {startupData.startup_status || ""}
+                          {startupData?.startup_status.toLowerCase() || ""}
                         </div>
                       </span>
                     )}
+                    {startupData.program?.toLowerCase() === "dropped out" && (
+                      <span className="bg-gray-100 text-[#45C74D] text-xs font-semibold px-2 py-0.5 rounded ml-1">
+                        <div
+                          className={`px-2 py-1 rounded-xl text-xs ${getStatusColor(startupData.startup_status)}`}
+                        >
+                          {startupData?.startup_status.toLowerCase() || ""}
+                        </div>
+                      </span>
+                    )} */}
+                    {/* ACTIVE OR NORMAL PROGRAMS (Pratham, Akshar) */}
+                      {["pratham", "akshar"].includes(startupData.program?.toLowerCase()) && (
+                        <span className="bg-[#E9F7F1] text-[#45C74D] text-xs font-semibold px-2 py-0.5 rounded ml-1">
+                          <div
+                            className={`px-2 py-1 rounded-xl text-xs ${getStatusColor(startupData.startup_status)}`}
+                          >
+                            {startupData?.startup_status?.toLowerCase() || ""}
+                          </div>
+                        </span>
+                      )}
+
+                      {/* DROPPED OUT */}
+                      {startupData.program?.toLowerCase() === "dropped out" && (
+                        <span className="bg-red-100 text-red-600 text-xs font-semibold px-2 py-0.5 rounded ml-1">
+                          <div className="px-2 py-1 rounded-xl text-xs bg-red-200">
+                            Dropped Out
+                          </div>
+                        </span>
+                      )}
+
                   </div>
                   <div className="flex items-center gap-2 text-sm text-[#232323] mb-1">
                     <span className="flex items-center gap-1">
