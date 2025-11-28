@@ -1007,8 +1007,8 @@ const isDevelopment = process.env.NODE_ENV === "development";
 
 // API Base URLs
 const API_URLS = {
-  DEVELOPMENT: "http://localhost:3003",
-  //PRODUCTION: "http://13.127.7.121",
+  // DEVELOPMENT: "http://localhost:3003",
+  PRODUCTION: "http://13.127.7.121",
 };
 
 // Current API Base URL based on environment

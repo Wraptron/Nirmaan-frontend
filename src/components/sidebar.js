@@ -58,7 +58,7 @@ function SideBar({ children }) {
                 Mentors
               </a>
             </li>
-            <li
+            {/* <li
               className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath.startsWith("/mentorship") && "bg-[#45C74D] text-white rounded-xl"}`}
             >
               <a href="/mentorship" className="flex gap-5">
@@ -81,7 +81,7 @@ function SideBar({ children }) {
                 <FaPeopleGroup size={20} />
                 Connections
               </a>
-            </li>
+            </li> */}
             {/* <li className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/reports" && "bg-[#45C74D] text-white rounded-xl"}`}><a href="/reports" className="flex gap-5"><FaRegFile size={20} />Reports</a></li> */}
           </ul>
         ) : (
