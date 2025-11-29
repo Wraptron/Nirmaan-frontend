@@ -30,7 +30,7 @@ const AddTestimonial = ({ onClose, mentor_id, onTestimonialAdded }) => {
       // Refresh testimonials before navigation
       await onTestimonialAdded();
       // Navigate back to mentor profile after successful submission
-      navigate(`/mentor/mentor_profile/${mentor_id}`);
+      navigate(`/mentors/mentor_profile/${mentor_id}`);
     } catch (error) {
       console.log(error);
     }

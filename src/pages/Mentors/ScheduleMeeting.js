@@ -96,7 +96,7 @@ function ScheduleMeeting() {
     try {
       await ApiScheduleMeeting(payload);
       // Navigate back to mentor profile after successful scheduling
-      navigate(`/mentor/mentor_profile/${mentor_id}`);
+      navigate(`/mentors/mentor_profile/${mentor_id}`);
     } catch (error) {
       console.log("error", error);
     }

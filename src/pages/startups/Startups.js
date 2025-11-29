@@ -577,10 +577,28 @@ function Startups() {
       console.error(err);
     }
   };
-  let decoded = jwtDecode(sessionStorage.getItem("token"));
-  if (decoded.role != 2 ) {
-    return <Navigate to="/" replace />;
-  }
+ const token = sessionStorage.getItem("token");
+
+ if (!token) {
+   sessionStorage.clear();
+   localStorage.clear();
+   return <Navigate to="/" replace />;
+ }
+
+ let decoded;
+ try {
+   decoded = jwtDecode(token);
+ } catch (e) {
+   sessionStorage.clear();
+   localStorage.clear();
+   return <Navigate to="/" replace />;
+ }
+
+ if (decoded.role !== 2) {
+   sessionStorage.clear();
+   localStorage.clear();
+   return <Navigate to="/" replace />;
+ }
   return (
     <div className="flex">
       <SideBar />
@@ -771,7 +789,7 @@ function Startups() {
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           navigate(
-                                            `/startupprofile/${startup.startup_id}`
+                                            `/startups/startupprofile/${startup.startup_id}`
                                           );
                                           setOpenDropdownId(null);
                                         }}

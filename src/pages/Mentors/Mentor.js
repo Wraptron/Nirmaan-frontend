@@ -5,7 +5,7 @@ import { FaEllipsisV } from "react-icons/fa";
 import { ApiFetchMentor, ApiDeletMentorData } from "../../API/API";
 import toast from "react-hot-toast";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
-import ImageSvg from "../../assets/images/image.svg"; // Placeholder image
+import ImageSvg from "../../assets/images/296fe121-5dfa-43f4-98b5-db50019738a7.jpg"; // Placeholder image
 import { Navigate, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 function Mentor() {

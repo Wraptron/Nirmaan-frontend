@@ -887,11 +887,11 @@ function NavBar({ onSelectionChange, selectedIndex }) {
           </button>
         </div>
       </ProfileModal>
-      <ActionsModel
+      {/* <ActionsModel
         isVisible={actionpopup}
         onClose={() => handleActionClose(false)}
       >
-        <div className="flex justfiy-between px-2 gap-4 mt-5 border p-3">
+        <div className="flex justfiy-between px-2 gap-4 mt-5 border p-3 ">
           <div className="">
             <img
               src={Startupsvg}
@@ -971,7 +971,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
             </div>
           </div>
         </div>
-      </ActionsModel>
+      </ActionsModel> */}
       <More isVisible={morepopup} onClose={() => handleMoreClose(false)}>
         <div className="p-2">
           <div className="text-lg">Products</div>

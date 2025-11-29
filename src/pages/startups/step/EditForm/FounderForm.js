@@ -34,47 +34,62 @@ console.log(formData)
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
+ const validateForm = () => {
+   const newErrors = {};
 
-    if (!formData.founder_name.trim()) {
-      newErrors.founder_name = "Founder name is required";
-    }
+   // name
+   if (!formData.founder_name.trim()) {
+     newErrors.founder_name = "Founder name is required";
+   }
 
-const allowedDomains = ["gmail.com", "outlook.com", "yahoo.com","iitm.in.co"];
+   // email
+   const allowedDomains = [
+     "gmail.com",
+     "outlook.com",
+     "yahoo.com",
+     "smail.iitm.ac.in",
+   ];
 
-const emailParts = formData.founder_email.trim().split("@");
-const domain = emailParts[1];
+   const emailParts = formData.founder_email.trim().split("@");
+   const domain = emailParts[1] || "";
 
-if (!formData.founder_email.trim()) {
-  newErrors.founder_email = "Founder email is required";
-} else if (!/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(formData.founder_email)) {
-  newErrors.founder_email = "Please enter a valid email address";
-} else if (!allowedDomains.includes(domain)) {
-  newErrors.founder_email = `Please use a valid email domain (e.g., gmail.com, outlook.com)`;
-}
+   if (!formData.founder_email.trim()) {
+     newErrors.founder_email = "Founder email is required";
+   } else if (!/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(formData.founder_email)) {
+     newErrors.founder_email = "Please enter a valid email address";
+   } else if (!allowedDomains.includes(domain)) {
+     newErrors.founder_email =
+       "Please use a valid email domain (e.g., gmail.com, outlook.com, yahoo.com, smail.iitm.ac.in)";
+   }
 
+   // phone
+  if (!formData.founder_number.trim()) {
+    newErrors.founder_number = "Phone number is required";
+  } else if (!/^\d+$/.test(formData.founder_number)) {
+    newErrors.founder_number = "Phone number must contain only digits";
+  } else if (formData.founder_number.length !== 10) {
+    newErrors.founder_number = "Phone number must be 10 digits";
+  }
 
-    if (!formData.founder_number.trim()) {
-      newErrors.founder_number = "Phone number is required";
-    }
+   // designation
+   if (!formData.founder_designation.trim()) {
+     newErrors.founder_designation = "Designation is required";
+   }
 
-    if (!formData.founder_designation) {
-      newErrors.founder_designation = "Designation is required";
-    }
+   setErrors(newErrors); 
+   return newErrors; 
+ };
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
       formData.founder_email = formData.founder_email.trim().toLowerCase();
-
-    if (!validateForm()) {
-      toast.error("Please fill all required fields correctly");
-      return;
-    }
+const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+     const firstError = Object.values(validationErrors)[0];
+     toast.error(firstError);
+     return;
+   }
      const formPayload = {
       ...formData,
     };

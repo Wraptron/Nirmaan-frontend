@@ -241,9 +241,27 @@ function Home() {
     </div>
   );
 
-   let decoded = jwtDecode(sessionStorage.getItem("token"));
-    if (decoded.role != 2 ) {
-      return <Navigate to="/" replace />;
+  const token = sessionStorage.getItem("token");
+ 
+  if (!token) {
+    sessionStorage.clear();
+    localStorage.clear();
+    return <Navigate to="/" replace />;
+  }
+ 
+  let decoded;
+  try {
+    decoded = jwtDecode(token);
+  } catch (e) {
+    sessionStorage.clear();
+    localStorage.clear();
+    return <Navigate to="/" replace />;
+  }
+ 
+  if (decoded.role !== 2) {
+    sessionStorage.clear();
+    localStorage.clear();
+    return <Navigate to="/" replace />;
   }
   
   return (
