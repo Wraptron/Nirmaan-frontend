@@ -142,7 +142,32 @@ function Mentor() {
                   className="bg-white rounded-2xl shadow-md p-4 flex items-center justify-between relative"
                 >
                   <img
-                    src={mentor.mentor_logo || ImageSvg}
+                    //src={mentor.mentor_logo || ImageSvg}
+                    // src={
+                    //   mentor.mentor_logo?.startsWith("http")
+                    //   ? mentor.mentor_logo
+                    //   : mentor.mentor_logo
+                    //   ? `http://13.126.152.135/${mentor.mentor_logo}`
+                    //   : ImageSvg
+                    // }
+                    src={
+                        (() => {
+                          let logo = mentor.mentor_logo || "";
+
+                          // Fix wrong DB format
+                          if (logo.startsWith("/uploads/https")) {
+                            logo = logo.replace("/uploads/", "");
+                          }
+
+                          // Only allow your S3 bucket link
+                          if (logo.startsWith("https://trktorrr.s3.ap-south-1.amazonaws.com/")) {
+                            return logo;
+                          }
+
+                          // Otherwise show placeholder
+                          return ImageSvg;
+                        })()
+                      }
                     alt="Mentor"
                     className="rounded-full w-20 h-20 object-cover aspect-square"
                   />
