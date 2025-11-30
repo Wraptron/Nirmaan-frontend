@@ -353,6 +353,7 @@ const EditAboutForm = ({ initialData, onClose, role }) => {
                 <select
                   name="sector"
                   value={formData.sector}
+                  onChange={handleChange}
                   disabled={role !== 2}
                   className={`w-full h-10 px-3 text-sm border border-gray-300 rounded-lg 
     ${role !== 2 ? "bg-gray-100 cursor-not-allowed" : ""}
