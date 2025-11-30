@@ -314,12 +314,10 @@ const EditAboutForm = ({ initialData, onClose, role }) => {
             />
           </svg>
         </button>
-
         <div className="p-6">
           <h2 className="text-xl font-semibold text-[#232323] mb-6">
             Edit About Us
           </h2>
-
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
               {/* Startup Domain */}
