@@ -972,7 +972,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
           </div>
         </div>
       </ActionsModel> */}
-      <More isVisible={morepopup} onClose={() => handleMoreClose(false)}>
+      {/* <More isVisible={morepopup} onClose={() => handleMoreClose(false)}>
         <div className="p-2">
           <div className="text-lg">Products</div>
           <div className="flex justify-between px-10 mt-5">
@@ -1016,7 +1016,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
             </div>
           </div>
         </div>
-      </More>
+      </More> */}
     </div>
   );
 }

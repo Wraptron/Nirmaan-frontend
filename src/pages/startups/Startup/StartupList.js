@@ -186,14 +186,14 @@ const StartupList = () => {
                                 >
                                   View
                                 </button>
-                                <button
+                                {/* <button
                                   onClick={(e) => {
                                     e.stopPropagation();
                                   }}
                                   className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-[#45C74D] hover:text-white"
                                 >
                                   Connect
-                                </button>
+                                </button> */}
                               </div>
                             )}
                           </div>

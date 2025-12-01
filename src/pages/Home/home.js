@@ -413,7 +413,7 @@ function Home() {
                 </div>
               </div>
               {/* New Funding Section */}
-              <div className="mb-8">
+              {/* <div className="mb-8">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-semibold text-gray-900">
                     Funding
@@ -454,9 +454,9 @@ function Home() {
                     );
                   })}
                 </div>
-              </div>
+              </div> */}
               {/* New Start-ups Chart Section */}
-              <div className="mb-8">
+              {/* <div className="mb-8">
                 <div className="bg-white rounded-xl p-6 shadow-sm border">
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg font-semibold text-gray-900">
@@ -545,7 +545,7 @@ function Home() {
                     </ResponsiveContainer>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           )}
           {selectedIndex === 1 && <Teams props={analysedData} />}

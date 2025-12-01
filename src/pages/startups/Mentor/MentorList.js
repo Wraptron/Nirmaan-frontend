@@ -135,11 +135,11 @@ const Mentor = () => {
                             View
                           </button>
                         </td>
-                        <td className="px-4 py-2">
+                        {/* <td className="px-4 py-2">
                           <button className="bg-[#45C74D] text-white px-8 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition">
                             Request
                           </button>
-                        </td>
+                        </td> */}
                       </tr>
                     ))}
                   </tbody>

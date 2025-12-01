@@ -771,15 +771,15 @@ function Startups() {
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setOpenDropdownId(
-                                      openDropdownId === startup.email_address
+                                      openDropdownId === startup.startup_id
                                         ? null
-                                        : startup.email_address
+                                        : startup.startup_id
                                     );
                                   }}
                                 >
                                   <FaEllipsisV className="text-gray-500" />
                                 </button>
-                                {openDropdownId === startup.email_address && (
+                                {openDropdownId === startup.startup_id && (
                                   <div
                                     className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-20"
                                     onClick={(e) => e.stopPropagation()}
