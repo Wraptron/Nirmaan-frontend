@@ -524,7 +524,7 @@ function Startups() {
         return "bg-[#D8F3D9] text-[#45C74D]";
       case "graduated":
         return "bg-[#E8F5E8] text-[#2E7D32]";
-      case "dropped":
+      case "dropped out":
         return "bg-[#FFEBEE] text-[#D32F2F]";
       default:
         return "bg-gray-100 text-gray-600";
@@ -757,10 +757,7 @@ function Startups() {
                             <div className="flex justify-between items-center mb-3">
                               <div
                                 className={`px-3 py-1 rounded-xl text-xs font-medium transition-all duration-200 ${
-                                  startup.program === "Graduated" ||
-                                  startup.program === "Dropped out"
-                                    ? "invisible"
-                                    : getStatusColor(startup.startup_status)
+                                 getStatusColor(startup.startup_status)
                                 }`}
                               >
                                 {startup.startup_status || "Status"}

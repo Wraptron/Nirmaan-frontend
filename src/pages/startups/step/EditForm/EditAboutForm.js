@@ -244,11 +244,16 @@ const EditAboutForm = ({ initialData, onClose, role }) => {
         ...prev,
         [name]: value,
       };
-      if (
-        (name === "program" && value === "Dropped out") ||
-        (name === "program" && value === "Graduated")
-      ) {
-        updatedData.startup_status = "Inactive";
+      if (name === "program") {
+        const program = value.toLowerCase();
+
+        if (program === "akshar" || program === "pratham") {
+          updatedData.startup_status = "Active";
+        } else if (program === "dropped out") {
+          updatedData.startup_status = "Dropped Out";
+        } else if (program === "graduated") {
+          updatedData.startup_status = "Inactive";
+        }
       }
 
       return updatedData;
@@ -284,7 +289,7 @@ const EditAboutForm = ({ initialData, onClose, role }) => {
       !formData.email_address.trim() ||
       !isValidEmail(formData.email_address)
     ) {
-      toast.error("Valid email address is required");
+      toast.error("Please add email address in profile to make updates");
       return;
     }
 
