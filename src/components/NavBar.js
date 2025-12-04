@@ -887,7 +887,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
           </button>
         </div>
       </ProfileModal>
-      {/* <ActionsModel
+      <ActionsModel
         isVisible={actionpopup}
         onClose={() => handleActionClose(false)}
       >
@@ -900,7 +900,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
             />
           </div>
           <div className="">
-            <a href="/addstartup">
+            <a href="/startups/addstartup">
               <span className="text-lg">Add New Start-up</span>
               <div className="text-xs">
                 Search and connect with start-ups across sectors, industry &
@@ -918,11 +918,13 @@ function NavBar({ onSelectionChange, selectedIndex }) {
             />
           </div>
           <div className="">
+               <a href="/mentors/new">
             <span className="text-lg">Add New Mentor</span>
             <div className="text-xs">
               Search and connect with mentors across sectors, industry &
               experience.
-            </div>
+              </div>
+              </a>
           </div>
         </div>
         <div className="flex justfiy-between px-2 gap-4 mt-5 border p-3">
@@ -934,11 +936,11 @@ function NavBar({ onSelectionChange, selectedIndex }) {
             />
           </div>
           <div className="">
-            <span className="text-lg">Create New Contact</span>
-            <div className="text-xs">
-              Create & publish job roles at your startups, and notify it to your
-              network
-            </div>
+              <span className="text-lg">Create New Contact</span>
+              <div className="text-xs">
+                Create & publish job roles at your startups, and notify it to
+                your network
+              </div>
           </div>
         </div>
         <div className="flex justfiy-between px-2 gap-4 mt-5 border p-3">
@@ -971,7 +973,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
             </div>
           </div>
         </div>
-      </ActionsModel> */}
+      </ActionsModel>
       {/* <More isVisible={morepopup} onClose={() => handleMoreClose(false)}>
         <div className="p-2">
           <div className="text-lg">Products</div>

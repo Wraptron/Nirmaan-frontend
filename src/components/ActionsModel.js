@@ -21,14 +21,17 @@ function ActionsModel({isVisible, onClose, children}) {
         return null;
     }
   return (
-        <div className={`fixed inset-0 bg-black bg-opacity-25 backdrop-blur-xs flex justify-center items-center border-md ${isVisible ? 'animate-show' : 'animate-hide'}`}  id="wrapper" onClick={handleClose}>
-            <div className="md:w-[350px]">
-                <div className="bg-white p-4 rounded-md shadow-lg">
-                      {children}
-                </div>
-            </div>
-        </div>
-  )
+    <div
+      className={`fixed inset-0 bg-black bg-opacity-25 backdrop-blur-xs flex justify-center items-center border-md ${isVisible ? "animate-show" : "animate-hide"}`}
+      id="wrapper"
+      onClick={handleClose}
+      style={{ zIndex: 999999 }}
+    >
+      <div className="md:w-[350px] relative z-50">
+        <div className="bg-white p-4 rounded-md shadow-lg">{children}</div>
+      </div>
+    </div>
+  );
 }
 
 export default ActionsModel;

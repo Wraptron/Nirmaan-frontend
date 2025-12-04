@@ -222,7 +222,7 @@ function App() {
           <Route element={<ProtectedRoutes allowedRoles={["2"]} />}>
             <Route path="/home" element={<Home />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/addstartup" element={<AddStartup />} />
+            <Route path="/startups/addstartup" element={<AddStartup />} />
             <Route path="/startups" element={<Startups />} />
             <Route path="/connections" element={<Connections />} />
             <Route path="/addconnections" element={<AddConnections />} />
