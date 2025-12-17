@@ -204,6 +204,9 @@ import Schedule from "./pages/Mentorship/Schedule";
 // Startup Logi
 import StartupMentor from "./pages/startups/Mentor/MentorList";
 import StartupList from "./pages/startups/Startup/StartupList"
+import IpCreated from "./pages/Home/IpDetails"
+import PIADetails from "./pages/Home/PIADetails";
+import IITMICDetails from "./pages/Home/IITMICDetails";
 function App() {
   useEffect(() => {
     localStorage.getItem("token");
@@ -221,6 +224,9 @@ function App() {
           {/* Admin Only Routes (Role: 2) */}
           <Route element={<ProtectedRoutes allowedRoles={["2"]} />}>
             <Route path="/home" element={<Home />} />
+            <Route path="/home/ipcreated" element={<IpCreated/>} />
+            <Route path="/home/pia" element={<PIADetails/>} />
+            <Route path="/home/iitmic" element={<IITMICDetails/>} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/startups/addstartup" element={<AddStartup />} />
             <Route path="/startups" element={<Startups />} />

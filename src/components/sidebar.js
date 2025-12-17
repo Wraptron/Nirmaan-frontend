@@ -31,7 +31,7 @@ function SideBar({ children }) {
         {tokenDecodedData.role === 2 ? (
           <ul className="py-5 px-8">
             <li
-              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 mt-2 ${currentPath === "/home" && "bg-[#45C74D] text-white rounded-xl"}`}
+              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 mt-2 ${currentPath.startsWith("/home") && "bg-[#45C74D] text-white rounded-xl"}`}
             >
               <a href="/home" className="flex gap-5">
                 <FaChartPie size={20} /> Dashboard

@@ -20,8 +20,9 @@ import {
   ApiFetchStartup,
   ApiFetchStartupCount,
 } from "../../API/API";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { use } from "react";
 
 function Home() {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -31,6 +32,17 @@ function Home() {
   const [startupData, setStartupData] = useState([]);
   const [selectedYear, setSelectedYear] = useState("all");
   const [funding, setFunding] = useState({});
+  const navigate = useNavigate()
+
+  const handleopenipdetails = () => {
+    navigate("/home/ipcreated");
+  }
+  const handleopenpiadetails = () => {
+    navigate("/home/pia");
+  }
+  const handleopeniitmicdetails = () => {
+    navigate("/home/iitmic");
+  }
 
   useEffect(() => {
     setShoww(true);
@@ -369,11 +381,14 @@ function Home() {
                 </div>
                 {/* Right side box */}
                 <div className="bg-white rounded-xl shadow-md flex flex-col justify-between p-8">
-                  <div className="flex items-center mb-8">
+                  <div
+                    className="flex items-center mb-8 cursor-pointer"
+                    onClick={handleopenipdetails}
+                  >
                     <div className="bg-pink-100 rounded-full p-2 mr-4">
                       <FaGraduationCap className="text-pink-400" size={24} />
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 poi">
                       <div className="text-sm font-medium text-gray-500">
                         IP's Created
                       </div>
@@ -383,7 +398,7 @@ function Home() {
                     </div>
                   </div>
                   <hr className="my-2" />
-                  <div className="flex items-center mb-8">
+                  <div className="flex items-center mb-8 cursor-pointer" onClick={handleopenpiadetails}>
                     <div className="bg-blue-100 rounded-full p-2 mr-4">
                       <FaRocket className="text-blue-400" size={24} />
                     </div>
@@ -397,7 +412,7 @@ function Home() {
                     </div>
                   </div>
                   <hr className="my-2" />
-                  <div className="flex items-center">
+                  <div className="flex items-center cursor-pointer" onClick={handleopeniitmicdetails}>
                     <div className="bg-green-100 rounded-full p-2 mr-4">
                       <FaGraduationCap className="text-green-400" size={24} />
                     </div>
