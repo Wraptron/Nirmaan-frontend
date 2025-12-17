@@ -623,7 +623,7 @@ function Navbar({ onSelectionChange, selectedIndex }) {
               </svg>
               <span className="sr-only">Search</span>
             </button>
-            <div className="relative hidden md:block">
+            {/* <div className="relative hidden md:block">
               <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                 <svg
                   className="w-4 h-10 mb-3 text-gray-500 dark:text-gray-400"
@@ -648,7 +648,7 @@ function Navbar({ onSelectionChange, selectedIndex }) {
                 className="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
                 placeholder="Search..."
               />
-            </div>
+            </div> */}
             {/* <div className="relative hidden md:block">
               <button
                 onClick={handleActionShow}
@@ -657,20 +657,20 @@ function Navbar({ onSelectionChange, selectedIndex }) {
                 Action
               </button>
             </div> */}
-            <div className="relative md:block">
+            {/* <div className="relative md:block">
               <div className="text-black px-2 py-2 ms-3">
                 <button>
                   <img src={Bellsvg} alt="Bell" />
                 </button>
               </div>
-            </div>
-            <div className="relative md:block">
+            </div> */}
+            {/* <div className="relative md:block">
               <div className="text-black px-2 py-2 ms-3">
                 <button onClick={handleMoreShow}>
                   <img src={moresvg} alt="More" />
                 </button>
               </div>
-            </div>
+            </div> */}
             <div className="relative md:block" ref={dropdownRef}>
               <div className="text-black px-2 py-2 ms-3">
                 <button onClick={toggleDropdown}>
