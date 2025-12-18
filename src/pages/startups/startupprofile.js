@@ -327,6 +327,8 @@ function StartupProfile() {
     localStorage.clear();
     return <Navigate to="/" replace />;
   }
+
+  const canEdit = decoded.role === 2 || (decoded.role === 5 && decoded.startup_id === startupData?.startup_id);
   // Read More Popup Component
   const ReadMorePopup = ({ isOpen, onClose, title, content }) => {
     if (!isOpen) return null;
@@ -382,13 +384,13 @@ function StartupProfile() {
         <div className="bg-[#F8FAFB] min-h-screen">
           <div className="mx-auto max-w-6xl py-6">
             {/* Display the id for confirmation */}
-            {decoded.role === 2 ? (
+            {/* {decoded.role === 2 ? (
               <div className="mb-4 p-2 bg-yellow-100 text-yellow-800 rounded">
                 Profile ID: {startupData?.startup_id}
               </div>
             ) : (
               ""
-            )}
+            )} */}
 
             {/* Breadcrumb */}
             <div className="text-xs text-[#A1A1A1] mb-2 flex items-center gap-2">
@@ -451,16 +453,16 @@ function StartupProfile() {
                       {startupData.startup_name}
                     </span>
                     {/* Only show status if program is "akshar" or "partham" */}
-                      <span className="bg-[#E9F7F1] text-[#45C74D] text-xs font-semibold px-2 py-0.5 rounded ml-1">
-                        <div
-                          className={`px-2 py-1 rounded-xl text-xs ${getStatusColor(startupData.startup_status)}`}
-                        >
-                          {startupData?.startup_status || ""}
-                        </div>
-                      </span>
-                   
+                    <span className="bg-[#E9F7F1] text-[#45C74D] text-xs font-semibold px-2 py-0.5 rounded ml-1">
+                      <div
+                        className={`px-2 py-1 rounded-xl text-xs ${getStatusColor(startupData.startup_status)}`}
+                      >
+                        {startupData?.startup_status || ""}
+                      </div>
+                    </span>
+
                     {/* ACTIVE OR NORMAL PROGRAMS (Pratham, Akshar) */}
-                      {/* {["pratham", "akshar"].includes(startupData.program?.toLowerCase()) && (
+                    {/* {["pratham", "akshar"].includes(startupData.program?.toLowerCase()) && (
                         <span className="bg-[#E9F7F1] text-[#45C74D] text-xs font-semibold px-2 py-0.5 rounded ml-1">
                           <div
                             className={`px-2 py-1 rounded-xl text-xs ${getStatusColor(startupData.startup_status)}`}
@@ -471,14 +473,13 @@ function StartupProfile() {
                       )}
 
                       {/* DROPPED OUT */}
-                      {/* {startupData.program?.toLowerCase() === "dropped out" && (
+                    {/* {startupData.program?.toLowerCase() === "dropped out" && (
                         <span className="bg-red-100 text-red-600 text-xs font-semibold px-2 py-0.5 rounded ml-1">
                           <div className="px-2 py-1 rounded-xl text-xs bg-red-200">
                             Dropped Out
                           </div>
                         </span>
                       )}  */}
-
                   </div>
                   <div className="flex items-center gap-2 text-sm text-[#232323] mb-1">
                     <span className="flex items-center gap-1">
@@ -546,12 +547,14 @@ function StartupProfile() {
                     <span className="font-bold text-lg text-[#232323]">
                       About Us
                     </span>
-                    <button
-                      className="p-1 hover:bg-gray-100 rounded-full"
-                      onClick={handleAboutClick}
-                    >
-                      <FiEdit2 size={16} className="text-[#45C74D]" />
-                    </button>
+                    {canEdit && (
+                      <button
+                        className="p-1 hover:bg-gray-100 rounded-full"
+                        onClick={handleAboutClick}
+                      >
+                        <FiEdit2 size={16} className="text-[#45C74D]" />
+                      </button>
+                    )}
                   </div>
                   <div className="text-[#232323] text-sm mb-4">
                     {truncateText(startupData.startup_description)}
@@ -588,12 +591,14 @@ function StartupProfile() {
                       Awards & Recognitions
                     </span>
                     <div className="flex items-center gap-2">
-                      <button
-                        className="p-1 hover:bg-gray-100 rounded-full"
-                        onClick={handleAddAwardClick}
-                      >
-                        <MdOutlineAdd size={16} className="text-[black]" />
-                      </button>
+                      {canEdit && (
+                        <button
+                          className="p-1 hover:bg-gray-100 rounded-full"
+                          onClick={handleAddAwardClick}
+                        >
+                          <MdOutlineAdd size={16} className="text-[black]" />
+                        </button>
+                      )}
                     </div>
                   </div>
                   {/* Only the awards list is a slider */}
@@ -627,26 +632,33 @@ function StartupProfile() {
                                   {award.award_name}/ {award.award_org}
                                 </span>
                                 <div className="flex items-center gap-2">
-                                  <button
-                                    className=" hover:bg-gray-100 rounded-full"
-                                    onClick={() => handleEditAwardClick(award)}
-                                  >
-                                    <FiEdit2
-                                      size={15}
-                                      className="text-[#45C74D]"
-                                    />
-                                  </button>
-                                  <button
-                                    className="text-red-600 p-1 hover:bg-gray-100 rounded-full"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setAwardDelete(award.id);
-                                      setOpenEstablishPopUp(true);
-                                      setOpenDropdownId(null);
-                                    }}
-                                  >
-                                    <FaTrash size={15} />
-                                  </button>
+                                  {canEdit && (
+                                    <button
+                                      className=" hover:bg-gray-100 rounded-full"
+                                      onClick={() =>
+                                        handleEditAwardClick(award)
+                                      }
+                                    >
+                                      <FiEdit2
+                                        size={15}
+                                        className="text-[#45C74D]"
+                                      />
+                                    </button>
+                                  )}
+
+                                  {canEdit && (
+                                    <button
+                                      className="text-red-600 p-1 hover:bg-gray-100 rounded-full"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setAwardDelete(award.id);
+                                        setOpenEstablishPopUp(true);
+                                        setOpenDropdownId(null);
+                                      }}
+                                    >
+                                      <FaTrash size={15} />
+                                    </button>
+                                  )}
                                 </div>
                               </div>
 
@@ -707,13 +719,17 @@ function StartupProfile() {
             {/* Details Grid Section */}
             <div className="bg-white rounded-2xl shadow p-6 mb-8 grid grid-cols-3 gap-8 text-sm font-medium text-[#232323] relative">
               {/* Edit button at top right */}
-              {decoded.role === 2 ? <button
-                className="absolute top-4 right-4 p-1 hover:bg-gray-100 rounded"
-                onClick={handleMentorEditClick}
-                title="Edit Mentor & Details"
-              >
-                <FiEdit2 size={20} className="text-[#45C74D]" />
-              </button> : ""}
+              {canEdit ? (
+                <button
+                  className="absolute top-4 right-4 p-1 hover:bg-gray-100 rounded"
+                  onClick={handleMentorEditClick}
+                  title="Edit Mentor & Details"
+                >
+                  <FiEdit2 size={20} className="text-[#45C74D]" />
+                </button>
+              ) : (
+                ""
+              )}
               <div>
                 <div className="flex items-center gap-1 mb-1 font-semibold">
                   Mentors
@@ -802,13 +818,15 @@ function StartupProfile() {
                   {/* <span className="font-semibold text-lg text-[#A1A1A1]">Team Members</span> */}
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      setShowAddForm(true);
-                    }}
-                  >
-                    <MdOutlineAdd size={22} className="text-[#45C74D]" />
-                  </button>
+                  {canEdit && (
+                    <button
+                      onClick={() => {
+                        setShowAddForm(true);
+                      }}
+                    >
+                      <MdOutlineAdd size={22} className="text-[#45C74D]" />
+                    </button>
+                  )}
                   {/* <button className="p-1 hover:bg-gray-100 rounded-full"><BsThreeDotsVertical size={22} className="text-[#A1A1A1]" /></button> */}
                 </div>
               </div>
@@ -827,17 +845,19 @@ function StartupProfile() {
                           <div className="font-semibold text-base">
                             {f.founder.founder_name}
                           </div>
-                          <button
-                            onClick={() => {
-                              setSelectedFounder(f.founder);
-                              setShowFounderEditForm(true);
-                            }}
-                          >
-                            <FiEdit2
-                              size={15}
-                              className="text-[#45C74D] ml-2"
-                            />
-                          </button>
+                          {canEdit && (
+                            <button
+                              onClick={() => {
+                                setSelectedFounder(f.founder);
+                                setShowFounderEditForm(true);
+                              }}
+                            >
+                              <FiEdit2
+                                size={15}
+                                className="text-[#45C74D] ml-2"
+                              />
+                            </button>
+                          )}
                         </div>
                         <div className="text-sm text-[#A1A1A1]">
                           {f.founder.founder_email}
@@ -850,137 +870,139 @@ function StartupProfile() {
                   ))}
 
                 {/* Funding Section */}
-                <div className=" mt-11">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="font-bold text-lg text-[#232323]">
-                      Funding
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <button
-                        className="bg-[#45C74D] text-white px-8 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition"
-                        onClick={handleFundingModalClick}
-                      >
-                        View
-                      </button>
-                      <button
-                        className="p-1 hover:bg-gray-100 rounded-full"
-                        onClick={handleFundingClick}
-                      >
-                        <MdOutlineAdd size={22} className="text-[#45C74D]" />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-4 gap-6">
-                    <div
-                      className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
-                      style={{
-                        background:
-                          "linear-gradient(0deg, #E9F7F1 60%, #fff 100%)",
-                      }}
-                    >
-                      <span className="font-semibold text-sm text-[#232323] mb-1">
-                        Funding Disbursed
+                {decoded.role === "" && (
+                  <div className=" mt-11">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="font-bold text-lg text-[#232323]">
+                        Funding
                       </span>
-                      <span className="font-bold text-2xl text-[#232323] mb-2">
-                        Rs. {fundingAmount?.funding_disbursed || 0}
-                      </span>
-                      <svg
-                        className="absolute bottom-2 left-2 w-20 h-8"
-                        viewBox="0 0 80 32"
-                      >
-                        <polyline
-                          points="0,32 20,20 40,28 60,10 80,16"
-                          fill="none"
-                          stroke="#45C74D"
-                          strokeWidth="3"
-                        />
-                      </svg>
+                      <div className="flex items-center gap-2">
+                        <button
+                          className="bg-[#45C74D] text-white px-8 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition"
+                          onClick={handleFundingModalClick}
+                        >
+                          View
+                        </button>
+                        <button
+                          className="p-1 hover:bg-gray-100 rounded-full"
+                          onClick={handleFundingClick}
+                        >
+                          <MdOutlineAdd size={22} className="text-[#45C74D]" />
+                        </button>
+                      </div>
                     </div>
+                    <div className="grid grid-cols-4 gap-6">
+                      <div
+                        className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
+                        style={{
+                          background:
+                            "linear-gradient(0deg, #E9F7F1 60%, #fff 100%)",
+                        }}
+                      >
+                        <span className="font-semibold text-sm text-[#232323] mb-1">
+                          Funding Disbursed
+                        </span>
+                        <span className="font-bold text-2xl text-[#232323] mb-2">
+                          Rs. {fundingAmount?.funding_disbursed || 0}
+                        </span>
+                        <svg
+                          className="absolute bottom-2 left-2 w-20 h-8"
+                          viewBox="0 0 80 32"
+                        >
+                          <polyline
+                            points="0,32 20,20 40,28 60,10 80,16"
+                            fill="none"
+                            stroke="#45C74D"
+                            strokeWidth="3"
+                          />
+                        </svg>
+                      </div>
 
-                    <div
-                      className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
-                      style={{
-                        background:
-                          "linear-gradient(0deg, #FFF7E6 60%, #fff 100%)",
-                      }}
-                    >
-                      <span className="font-semibold text-sm text-[#232323] mb-1">
-                        Funding Utilized
-                      </span>
-                      <span className="font-bold text-2xl text-[#232323] mb-2">
-                        Rs. {fundingAmount?.funding_utilized || 0}
-                      </span>
-                      <svg
-                        className="absolute bottom-2 left-2 w-20 h-8"
-                        viewBox="0 0 80 32"
+                      <div
+                        className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
+                        style={{
+                          background:
+                            "linear-gradient(0deg, #FFF7E6 60%, #fff 100%)",
+                        }}
                       >
-                        <polyline
-                          points="0,32 20,20 40,28 60,10 80,16"
-                          fill="none"
-                          stroke="#FFA726"
-                          strokeWidth="3"
-                        />
-                      </svg>
-                    </div>
+                        <span className="font-semibold text-sm text-[#232323] mb-1">
+                          Funding Utilized
+                        </span>
+                        <span className="font-bold text-2xl text-[#232323] mb-2">
+                          Rs. {fundingAmount?.funding_utilized || 0}
+                        </span>
+                        <svg
+                          className="absolute bottom-2 left-2 w-20 h-8"
+                          viewBox="0 0 80 32"
+                        >
+                          <polyline
+                            points="0,32 20,20 40,28 60,10 80,16"
+                            fill="none"
+                            stroke="#FFA726"
+                            strokeWidth="3"
+                          />
+                        </svg>
+                      </div>
 
-                    <div
-                      className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
-                      style={{
-                        background:
-                          "linear-gradient(0deg, #FFE6E6 60%, #fff 100%)",
-                      }}
-                    >
-                      <span className="font-semibold text-sm text-[#232323] mb-1">
-                        Balance
-                      </span>
-                      <span className="font-bold text-2xl text-[#232323] mb-2">
-                        Rs. {fundingAmount?.balance || 0}
-                      </span>
-                      <svg
-                        className="absolute bottom-2 left-2 w-20 h-8"
-                        viewBox="0 0 80 32"
+                      <div
+                        className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
+                        style={{
+                          background:
+                            "linear-gradient(0deg, #FFE6E6 60%, #fff 100%)",
+                        }}
                       >
-                        <polyline
-                          points="0,32 20,20 40,28 60,10 80,16"
-                          fill="none"
-                          stroke="#FF5252"
-                          strokeWidth="3"
-                        />
-                      </svg>
-                    </div>
+                        <span className="font-semibold text-sm text-[#232323] mb-1">
+                          Balance
+                        </span>
+                        <span className="font-bold text-2xl text-[#232323] mb-2">
+                          Rs. {fundingAmount?.balance || 0}
+                        </span>
+                        <svg
+                          className="absolute bottom-2 left-2 w-20 h-8"
+                          viewBox="0 0 80 32"
+                        >
+                          <polyline
+                            points="0,32 20,20 40,28 60,10 80,16"
+                            fill="none"
+                            stroke="#FF5252"
+                            strokeWidth="3"
+                          />
+                        </svg>
+                      </div>
 
-                    <div
-                      className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
-                      style={{
-                        background:
-                          "linear-gradient(0deg, #E6F0FF 60%, #fff 100%)",
-                      }}
-                    >
-                      <span className="font-semibold text-sm text-[#232323] mb-1">
-                        External Funding
-                      </span>
-                      <span className="font-bold text-2xl text-[#232323] mb-2">
-                        Rs. {fundingAmount?.external_funding || 0}
-                      </span>
-                      {/* <img
+                      <div
+                        className="bg-white rounded-2xl shadow p-6 flex flex-col items-start min-h-[120px] relative"
+                        style={{
+                          background:
+                            "linear-gradient(0deg, #E6F0FF 60%, #fff 100%)",
+                        }}
+                      >
+                        <span className="font-semibold text-sm text-[#232323] mb-1">
+                          External Funding
+                        </span>
+                        <span className="font-bold text-2xl text-[#232323] mb-2">
+                          Rs. {fundingAmount?.external_funding || 0}
+                        </span>
+                        {/* <img
                         src="/src/assets/images/Frame (9).svg"
                         alt="icon"
                         className="absolute top-4 right-4 w-6 h-6 opacity-30"
                       /> */}
-                      <svg
-                        className="absolute bottom-2 left-2 w-20 h-8"
-                        viewBox="0 0 80 32"
-                      >
-                        <polyline
-                          points="0,32 20,20 40,28 60,10 80,16"
-                          fill="none"
-                          stroke="#42A5F5"
-                          strokeWidth="3"
-                        />
-                      </svg>
+                        <svg
+                          className="absolute bottom-2 left-2 w-20 h-8"
+                          viewBox="0 0 80 32"
+                        >
+                          <polyline
+                            points="0,32 20,20 40,28 60,10 80,16"
+                            fill="none"
+                            stroke="#42A5F5"
+                            strokeWidth="3"
+                          />
+                        </svg>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Gallery & Documents Section */}
                 <div className="grid grid-cols-2 gap-6 mb-8">

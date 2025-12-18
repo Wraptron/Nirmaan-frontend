@@ -339,7 +339,7 @@
 
 // export default Startups;
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
 import axios from "axios";
@@ -377,23 +377,8 @@ function Startups() {
     { label: "Dropped out", value: "dropped out" },
   ];
 
-  const cohortOptions = [
-    "2017-18",
-    "2018-19",
-    "January 2019",
-    "July 2019",
-    "January 2020",
-    "August 2020",
-    "January 2021",
-    "July 2021",
-    "January 2022",
-    "August 2022",
-    "January 2023",
-    "August 2023",
-    "November-24",
-    "April-2025",
-  ];
 
+  //fetch startup data
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -461,8 +446,18 @@ function Startups() {
 
   const handleStatusFilter = (status) => {
     setFilterStatus(status);
-    setCurrentPage(pageFromQuery);
+    setCurrentPage(1);
   };
+
+  // cohort filter logic
+  const cohortOptions = useMemo(() => {
+    const cohorts = data.map((s) => s.startup_cohort).filter(Boolean);
+
+    const unique = [...new Set(cohorts)];
+    unique.sort((a, b) => a.localeCompare(b));
+
+    return ["All", ...unique];
+  }, [data]);
 
   const handleCohortFilter = (cohort) => {
     setFilterCohort(cohort);
@@ -560,8 +555,6 @@ function Startups() {
           const matchesSearch =
           startup.startup_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           startup.founder_name?.toLowerCase().includes(searchTerm.toLowerCase());
-            console.log(searchTerm)
-            console.log(matchesSearch)
         return matchesFilter && matchesCohort && matchesSearch;
       });
 
@@ -577,28 +570,28 @@ function Startups() {
       console.error(err);
     }
   };
- const token = sessionStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
 
- if (!token) {
-   sessionStorage.clear();
-   localStorage.clear();
-   return <Navigate to="/" replace />;
- }
+  if (!token) {
+    sessionStorage.clear();
+    localStorage.clear();
+    return <Navigate to="/" replace />;
+  }
 
- let decoded;
- try {
-   decoded = jwtDecode(token);
- } catch (e) {
-   sessionStorage.clear();
-   localStorage.clear();
-   return <Navigate to="/" replace />;
- }
+  let decoded;
+  try {
+    decoded = jwtDecode(token);
+  } catch (e) {
+    sessionStorage.clear();
+    localStorage.clear();
+    return <Navigate to="/" replace />;
+  }
 
- if (decoded.role !== 2) {
-   sessionStorage.clear();
-   localStorage.clear();
-   return <Navigate to="/" replace />;
- }
+  if (decoded.role !== 2) {
+    sessionStorage.clear();
+    localStorage.clear();
+    return <Navigate to="/" replace />;
+  }
   return (
     <div className="flex">
       <SideBar />
@@ -756,9 +749,9 @@ function Startups() {
                           >
                             <div className="flex justify-between items-center mb-3">
                               <div
-                                className={`px-3 py-1 rounded-xl text-xs font-medium transition-all duration-200 ${
-                                 getStatusColor(startup.startup_status)
-                                }`}
+                                className={`px-3 py-1 rounded-xl text-xs font-medium transition-all duration-200 ${getStatusColor(
+                                  startup.startup_status
+                                )}`}
                               >
                                 {startup.startup_status || "Status"}
                               </div>
@@ -839,7 +832,6 @@ function Startups() {
                     </div>
                   </div>
 
-                  {/* Pagination */}
                   {/* Pagination */}
                   {totalPages > 1 && (
                     <div className="flex justify-center items-center gap-4 py-6">

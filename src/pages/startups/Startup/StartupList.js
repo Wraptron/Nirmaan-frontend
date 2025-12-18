@@ -21,7 +21,13 @@ const StartupList = () => {
     try {
       const API = await ApiFetchStartup();
       // sort by mentor_id or any unique field
-      const sortedData = API.rows.sort((a, b) => a.startup_id - b.startup_id);
+      const sortedData = API.rows
+        .filter((startup) => startup.startup_id !== loggedInStartupId)
+        .sort((a, b) => a.startup_id - b.startup_id)
+        .map((item, index) => ({
+          ...item,
+          siNo: index + 1,
+        }));
       setData(sortedData);
     } catch (err) {
       toast.error(err);
@@ -36,6 +42,8 @@ const StartupList = () => {
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
+
+
   useEffect(() => {
     const handleClickOutside = () => {
       setSelectedStartup(null); // close dropdown
@@ -88,7 +96,9 @@ const StartupList = () => {
    sessionStorage.clear();
    localStorage.clear();
    return <Navigate to="/" replace />;
- }
+  }
+  
+  const loggedInStartupId = decoded.startup_id;
 
   return (
     <div className="flex">
@@ -128,65 +138,68 @@ const StartupList = () => {
                 </div>
               </div>
               <div className="border mt-5 border-dotted rounded-lg overflow-x-auto">
-                <table className="min-w-full text-sm text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-dotted">
-                      <th className="px-4 py-2">Name</th>
-                      <th className="px-4 py-2">Cohort</th>
-                      <th className="px-4 py-2">Sector</th>
-                      <th className="px-4 py-2">Mentor</th>
-                      <th className="px-4 py-2">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredStartup.map((startup) => (
+                <div className="max-h-[calc(100vh-300px)] overflow-auto">
+                  <table className="min-w-full text-sm text-left border-collapse">
+                    <thead className="sticky top-0 bg-white z-10">
                       <tr className="border-b border-dotted">
-                        <td className="px-4 py-2">{startup.startup_name}</td>
-                        <td className="px-4 py-2">
-                          {startup.startup_cohort || "-"}
-                        </td>
-                        <td className="px-4 py-2">
-                          {startup.startup_sector || "-"}
-                        </td>
-                        <td className="px-4 py-2">
-                          {startup.mentor_associated || "-"}
-                        </td>
-                        <td className="px-4 py-2">
-                          <div className="relative inline-block text-right">
-                            {/* Ellipsis Button */}
-                            <button
-                              className="rounded-full p-2 hover:bg-gray-100"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedStartup(
-                                  selectedStartup?.startup_id ===
-                                    startup.startup_id
-                                    ? null
-                                    : startup
-                                );
-                              }}
-                            >
-                              <FaEllipsisV className="text-gray-500" />
-                            </button>
-                            {selectedStartup?.startup_id ===
-                              startup.startup_id && (
-                              <div
-                                className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-50 max-h-60 overflow-auto "
-                                style={{ minWidth: "150px" }}
-                                onClick={(e) => e.stopPropagation()}
+                        <th className="px-4 py-2">SI.No</th>
+                        <th className="px-4 py-2">Name</th>
+                        <th className="px-4 py-2">Cohort</th>
+                        <th className="px-4 py-2">Sector</th>
+                        <th className="px-4 py-2">Mentor</th>
+                        <th className="px-4 py-2">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredStartup.map((startup) => (
+                        <tr className="border-b border-dotted">
+                          <td className="px-4 py-2">{startup.siNo}</td>
+                          <td className="px-4 py-2">{startup.startup_name}</td>
+                          <td className="px-4 py-2">
+                            {startup.startup_cohort || "-"}
+                          </td>
+                          <td className="px-4 py-2">
+                            {startup.startup_sector || "-"}
+                          </td>
+                          <td className="px-4 py-2">
+                            {startup.mentor_associated || "-"}
+                          </td>
+                          <td className="px-4 py-2">
+                            <div className="relative inline-block text-right">
+                              {/* Ellipsis Button */}
+                              <button
+                                className="rounded-full p-2 hover:bg-gray-100"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedStartup(
+                                    selectedStartup?.startup_id ===
+                                      startup.startup_id
+                                      ? null
+                                      : startup
+                                  );
+                                }}
                               >
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    navigate(
-                                      `/startups/startupprofile/${startup.startup_id}`
-                                    );
-                                  }}
-                                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-[#45C74D] hover:text-white"
+                                <FaEllipsisV className="text-gray-500" />
+                              </button>
+                              {selectedStartup?.startup_id ===
+                                startup.startup_id && (
+                                <div
+                                  className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-50 max-h-60 overflow-auto "
+                                  style={{ minWidth: "150px" }}
+                                  onClick={(e) => e.stopPropagation()}
                                 >
-                                  View
-                                </button>
-                                {/* <button
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      navigate(
+                                        `/startups/startupprofile/${startup.startup_id}`
+                                      );
+                                    }}
+                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-[#45C74D] hover:text-white"
+                                  >
+                                    View
+                                  </button>
+                                  {/* <button
                                   onClick={(e) => {
                                     e.stopPropagation();
                                   }}
@@ -194,14 +207,15 @@ const StartupList = () => {
                                 >
                                   Connect
                                 </button> */}
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>

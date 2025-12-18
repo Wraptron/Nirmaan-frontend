@@ -24,9 +24,12 @@ const Mentor = () => {
     try {
       const API = await ApiFetchMentor();
       // sort by mentor_id or any unique field
-      const sortedData = API.STATUS.rows.sort(
-        (a, b) => a.mentor_id - b.mentor_id
-      );
+      const sortedData = API.STATUS.rows
+        .sort((a, b) => a.mentor_id - b.mentor_id)
+        .map((item, index) => ({
+          ...item,
+          siNo: index + 1,
+        }));;
       setData(sortedData);
     } catch (err) {
       console.error(err);
@@ -108,9 +111,11 @@ const Mentor = () => {
                 </div>
               </div>
               <div className="border mt-5 border-dotted rounded-lg overflow-x-auto">
-                <table className="min-w-full text-sm text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-dotted">
+               <div className="max-h-[calc(100vh-300px)] overflow-auto">
+                  <table className="min-w-full text-sm text-left border-collapse">
+                    <thead className="sticky top-0 bg-white z-10">
+                      <tr className="border-b border-dotted">
+                            <th className="px-4 py-2">SI.No</th>
                       <th className="px-4 py-2">Name</th>
                       <th className="px-4 py-2">Institution</th>
                       <th className="px-4 py-2">Startups </th>
@@ -121,6 +126,7 @@ const Mentor = () => {
                   <tbody>
                     {filteredMentor.map((mentor) => (
                       <tr className="border-b border-dotted">
+                         <td className="px-4 py-2">{mentor.siNo}</td>
                         <td className="px-4 py-2">{mentor.mentor_name}</td>
                         <td className="px-4 py-2">{mentor.institution}</td>
                         <td className="px-4 py-2">-</td>
@@ -144,7 +150,8 @@ const Mentor = () => {
                     ))}
                   </tbody>
                 </table>
-              </div>
+                </div>
+                </div>
             </div>
           </div>
         </div>

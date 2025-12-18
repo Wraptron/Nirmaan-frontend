@@ -104,7 +104,7 @@ function Login() {
             {
                 const accessToken = response.data.result.accessToken;
                 const userRole = response.data.result.role;
-                const startup_id  = response.data.result.userData?.startup_id
+                const startup_id  = response.data.result.startup_id
                 
                 // console.log('Login response:', response.data);
                 // console.log('User role:', userRole);
