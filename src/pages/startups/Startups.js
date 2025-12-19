@@ -356,13 +356,16 @@ import { ApiDeletStartupData, ApiFetchStartup } from "../../API/API";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { MdViewModule } from "react-icons/md";
+import { BsListUl } from "react-icons/bs";
+
 
 function Startups() {
   const [data, setData] = useState([]);
   const [startupdata, setStartupData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showw, setShoww] = useState(false);
-
+ const [viewMode, setViewMode] = useState("card");
   const [showCohortDropdown, setShowCohortDropdown] = useState(false); // Dropdown visibility
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
@@ -687,13 +690,39 @@ function Startups() {
                     )}
                   </div>
                 </div>
+                <div className="flex gap-3">
+                  <a
+                    href="/startups/addstartup"
+                    className="bg-[#45C74D] text-white px-4 py-2 rounded-lg text-sm font-semibold"
+                  >
+                    Add New Start-up
+                  </a>
 
-                <a
-                  href="/startups/addstartup"
-                  className="bg-[#45C74D] text-white px-4 py-2 rounded-lg text-sm font-semibold"
-                >
-                  Add New Start-up
-                </a>
+                  <div className="flex gap-2 border border-gray-300 rounded-lg p-1 bg-white">
+                    <button
+                      onClick={() => setViewMode("card")}
+                      className={`p-2 rounded transition-all ${
+                        viewMode === "card"
+                          ? "bg-[#45C74D] text-white"
+                          : "text-gray-600 hover:bg-gray-100"
+                      }`}
+                      title="Card View"
+                    >
+                      <MdViewModule />
+                    </button>
+                    <button
+                      onClick={() => setViewMode("list")}
+                      className={`p-2 rounded transition-all ${
+                        viewMode === "list"
+                          ? "bg-[#45C74D] text-white"
+                          : "text-gray-600 hover:bg-gray-100"
+                      }`}
+                      title="List View"
+                    >
+                      <BsListUl />
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* Active Filters Display */}
@@ -733,104 +762,244 @@ function Startups() {
                 </div>
               ) : (
                 <>
-                  <div className="pt-3">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 px-5 mb-2">
-                      {currentItems.length > 0 ? (
-                        currentItems.map((startup, index) => (
-                          <div
-                            key={startup.id || index}
-                            className="border shadow-md rounded-lg p-4 bg-white cursor-pointer hover:shadow-lg transition"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(
-                                `/startups/startupprofile/${startup.startup_id}?page=${currentPage}&status=${filterStatus}&cohort=${filterCohort}`
-                              );
-                            }}
-                          >
-                            <div className="flex justify-between items-center mb-3">
-                              <div
-                                className={`px-3 py-1 rounded-xl text-xs font-medium transition-all duration-200 ${getStatusColor(
-                                  startup.startup_status
-                                )}`}
-                              >
-                                {startup.startup_status || "Status"}
-                              </div>
-                              <div className="relative">
-                                <button
-                                  className="p-2 rounded-full hover:bg-gray-100"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenDropdownId(
-                                      openDropdownId === startup.startup_id
-                                        ? null
-                                        : startup.startup_id
-                                    );
-                                  }}
+                  {viewMode === "card" && (
+                    <div className="pt-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 px-5 mb-2">
+                        {currentItems.length > 0 ? (
+                          currentItems.map((startup, index) => (
+                            <div
+                              key={startup.id || index}
+                              className="border shadow-md rounded-lg p-4 bg-white cursor-pointer hover:shadow-lg transition"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(
+                                  `/startups/startupprofile/${startup.startup_id}?page=${currentPage}&status=${filterStatus}&cohort=${filterCohort}`
+                                );
+                              }}
+                            >
+                              <div className="flex justify-between items-center mb-3">
+                                <div
+                                  className={`px-3 py-1 rounded-xl text-xs font-medium transition-all duration-200 ${getStatusColor(
+                                    startup.startup_status
+                                  )}`}
                                 >
-                                  <FaEllipsisV className="text-gray-500" />
-                                </button>
-                                {openDropdownId === startup.startup_id && (
-                                  <div
-                                    className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-20"
-                                    onClick={(e) => e.stopPropagation()}
+                                  {startup.startup_status || "Status"}
+                                </div>
+                                <div className="relative">
+                                  <button
+                                    className="p-2 rounded-full hover:bg-gray-100"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setOpenDropdownId(
+                                        openDropdownId === startup.startup_id
+                                          ? null
+                                          : startup.startup_id
+                                      );
+                                    }}
                                   >
-                                    <div className="py-1">
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          navigate(
-                                            `/startups/startupprofile/${startup.startup_id}`
-                                          );
-                                          setOpenDropdownId(null);
-                                        }}
-                                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                      >
-                                        View
-                                      </button>
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setStartupData(startup.startup_id);
-                                          setOpenEstablishPopUp(true);
-                                          setOpenDropdownId(null);
-                                        }}
-                                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                                      >
-                                        Delete
-                                      </button>
+                                    <FaEllipsisV className="text-gray-500" />
+                                  </button>
+                                  {openDropdownId === startup.startup_id && (
+                                    <div
+                                      className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-20"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <div className="py-1">
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            navigate(
+                                              `/startups/startupprofile/${startup.startup_id}`
+                                            );
+                                            setOpenDropdownId(null);
+                                          }}
+                                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        >
+                                          View
+                                        </button>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setStartupData(startup.startup_id);
+                                            setOpenEstablishPopUp(true);
+                                            setOpenDropdownId(null);
+                                          }}
+                                          className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                        >
+                                          Delete
+                                        </button>
+                                      </div>
                                     </div>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="text-center font-semibold text-lg mb-1">
+                                {startup.startup_name || "Start-up Name"}
+                              </div>
+                              <div className="text-center text-sm text-gray-500 mb-2">
+                                {startup.startup_cohort || "Cohort"}
+                              </div>
+                              <div className="flex justify-between text-sm mt-4 text-gray-600">
+                                <div>
+                                  <div className="font-semibold">Founder</div>
+                                  <div>{startup.founder_name || "N/A"}</div>
+                                </div>
+                                <div>
+                                  <div className="font-semibold">Sector</div>
+                                  <div>{startup.startup_sector || "N/A"}</div>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="col-span-3 text-center py-20 text-gray-500">
+                            <div className="text-xl mb-2">
+                              No startups found
+                            </div>
+                            <div className="text-sm">
+                              Try changing your filters or search term
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* List View */}
+                  {viewMode === "list" && (
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden mb-6 pt-5">
+                      {currentItems.length > 0 ? (
+                        <table className="w-full">
+                          <thead className="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Startup Name
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Founder
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Cohort
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Sector
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status
+                              </th>
+                              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {currentItems.map((startup, index) => (
+                              <tr
+                                key={index}
+                                className="hover:bg-gray-50 cursor-pointer transition-colors"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(
+                                    `/startups/startupprofile/${startup.startup_id}?page=${currentPage}&status=${filterStatus}&cohort=${filterCohort}`
+                                  );
+                                }}
+                              >
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {startup.startup_name || "Start-up Name"}
                                   </div>
-                                )}
-                              </div>
-                            </div>
-                            <div className="text-center font-semibold text-lg mb-1">
-                              {startup.startup_name || "Start-up Name"}
-                            </div>
-                            <div className="text-center text-sm text-gray-500 mb-2">
-                              {startup.startup_cohort || "Cohort"}
-                            </div>
-                            <div className="flex justify-between text-sm mt-4 text-gray-600">
-                              <div>
-                                <div className="font-semibold">Founder</div>
-                                <div>{startup.founder_name || "N/A"}</div>
-                              </div>
-                              <div>
-                                <div className="font-semibold">Sector</div>
-                                <div>{startup.startup_sector || "N/A"}</div>
-                              </div>
-                            </div>
-                          </div>
-                        ))
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm text-gray-700">
+                                    {startup.founder_name || "N/A"}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm text-gray-700">
+                                    {startup.startup_cohort || "Cohort"}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm text-gray-700">
+                                    {startup.startup_sector || "N/A"}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span
+                                    className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                      startup.startup_status
+                                    )}`}
+                                  >
+                                    {startup.startup_status || "Status"}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-right">
+                                  <div className="relative inline-block">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenDropdownId(
+                                          openDropdownId === startup.startup_id
+                                            ? null
+                                            : startup.startup_id
+                                        );
+                                      }}
+                                      className="text-gray-400 hover:text-gray-600"
+                                    >
+                                      <FaEllipsisV />
+                                    </button>
+                                    {openDropdownId === startup.startup_id && (
+                                      <div
+                                        className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <div className="py-1">
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              navigate(
+                                                `/startups/startupprofile/${startup.startup_id}`
+                                              );
+                                              setOpenDropdownId(null);
+                                            }}
+                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                          >
+                                            View
+                                          </button>
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setStartupData(
+                                                startup.startup_id
+                                              );
+                                              setOpenEstablishPopUp(true);
+                                              setOpenDropdownId(null);
+                                            }}
+                                            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                          >
+                                            Delete
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       ) : (
-                        <div className="col-span-3 text-center py-20 text-gray-500">
-                          <div className="text-xl mb-2">No startups found</div>
-                          <div className="text-sm">
+                        <div className="flex flex-col items-center justify-center py-20">
+                          <p className="text-gray-500 text-lg mb-2">
+                            No startups found
+                          </p>
+                          <p className="text-gray-400 text-sm">
                             Try changing your filters or search term
-                          </div>
+                          </p>
                         </div>
                       )}
                     </div>
-                  </div>
+                  )}
 
                   {/* Pagination */}
                   {totalPages > 1 && (
