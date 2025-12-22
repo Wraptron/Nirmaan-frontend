@@ -146,10 +146,10 @@ const IpDetails = () => {
                             <td className="px-4 py-2">
                               {startup.startup_name}
                             </td>
-                            <td className="px-4 py-2">-</td>
-                            <td className="px-4 py-2">-</td>
-                            <td className="px-4 py-2">-</td>
-                            <td className="px-4 py-2">-</td>
+                            <td className="px-4 py-2">{startup.patent || '0'}</td>
+                            <td className="px-4 py-2">{startup.design || '0'}</td>
+                            <td className="px-4 py-2">{startup.trademark || '0'}</td>
+                            <td className="px-4 py-2">{startup.copyright || '0'}</td>
                           </tr>
                         ))
                       ) : (

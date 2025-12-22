@@ -377,7 +377,7 @@ function Startups() {
     { label: "Pratham", value: "Pratham" },
     { label: "Akshar", value: "Akshar" },
     { label: "Graduated", value: "Graduated" },
-    { label: "Dropped out", value: "dropped out" },
+    { label: "Dropped out", value: "Dropped Out" },
   ];
 
 
