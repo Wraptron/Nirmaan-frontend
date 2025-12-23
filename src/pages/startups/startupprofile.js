@@ -808,6 +808,75 @@ function StartupProfile() {
               </div>
             </div>
 
+            {/* Intellectual Property Section */}
+            <div className="bg-white rounded-2xl shadow p-6 mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <span className="font-bold text-lg text-[#232323]">
+                  Intellectual Property
+                </span>
+
+                {canEdit && (
+                  <button className="text-sm text-[#45C74D] font-medium hover:underline">
+                    <FiEdit2 size={20} className="text-[#45C74D]" />
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-4 gap-6">
+                {/* Patent */}
+                <div className="bg-[#F8FAFB] border border-[#E6E6E6] rounded-xl p-4 flex items-center gap-4">
+                  <div className="w-10 h-10 flex items-center justify-center rounded-full bg-[#E9F7F1]">
+                    📄
+                  </div>
+                  <div>
+                    <div className="text-xs text-[#A1A1A1]">Patents</div>
+                    <div className="text-xl font-bold text-[#232323]">
+                      {startupData?.patent || 0}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Design */}
+                <div className="bg-[#F8FAFB] border border-[#E6E6E6] rounded-xl p-4 flex items-center gap-4">
+                  <div className="w-10 h-10 flex items-center justify-center rounded-full bg-[#E9F7F1]">
+                    🎨
+                  </div>
+                  <div>
+                    <div className="text-xs text-[#A1A1A1]">Designs</div>
+                    <div className="text-xl font-bold text-[#232323]">
+                      {startupData?.design || 0}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Trademark */}
+                <div className="bg-[#F8FAFB] border border-[#E6E6E6] rounded-xl p-4 flex items-center gap-4">
+                  <div className="w-10 h-10 flex items-center justify-center rounded-full bg-[#E9F7F1]">
+                    ™️
+                  </div>
+                  <div>
+                    <div className="text-xs text-[#A1A1A1]">Trademarks</div>
+                    <div className="text-xl font-bold text-[#232323]">
+                      {startupData?.trademark || 0}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Copyright */}
+                <div className="bg-[#F8FAFB] border border-[#E6E6E6] rounded-xl p-4 flex items-center gap-4">
+                  <div className="w-10 h-10 flex items-center justify-center rounded-full bg-[#E9F7F1]">
+                    ©️
+                  </div>
+                  <div>
+                    <div className="text-xs text-[#A1A1A1]">Copyrights</div>
+                    <div className="text-xl font-bold text-[#232323]">
+                      {startupData?.copyright || 0}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Founders Section */}
             <div className="bg-white rounded-2xl shadow p-6 mb-8">
               <div className="flex items-center justify-between mb-4">
