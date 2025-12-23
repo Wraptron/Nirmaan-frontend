@@ -447,6 +447,17 @@ function Startups() {
     navigate({ search: params.toString() }, { replace: true });
   }, [currentPage, filterStatus, filterCohort, location.search, navigate]);
 
+
+    useEffect(() => {
+      setCurrentPage(1);
+    }, [searchTerm, filterStatus, filterCohort]);
+
+    useEffect(() => {
+      if (currentPage > totalPages && totalPages > 0) {
+        setCurrentPage(totalPages);
+      }
+    }, [currentPage, totalPages]);
+
   const handleStatusFilter = (status) => {
     setFilterStatus(status);
     setCurrentPage(1);

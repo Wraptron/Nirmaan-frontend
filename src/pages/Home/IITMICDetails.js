@@ -23,7 +23,7 @@ const IITMICDetails = () => {
       const API = await ApiFetchStartup();
       // sort by mentor_id or any unique field
       const sortedData = API.rows
-        .filter((item) => item.pia_state === "IITMIC")
+        .filter((item) => item.graduated_to === "IITMIC")
         .sort((a, b) => a.startup_id - b.startup_id)
         .map((item, index) => ({
           ...item,

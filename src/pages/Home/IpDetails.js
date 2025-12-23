@@ -24,10 +24,6 @@ const IpDetails = () => {
       // sort by mentor_id or any unique field
       const sortedData = API.rows
         .sort((a, b) => a.startup_id - b.startup_id)
-        .map((item, index) => ({
-          ...item,
-          siNo: index + 1,
-        }));
       setData(sortedData);
     } catch (err) {
       toast.error(err);
@@ -37,11 +33,19 @@ const IpDetails = () => {
     fetchData();
   }, []);
 
-  const filteredStartup = data.filter((startup) =>
-    (startup.startup_name || "")
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
-  );
+ const filteredStartup = data.filter((startup) => {
+   const matchesSearch = (startup.startup_name || "")
+     .toLowerCase()
+     .includes(searchTerm.toLowerCase());
+
+   const hasAnyIP =
+     Number(startup.patent) > 0 ||
+     Number(startup.design) > 0 ||
+     Number(startup.trademark) > 0 ||
+     Number(startup.copyright) > 0;
+
+   return matchesSearch && hasAnyIP;
+ });
   useEffect(() => {
     const handleClickOutside = () => {
       setSelectedStartup(null); // close dropdown
@@ -140,9 +144,9 @@ const IpDetails = () => {
                     </thead>
                     <tbody>
                       {filteredStartup.length > 0 ? (
-                        filteredStartup.map((startup) => (
+                        filteredStartup.map((startup, index) => (
                           <tr className="border-b border-dotted">
-                            <td className="px-4 py-2">{startup.siNo}</td>
+                            <td className="px-4 py-2">{index + 1}</td>
                             <td className="px-4 py-2">
                               {startup.startup_name}
                             </td>

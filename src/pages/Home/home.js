@@ -394,7 +394,7 @@ function Home() {
                       </div>
                     </div>
                     <div className="text-2xl font-bold text-gray-800 ml-4">
-                      0
+                      {analysedData.IP}
                     </div>
                   </div>
                   <hr className="my-2" />

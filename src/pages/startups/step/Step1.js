@@ -1053,7 +1053,7 @@ const Step1 = forwardRef(
 
     const isDroppedOut = selectedProgram === "Dropped out";
 
-    const graduatedToOptions = ["IITM-IC ", "Other"];
+    const graduatedToOptions = ["IITMIC ", "Non-IITMIC","Bootstrap","Others"];
 
     const validateField = (name, value) => {
       const trimmed = typeof value === "string" ? value.trim() : value;
