@@ -187,19 +187,33 @@ if (decoded.role !== 2) {
                       src={(() => {
                         let logo = mentor.mentor_logo || "";
 
-                        // Fix wrong DB format
-                        if (logo.startsWith("/uploads/https")) {
-                          logo = logo.replace("/uploads/", "");
-                        }
+                         // Fix wrong DB format (if /uploads/ prefix exists)
+    if (logo.startsWith("/uploads/https")) {
+      logo = logo.replace("/uploads/", "");
+    }
 
-                        // Only allow your S3 bucket link
-                        if (
-                          logo.startsWith(
-                            "https://trktorrr.s3.ap-south-1.amazonaws.com/"
-                          )
-                        ) {
-                          return logo;
-                        }
+    // Only allow your S3 bucket link
+    if (logo.startsWith("https://trktorrr.s3.ap-south-1.amazonaws.com/")) {
+      // Decode the URL first (converts %2B to +, etc.)
+      let decodedUrl = decodeURIComponent(logo);
+      
+      // Then properly encode it again
+      // Split the URL to encode only the path part (after the domain)
+      const urlParts = decodedUrl.split('.com/');
+      if (urlParts.length === 2) {
+        const baseUrl = urlParts[0] + '.com/';
+        const pathParts = urlParts[1].split('/');
+        
+        // Encode each path segment
+        const encodedPath = pathParts
+          .map(part => encodeURIComponent(part))
+          .join('/');
+        
+        return baseUrl + encodedPath;
+      }
+      
+      return logo; // Fallback if parsing fails
+    }
 
                         // Otherwise show placeholder
                         return ImageSvg;
