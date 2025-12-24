@@ -15,10 +15,11 @@ function Mentor() {
   const [data, setData] = useState([]);
   const [mentordata, setMentorData] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage] = useState(10);
+  const [rowsPerPage] = useState(6);
   const [searchTerm, setSearchTerm] = useState("");
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const [viewMode, setViewMode] = useState("card");
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -61,6 +62,14 @@ function Mentor() {
         const updatedList = data.filter((mentor) => mentor.mentor_id !== id);
         setData(updatedList);
         setOpenDropdownId(null);
+        // Reset to page 1 if current page is now empty
+        const updatedFilteredMentors = updatedList.filter((mentor) =>
+          mentor.mentor_name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        const updatedTotalPages = Math.ceil(updatedFilteredMentors.length / rowsPerPage);
+        if (currentPage > updatedTotalPages && currentPage > 1) {
+          setCurrentPage(currentPage - 1);
+        }
       } else {
         toast.error("Failed to delete mentor.");
       }
@@ -80,6 +89,7 @@ function Mentor() {
     indexOfLastMentor
   );
   const totalPages = Math.ceil(filteredMentors.length / rowsPerPage);
+   
 
 const token = sessionStorage.getItem("token");
 
@@ -97,6 +107,7 @@ try {
 if (decoded.role !== 2) {
   return <Navigate to="/" replace />;
 }
+
 
   return (
     <div className="flex">
@@ -391,43 +402,40 @@ if (decoded.role !== 2) {
           )}
 
           {/* Pagination */}
-          {currentMentors.length > 0 && (
-            <div className="flex justify-between items-center mt-8">
-              <span className="text-sm text-gray-500">
-                Showing {currentMentors.length} of {filteredMentors.length}{" "}
-                results
-              </span>
-              <div className="flex gap-2">
-                <button
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage((prev) => prev - 1)}
-                  className="px-3 py-1 text-sm rounded-md bg-gray-200 disabled:opacity-50"
-                >
-                  «
-                </button>
-                {[...Array(totalPages).keys()].map((i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentPage(i + 1)}
-                    className={`px-3 py-1 text-sm rounded-md ${
-                      currentPage === i + 1
-                        ? "bg-[#45C74D] text-white"
-                        : "bg-gray-200"
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-                <button
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage((prev) => prev + 1)}
-                  className="px-3 py-1 text-sm rounded-md bg-gray-200 disabled:opacity-50"
-                >
-                  »
-                </button>
-              </div>
-            </div>
-          )}
+            {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-4 py-6">
+                      <button
+                        onClick={() =>
+                          setCurrentPage((p) => Math.max(p - 1, 1))
+                        }
+                        disabled={currentPage === 1}
+                        className={`px-4 py-2 rounded-lg ${
+                          currentPage === 1
+                            ? "bg-gray-200 text-gray-500"
+                            : "bg-[#45C74D] text-white hover:bg-[#3BAF43]"
+                        }`}
+                      >
+                        Previous 
+                      </button>
+                      <span className="text-sm text-gray-600">
+                        Page {currentPage} of {totalPages} (
+                        {filteredMentors.length} startups)
+                      </span>
+                      <button
+                        onClick={() =>
+                          setCurrentPage((p) => Math.min(p + 1, totalPages))
+                        }
+                        disabled={currentPage === totalPages}
+                        className={`px-4 py-2 rounded-lg ${
+                          currentPage === totalPages
+                            ? "bg-gray-200 text-gray-500"
+                            : "bg-[#45C74D] text-white hover:bg-[#3BAF43]"
+                        }`}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
 
           {/* Delete Confirmation */}
           <DeleteConfirmation
