@@ -66,7 +66,7 @@ function MentorProfile() {
   };
 
   const handleLinkedInClick = (e) => {
-    if (!mentor.linkedin_url) {
+    if (!mentor.linkedin_id) {
       e.preventDefault();
       alert("LinkedIn URL not available for this mentor");
     }
@@ -208,11 +208,11 @@ function MentorProfile() {
     return <div className="p-10 text-gray-500">Loading mentor profile...</div>;
   }
 
-  const getLinkedInUrl = (urlOrUsername) => {
-    if (!urlOrUsername) return "#";
-    if (urlOrUsername.startsWith("http")) return urlOrUsername;
-    return `https://www.linkedin.com/in/${urlOrUsername}`;
-  };
+  // const getLinkedInUrl = (urlOrUsername) => {
+  //   if (!urlOrUsername) return "#";
+  //   if (urlOrUsername.startsWith("http")) return urlOrUsername;
+  //   return `https://www.linkedin.com/in/${urlOrUsername}`;
+  // };
 
   // Pagination logic for mentoring sessions
   const totalPages = Math.ceil((meeting?.length || 0) / itemsPerPage);
@@ -228,7 +228,6 @@ function MentorProfile() {
   //   activityStartIndex,
   //   activityEndIndex
   // );
-
   const Pagination = ({
     currentPage,
     totalPages,
@@ -323,7 +322,7 @@ function MentorProfile() {
                 <div className="flex items-center">
                   <h2 className="text-xl font-bold">{mentor.mentor_name}</h2>
                   <a
-                    href={getLinkedInUrl(mentor.linkedin_url)}
+                    href={mentor.linkedin_id}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={handleLinkedInClick}
