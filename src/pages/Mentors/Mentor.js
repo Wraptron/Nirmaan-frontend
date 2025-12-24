@@ -419,7 +419,7 @@ if (decoded.role !== 2) {
                       </button>
                       <span className="text-sm text-gray-600">
                         Page {currentPage} of {totalPages} (
-                        {filteredMentors.length} startups)
+                        {filteredMentors.length} mentors)
                       </span>
                       <button
                         onClick={() =>
