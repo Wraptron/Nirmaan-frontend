@@ -332,18 +332,18 @@ function MentorProfile() {
                   </a>
                 </div>
                 <p className="text-sm text-gray-700">
-                  {mentor.designation || "--"}
+                  {mentor.designation || "N/A"}
                 </p>
                 <div className="flex items-center mt-2">
                   <img src={mailsvg} alt="mail" className="w-4 h-4 mr-1" />
                   <span className="text-sm text-gray-700">
-                    {mentor.email_address || "--"}
+                    {mentor.email_address || "N/A"}
                   </span>
                 </div>
                 <div className="flex items-center mt-1">
                   <img src={phonesvg} alt="phone" className="w-4 h-4 mr-1" />
                   <span className="text-sm text-gray-700">
-                    {mentor.contact_num || "--"}
+                    {mentor.contact_num || "N/A"}
                   </span>
                 </div>
               </div>
@@ -364,16 +364,16 @@ function MentorProfile() {
               <div>
                 <h3 className="text-sm text-gray-600 mb-1">Year Of Passing</h3>
                 <p className="font-medium">
-                  {mentor.year_of_passing_out || "--"}
+                  {mentor.year_of_passing_out || "N/A"}
                 </p>
               </div>
               <div>
                 <h3 className="text-sm text-gray-600 mb-1">Qualification</h3>
-                <p className="font-medium">{mentor.qualification || "--"}</p>
+                <p className="font-medium">{mentor.qualification || "N/A"}</p>
               </div>
               <div>
                 <h3 className="text-sm text-gray-600 mb-1">Institution</h3>
-                <p className="font-medium">{mentor.institution || "--"}</p>
+                <p className="font-medium">{mentor.institution || "N/A"}</p>
               </div>
               <div>
                 <h3 className="text-sm text-gray-600 mb-1">Expertise</h3>

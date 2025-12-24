@@ -214,7 +214,10 @@ if (decoded.role !== 2) {
                         </a>
                       </div>
                       <div className="text-sm text-gray-500">
-                        {mentor.institution}
+                        {mentor.email_address || "N/A"}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {mentor.contact_num || "N/A"}
                       </div>
                     </div>
 
@@ -304,7 +307,6 @@ if (decoded.role !== 2) {
                       <tr
                         key={Mentor.mentor_id}
                         className="hover:bg-gray-50 cursor-pointer transition-colors"
-
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">
@@ -342,9 +344,7 @@ if (decoded.role !== 2) {
                               <FaEllipsisV />
                             </button>
                             {openDropdownId === Mentor.mentor_id && (
-                              <div
-                                className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
-                              >
+                              <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                                 <div className="py-1">
                                   <button
                                     onClick={(e) => {
