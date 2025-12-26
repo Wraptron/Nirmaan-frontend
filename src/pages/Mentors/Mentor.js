@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "../../components/NavBar";
 import SideBar from "../../components/sidebar";
-import { FaEllipsisV } from "react-icons/fa";
+import { FaEllipsisV, FaSpinner } from "react-icons/fa";
 import { ApiFetchMentor, ApiDeletMentorData } from "../../API/API";
 import toast from "react-hot-toast";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
@@ -15,7 +15,8 @@ function Mentor() {
   const [data, setData] = useState([]);
   const [mentordata, setMentorData] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage] = useState(10);
+  const [rowsPerPage] = useState(9);
+   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const [viewMode, setViewMode] = useState("card");
@@ -24,6 +25,7 @@ function Mentor() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const API = await ApiFetchMentor();
         // sort by mentor_id or any unique field
         const sortedData = API.STATUS.rows.sort(
@@ -32,6 +34,9 @@ function Mentor() {
         setData(sortedData);
       } catch (err) {
         console.error(err);
+      }
+      finally {
+        setLoading(false);
       }
     };
 
@@ -166,228 +171,239 @@ if (decoded.role !== 2) {
             </div>
           </div>
 
-          {/* Mentor Grid */}
-          {viewMode === "card" && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentMentors.length > 0 ? (
-                currentMentors.map((mentor) => (
-                  <div
-                    key={mentor.mentor_id}
-                    className="bg-white rounded-2xl shadow-md p-4 flex items-center justify-between relative"
-                  >
-                    <img
-                      //src={mentor.mentor_logo || ImageSvg}
-                      // src={
-                      //   mentor.mentor_logo?.startsWith("http")
-                      //   ? mentor.mentor_logo
-                      //   : mentor.mentor_logo
-                      //   ? `http://13.126.152.135/${mentor.mentor_logo}`
-                      //   : ImageSvg
-                      // }
-                      src={(() => {
-                        let logo = mentor.mentor_logo || "";
-
-                        // Fix wrong DB format
-                        if (logo.startsWith("/uploads/https")) {
-                          logo = logo.replace("/uploads/", "");
-                        }
-
-                        // Only allow your S3 bucket link
-                        if (
-                          logo.startsWith(
-                            "https://trktorrr.s3.ap-south-1.amazonaws.com/"
-                          )
-                        ) {
-                          return logo;
-                        }
-
-                        // Otherwise show placeholder
-                        return ImageSvg;
-                      })()}
-                      alt="Mentor"
-                      className="rounded-full w-20 h-20 object-cover aspect-square"
-                    />
-                    <div className="flex-1 ml-4">
-                      <div className="text-md font-semibold">
-                        <a href={`/mentors/mentor_profile/${mentor.mentor_id}`}>
-                          {mentor.mentor_name}
-                        </a>
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {mentor.email_address || "N/A"}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {mentor.contact_num || "N/A"}
-                      </div>
-                    </div>
-
-                    {/* Menu Button and Dropdown */}
-                    <div className="relative">
-                      <button
-                        onClick={() =>
-                          setOpenDropdownId(
-                            openDropdownId === mentor.mentor_id
-                              ? null
-                              : mentor.mentor_id
-                          )
-                        }
-                        className="ellipsis-button text-gray-400 hover:text-gray-600 focus:outline-none"
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <FaSpinner className="animate-spin text-4xl text-[#45C74D]" />
+              <span className="ml-3 text-lg">Loading Mentors...</span>
+            </div>
+          ) : (
+            <>
+              {/* Mentor Grid */}
+              {viewMode === "card" && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {currentMentors.length > 0 ? (
+                    currentMentors.map((mentor) => (
+                      <div
+                        key={mentor.mentor_id}
+                        className="bg-white rounded-2xl shadow-md p-4 flex items-center justify-between relative"
                       >
-                        <FaEllipsisV />
-                      </button>
+                        <img
+                          //src={mentor.mentor_logo || ImageSvg}
+                          // src={
+                          //   mentor.mentor_logo?.startsWith("http")
+                          //   ? mentor.mentor_logo
+                          //   : mentor.mentor_logo
+                          //   ? `http://13.126.152.135/${mentor.mentor_logo}`
+                          //   : ImageSvg
+                          // }
+                          src={(() => {
+                            let logo = mentor.mentor_logo || "";
 
-                      {openDropdownId === mentor.mentor_id && (
-                        <div className="dropdown-menu absolute right-0 mt-2 w-36 bg-white border rounded-md shadow-lg z-10 text-sm">
+                            // Fix wrong DB format
+                            if (logo.startsWith("/uploads/https")) {
+                              logo = logo.replace("/uploads/", "");
+                            }
+
+                            // Only allow your S3 bucket link
+                            if (
+                              logo.startsWith(
+                                "https://trktorrr.s3.ap-south-1.amazonaws.com/"
+                              )
+                            ) {
+                              return logo;
+                            }
+
+                            // Otherwise show placeholder
+                            return ImageSvg;
+                          })()}
+                          alt="Mentor"
+                          className="rounded-full w-20 h-20 object-cover aspect-square"
+                        />
+                        <div className="flex-1 ml-4">
+                          <div className="text-md font-semibold">
+                            <a
+                              href={`/mentors/mentor_profile/${mentor.mentor_id}`}
+                            >
+                              {mentor.mentor_name}
+                            </a>
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {mentor.email_address || "N/A"}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {mentor.contact_num || "N/A"}
+                          </div>
+                        </div>
+
+                        {/* Menu Button and Dropdown */}
+                        <div className="relative">
                           <button
                             onClick={() =>
-                              navigate(
-                                `/mentors/mentor_profile/${mentor.mentor_id}`
+                              setOpenDropdownId(
+                                openDropdownId === mentor.mentor_id
+                                  ? null
+                                  : mentor.mentor_id
                               )
                             }
-                            className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                            className="ellipsis-button text-gray-400 hover:text-gray-600 focus:outline-none"
                           >
-                            View
+                            <FaEllipsisV />
                           </button>
-                          <button
-                            onClick={() => toast("Message clicked")}
-                            className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                          >
-                            Message
-                          </button>
-                          <button
-                            onClick={() => {
-                              setMentorData(mentor.mentor_id);
-                              setOpenEstablishPopUp(true);
-                              setOpenDropdownId(null);
-                            }}
-                            className="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="flex justify-center items-center text-center">
-                  <p className="text-gray-500 text-lg">
-                    No data available for mentor
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
 
-          {viewMode === "list" && (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100 mb-6 pt-5">
-              {currentMentors.length > 0 ? (
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Mentor Name
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Designation
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Contact Number
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Email Address
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {currentMentors.map((Mentor) => (
-                      <tr
-                        key={Mentor.mentor_id}
-                        className="hover:bg-gray-50 cursor-pointer transition-colors"
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {Mentor.mentor_name || "mentor_name"}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-700">
-                            {Mentor.designation || "N/A"}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-700">
-                            {Mentor.contact_num || "N/A"}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-700">
-                            {Mentor.email_address || "N/A"}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right">
-                          <div className="relative inline-block">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenDropdownId(
-                                  openDropdownId === Mentor.mentor_id
-                                    ? null
-                                    : Mentor.mentor_id
-                                );
-                              }}
-                              className="ellipsis-button text-gray-400 hover:text-gray-600"
-                            >
-                              <FaEllipsisV />
-                            </button>
-                            {openDropdownId === Mentor.mentor_id && (
-                              <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                                <div className="py-1">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      navigate(
-                                        `/mentors/mentor_profile/${Mentor.mentor_id}`
-                                      );
-                                      console.log("View clicked");
-                                      setOpenDropdownId(null);
-                                    }}
-                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                  >
-                                    View
-                                  </button>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setMentorData(Mentor.mentor_id);
-                                      setOpenEstablishPopUp(true);
-                                      setOpenDropdownId(null);
-                                      console.log("Delete clicked");
-                                    }}
-                                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                                  >
-                                    Delete
-                                  </button>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="flex justify-center items-center text-center">
-                  <p className="text-gray-500 text-lg">
-                    No data available for mentor
-                  </p>
+                          {openDropdownId === mentor.mentor_id && (
+                            <div className="dropdown-menu absolute right-0 mt-2 w-36 bg-white border rounded-md shadow-lg z-10 text-sm">
+                              <button
+                                onClick={() =>
+                                  navigate(
+                                    `/mentors/mentor_profile/${mentor.mentor_id}`
+                                  )
+                                }
+                                className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                              >
+                                View
+                              </button>
+                              <button
+                                onClick={() => toast("Message clicked")}
+                                className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                              >
+                                Message
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setMentorData(mentor.mentor_id);
+                                  setOpenEstablishPopUp(true);
+                                  setOpenDropdownId(null);
+                                }}
+                                className="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="flex justify-center items-center text-center">
+                      <p className="text-gray-500 text-lg">
+                        No data available for mentor
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
+
+              {viewMode === "list" && (
+                <div className="bg-white rounded-lg shadow-sm border border-gray-100 mb-6 pt-5">
+                  {currentMentors.length > 0 ? (
+                    <table className="w-full">
+                      <thead className="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Mentor Name
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Designation
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Contact Number
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Email Address
+                          </th>
+                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {currentMentors.map((Mentor) => (
+                          <tr
+                            key={Mentor.mentor_id}
+                            className="hover:bg-gray-50 cursor-pointer transition-colors"
+                          >
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium text-gray-900">
+                                {Mentor.mentor_name || "mentor_name"}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-700">
+                                {Mentor.designation || "N/A"}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-700">
+                                {Mentor.contact_num || "N/A"}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-700">
+                                {Mentor.email_address || "N/A"}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right">
+                              <div className="relative inline-block">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenDropdownId(
+                                      openDropdownId === Mentor.mentor_id
+                                        ? null
+                                        : Mentor.mentor_id
+                                    );
+                                  }}
+                                  className="ellipsis-button text-gray-400 hover:text-gray-600"
+                                >
+                                  <FaEllipsisV />
+                                </button>
+                                {openDropdownId === Mentor.mentor_id && (
+                                  <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                                    <div className="py-1">
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          navigate(
+                                            `/mentors/mentor_profile/${Mentor.mentor_id}`
+                                          );
+                                          console.log("View clicked");
+                                          setOpenDropdownId(null);
+                                        }}
+                                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                      >
+                                        View
+                                      </button>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setMentorData(Mentor.mentor_id);
+                                          setOpenEstablishPopUp(true);
+                                          setOpenDropdownId(null);
+                                          console.log("Delete clicked");
+                                        }}
+                                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                      >
+                                        Delete
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <div className="flex justify-center items-center text-center">
+                      <p className="text-gray-500 text-lg">
+                        No data available for mentor
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
           )}
 
           {/* Pagination */}

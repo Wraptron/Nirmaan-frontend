@@ -205,7 +205,12 @@ function MentorProfile() {
   }, [activeDropdown]);
 
   if (!mentor) {
-    return <div className="p-10 text-gray-500">Loading mentor profile...</div>;
+    return (
+      <div className="flex items-center gap-4 justify-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#45C74D]"></div>
+        <p className="text-[#45C74D]">Loading Mentor Details ....</p>
+      </div>
+    );
   }
 
   // const getLinkedInUrl = (urlOrUsername) => {
