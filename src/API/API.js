@@ -1495,6 +1495,18 @@ async function ApiUpdateStartupMentorDetails(payload) {
     throw new Error("Failed to update startup details");
   }
 }
+async function ApiIPDetails(payload) {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/api/v1/ipdetails`,
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    // console.error("Error in ApiIPDetails", error);
+    throw new Error("Failed to IP details");
+  }
+}
 
 
 async function ApiFetchFunding() {
@@ -1785,7 +1797,8 @@ export {
   ApiFetchFundingProject,
   ApiFetchFundingProjectData,
 ApiUpdateFundingProject,
-ApiFetchStartupData,
+  ApiFetchStartupData,
+ApiIPDetails,
   // Award APIs
   ApiAddAward,
   ApiFetchAward,

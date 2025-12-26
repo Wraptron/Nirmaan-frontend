@@ -36,6 +36,7 @@ import DeleteConfirmation from "../../components/DeleteConfirmation";
 import EditAwardForm from "./step/EditForm/EditAwardForm";
 import FundingDetail from "../Home/Funding/FundingDetail";
 import { jwtDecode } from "jwt-decode";
+import AddIPform from "./step/EditForm/AddIPform";
 
 function StartupProfile() {
   const { startup_id } = useParams();
@@ -59,6 +60,7 @@ function StartupProfile() {
   const [showFounderEditForm, setShowFounderEditForm] = useState(false);
   const [showFundingForm, setShowFundingForm] = useState(false);
   const [showMentorForm, setShowMentorForm] = useState(false);
+  const [showIPForm, setShowIPForm] = useState(false);
   const [showFundingModal, setShowFundingModal] = useState(false);
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
@@ -82,6 +84,7 @@ function StartupProfile() {
   const handleFundingClick = () => setShowFundingForm(true);
   const handleMentorEditClick = () => setShowMentorForm(true);
   const handleFundingModalClick = () => setShowFundingModal(true);
+  const handleIPClick = () => setShowIPForm(true);
 
   const handleEditClose = async () => {
     await FetchData();
@@ -116,6 +119,10 @@ function StartupProfile() {
   const handleFounderEditClose = async () => {
     await FetchData();
     setShowFounderEditForm(false);
+  };
+  const handleIPClose = async () => {
+    await FetchData();
+    setShowIPForm(false);
   };
 
   const scroll = (direction) => {
@@ -817,7 +824,7 @@ function StartupProfile() {
 
                 {canEdit && (
                   <button className="text-sm text-[#45C74D] font-medium hover:underline">
-                    <FiEdit2 size={20} className="text-[#45C74D]" />
+                    <FiEdit2 size={20} className="text-[#45C74D]" onClick={handleIPClick} />
                   </button>
                 )}
               </div>
@@ -1180,6 +1187,13 @@ function StartupProfile() {
           startup_id={startupData?.startup_id}
           onClose={handleEditAwardClose}
           onSubmit={handleEditAwardSubmit}
+        />
+      )}
+      {showIPForm && (
+        <AddIPform
+          initialData={startupData}
+          startup_id={startupData?.startup_id}
+          onClose={handleIPClose}
         />
       )}
       {showFounderEditForm && (

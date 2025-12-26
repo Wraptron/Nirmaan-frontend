@@ -292,7 +292,7 @@ if (decoded.role !== 2) {
                         Designation
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Institution
+                        Contact Number
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Email Address
@@ -320,7 +320,7 @@ if (decoded.role !== 2) {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-700">
-                            {Mentor.institution || "N/A"}
+                            {Mentor.contact_num || "N/A"}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
