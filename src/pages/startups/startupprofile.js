@@ -20,6 +20,7 @@ import toast from "react-hot-toast";
 import EditMentorForm from "../startups/step/EditForm/EditMentorForm";
 import {
   ApiDeleteAward,
+  ApiDeleteFounder,
   ApiFetchAward,
   ApiFetchFounder,
   ApiFetchFundingAmount,
@@ -54,8 +55,6 @@ function StartupProfile() {
   const [showAddAwardForm, setShowAddAwardForm] = useState(false);
   const [showEditAwardForm, setShowEditAwardForm] = useState(false);
   const [editaward, setEditAward] = useState(null);
-
-  const [showAddForm, setShowAddForm] = useState(false);
   const [showFoundersForm, setShowFoundersForm] = useState(false);
   const [showFounderEditForm, setShowFounderEditForm] = useState(false);
   const [showFundingForm, setShowFundingForm] = useState(false);
@@ -63,11 +62,11 @@ function StartupProfile() {
   const [showIPForm, setShowIPForm] = useState(false);
   const [showFundingModal, setShowFundingModal] = useState(false);
   const [openDropdownId, setOpenDropdownId] = useState(null);
-  const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
-
+  const [openDeletePopup, setOpenDeletePopup] = useState(false);
+  const [deleteType, setDeleteType] = useState(null); // "award" | "founder"
+  const [deleteId, setDeleteId] = useState(null);
   const [startupData, setStartupData] = useState(null);
   const [awards, setAwards] = useState([]);
-  const [awarddelete, setAwardDelete] = useState(null);
   const [showReadMore, setShowReadMore] = useState(false);
   const [fundingAmount, setFundingAmount] = useState([]);
   const [selectedFounder, setSelectedFounder] = useState(null);
@@ -80,7 +79,7 @@ function StartupProfile() {
   const handleAboutClick = () => setShowAboutForm(true);
   const handleAddAwardClick = () => setShowAddAwardForm(true);
 
-  const handleTeamMembersClick = () => setShowFoundersForm(true);
+  const handleAddFounderClick = () => setShowFoundersForm(true);
   const handleFundingClick = () => setShowFundingForm(true);
   const handleMentorEditClick = () => setShowMentorForm(true);
   const handleFundingModalClick = () => setShowFundingModal(true);
@@ -119,6 +118,11 @@ function StartupProfile() {
   const handleFounderEditClose = async () => {
     await FetchData();
     setShowFounderEditForm(false);
+  };
+
+  const handleAddFounderClose = async () => {
+    await FetchData();
+    setShowFoundersForm(false);
   };
   const handleIPClose = async () => {
     await FetchData();
@@ -309,6 +313,41 @@ function StartupProfile() {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+  const handleDeleteFounder = async (founderid) => {
+    try {
+      const API = await ApiDeleteFounder(founderid);
+      if (API) {
+        toast.success("Founder deleted successfully");
+        const updateddata = founders.filter(
+          (founders) => founders.founder.founder_id !== founderid
+        );
+        setFounders(updateddata);
+        setOpenDropdownId(null);
+      } else {
+        toast.error("Failed to delete award.");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      if (deleteType === "award") {
+        await handleDelete(deleteId);
+      }
+
+      if (deleteType === "founder") {
+        await handleDeleteFounder(deleteId);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setOpenDeletePopup(false);
+      setDeleteId(null);
+      setDeleteType(null);
     }
   };
 
@@ -658,8 +697,9 @@ function StartupProfile() {
                                       className="text-red-600 p-1 hover:bg-gray-100 rounded-full"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        setAwardDelete(award.id);
-                                        setOpenEstablishPopUp(true);
+                                        setDeleteType("award");
+                                        setDeleteId(award.id);
+                                        setOpenDeletePopup(true);
                                         setOpenDropdownId(null);
                                       }}
                                     >
@@ -896,9 +936,7 @@ function StartupProfile() {
                 <div className="flex items-center gap-2">
                   {canEdit && (
                     <button
-                      onClick={() => {
-                        setShowAddForm(true);
-                      }}
+                      onClick={handleAddFounderClick}
                     >
                       <MdOutlineAdd size={22} className="text-[#45C74D]" />
                     </button>
@@ -906,7 +944,7 @@ function StartupProfile() {
                   {/* <button className="p-1 hover:bg-gray-100 rounded-full"><BsThreeDotsVertical size={22} className="text-[#A1A1A1]" /></button> */}
                 </div>
               </div>
-              <div className="flex flex-col gap-4 ">
+              <div className="grid grid-cols-4 gap-4">
                 {/* Founder 1 */}
                 {Array.isArray(founders) &&
                   founders.map((f, index) => (
@@ -922,17 +960,30 @@ function StartupProfile() {
                             {f.founder.founder_name}
                           </div>
                           {canEdit && (
-                            <button
-                              onClick={() => {
-                                setSelectedFounder(f.founder);
-                                setShowFounderEditForm(true);
-                              }}
-                            >
-                              <FiEdit2
-                                size={15}
-                                className="text-[#45C74D] ml-2"
-                              />
-                            </button>
+                            <div className="flex items-center ml-2 gap-2">
+                              <button
+                                onClick={() => {
+                                  setSelectedFounder(f.founder);
+                                  setShowFounderEditForm(true);
+                                }}
+                              >
+                                <FiEdit2
+                                  size={15}
+                                  className="text-[#45C74D] ml-2"
+                                />
+                              </button>
+                              <button
+                                className="text-red-600 p-1 hover:bg-gray-100 rounded-full"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setDeleteType("founder");
+                                  setDeleteId(f.founder.founder_id);
+                                  setOpenDeletePopup(true);
+                                }}
+                              >
+                                <FaTrash size={15} />
+                              </button>
+                            </div>
                           )}
                         </div>
                         <div className="text-sm text-[#A1A1A1]">
@@ -1135,23 +1186,28 @@ function StartupProfile() {
         </div>
       </div>
       <DeleteConfirmation
-        isVisible={openEstablishPopUp}
-        onClose={() => setOpenEstablishPopUp(false)}
+        isVisible={openDeletePopup}
+        onClose={() => setOpenDeletePopup(false)}
       >
         <h1 className="text-center font-semibold text-2xl">Are you sure?</h1>
+        <p className="text-center text-gray-500 mt-2">
+          You are about to delete this{" "}
+          <span className="font-semibold">
+            {deleteType === "award" ? "award" : "founder"}
+          </span>
+          .
+        </p>
+
         <div className="grid grid-cols-2 gap-4 mt-8">
           <button
             className="text-gray-500 font-semibold p-2 rounded-xl shadow"
-            onClick={() => {
-              handleDelete(awarddelete);
-              setOpenEstablishPopUp(false);
-            }}
+            onClick={handleConfirmDelete}
           >
             Yes
           </button>
           <button
             className="text-gray-500 font-semibold p-2 rounded-xl shadow"
-            onClick={() => setOpenEstablishPopUp(false)}
+            onClick={() => setOpenDeletePopup(false)}
           >
             No
           </button>
@@ -1208,14 +1264,10 @@ function StartupProfile() {
         />
       )}
 
-      {showAddForm && (
+      {showFoundersForm && (
         <FounderForm
           startup_id={startupData?.startup_id}
-          onClose={() => setShowAddForm(false)}
-          onSubmit={() => {
-            setShowAddForm(false);
-            // refresh founders if needed
-          }}
+          onClose={handleAddFounderClose}
         />
       )}
       {showFundingForm && (
@@ -1223,8 +1275,9 @@ function StartupProfile() {
           startup_name={startupData.startup_name}
           startup_id={startupData?.startup_id}
           onClose={handleFundingClose}
-          onSubmit={() => {
+          onSubmit={async () => {
             setShowFundingForm(false);
+            await FetchData();
             // refresh founders if needed
           }}
         />

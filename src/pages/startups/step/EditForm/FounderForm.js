@@ -98,7 +98,6 @@ const validationErrors = validateForm();
     
       await ApiAddFounder(formPayload)
       toast.success("Founder saved successfully");
-      onSubmit();
       onClose();
     } catch (error) {
       console.error("Error saving founder:", error);

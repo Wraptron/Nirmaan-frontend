@@ -1683,6 +1683,18 @@ async function ApiUpdateStartupFounder(payload) {
   }
 }
 
+async function ApiDeleteFounder(founderid) {
+  try {
+    const result = await axios.put(
+      `${API_BASE_URL}/api/v1/deletefounder/${founderid}`
+    );
+    return result.data;
+  } catch (err) {
+    console.error("Error in ApiDeleteFounder", err);
+    throw err;
+  }
+}
+
 // ==================== EVENTS APIs ====================
 async function ApiFetchEvents() {
   try {
@@ -1788,6 +1800,7 @@ export {
   ApiFetchStartupCount,
   ApiDeletStartupData,
   ApiUpdateStartupFounder,
+  ApiDeleteFounder,
   ApiUpdateStartupPersonalInfo,
   ApiUpdateStartupAbout,
   ApiUpdateStartupMentorDetails,
