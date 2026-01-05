@@ -10,6 +10,7 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
   const [showStartupDropdown, setShowStartupDropdown] = useState(false);
   const [data, setData] = useState([]);
   const [formData, setFormData] = useState({
+    startup_id:"",
     startup_name: "",
     project_name: "",
     type: "",
@@ -39,8 +40,8 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
         ? ApiStartup.rows
         : [];
 
-      const startupNames = startupdata.map((item) => item.startup_name);
-      setData(startupNames);
+      
+      setData(startupdata);
     } catch (error) {
       toast.error("Failed to fetch startup name");
     }
@@ -49,14 +50,17 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
   useEffect(() => {
     fetchData();
   }, []);
+
   useEffect(() => {
-    if (startup_name) {
+    if (startup_id && startup_name) {
       setFormData((prev) => ({
         ...prev,
-        startup_name: startup_name || "",
+        startup_id,
+        startup_name,
       }));
     }
-  }, [startup_name]);
+  }, [startup_id, startup_name]);
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -95,8 +99,8 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formPayload = new FormData();
-    formPayload.append("startup_id", startup_id);
-    formPayload.append("startup_name", startup_name);
+    formPayload.append("startup_id", formData.startup_id);
+    formPayload.append("startup_name", formData.startup_name);
     formPayload.append("funding_type", formData.type);
     formPayload.append("amount", formData.amount);
     formPayload.append("status", formData.status);
@@ -123,16 +127,16 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
     }
 
     // Reset form
-    setFormData({
-      project_name: "",
-      type: "",
-      amount: "",
-      status: "",
-      purpose: "",
-      date: "",
-      refNo: "",
-      document: null,
-    });
+    // setFormData({
+    //   project_name: "",
+    //   type: "",
+    //   amount: "",
+    //   status: "",
+    //   purpose: "",
+    //   date: "",
+    //   refNo: "",
+    //   document: null,
+    // });
   };
 
   const handleCancel = () => {
@@ -185,6 +189,7 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
                     setFormData((prev) => ({
                       ...prev,
                       startup_name: e.target.value,
+                      startup_id: "",
                     }));
                     setShowStartupDropdown(true);
                   }}
@@ -199,23 +204,24 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
                   <ul className="absolute z-10 w-[24rem] p-2 text-sm text-gray-900 border border-gray-300 max-h-48 overflow-y-auto rounded-lg bg-gray-50">
                     {data
                       .filter((s) =>
-                        s
+                        s.startup_name
                           .toLowerCase()
                           .includes(formData.startup_name.toLowerCase())
                       )
-                      .map((startup, index) => (
+                      .map((startup) => (
                         <li
-                          key={index}
+                          key={startup.startup_id}
                           className="px-3 py-2 cursor-pointer hover:bg-gray-100"
                           onMouseDown={() => {
                             setFormData((prev) => ({
                               ...prev,
-                              startup_name: startup,
+                              startup_name: startup.startup_name,
+                              startup_id: startup.startup_id,
                             }));
                             setShowStartupDropdown(false);
                           }}
                         >
-                          {startup}
+                          {startup.startup_name}
                         </li>
                       ))}
                   </ul>
@@ -276,9 +282,12 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
                   required
                 >
                   <option value="">Select Type</option>
-                  {decoded.role === 2 && (
-                    <option value="Funding Disbursed">Funding Disbursed</option>
-                  )}
+                  {decoded.role === 2 ||
+                    decoded.role === 3 && (
+                        <option value="Funding Disbursed">
+                          Funding Disbursed
+                        </option>
+                      )}
                   <option value="Funding Utilized">Funding Utilized</option>
                 </select>
               </div>
