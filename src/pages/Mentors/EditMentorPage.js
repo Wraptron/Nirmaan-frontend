@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { ApiUpdateMentor } from "../../API/API";
 import toast from "react-hot-toast";
+import bgImg from "../../assets/images/Rectangle 5.svg";
+import { FiEdit2 } from "react-icons/fi";
 
 const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     mentor_id: initialData.mentor_id || "",
     mentor_name: initialData.mentor_name || "",
+    mentor_logo: initialData.mentor_logo || "No Profile",
     designation: initialData.designation || "",
     mentor_description: initialData.mento_description || "",
     email_address: initialData.email_address || "",
@@ -17,6 +20,12 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
     linkedin_id: initialData.linkedin_id || "",
   });
   // console.log(initialData);
+   const [preview, setPreview] = useState(
+     typeof initialData.mentor_logo === "string"
+       ? initialData.mentor_logo
+       : null
+   );
+   const profileInputRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,6 +34,17 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
       [name]: value,
     }));
   };
+
+    const handleProfileImage = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      setFormData((prev) => ({
+        ...prev,
+        mentor_logo: file,
+      }));
+      setPreview(URL.createObjectURL(file));
+    };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -75,10 +95,50 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
       <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl"
+          className="absolute top-4 right-2 text-gray-500 hover:text-gray-700 text-3xl"
         >
           &times;
         </button>
+        <div className="w-full h-40 rounded-xl  mb-20 relative overflow-visible">
+          <img
+            src={bgImg}
+            alt="banner"
+            className="w-full h-full object-cover rounded-lg"
+          />
+
+          {/* Profile image */}
+          <div className="absolute -bottom-10 left-1/2 -translate-x-1/2">
+            <img
+              src={preview || "/default-profile.png"}
+              alt="profile"
+              className="w-32 h-32 border-4 rounded-lg  object-cover"
+            />
+            <div>
+              <button
+                type="button"
+                onClick={() =>
+                  profileInputRef.current && profileInputRef.current.click()
+                }
+                className="absolute bottom-2 right-2 bg-white rounded-full p-1 shadow hover:bg-gray-100 border border-gray-300 z-40"
+                title="Edit Profile Photo"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <FiEdit2 size={16} className="text-[#232323]" />
+              </button>
+              <input
+                type="file"
+                accept="image/*"
+                ref={profileInputRef}
+                className="hidden"
+                onChange={handleProfileImage}
+              />
+            </div>
+          </div>
+        </div>
         <h2 className="text-xl font-semibold mb-6">Edit Mentor Profile</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">

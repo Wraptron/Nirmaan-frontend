@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import mailsvg from "../../assets/images/Frame (6).svg";
 import phonesvg from "../../assets/images/Frame (7).svg";
 import dummysvg from "../../assets/images/image (1).svg";
+import ImageSvg from "../../assets/images/296fe121-5dfa-43f4-98b5-db50019738a7.jpg";
 import linkedinsvg from "../../assets/images/Frame (9).svg";
 import Testimonials from "../../assets/images/testimonial.png";
 import editsvg from "../../assets/images/Frame (12).svg";
@@ -317,7 +318,13 @@ function MentorProfile() {
             <div className="flex items-start mt-12">
               <div className="mr-4">
                 <img
-                  src={mentor.mentor_logo?.replace("/uploads/", "") || dummysvg}
+                  src={
+                    mentor.mentor_logo
+                      ? typeof mentor.mentor_logo === "string"
+                        ? mentor.mentor_logo.replace("/uploads/", "")
+                        : URL.createObjectURL(mentor.mentor_logo)
+                      : ImageSvg
+                  }
                   alt="Profile"
                   className="rounded-full w-28 h-28 object-cover aspect-square"
                 />

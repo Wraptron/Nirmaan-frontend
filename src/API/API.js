@@ -1249,7 +1249,12 @@ async function ApiUpdateMentor(payload) {
   try {
     const response = await axios.put(
       `${API_BASE_URL}/api/v1/mentor/update`,
-      payload
+      payload,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
     return response.data;
   } catch (error) {
