@@ -442,8 +442,8 @@ function Startups() {
 
     const matchesPIA =
       filterPIA === "All" ||
-      (filterPIA === "signed" && startup.pia_status === "signed") ||
-      (filterPIA === "Not signed" && startup.pia_status === "Not signed");
+      (filterPIA === "Signed" && startup.pia_state === "Signed") ||
+      (filterPIA === "Not signed" && startup.pia_state === "Not signed");
 
     const matchesFundingState =
       filterFundingState === "All" ||
@@ -517,7 +517,7 @@ function Startups() {
 
 
    // PIA filter logic start here
-  const piaOptions = useMemo(() => ["All", "Not signed", "signed"], []);
+  const piaOptions = useMemo(() => ["All", "Not signed", "Signed"], []);
 
   const handlePIAFilter = (pia) => {
     setFilterPIA(pia);
