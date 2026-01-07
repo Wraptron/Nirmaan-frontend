@@ -367,6 +367,11 @@ function Startups() {
   const [showw, setShoww] = useState(false);
  const [viewMode, setViewMode] = useState("card");
   const [showCohortDropdown, setShowCohortDropdown] = useState(false); // Dropdown visibility
+
+  const [showSectorDropdown, setShowSectorDropdown] = useState(false); // Dropdown visibility
+
+  const [showPIADropdown, setshowPIADropdown] = useState(false); // 
+  
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -379,7 +384,6 @@ function Startups() {
     { label: "Graduated", value: "Graduated" },
     { label: "Dropped out", value: "dropped out" },
   ];
-
 
   //fetch startup data
   const fetchData = async () => {
@@ -404,16 +408,24 @@ function Startups() {
     setShoww(true);
   }, []);
 
-  // pagination and cohert filter
+  // pagination and cohert,sector,PIA filter
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const pageFromQuery = parseInt(queryParams.get("page")) || 1;
   const initialStatus = queryParams.get("status") || "All";
   const initialCohort = queryParams.get("cohort") || "All";
+  const initialSector = queryParams.get("sector") || "All";
+  const initialPIA = queryParams.get("pia") || "All";
+  
   const [currentPage, setCurrentPage] = useState(pageFromQuery);
   const [filterStatus, setFilterStatus] = useState(initialStatus);
   const [filterCohort, setFilterCohort] = useState(initialCohort);
+  const [filterSector, setFilterSector] = useState(initialSector);
+  const [filterPIA, setFilterPIA] = useState("All");
+  const [filterFundingState, setFilterFundingState] = useState("All");
   const [rowsPerPage] = useState(6);
+  const [showFundingStateDropdown, setShowFundingStateDropdown] = useState(false);
+
   const filteredData = data.filter((startup) => {
     const matchesFilter =
       filterStatus === "All" ||
@@ -424,11 +436,31 @@ function Startups() {
       filterCohort === "All" ||
       startup.startup_cohort?.toLowerCase() === filterCohort.toLowerCase();
 
+    const matchesSector =
+      filterSector === "All" ||
+      startup.startup_sector?.toLowerCase() === filterSector.toLowerCase();
+
+    const matchesPIA =
+      filterPIA === "All" ||
+      (filterPIA === "signed" && startup.pia_status === "signed") ||
+      (filterPIA === "Not signed" && startup.pia_status === "Not signed");
+
+    const matchesFundingState =
+      filterFundingState === "All" ||
+      startup.current_funding_state?.toLowerCase() === filterFundingState.toLowerCase();
+
     const matchesSearch =
       startup.startup_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       startup.founder_name?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    return matchesFilter && matchesCohort && matchesSearch;
+    return (
+      matchesFilter &&
+      matchesCohort &&
+      matchesSector &&
+      matchesPIA &&
+      matchesFundingState &&
+      matchesSearch
+    );
   });
 
   const itemsPerPage = 6;
@@ -444,8 +476,10 @@ function Startups() {
     params.set("page", currentPage);
     params.set("status", filterStatus);
     params.set("cohort", filterCohort);
+    params.set("sector", filterSector);
+    params.set("pia",filterPIA);
     navigate({ search: params.toString() }, { replace: true });
-  }, [currentPage, filterStatus, filterCohort, location.search, navigate]);
+  }, [currentPage, filterStatus, filterCohort, filterSector, filterPIA,location.search, navigate]);
 
   const handleStatusFilter = (status) => {
     setFilterStatus(status);
@@ -466,6 +500,42 @@ function Startups() {
     setFilterCohort(cohort);
     setCurrentPage(1);
     setShowCohortDropdown(false);
+  };
+
+  // Sector filter logic start here
+  const sectorOptions = useMemo(() => {
+    const sectors = data.map((s) => s.startup_sector).filter(Boolean);
+    const unique = [...new Set(sectors)];
+    unique.sort((a, b) => a.localeCompare(b));
+    return ["All", ...unique];
+  }, [data]);
+  const handleSectorFilter = (sector) => {
+    setFilterSector(sector);
+    setCurrentPage(1);
+    setShowSectorDropdown(false);
+  };
+
+
+   // PIA filter logic start here
+  const piaOptions = useMemo(() => ["All", "Not signed", "signed"], []);
+
+  const handlePIAFilter = (pia) => {
+    setFilterPIA(pia);
+    setCurrentPage(1);
+    setshowPIADropdown(false);
+  };
+
+  // Funding State filter logic start here
+  const fundingStateOptions = useMemo(() => {
+    const states = data.map((s) => s.current_funding_state).filter(Boolean);
+    const unique = [...new Set(states)];
+    unique.sort((a, b) => a.localeCompare(b));
+    return ["All", ...unique];
+  }, [data]);
+  const handleFundingStateFilter = (state) => {
+    setFilterFundingState(state);
+    setCurrentPage(1);
+    setShowFundingStateDropdown(false);
   };
 
   const handleNextPage = () => {
@@ -545,8 +615,8 @@ function Startups() {
         setOpenDropdownId(null);
 
           // Check if current page is now empty
-          const updatedFilteredData = updatedList.filter((startup) => {
-        const matchesFilter =
+          const updatedFilteredData = updatedList.filter((startup,PIA) => {
+          const matchesFilter =
           filterStatus === "All" ||
           startup.program?.toLowerCase() === filterStatus.toLowerCase() ||
           startup.startup_status?.toLowerCase() === filterStatus.toLowerCase();
@@ -555,10 +625,19 @@ function Startups() {
           filterCohort === "All" ||
           startup.startup_cohort?.toLowerCase() === filterCohort.toLowerCase();
 
+          const matchesSector =
+          filterSector === "All" ||
+          startup.startup_sector?.toLowerCase() === filterSector.toLowerCase();
+
+          const matchesPIA =
+          filterPIA === "All" ||
+          startup.startup_sector?.toLowerCase() === filterPIA.toLocaleLowerCase();
+          
+
           const matchesSearch =
           startup.startup_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           startup.founder_name?.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesFilter && matchesCohort && matchesSearch;
+        return matchesFilter && matchesCohort && matchesSector && matchesPIA && matchesSearch;
       });
 
       const totalPagesAfterDelete = Math.ceil(updatedFilteredData.length / 6);
@@ -641,7 +720,54 @@ function Startups() {
                     />
                   </div>
 
-                  {/* Cohort Filter Dropdown */}
+                  {/* Sector Filter Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowSectorDropdown(!showSectorDropdown)}
+                      className={`flex items-center gap-2 px-4 py-2 text-sm border rounded-lg transition-all ${
+                        filterSector !== "All"
+                          ? "bg-[#45C74D] text-white border-[#45C74D]"
+                          : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+                      }`}
+                    >
+                      <FaFilter className="text-xs" />
+                      <span>
+                        {filterSector === "All" ? "All Sectors" : filterSector}
+                      </span>
+                      <FaChevronDown
+                        className={`text-xs transition-transform ${
+                          showSectorDropdown ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    {/* Dropdown Menu */}
+                    {showSectorDropdown && (
+                      <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-30 max-h-60 overflow-y-auto">
+                        {sectorOptions.map((sector) => (
+                          <button
+                            key={sector}
+                            onClick={() => handleSectorFilter(sector)}
+                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
+                              filterSector === sector
+                                ? "bg-[#45C74D] text-white hover:bg-[#3BAF43]"
+                                : "text-gray-700"
+                            }`}
+                          >
+                            {sector === "All" ? "All Sectors" : sector}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Click outside to close dropdown */}
+                    {showSectorDropdown && (
+                      <div
+                        className="fixed inset-0 z-20"
+                        onClick={() => setShowSectorDropdown(false)}
+                      />
+                    )}
+                  </div>
                   <div className="relative">
                     <button
                       onClick={() => setShowCohortDropdown(!showCohortDropdown)}
@@ -661,6 +787,9 @@ function Startups() {
                         }`}
                       />
                     </button>
+
+
+                    
 
                     {/* Dropdown Menu */}
                     {showCohortDropdown && (
@@ -689,6 +818,100 @@ function Startups() {
                       />
                     )}
                   </div>
+
+                  {/* PIA Filter Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setshowPIADropdown(!showPIADropdown)}
+                      className={`flex items-center gap-2 px-4 py-2 text-sm border rounded-lg transition-all ${
+                        filterPIA !== "All"
+                          ? "bg-[#45C74D] text-white border-[#45C74D]"
+                          : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+                      }`}
+                    >
+                      <FaFilter className="text-xs" />
+                      <span>
+                        {filterPIA === "All" ? "PIA States" : filterPIA}
+                      </span>
+                      <FaChevronDown
+                        className={`text-xs transition-transform ${
+                          showPIADropdown ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    {showPIADropdown && (
+                      <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-30 max-h-60 overflow-y-auto">
+                        {piaOptions.map((pia) => (
+                          <button
+                            key={pia}
+                            onClick={() => handlePIAFilter(pia)}
+                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
+                              filterPIA === pia
+                                ? "bg-[#45C74D] text-white hover:bg-[#3BAF43]"
+                                : "text-gray-700"
+                            }`}
+                          >
+                            {pia}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {showPIADropdown && (
+                      <div
+                        className="fixed inset-0 z-20"
+                        onClick={() => setshowPIADropdown(false)}
+                      />
+                    )}
+                  </div>
+
+                  {/* Funding State Filter Dropdown */}
+                  {/* <div className="relative">
+                    <button
+                      onClick={() => setShowFundingStateDropdown(!showFundingStateDropdown)}
+                      className={`flex items-center gap-2 px-4 py-2 text-sm border rounded-lg transition-all ${
+                        filterFundingState !== "All"
+                          ? "bg-[#45C74D] text-white border-[#45C74D]"
+                          : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+                      }`}
+                    >
+                      <FaFilter className="text-xs" />
+                      <span>
+                        {filterFundingState === "All" ? "All Funding States" : filterFundingState}
+                      </span>
+                      <FaChevronDown
+                        className={`text-xs transition-transform ${
+                          showFundingStateDropdown ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    {showFundingStateDropdown && (
+                      <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-30 max-h-60 overflow-y-auto">
+                        {fundingStateOptions.map((state) => (
+                          <button
+                            key={state}
+                            onClick={() => handleFundingStateFilter(state)}
+                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
+                              filterFundingState === state
+                                ? "bg-[#45C74D] text-white hover:bg-[#3BAF43]"
+                                : "text-gray-700"
+                            }`}
+                          >
+                            {state === "All" ? "All Funding States" : state}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {showFundingStateDropdown && (
+                      <div
+                        className="fixed inset-0 z-20"
+                        onClick={() => setShowFundingStateDropdown(false)}
+                      />
+                    )}
+                  </div> */}
                 </div>
                 <div className="flex gap-3">
                   <a
@@ -724,9 +947,49 @@ function Startups() {
                   </div>
                 </div>
               </div>
+              
+              {/* Active Filters PIA Display */}
+              {(filterStatus !== "All" || filterCohort !== "All" || filterSector !== "All" || filterPIA !== "All") && (
+                <div className="flex items-center gap-2 px-5 mt-3">
+                  <span className="text-sm text-gray-600">Active filters:</span>
+                  {filterStatus !== "All" && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#45C74D] text-white text-xs rounded-full">
+                      Status: {filterStatus}
+                      <button
+                        onClick={() => handleStatusFilter("All")}
+                        className="ml-1 text-white hover:text-gray-200"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                  {filterPIA !== "All" && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
+                      Sector: {filterPIA}
+                      <button
+                        onClick={() => handleCohortFilter("All")}
+                        className="ml-1 text-white hover:text-gray-200"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                  {filterPIA !== "All" && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-500 text-white text-xs rounded-full">
+                      Sector: {filterPIA}
+                      <button
+                        onClick={() => handleSectorFilter("All")}
+                        className="ml-1 text-white hover:text-gray-200"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                </div>
+              )}
 
               {/* Active Filters Display */}
-              {(filterStatus !== "All" || filterCohort !== "All") && (
+              {(filterStatus !== "All" || filterCohort !== "All" || filterSector !== "All") && (
                 <div className="flex items-center gap-2 px-5 mt-3">
                   <span className="text-sm text-gray-600">Active filters:</span>
                   {filterStatus !== "All" && (
@@ -745,6 +1008,17 @@ function Startups() {
                       Cohort: {filterCohort}
                       <button
                         onClick={() => handleCohortFilter("All")}
+                        className="ml-1 text-white hover:text-gray-200"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                  {filterSector !== "All" && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-500 text-white text-xs rounded-full">
+                      Sector: {filterSector}
+                      <button
+                        onClick={() => handleSectorFilter("All")}
                         className="ml-1 text-white hover:text-gray-200"
                       >
                         ×
@@ -773,7 +1047,7 @@ function Startups() {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 navigate(
-                                  `/startups/startupprofile/${startup.startup_id}?page=${currentPage}&status=${filterStatus}&cohort=${filterCohort}`
+                                  `/startups/startupprofile/${startup.startup_id}?page=${currentPage}&status=${filterStatus}&cohort=${filterCohort}&sector=${filterSector}`
                                 );
                               }}
                             >
@@ -900,7 +1174,7 @@ function Startups() {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   navigate(
-                                    `/startups/startupprofile/${startup.startup_id}?page=${currentPage}&status=${filterStatus}&cohort=${filterCohort}`
+                                    `/startups/startupprofile/${startup.startup_id}?page=${currentPage}&status=${filterStatus}&cohort=${filterCohort}&sector=${filterSector}`
                                   );
                                 }}
                               >
@@ -1015,7 +1289,7 @@ function Startups() {
                             : "bg-[#45C74D] text-white hover:bg-[#3BAF43]"
                         }`}
                       >
-                        Previous
+                        Previous 
                       </button>
                       <span className="text-sm text-gray-600">
                         Page {currentPage} of {totalPages} (
@@ -1041,6 +1315,8 @@ function Startups() {
             </div>
           </div>
         </div>
+
+        
         <DeleteConfirmation
           isVisible={openEstablishPopUp}
           onClose={() => setOpenEstablishPopUp(false)}
