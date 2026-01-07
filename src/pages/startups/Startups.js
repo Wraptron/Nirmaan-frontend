@@ -365,12 +365,14 @@ function Startups() {
   const [startupdata, setStartupData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showw, setShoww] = useState(false);
- const [viewMode, setViewMode] = useState("card");
+  const [viewMode, setViewMode] = useState("card");
   const [showCohortDropdown, setShowCohortDropdown] = useState(false); // Dropdown visibility
 
   const [showSectorDropdown, setShowSectorDropdown] = useState(false); // Dropdown visibility
 
   const [showPIADropdown, setshowPIADropdown] = useState(false); // 
+  const [currentfundingstate, setcurrentFundingState] = useState(false); // 
+  
   
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
@@ -949,7 +951,7 @@ function Startups() {
               </div>
               
               {/* Active Filters PIA Display */}
-              {(filterStatus !== "All" || filterCohort !== "All" || filterSector !== "All" || filterPIA !== "All") && (
+              {/* {(filterStatus !== "All" || filterCohort !== "All" || filterSector !== "All" || filterPIA !== "All") && (
                 <div className="flex items-center gap-2 px-5 mt-3">
                   <span className="text-sm text-gray-600">Active filters:</span>
                   {filterStatus !== "All" && (
@@ -957,69 +959,69 @@ function Startups() {
                       Status: {filterStatus}
                       <button
                         onClick={() => handleStatusFilter("All")}
-                        className="ml-1 text-white hover:text-gray-200"
+                        className="ml-1 text-black hover:text-gray-700"
                       >
                         ×
                       </button>
                     </span>
                   )}
                   {filterPIA !== "All" && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
-                      Sector: {filterPIA}
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#45C74D] text-black text-xs rounded-full">
+                      Status: {filterPIA}
                       <button
                         onClick={() => handleCohortFilter("All")}
-                        className="ml-1 text-white hover:text-gray-200"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  )}
-                  {filterPIA !== "All" && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-500 text-white text-xs rounded-full">
-                      Sector: {filterPIA}
-                      <button
-                        onClick={() => handleSectorFilter("All")}
-                        className="ml-1 text-white hover:text-gray-200"
+                        className="ml-1 text-black hover:text-gray-700"
                       >
                         ×
                       </button>
                     </span>
                   )}
                 </div>
-              )}
+              )} */}
 
               {/* Active Filters Display */}
-              {(filterStatus !== "All" || filterCohort !== "All" || filterSector !== "All") && (
+              {(filterStatus !== "All" || filterCohort !== "All" || filterSector !== "All" || filterPIA !== "All") && (
                 <div className="flex items-center gap-2 px-5 mt-3">
                   <span className="text-sm text-gray-600">Active filters:</span>
                   {filterStatus !== "All" && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#45C74D] text-white text-xs rounded-full">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#45C74D] text-black text-xs rounded-full">
                       Status: {filterStatus}
                       <button
                         onClick={() => handleStatusFilter("All")}
-                        className="ml-1 text-white hover:text-gray-200"
+                        className="ml-1 text-black hover:text-gray-700"
                       >
                         ×
                       </button>
                     </span>
                   )}
                   {filterCohort !== "All" && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-500 text-black text-xs rounded-full">
                       Cohort: {filterCohort}
                       <button
                         onClick={() => handleCohortFilter("All")}
-                        className="ml-1 text-white hover:text-gray-200"
+                        className="ml-1 text-black hover:text-gray-700"
                       >
                         ×
                       </button>
                     </span>
                   )}
                   {filterSector !== "All" && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-500 text-white text-xs rounded-full">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-500 text-black text-xs rounded-full">
                       Sector: {filterSector}
                       <button
                         onClick={() => handleSectorFilter("All")}
-                        className="ml-1 text-white hover:text-gray-200"
+                        className="ml-1 text-black hover:text-gray-700"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                   {filterPIA !== "All" && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#45C74D] text-black text-xs rounded-full">
+                      Status: {filterPIA}
+                      <button
+                        onClick={() => handlePIAFilter("All")}
+                        className="ml-1 text-black hover:text-gray-700"
                       >
                         ×
                       </button>
