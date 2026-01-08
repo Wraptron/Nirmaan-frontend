@@ -740,12 +740,28 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
     }
   };
   function encodeS3Url(url) {
+      // const parts = url.split('/');
+      // const fileName = parts.pop(); // last part
+      // const encodedFileName = encodeURIComponent(fileName);
+      // return parts.join('/') + '/' + encodedFileName;
+      if (!url || typeof url !== "string" || url.trim() === "") {
+      return null; // Return null for invalid URLs
+    }
+    try {
       const parts = url.split('/');
-      const fileName = parts.pop(); // last part
+      const fileName = parts.pop();
+      if (!fileName) return url; // Return original if no filename
       const encodedFileName = encodeURIComponent(fileName);
       return parts.join('/') + '/' + encodedFileName;
+    } catch (error) {
+      console.error("Error encoding URL:", error);
+      return null;
+    }
   } 
-  const profileImage = encodeS3Url(initialData.profile_image);
+  //const profileImage = encodeS3Url(initialData?.profile_image);
+  const profileImage = initialData?.profile_image 
+  ? encodeS3Url(initialData.profile_image) 
+  : null;
   console.log(profileImage);
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

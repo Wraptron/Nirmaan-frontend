@@ -1469,6 +1469,60 @@ async function ApiUpdateStartupPersonalInfo(payload) {
     throw new Error("Failed to update startup details");
   }
 }
+// async function ApiUpdateStartupPersonalInfo(payload) {
+//   try {
+//     // Get token from sessionStorage
+//     const token = sessionStorage.getItem("token");
+    
+//     if (!token) {
+//       throw new Error("No authentication token found. Please login again.");
+//     }
+
+//     let dataToSend = payload;
+
+//     // If payload is not FormData, convert it
+//     if (!(payload instanceof FormData)) {
+//       dataToSend = new FormData();
+//       Object.entries(payload).forEach(([key, value]) => {
+//         if (key === "profile_image" && value) {
+//           dataToSend.append("logo_image", value); // Use 'logo_image' for backend
+//         } else if (value !== undefined && value !== null) {
+//           dataToSend.append(key, value);
+//         }
+//       });
+//     } else {
+//       // If already FormData, rename 'profile_image' to 'logo_image' if present
+//       if (payload.has("profile_image")) {
+//         const file = payload.get("profile_image");
+//         payload.delete("profile_image");
+//         payload.append("logo_image", file);
+//       }
+//     }
+
+//     // ⚠️ IMPORTANT: Don't set Content-Type for FormData
+//     // Axios/browser will automatically set it with the correct boundary
+//     const headers = {
+//       "Authorization": `Bearer ${token}`, // ← ADD THIS
+//     };
+
+//     const response = await axios.put(
+//       `${API_BASE_URL}/api/v1/edit-startupdata/personal-info`,
+//       dataToSend,
+//       { headers }
+//     );
+    
+//     return response.data;
+//   } catch (error) {
+//     console.error("Error in ApiUpdateStartupPersonalInfo", error);
+    
+//     // Better error handling
+//     if (error.response?.status === 401) {
+//       throw new Error("Unauthorized. Please login again.");
+//     }
+    
+//     throw new Error(error.response?.data?.message || "Failed to update startup details");
+//   }
+// }
 
 async function ApiUpdateStartupAbout(payload) {
   try {
