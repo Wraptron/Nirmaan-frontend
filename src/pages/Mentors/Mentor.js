@@ -14,6 +14,7 @@ function Mentor() {
   const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
   const [data, setData] = useState([]);
   const [mentordata, setMentorData] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage] = useState(6);
   const [searchTerm, setSearchTerm] = useState("");
