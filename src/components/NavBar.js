@@ -769,21 +769,6 @@ function NavBar({ onSelectionChange, selectedIndex }) {
                 placeholder="Search..."
               />
             </div>
-            {pathName === "/home" && (
-              <div className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-                {color.map((colors, index) => (
-                  <button
-                    key={index}
-                    className="block py-2 px-3  md:p-0 text-[#45C74D] hover:underline hover:underline-offset-[22px] hover:decoration-4 hover:decoration-[#45C74D]"
-                    onClick={() => {
-                      onSelectionChange(index);
-                    }}
-                  >
-                    {["Overview"][index]}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       </nav>
