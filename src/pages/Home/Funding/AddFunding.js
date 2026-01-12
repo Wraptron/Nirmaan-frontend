@@ -204,9 +204,9 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
                   <ul className="absolute z-10 w-[24rem] p-2 text-sm text-gray-900 border border-gray-300 max-h-48 overflow-y-auto rounded-lg bg-gray-50">
                     {data
                       .filter((s) =>
-                        s.startup_name
+                        (s.startup_name ?? "")
                           .toLowerCase()
-                          .includes(formData.startup_name.toLowerCase())
+                          .includes((formData.startup_name ?? "").toLowerCase())
                       )
                       .map((startup) => (
                         <li
@@ -283,11 +283,11 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
                 >
                   <option value="">Select Type</option>
                   {decoded.role === 2 ||
-                    decoded.role === 3 && (
-                        <option value="Funding Disbursed">
-                          Funding Disbursed
-                        </option>
-                      )}
+                    (decoded.role === 3 && (
+                      <option value="Funding Disbursed">
+                        Funding Disbursed
+                      </option>
+                    ))}
                   <option value="Funding Utilized">Funding Utilized</option>
                 </select>
               </div>
