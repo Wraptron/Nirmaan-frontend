@@ -330,6 +330,7 @@ function StartupFundingDetail() {
                 <table className="min-w-full text-sm text-left border-collapse">
                   <thead>
                     <tr className="border-b border-dotted">
+                      <th className="px-4 py-2">Projct Name</th>
                       <th className="px-4 py-2">Type</th>
                       <th className="px-4 py-2">Amount</th>
                       <th className="px-4 py-2">Status</th>
@@ -348,6 +349,9 @@ function StartupFundingDetail() {
                     ) : (
                       currentRows.map((fund) => (
                         <tr key={fund.id} className="border-b border-dotted">
+                          <td className="px-4 py-2">
+                            {fund.project_name || "-"}
+                          </td>
                           <td className="px-4 py-2">
                             {fund.funding_type || "-"}
                           </td>
