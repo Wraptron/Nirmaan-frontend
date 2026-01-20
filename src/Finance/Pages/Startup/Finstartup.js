@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SideBar from "../../../Finance/Components/Sidebar";
-import { FaEllipsisV} from "react-icons/fa";
+import { FaEllipsisV, FaFilter } from "react-icons/fa";
 import AddFunding from "../../../pages/Home/Funding/AddFunding";
 import toast from "react-hot-toast";
-import {
-  ApiFetchFundingAmount,
-  ApiFetchStartupData,
-} from "../../../API/API";
+import { ApiFetchFundingAmount, ApiFetchStartupData } from "../../../API/API";
 import Navbar from "../../Components/Navbar";
 
 const Finstartup = () => {
@@ -18,6 +15,12 @@ const Finstartup = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [selectedStartup, setSelectedStartup] = useState(null);
+
+  // FILTER STATES
+  const [cohortFilter, setCohortFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [openFilter, setOpenFilter] = useState(null);
+
   const navigate = useNavigate();
   const handleFundingClick = (startup) => {
     setSelectedStartup(startup);
@@ -26,7 +29,7 @@ const Finstartup = () => {
   const handleFundingClose = () => {
     setShowFundingForm(false);
     setSelectedStartup(null);
-    fetchData()
+    fetchData();
   };
 
   const fetchData = async () => {
@@ -68,9 +71,28 @@ const Finstartup = () => {
     setShoww(true);
   }, []);
 
-  const filteredStartup = data.filter((startup) =>
-  (startup.startup_name || "").toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // UNIQUE VALUES (EXCEL-LIKE)
+  const uniqueCohorts = [
+    ...new Set(data.map((d) => d.startup_cohort).filter(Boolean)),
+  ];
+
+  const uniqueStatuses = [
+    ...new Set(data.map((d) => d.program).filter(Boolean)),
+  ];
+
+  // FILTER LOGIC
+  const filteredStartup = data.filter((startup) => {
+    const matchesSearch = (startup.startup_name || "")
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+
+    const matchesCohort =
+      !cohortFilter || startup.startup_cohort === cohortFilter;
+
+    const matchesStatus = !statusFilter || startup.program === statusFilter;
+
+    return matchesSearch && matchesCohort && matchesStatus;
+  });
 
   return (
     <div className="flex">
@@ -118,43 +140,125 @@ const Finstartup = () => {
                 </div>
               </div>
               <div className="border mt-5 border-dotted rounded-lg overflow-x-auto">
-                <table className="min-w-full text-sm text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-dotted">
-                      <th className="px-4 py-2">Name</th>
-                      <th className="px-4 py-2">Cohort</th>
-                      <th className="px-4 py-2">Fund Disbursed</th>
-                      <th className="px-4 py-2">Fund Utilized</th>
-                      <th className="px-4 py-2">Balance</th>
-                      <th className="px-4 py-2">Status</th>
-                      <th className="px-4 py-2">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredStartup.map((item) => (
-                      <tr
-                        key={item.startup_id}
-                        className="border-b border-dotted"
-                      >
-                        <td className="px-4 py-2">{item.startup_name}</td>
-                        <td className="px-4 py-2">
-                          {item.startup_cohort || "-"}
-                        </td>
-                        <td className="px-4 py-2">
-                          {item.funding?.funding_disbursed || 0}
-                        </td>
-                        <td className="px-4 py-2">
-                          {item.funding?.funding_utilized || 0}
-                        </td>
-                        <td className="px-4 py-2">
-                          {item.funding?.balance || 0}
-                        </td>
-                        <td className="px-4 py-2">
-                          {item.program}
-                        </td>
-                        <td className="px-4 py-2">
-                          <div className="relative inline-block text-right">
-                            {/* Ellipsis Button */}
+                <div className="max-h-[calc(100vh-300px)] overflow-auto">
+                  <table className="min-w-full text-sm text-left border-collapse">
+                    <thead className="sticky top-0 bg-white z-10">
+                      <tr className="border-b border-dotted">
+                        <th className="px-4 py-2">Name</th>
+                        <th className="px-4 py-2 relative">
+                          <div className="flex items-center gap-2">
+                            Cohort
+                            <button
+                              onClick={() =>
+                                setOpenFilter(
+                                  openFilter === "cohort" ? null : "cohort"
+                                )
+                              }
+                              className="p-1 hover:bg-gray-200 rounded"
+                            >
+                              <FaFilter className="text-xs text-gray-600" />
+                            </button>
+                          </div>
+
+                          {openFilter === "cohort" && (
+                            <div className="absolute left-0 mt-2 w-40 bg-white border rounded shadow z-50">
+                              <div
+                                className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100"
+                                onClick={() => {
+                                  setCohortFilter("");
+                                  setOpenFilter(null);
+                                }}
+                              >
+                                All
+                              </div>
+
+                              {uniqueCohorts.map((cohort) => (
+                                <div
+                                  key={cohort}
+                                  className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100"
+                                  onClick={() => {
+                                    setCohortFilter(cohort);
+                                    setOpenFilter(null);
+                                  }}
+                                >
+                                  {cohort}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </th>
+                        <th className="px-4 py-2">Fund Disbursed</th>
+                        <th className="px-4 py-2">Fund Utilized</th>
+                        <th className="px-4 py-2">Balance</th>
+                        <th className="px-4 py-2 relative">
+                          <div className="flex items-center gap-2">
+                            Status
+                            <button
+                              onClick={() =>
+                                setOpenFilter(
+                                  openFilter === "status" ? null : "status"
+                                )
+                              }
+                              className="p-1 hover:bg-gray-200 rounded"
+                            >
+                              <FaFilter className="text-xs text-gray-600" />
+                            </button>
+                          </div>
+
+                          {openFilter === "status" && (
+                            <div className="absolute left-0 mt-2 w-40 bg-white border rounded shadow z-50">
+                              <div
+                                className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100"
+                                onClick={() => {
+                                  setStatusFilter("");
+                                  setOpenFilter(null);
+                                }}
+                              >
+                                All
+                              </div>
+
+                              {uniqueStatuses.map((status) => (
+                                <div
+                                  key={status}
+                                  className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100"
+                                  onClick={() => {
+                                    setStatusFilter(status);
+                                    setOpenFilter(null);
+                                  }}
+                                >
+                                  {status}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </th>
+
+                        <th className="px-4 py-2">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredStartup.map((item) => (
+                        <tr
+                          key={item.startup_id}
+                          className="border-b border-dotted"
+                        >
+                          <td className="px-4 py-2">{item.startup_name}</td>
+                          <td className="px-4 py-2">
+                            {item.startup_cohort || "-"}
+                          </td>
+                          <td className="px-4 py-2">
+                            {item.funding?.funding_disbursed || 0}
+                          </td>
+                          <td className="px-4 py-2">
+                            {item.funding?.funding_utilized || 0}
+                          </td>
+                          <td className="px-4 py-2">
+                            {item.funding?.balance || 0}
+                          </td>
+                          <td className="px-4 py-2">{item.program}</td>
+                          <td className="px-4 py-2">
+                            <div className="relative inline-block text-right">
+                              {/* Ellipsis Button */}
                               <button
                                 className="rounded-full p-2 hover:bg-gray-100"
                                 onClick={(e) => {
@@ -178,7 +282,9 @@ const Finstartup = () => {
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      navigate(`/finance/startupdetail/${item.startup_id}`);
+                                      navigate(
+                                        `/finance/startupdetail/${item.startup_id}`
+                                      );
                                       setOpenDropdownId(null);
                                     }}
                                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -199,10 +305,11 @@ const Finstartup = () => {
                               )}
                             </div>
                           </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>

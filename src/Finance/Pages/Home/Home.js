@@ -95,6 +95,8 @@ function Home() {
     }, 2000);
   }, []);
 
+  console.log(projectsDetail)
+
 const formatINR = (value) =>
   `₹${Number(value || 0).toLocaleString("en-IN", {
     minimumFractionDigits: 0,
@@ -201,6 +203,10 @@ const formatINR = (value) =>
                               </div>
                             </div>
                           </div>
+
+                          {/* <div className="mt-1 text-center font-medium">
+                            <div className="text-lg">{fundingSummary.duration}</div>
+                          </div> */}
 
                           {/* Project Name */}
                           <div className="mt-1 text-center font-medium">
