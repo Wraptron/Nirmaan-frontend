@@ -1,10 +1,75 @@
-import React from "react";
+import React, { useState } from "react";
 import { MdOutlineCalendarMonth } from "react-icons/md";
-import { FaRegClock } from "react-icons/fa"; // FontAwesome
+import { FaRegClock } from "react-icons/fa"; 
 import { FiExternalLink } from "react-icons/fi";
-
+import toast from "react-hot-toast";
+import { ApiAddEvents } from "../../API/API";
+import { useNavigate } from "react-router-dom";
 
 function EventPreview({ eventdata, onClose }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+
+  
+
+    setIsSubmitting(true);
+
+    const formdata = new FormData();
+    formdata.append("event_type", eventdata.event_type);
+    formdata.append("event_title", eventdata.event_title);
+    formdata.append("event_privacy", eventdata.event_privacy);
+    formdata.append("speaker", eventdata.speaker);
+    formdata.append("event_date", eventdata.event_date);
+    formdata.append("event_time", eventdata.event_time);
+    formdata.append("event_link", eventdata.event_link);
+    formdata.append("description", eventdata.description);
+       if (eventdata.thumbnail) {
+         formdata.append("thumbnail", eventdata.thumbnail);
+       }
+
+    try {
+      await ApiAddEvents(formdata);
+      toast.success("Event added successfully");
+      onClose();
+      navigate("/events");
+    } catch (error) {
+      toast.error("Failed to add event");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "--";
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const formatTime = (timeString) => {
+    if (!timeString) return "--";
+
+    
+    const date = new Date(timeString);
+    if (!isNaN(date)) {
+      return date.toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+    }
+
+    // If backend sends HH:mm:ss
+    return timeString.slice(0, 5);
+  };
+
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white w-[450px] rounded-xl shadow-xl p-5">
@@ -46,13 +111,13 @@ function EventPreview({ eventdata, onClose }) {
           {/* Date */}
           <div className="flex items-center gap-2 text-gray-700">
             <MdOutlineCalendarMonth className="text-lg" />
-            <span>{eventdata.event_date || "--"}</span>
+            <span>{formatDate(eventdata.event_date || "--")}</span>
           </div>
 
           {/* Time */}
           <div className="flex items-center gap-2 text-gray-700">
             <FaRegClock className="text-lg" />
-            <span>{eventdata.event_time || "--"}</span>
+            <span>{formatTime(eventdata.event_time || "--")}</span>
           </div>
         </div>
 
@@ -82,8 +147,15 @@ function EventPreview({ eventdata, onClose }) {
             Back
           </button>
 
-          <button className="px-4 py-2 bg-[#45C74D] text-white rounded-lg">
-            Confirm Event
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            onClick={handleSubmit}
+            className={`px-4 py-2 rounded-lg text-white
+    ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-[#45C74D]"}
+  `}
+          >
+            {isSubmitting ? "Submitting..." : "Confirm Event"}
           </button>
         </div>
       </div>

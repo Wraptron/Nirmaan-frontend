@@ -2,15 +2,27 @@ import React, { useEffect, useState } from "react";
 import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
 import toast from "react-hot-toast";
-import { ApiFetchEvents } from "../../API/API";
+import { ApiDeleteEvent, ApiFetchEvents } from "../../API/API";
 import { FaEllipsis } from "react-icons/fa6";
 import calendersvg from "../../assets/images/Calendar.svg";
 import Clocksvg from "../../assets/images/Clock.svg";
 import { useNavigate } from "react-router-dom";
 import RequestSpeaker from "./RequestSpeaker";
+import EventDetails from "./EventDetails";
+import DeleteConfirmation from "../../components/DeleteConfirmation";
 function Events() {
   const [showw, setShoww] = useState(false);
+  const [events, setEvents] = useState([]);
+  const [openDropdownId, setOpenDropdownId] = useState(null);
+  const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [showrequestspeaker, setshowrequestSpeaker] = useState(false);
+  const [showEventPopup, setShowEventPopup] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const handleEventPopupClick = () => setShowEventPopup(true);
+  const handleEventPopupClose = async () => {
+    setShowEventPopup(false);
+  };
   const navigate = useNavigate();
   const handladdeventclick = () => {
     navigate("/events/new");
@@ -23,7 +35,8 @@ function Events() {
 
   const Events = async () => {
     try {
-      await ApiFetchEvents();
+      const response = await ApiFetchEvents();
+      setEvents(response?.rows);
     } catch (err) {
       console.log(err);
     }
@@ -31,6 +44,53 @@ function Events() {
   useEffect(() => {
     Events();
   }, []);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "--";
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const formatTime = (timeString) => {
+    if (!timeString) return "--";
+
+    // If backend sends ISO datetime
+    const date = new Date(timeString);
+    if (!isNaN(date)) {
+      return date.toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+    }
+
+    // If backend sends HH:mm:ss
+    return timeString.slice(0, 5);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const API = await ApiDeleteEvent(id);
+      if (API) {
+        toast.success("Event deleted successfully");
+        const updateddata = events.filter((event) => event.event_id !== id);
+        setEvents(updateddata);
+        setOpenDropdownId(null);
+      } else {
+        toast.error("Failed to delete event.");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const filteredEvents = events.filter((event) =>
+    event.event_title?.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
 
   return (
     <div className="flex">
@@ -50,26 +110,17 @@ function Events() {
               <div className="px-3 text-lg font-semibold pt-2">All Events</div>
               <div>
                 <div className="flex flex-wrap items-center justify-between mb-6 mt-6 px-4">
-                  <div className="relative w-full md:w-1/2">
+                  {/* Search Input */}
+                  <div className="relative w-96">
                     <input
                       type="text"
-                      // value={searchTerm}
-                      // onChange={(e) => setSearchTerm(e.target.value)}
                       placeholder="Search..."
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-green-200 focus:outline-none"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full px-4 text-sm border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-[#45C74D] focus:border-[#45C74D]"
                     />
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                      <svg className="w-4 h-4" viewBox="0 0 20 20" fill="none">
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                        />
-                      </svg>
-                    </div>
                   </div>
+
                   <div className="flex gap-5 justify-end">
                     <button
                       className="border border-[#45C74D] rounded-lg p-2 text-sm"
@@ -87,52 +138,134 @@ function Events() {
                 </div>
               </div>
               <div className="mt-2 px-3 pb-3">
-                <div className="grid grid-cols-3 gap-5">
-                  <div className="shadow-lg rounded-lg border">
-                    <div className="grid grid-cols-2 gap-4 px-3">
-                      <div className="flex py-2 gap-2">
-                        <div className="bg-[#FFE7CC] p-1  px-2 py-1 text-sm rounded-lg text-[#FF8800]">
-                          Webinar
+                {filteredEvents.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {filteredEvents.map((event, index) => (
+                      <div
+                        key={index}
+                        className="shadow-lg rounded-lg border bg-white"
+                      >
+                        <div className="grid grid-cols-2 gap-4 px-3">
+                          <div className="flex py-2 gap-2">
+                            <div className="bg-[#FFE7CC] px-2 py-1 text-sm rounded-lg text-[#FF8800]">
+                              {event.event_type}
+                            </div>
+                            <div className="bg-[#C8DFFF] px-2 py-1 text-sm rounded-lg text-[#005FE4]">
+                              {event.event_privacy}
+                            </div>
+                          </div>
+
+                          <div className="flex justify-end items-center">
+                            <div className="relative inline-block">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setOpenDropdownId(
+                                    openDropdownId === event.event_id
+                                      ? null
+                                      : event.event_id,
+                                  );
+                                }}
+                                className="text-black hover:text-gray-600"
+                              >
+                                <FaEllipsis />
+                              </button>
+                              {openDropdownId === event.event_id && (
+                                <div
+                                  className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <div className="py-1">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenDropdownId(null);
+                                        setSelectedEvent(event);
+                                        handleEventPopupClick();
+                                      }}
+                                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
+                                      View
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenDropdownId(null);
+                                      }}
+                                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
+                                      Share
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenDropdownId(null);
+                                      }}
+                                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedEvent(event);
+                                        setOpenEstablishPopUp(true);
+                                        setOpenDropdownId(null);
+                                      }}
+                                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <div className="bg-[#C8DFFF] px-2 py-1 text-sm rounded-lg text-[#005FE4]">
-                          Public
-                        </div>
-                      </div>
-                      <div id="3dots">
-                        <div className="flex justify-end items-end py-3">
-                          <FaEllipsis />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="px-3 pb-2 pt-2">
-                      <div className="font-semibold text-lg">
-                        Nirmaan-DemoDay
-                      </div>
-                      <div className="flex gap-4 pt-2">
-                        <div className="flex gap-1">
-                          <div>
+
+                        <div className="px-5">
+                          <div className="relative rounded-xl overflow-hidden">
                             <img
-                              src={calendersvg}
-                              width={"15px"}
-                              alt="Calendar icon"
+                              src={event.event_thumbnail}
+                              alt="Event"
+                              className="w-full h-48 object-cover"
                             />
                           </div>
-                          <div className="text-sm">MM/DD/YY</div>
                         </div>
-                        <div className="flex gap-1">
-                          <div>
-                            <img
-                              src={Clocksvg}
-                              width={"15px"}
-                              alt="Clock icon"
-                            />
+
+                        <div className="px-3 pb-2 pt-2">
+                          <div className="font-semibold text-lg">
+                            {event.event_title}
                           </div>
-                          <div className="text-sm">HH:MM</div>
+
+                          <div className="flex gap-4 pt-2">
+                            <div className="flex gap-1 items-center">
+                              <img
+                                src={calendersvg}
+                                width="15"
+                                alt="Calendar"
+                              />
+                              <span className="text-sm">
+                                {formatDate(event.event_date)}
+                              </span>
+                            </div>
+
+                            <div className="flex gap-1 items-center">
+                              <img src={Clocksvg} width="15" alt="Clock" />
+                              <span className="text-sm">
+                                {formatTime(event.event_time)}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                </div>
+                ) : (
+                  <div className="flex justify-center items-center h-32">
+                    <p className="text-gray-500">No events found.</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -254,9 +387,40 @@ function Events() {
           </button>
         </form>
       </AddPastEvents> */}
+      {showEventPopup && (
+        <EventDetails
+          eventdata={selectedEvent}
+          onClose={handleEventPopupClose}
+        />
+      )}
+
       {showrequestspeaker && (
         <RequestSpeaker onClose={handlerequestspeakerclose} />
       )}
+
+      <DeleteConfirmation
+        isVisible={openEstablishPopUp}
+        onClose={() => setOpenEstablishPopUp(false)}
+      >
+        <h1 className="text-center font-semibold text-2xl">Are you sure?</h1>
+        <div className="grid grid-cols-2 gap-4 mt-8">
+          <button
+            className="text-gray-500 font-semibold p-2 rounded-xl shadow"
+            onClick={() => {
+              handleDelete(selectedEvent.event_id);
+              setOpenEstablishPopUp(false);
+            }}
+          >
+            Yes
+          </button>
+          <button
+            className="text-gray-500 font-semibold p-2 rounded-xl shadow"
+            onClick={() => setOpenEstablishPopUp(false)}
+          >
+            No
+          </button>
+        </div>
+      </DeleteConfirmation>
     </div>
   );
 }

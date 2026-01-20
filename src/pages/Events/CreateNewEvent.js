@@ -4,6 +4,7 @@ import SideBar from "../../components/sidebar";
 import mentorsvg from "../../assets/images/Frame (11).svg";
 import { FiUpload } from "react-icons/fi";
 import EventPreview from "./EventPreview";
+import toast from "react-hot-toast";
 
 function CreateNewEvent() {
   const [eventdata, setEventdata] = useState({
@@ -26,7 +27,7 @@ function CreateNewEvent() {
     }));
   };
 
-  const handleDocumentUpload = (file) => {
+  const handleImageUpload = (file) => {
     if (file) {
       setEventdata((prev) => ({
         ...prev,
@@ -35,10 +36,39 @@ function CreateNewEvent() {
     }
   };
 
+const clearForm = () => {
+    setEventdata({
+      event_type: "",
+      event_title: "",
+      event_privacy: "Private",
+      speaker: "",
+      event_date: "",
+      event_time: "",
+      event_link: "",
+      thumbnail: "",
+      description: "",
+    });
+  };
+
   //Preview
   const [showpreview, setshowPreview] = useState(false);
-  const handleshowpreviewclick = () => setshowPreview(true)
-  const handleshowpreviewclose = () => setshowPreview(false)
+  const handleshowpreviewclick = () => {
+    if (
+      !eventdata.event_type ||
+      !eventdata.event_title ||
+      !eventdata.event_privacy ||
+      !eventdata.event_date ||
+      !eventdata.event_time ||
+      !eventdata.speaker ||
+      !eventdata.event_link ||
+      !eventdata.thumbnail
+    ) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+    setshowPreview(true);
+  };
+  const handleshowpreviewclose = () => setshowPreview(false);
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -187,10 +217,8 @@ function CreateNewEvent() {
                       <input
                         type="file"
                         className="hidden"
-                        accept=".pdf,.jpeg"
-                        onChange={(e) =>
-                          handleDocumentUpload(e.target.files[0])
-                        }
+                        accept="image/*"
+                        onChange={(e) => handleImageUpload(e.target.files[0])}
                       />
                     </label>
                     <span className="text-sm text-gray-500">
@@ -220,11 +248,13 @@ function CreateNewEvent() {
               {/* Buttons */}
               <div className="flex justify-between pt-4 items-center">
                 <button
-                  type="reset"
+                  type="button"
+                  onClick={clearForm}
                   className="px-4 py-2 text-[#45C74D] underline"
                 >
                   Clear Form
-                </button>
+                </button> 
+                
 
                 <div className="flex-1 flex justify-center">
                   <button

@@ -123,7 +123,7 @@ if (decoded.role !== 2) {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-green-200 focus:outline-none"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-[#45C74D] focus:border-[#45C74D]"
               />
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                 <svg className="w-4 h-4" viewBox="0 0 20 20" fill="none">
@@ -207,7 +207,7 @@ if (decoded.role !== 2) {
                             // Only allow your S3 bucket link
                             if (
                               logo.startsWith(
-                                "https://trktorrr.s3.ap-south-1.amazonaws.com/"
+                                "https://trktorrr.s3.ap-south-1.amazonaws.com/",
                               )
                             ) {
                               return logo;
@@ -242,7 +242,7 @@ if (decoded.role !== 2) {
                               setOpenDropdownId(
                                 openDropdownId === mentor.mentor_id
                                   ? null
-                                  : mentor.mentor_id
+                                  : mentor.mentor_id,
                               )
                             }
                             className="ellipsis-button text-gray-400 hover:text-gray-600 focus:outline-none"
@@ -255,7 +255,7 @@ if (decoded.role !== 2) {
                               <button
                                 onClick={() =>
                                   navigate(
-                                    `/mentors/mentor_profile/${mentor.mentor_id}`
+                                    `/mentors/mentor_profile/${mentor.mentor_id}`,
                                   )
                                 }
                                 className="w-full text-left px-4 py-2 hover:bg-gray-100"
@@ -350,7 +350,7 @@ if (decoded.role !== 2) {
                                     setOpenDropdownId(
                                       openDropdownId === Mentor.mentor_id
                                         ? null
-                                        : Mentor.mentor_id
+                                        : Mentor.mentor_id,
                                     );
                                   }}
                                   className="ellipsis-button text-gray-400 hover:text-gray-600"
@@ -364,7 +364,7 @@ if (decoded.role !== 2) {
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           navigate(
-                                            `/mentors/mentor_profile/${Mentor.mentor_id}`
+                                            `/mentors/mentor_profile/${Mentor.mentor_id}`,
                                           );
                                           console.log("View clicked");
                                           setOpenDropdownId(null);

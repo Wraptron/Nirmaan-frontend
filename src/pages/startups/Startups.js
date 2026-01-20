@@ -250,7 +250,7 @@ function Startups() {
                       placeholder="Search by name or founder..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full p-2 px-4 text-sm border border-gray-300 rounded-lg bg-gray-50"
+                      className="w-full p-2 px-4 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
                     />
                   </div>
                   <div>
@@ -313,7 +313,7 @@ function Startups() {
                             ×
                           </button>
                         </span>
-                      )
+                      ),
                   )}
                 </div>
               )}
@@ -336,14 +336,14 @@ function Startups() {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 navigate(
-                                  `/startups/startupprofile/${startup.startup_id}?page=${currentPage}`
+                                  `/startups/startupprofile/${startup.startup_id}?page=${currentPage}`,
                                 );
                               }}
                             >
                               <div className="flex justify-between items-center mb-3">
                                 <div
                                   className={`px-3 py-1 rounded-xl text-xs font-medium transition-all duration-200 ${getStatusColor(
-                                    startup.startup_status
+                                    startup.startup_status,
                                   )}`}
                                 >
                                   {startup.startup_status || "Status"}
@@ -356,7 +356,7 @@ function Startups() {
                                       setOpenDropdownId(
                                         openDropdownId === startup.startup_id
                                           ? null
-                                          : startup.startup_id
+                                          : startup.startup_id,
                                       );
                                     }}
                                   >
@@ -372,7 +372,7 @@ function Startups() {
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             navigate(
-                                              `/startups/startupprofile/${startup.startup_id}`
+                                              `/startups/startupprofile/${startup.startup_id}`,
                                             );
                                             setOpenDropdownId(null);
                                           }}
@@ -463,7 +463,7 @@ function Startups() {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   navigate(
-                                    `/startups/startupprofile/${startup.startup_id}?page=${currentPage}`
+                                    `/startups/startupprofile/${startup.startup_id}?page=${currentPage}`,
                                   );
                                 }}
                               >
@@ -490,7 +490,7 @@ function Startups() {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <span
                                     className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                                      startup.startup_status
+                                      startup.startup_status,
                                     )}`}
                                   >
                                     {startup.startup_status || "Status"}
@@ -504,7 +504,7 @@ function Startups() {
                                         setOpenDropdownId(
                                           openDropdownId === startup.startup_id
                                             ? null
-                                            : startup.startup_id
+                                            : startup.startup_id,
                                         );
                                       }}
                                       className="text-gray-400 hover:text-gray-600"
@@ -521,7 +521,7 @@ function Startups() {
                                             onClick={(e) => {
                                               e.stopPropagation();
                                               navigate(
-                                                `/startups/startupprofile/${startup.startup_id}`
+                                                `/startups/startupprofile/${startup.startup_id}`,
                                               );
                                               setOpenDropdownId(null);
                                             }}
@@ -533,7 +533,7 @@ function Startups() {
                                             onClick={(e) => {
                                               e.stopPropagation();
                                               setStartupData(
-                                                startup.startup_id
+                                                startup.startup_id,
                                               );
                                               setOpenEstablishPopUp(true);
                                               setOpenDropdownId(null);
