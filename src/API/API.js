@@ -1292,6 +1292,16 @@ async function ApiFetchScheduleMeetings(mentor_id) {
     console.log(err);
   }
 }
+async function ApiFetchScheduleMeetingsDetailsWithMentor() {
+  try {
+    const result = await axios.get(
+      `${API_BASE_URL}/api/v1/mentor/fetch-mentor_meeting`
+    );
+    return result.data;
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 async function ApiSaveFeedback(feedback) {
   try {
@@ -1701,6 +1711,24 @@ async function ApiDeleteFounder(founderid) {
 }
 
 // ==================== EVENTS APIs ====================
+
+async function ApiAddEvents(eventdata) {
+  try {
+    const result = await axios.post(
+      `${API_BASE_URL}/api/v1/create-events`,
+      eventdata,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+    return result.data;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
 async function ApiFetchEvents() {
   try {
     const result = await axios.get(`${API_BASE_URL}/api/v1/fetchevents`);
@@ -1709,6 +1737,19 @@ async function ApiFetchEvents() {
     console.log(err);
   }
 }
+
+async function ApiDeleteEvent(id) {
+  try {
+    const result = await axios.delete(
+      `${API_BASE_URL}/api/v1/delete-event/${id}`,
+    );
+    return result.data;
+  } catch (err) {
+    console.error("Error in ApiDeleteEvent", err);
+    throw err;
+  }
+}
+
 async function ApiAddFunding(formPayload) {
   try {
     const result = await axios.post(
@@ -1789,6 +1830,7 @@ export {
   // Meeting & Feedback APIs
   ApiScheduleMeeting,
   ApiFetchScheduleMeetings,
+  ApiFetchScheduleMeetingsDetailsWithMentor,
   ApiSaveFeedback,
   ApiUpdateFeedback,
   ApiFetchMeetingFeedback,
@@ -1825,7 +1867,9 @@ ApiIPDetails,
   ApiFetchFounder,
   ApiAddFounder,
   // Events APIs
+  ApiAddEvents,
   ApiFetchEvents,
+  ApiDeleteEvent,
   ApiAddFunding,
   ApiFetchFundingAmount,
   ApiUpdateFunding,

@@ -84,7 +84,6 @@ const ProjectFundingDetail = ({ onClose, selectedProject }) => {
                 <th className="px-4 py-2">Funding Type</th>
                 <th className="px-4 py-2">Date</th>
                 <th className="px-4 py-2">Amount</th>
-                <th className="px-4 py-2">Edit</th>
               </tr>
             </thead>
             <tbody>
@@ -108,15 +107,6 @@ const ProjectFundingDetail = ({ onClose, selectedProject }) => {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       }) || "-"}
-                    </td>
-                    <td className="px-4 py-2">
-                      <FiEdit2
-                        onClick={() => {
-                          setEditFunding(fund);
-                         handleEditFundingClick()
-                        }}
-                        className="text-[#45C74D]"
-                      />
                     </td>
                   </tr>
                 ))

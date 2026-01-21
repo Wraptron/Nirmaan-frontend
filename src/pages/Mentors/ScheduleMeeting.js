@@ -44,12 +44,15 @@ function ScheduleMeeting() {
   }, [mentor_id]);
 
   const durationOptions = ["30 mins", "1 hour", "2 hour"];
+  
+const filteredStartups = startupname
+  .filter((startup) =>
+    (startup.startup_name ?? "")
+      .toLowerCase()
+      .includes((searchTerm ?? "").toLowerCase())
+  )
+  .sort((a, b) => (a.startup_name ?? "").localeCompare(b.startup_name ?? ""));
 
-  const filteredStartups = startupname
-    .filter((startup) =>
-      startup.startup_name.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => a.startup_name.localeCompare(b.startup_name));
 
   const handleSelect = (startup) => {
     setMeetingdata((prev) => {

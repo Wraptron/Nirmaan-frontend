@@ -5,6 +5,13 @@ import { FaPeopleGroup } from 'react-icons/fa6';
 import { jwtDecode } from 'jwt-decode';
 function SideBar({ children }) {
   const currentPath = window.location.pathname;
+
+  const isMentorsActive =
+    currentPath === "/mentors" || currentPath.startsWith("/mentors/");
+
+  const isMentorshipActive =
+    currentPath === "/mentorship" || currentPath.startsWith("/mentorship/");
+
     
     const getTokenDecodedData = () => {
       try {
@@ -47,10 +54,7 @@ function SideBar({ children }) {
             </li>
             <li
               className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${
-                currentPath.startsWith("/mentors") &&
-                currentPath !== "/mentorship"
-                  ? "bg-[#45C74D] text-white rounded-xl"
-                  : ""
+                isMentorsActive ? "bg-[#45C74D] text-white rounded-xl" : ""
               }`}
             >
               <a href="/mentors" className="flex gap-5">
@@ -58,8 +62,10 @@ function SideBar({ children }) {
                 Mentors
               </a>
             </li>
-            {/* <li
-              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath.startsWith("/mentorship") && "bg-[#45C74D] text-white rounded-xl"}`}
+            <li
+              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${
+                isMentorshipActive ? "bg-[#45C74D] text-white rounded-xl" : ""
+              }`}
             >
               <a href="/mentorship" className="flex gap-5">
                 <FaBookOpen size={20} />
@@ -67,14 +73,14 @@ function SideBar({ children }) {
               </a>
             </li>
             <li
-              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/events" && "bg-[#45C74D] text-white rounded-xl"}`}
+              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath.startsWith("/events") && "bg-[#45C74D] text-white rounded-xl"}`}
             >
               <a href="/events" className="flex gap-5">
                 <FaRegCalendarCheck size={20} />
                 Events
               </a>
             </li>
-            <li
+            {/* <li
               className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/connections" && "bg-[#45C74D] text-white rounded-xl"}`}
             >
               <a href="/connections" className="flex gap-5">

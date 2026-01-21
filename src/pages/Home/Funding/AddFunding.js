@@ -177,7 +177,7 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
             <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-[#232323] mb-1">
-                  Startup Name
+                  Startup Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -204,9 +204,9 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
                   <ul className="absolute z-10 w-[24rem] p-2 text-sm text-gray-900 border border-gray-300 max-h-48 overflow-y-auto rounded-lg bg-gray-50">
                     {data
                       .filter((s) =>
-                        s.startup_name
+                        (s.startup_name ?? "")
                           .toLowerCase()
-                          .includes(formData.startup_name.toLowerCase())
+                          .includes((formData.startup_name ?? "").toLowerCase())
                       )
                       .map((startup) => (
                         <li
@@ -227,52 +227,50 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
                   </ul>
                 )}
               </div>
-              {formData.type !== "Funding Utilized" && (
-                <div>
-                  <label className="block text-sm font-medium text-[#232323] mb-1">
-                    Project Name
-                  </label>
-
-                  <input
-                    type="text"
-                    name="project_name"
-                    placeholder="Select Project name"
-                    value={formData.project_name}
-                    onFocus={() => setShowDropdown(true)}
-                    onChange={(e) => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        project_name: e.target.value,
-                      }));
-                      setShowDropdown(true);
-                    }}
-                    onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-                    className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
-                    autoComplete="off"
-                  />
-
-                  {showDropdown && Project_names.length > 0 && (
-                    <ul className="absolute z-10 w-[24rem] p-2 text-sm text-gray-900 border border-gray-300 max-h-48 overflow-y-auto rounded-lg bg-gray-50">
-                      {Project_names.filter((p) =>
-                        p
-                          .toLowerCase()
-                          .includes(formData.project_name.toLowerCase())
-                      ).map((project, index) => (
-                        <li
-                          key={index}
-                          className="px-3 py-2 cursor-pointer hover:bg-gray-100"
-                          onMouseDown={() => handleSelect(project)}
-                        >
-                          {project}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )}
               <div>
                 <label className="block text-sm font-medium text-[#232323] mb-1">
-                  Type
+                  Project Name <span className="text-red-500">*</span>
+                </label>
+
+                <input
+                  type="text"
+                  name="project_name"
+                  placeholder="Select Project name"
+                  value={formData.project_name}
+                  onFocus={() => setShowDropdown(true)}
+                  onChange={(e) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      project_name: e.target.value,
+                    }));
+                    setShowDropdown(true);
+                  }}
+                  onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+                  className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+                  autoComplete="off"
+                />
+
+                {showDropdown && Project_names.length > 0 && (
+                  <ul className="absolute z-10 w-[24rem] p-2 text-sm text-gray-900 border border-gray-300 max-h-48 overflow-y-auto rounded-lg bg-gray-50">
+                    {Project_names.filter((p) =>
+                      p
+                        .toLowerCase()
+                        .includes(formData.project_name.toLowerCase())
+                    ).map((project, index) => (
+                      <li
+                        key={index}
+                        className="px-3 py-2 cursor-pointer hover:bg-gray-100"
+                        onMouseDown={() => handleSelect(project)}
+                      >
+                        {project}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#232323] mb-1">
+                  Type <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="type"
@@ -283,18 +281,18 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
                 >
                   <option value="">Select Type</option>
                   {decoded.role === 2 ||
-                    decoded.role === 3 && (
-                        <option value="Funding Disbursed">
-                          Funding Disbursed
-                        </option>
-                      )}
+                    (decoded.role === 3 && (
+                      <option value="Funding Disbursed">
+                        Funding Disbursed
+                      </option>
+                    ))}
                   <option value="Funding Utilized">Funding Utilized</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-[#232323] mb-1">
-                  Amount
+                  Amount <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -309,7 +307,7 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
 
               <div>
                 <label className="block text-sm font-medium text-[#232323] mb-1">
-                  Status
+                  Status <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="status"
@@ -326,7 +324,7 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
 
               <div>
                 <label className="block text-sm font-medium text-[#232323] mb-1">
-                  Purpose
+                  Purpose <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -340,7 +338,7 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
 
               <div>
                 <label className="block text-sm font-medium text-[#232323] mb-1">
-                  Date
+                  Date <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
