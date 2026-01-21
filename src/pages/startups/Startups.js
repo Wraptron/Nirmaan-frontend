@@ -258,100 +258,6 @@ function Startups() {
                       <FaFilter />
                     </button>
                   </div>
-
-                  {/* PIA Filter Dropdown */}
-                  <div className="relative">
-                    <button
-                      onClick={() => setshowPIADropdown(!showPIADropdown)}
-                      className={`flex items-center gap-2 px-4 py-2 text-sm border rounded-lg transition-all ${
-                        filterPIA !== "All"
-                          ? "bg-[#45C74D] text-white border-[#45C74D]"
-                          : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <FaFilter className="text-xs" />
-                      <span>
-                        {filterPIA === "All" ? "PIA States" : filterPIA}
-                      </span>
-                      <FaChevronDown
-                        className={`text-xs transition-transform ${
-                          showPIADropdown ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
-
-                    {showPIADropdown && (
-                      <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-30 max-h-60 overflow-y-auto">
-                        {piaOptions.map((pia) => (
-                          <button
-                            key={pia}
-                            onClick={() => handlePIAFilter(pia)}
-                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                              filterPIA === pia
-                                ? "bg-[#45C74D] text-white hover:bg-[#3BAF43]"
-                                : "text-gray-700"
-                            }`}
-                          >
-                            {pia}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    {showPIADropdown && (
-                      <div
-                        className="fixed inset-0 z-20"
-                        onClick={() => setshowPIADropdown(false)}
-                      />
-                    )}
-                  </div>
-
-                  {/* Funding State Filter Dropdown */}
-                  {/* <div className="relative">
-                    <button
-                      onClick={() => setShowFundingStateDropdown(!showFundingStateDropdown)}
-                      className={`flex items-center gap-2 px-4 py-2 text-sm border rounded-lg transition-all ${
-                        filterFundingState !== "All"
-                          ? "bg-[#45C74D] text-white border-[#45C74D]"
-                          : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <FaFilter className="text-xs" />
-                      <span>
-                        {filterFundingState === "All" ? "All Funding States" : filterFundingState}
-                      </span>
-                      <FaChevronDown
-                        className={`text-xs transition-transform ${
-                          showFundingStateDropdown ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
-
-                    {showFundingStateDropdown && (
-                      <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-30 max-h-60 overflow-y-auto">
-                        {fundingStateOptions.map((state) => (
-                          <button
-                            key={state}
-                            onClick={() => handleFundingStateFilter(state)}
-                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                              filterFundingState === state
-                                ? "bg-[#45C74D] text-white hover:bg-[#3BAF43]"
-                                : "text-gray-700"
-                            }`}
-                          >
-                            {state === "All" ? "All Funding States" : state}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    {showFundingStateDropdown && (
-                      <div
-                        className="fixed inset-0 z-20"
-                        onClick={() => setShowFundingStateDropdown(false)}
-                      />
-                    )}
-                  </div> */}
                 </div>
                 <div className="flex gap-3">
                   <a
@@ -672,7 +578,7 @@ function Startups() {
                             : "bg-[#45C74D] text-white hover:bg-[#3BAF43]"
                         }`}
                       >
-                        Previous 
+                        Previous
                       </button>
                       <span className="text-sm text-gray-600">
                         Page {currentPage} of {totalPages} (
