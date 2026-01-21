@@ -105,6 +105,7 @@ const clearForm = () => {
                   >
                     <option>Select event type</option>
                     <option value="webinar">Webinar</option>
+                    <option value="conference">Conference</option>
                   </select>
                 </div>
 

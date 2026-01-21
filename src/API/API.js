@@ -1292,6 +1292,16 @@ async function ApiFetchScheduleMeetings(mentor_id) {
     console.log(err);
   }
 }
+async function ApiFetchScheduleMeetingsDetailsWithMentor() {
+  try {
+    const result = await axios.get(
+      `${API_BASE_URL}/api/v1/mentor/fetch-mentor_meeting`
+    );
+    return result.data;
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 async function ApiSaveFeedback(feedback) {
   try {
@@ -1820,6 +1830,7 @@ export {
   // Meeting & Feedback APIs
   ApiScheduleMeeting,
   ApiFetchScheduleMeetings,
+  ApiFetchScheduleMeetingsDetailsWithMentor,
   ApiSaveFeedback,
   ApiUpdateFeedback,
   ApiFetchMeetingFeedback,

@@ -1,41 +1,5 @@
-
-// import React, {useEffect, useState} from "react";
-// function Schedule({isVisible, onClose, children})
-// {
-//     const handleClose = (e) => {
-//         if(e.target.id === 'wrapper') onClose();
-//     }
-//     const [isAnimating, setIsAnimating] = useState(false);
-
-//     useEffect(()=>{
-//         if(isVisible)
-//         {
-//                 setIsAnimating(true);
-//         }
-//         else{
-//             const timer = setTimeout(()=> setIsAnimating(false), 200);
-//             return () => clearTimeout(timer);
-//         }
-//     }, [isVisible])
-
-//     if (!isAnimating && !isVisible) {
-//         return null;
-//     }
-//     return(
-//         <div className={`fixed inset-0 bg-black bg-opacity-25 backdrop-blur-xs flex justify-center items-center border-md ${isVisible ? 'animate-show' : 'animate-hide'}`}  id="wrapper" onClick={handleClose}>
-//             <div className="w-[700px]">
-//                 {/* <button className="text-white text-xl place-self-end justify-end" onClick={()=>onClose()}>X</button> */}
-//                 <div className="bg-white p-4 rounded">
-//                       {children}
-//                 </div>
-//             </div>
-//         </div>
-//     )
-// }
-// export default Schedule;
-
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import NavBar from "../../components/NavBar";
 import SideBar from "../../components/sidebar";
 import mentorsvg from "../../assets/images/Frame (11).svg";
@@ -50,7 +14,8 @@ function Schedule() {
     startup_name: "",
     startup_id: "",
     founder_name: "",
-    mentor_name:"",
+    mentor_name: "",
+    mentor_id:"",
     meeting_mode: "Virtual",
     meeting_link: "",
     meeting_location: "",
@@ -60,7 +25,6 @@ function Schedule() {
     meeting_duration: "",
     meeting_agenda: "",
   });
-  const { mentor_id } = useParams();
   const navigate = useNavigate();
 
   const fetchData = async () => {
@@ -75,7 +39,12 @@ function Schedule() {
 
         const API = await ApiFetchMentor();
         const sortedData = API.STATUS?.rows || [];
-      setMentorName(sortedData.map(row => row.mentor_name));
+      setMentorName(
+        sortedData.map((row) => ({
+          mentor_id: row.mentor_id,
+          mentor_name: row.mentor_name,
+        }))
+      );
     } catch (err) {
       console.log(err);
     }
@@ -84,15 +53,17 @@ function Schedule() {
   
   useEffect(() => {
     fetchData();
-  }, [mentor_id]);
+  }, []);
 
   const durationOptions = ["30 mins", "1 hour", "2 hour"];
 
-  const filteredStartups = startupname
-    .filter((startup) =>
-      startup.startup_name.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => a.startup_name.localeCompare(b.startup_name));
+ const filteredStartups = startupname
+   .filter((startup) =>
+     (startup.startup_name ?? "")
+       .toLowerCase()
+       .includes((searchTerm ?? "").toLowerCase()),
+   )
+   .sort((a, b) => (a.startup_name ?? "").localeCompare(b.startup_name ?? ""));
 
   const handleSelect = (startup) => {
     setMeetingdata((prev) => {
@@ -127,6 +98,25 @@ function Schedule() {
       });
     }
   };
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      const newdate = new Date(meetingdata.date).toISOString().split("T")[0];
+      const payload = {
+        mentor_reference_id:meetingdata.mentor_id,
+        ...meetingdata,
+        date: newdate, // Format date as YYYY-MM-DD
+        time: meetingdata.time + ":00",
+      };
+      try {
+        await ApiScheduleMeeting(payload);
+        navigate(`/mentorship`);
+      } catch (error) {
+        console.log("error", error);
+      }
+
+      // handleReset();
+    };
 
 
   // const handleReset = () => {
@@ -217,18 +207,26 @@ function Schedule() {
 
                 <div>
                   <label className="block font-medium mb-1">
-                    Mentor Name <span className="text-red-500">*</span>
+                    Mentor Name *
                   </label>
                   <select
-                    name="mentor_name"
-                    value={meetingdata.mentor_name}
-                    onChange={handleChange}
-                    className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+                    value={meetingdata.mentor_id}
+                    onChange={(e) => {
+                      const mentor = mentorname.find(
+                        (m) => m.mentor_id === e.target.value,
+                      );
+                      setMeetingdata((prev) => ({
+                        ...prev,
+                        mentor_id: mentor.mentor_id,
+                        mentor_name: mentor.mentor_name,
+                      }));
+                    }}
+                    className="w-full p-2 border rounded-lg"
                   >
-                    <option>Select Mentor Name</option>
-                    {mentorname.map((item, index) => (
-                      <option key={index} value={item}>
-                        {item}
+                    <option value="">Select Mentor Name</option>
+                    {mentorname.map((m) => (
+                      <option key={m.mentor_id} value={m.mentor_id}>
+                        {m.mentor_name}
                       </option>
                     ))}
                   </select>
@@ -388,6 +386,7 @@ function Schedule() {
                   <button
                     type="submit"
                     className="px-4 py-2 bg-[#45C74D] text-white rounded-lg"
+                    onClick={handleSubmit}
                   >
                     Schedule Meeting
                   </button>
