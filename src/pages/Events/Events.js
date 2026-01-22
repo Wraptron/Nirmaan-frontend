@@ -6,13 +6,14 @@ import { ApiDeleteEvent, ApiFetchEvents } from "../../API/API";
 import { FaEllipsis } from "react-icons/fa6";
 import calendersvg from "../../assets/images/Calendar.svg";
 import Clocksvg from "../../assets/images/Clock.svg";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import RequestSpeaker from "./RequestSpeaker";
 import EventDetails from "./EventDetails";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
 import { FaEllipsisV, FaSpinner } from "react-icons/fa";
 import { BsListUl } from "react-icons/bs";
 import { MdViewModule } from "react-icons/md";
+import { jwtDecode } from "jwt-decode";
 function Events() {
   const [showw, setShoww] = useState(false);
   const [events, setEvents] = useState([]);
@@ -24,13 +25,14 @@ function Events() {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState("card");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage] = useState(6);
 
   const [dropdownPosition, setDropdownPosition] = useState({
     top: 0,
     left: 0,
     placement: "bottom", // or "top"
   });
-
 
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const handleEventPopupClick = () => setShowEventPopup(true);
@@ -96,6 +98,14 @@ function Events() {
         const updateddata = events.filter((event) => event.event_id !== id);
         setEvents(updateddata);
         setOpenDropdownId(null);
+
+        const updatedEvent = updateddata.filter((event) =>
+          event.event_type.toLowerCase().includes(searchTerm.toLowerCase()),
+        );
+        const updatedTotalPages = Math.ceil(updatedEvent.length / rowsPerPage);
+        if (currentPage > updatedTotalPages && currentPage > 1) {
+          setCurrentPage(currentPage - 1);
+        }
       } else {
         toast.error("Failed to delete event.");
       }
@@ -104,99 +114,55 @@ function Events() {
     }
   };
 
-  // sorting logic
-  const handleSort = (key) => {
-      let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    setSortConfig({ key, direction });
-  };
-
-
-
   const filteredEvents = events.filter((event) =>
-    event.event_title?.toLowerCase().includes(searchTerm.toLowerCase()),
+    event.event_title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    event.event_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    event.speaker?.toLowerCase().includes(searchTerm.toLowerCase())
+    
   );
 
-  const sortedEvents = [...filteredEvents].sort((a, b) => {
-    if (!sortConfig.key) return 0;
-
-    let aValue = a[sortConfig.key];
-    let bValue = b[sortConfig.key];
-
-    // Handle different data types
-    if (sortConfig.key === "event_date" || sortConfig.key === "event_time") {
-      aValue = new Date(aValue || 0).getTime();
-      bValue = new Date(bValue || 0).getTime();
-    } else {
-      aValue = (aValue || "").toString().toLowerCase();
-      bValue = (bValue || "").toString().toLowerCase();
-    }
-
-    if (aValue < bValue) {
-      return sortConfig.direction === "asc" ? -1 : 1;
-    }
-    if (aValue > bValue) {
-      return sortConfig.direction === "asc" ? 1 : -1;
-    }
-    return 0;
-  });
-
-  // sort icon component
-const SortIcon = ({ columnKey }) => {
-  if (sortConfig.key !== columnKey) {
-    return (
-      <svg
-        className="w-4 h-4 text-gray-400"
-        fill="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path d="M12 5l-7 7h14z" />
-        <path d="M12 19l7-7H5z" />
-      </svg>
-    );
-  }
-
-  if (sortConfig.direction === "asc") {
-    return (
-      <svg
-        className="w-4 h-4 text-[#45C74D]"
-        fill="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path d="M12 5l-7 7h14z" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg
-      className="w-4 h-4 text-[#45C74D]"
-      fill="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path d="M12 19l7-7H5z" />
-    </svg>
+  const indexOfLastEvent = currentPage * rowsPerPage;
+  const indexOfFirstEvent = indexOfLastEvent - rowsPerPage;
+  const currentEvents = filteredEvents.slice(
+    indexOfFirstEvent,
+    indexOfLastEvent,
   );
-};
+  const totalPages = Math.ceil(filteredEvents.length / rowsPerPage);
+
+  const token = sessionStorage.getItem("token");
+  
+  if (!token) {
+    return <Navigate to="/" replace />;
+  }
+  
+  let decoded;
+  try {
+    decoded = jwtDecode(token);
+  } catch (err) {
+    return <Navigate to="/" replace />;
+  }
+  
+  if (decoded.role !== 2) {
+    return <Navigate to="/" replace />;
+  }
+  
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex">
       <SideBar />
-      <div className="flex flex-col flex-1 ms-[221px]">
+      <div className="ms-[221px] flex-grow">
         <NavBar />
-        <div className="bg-gray-100 flex-1 overflow-hidden">
-          <div className={`mx-10 py-5  content ${showw ? "visible" : ""}`}>
+        <div className="bg-[#f9f9f9] min-h-screen p-0">
+          <div className={`mx-10 content ${showw ? "visible" : ""}`}>
             <div className="bg-white rounded-lg shadow-sm">
               <div className="flex gap-2 text-sm p-3 text-[#808080]">
                 <div>Dashboard</div>
                 <div>{">"}</div>
                 <div>Events</div>
               </div>
-              <div className="px-3 text-lg font-semibold pt-2">All Events</div>
+              <div className="px-3 text-lg font-semibold ">All Events</div>
               <div>
-                <div className="flex flex-wrap items-center justify-between mb-3 mt-3 px-4">
+                <div className="flex flex-wrap items-center justify-between px-4">
                   {/* Search Input */}
                   <div className="relative w-96">
                     <input
@@ -258,20 +224,20 @@ const SortIcon = ({ columnKey }) => {
                 <>
                   {/* Events Grid */}
                   {viewMode === "card" && (
-                    <div className="mt-2 px-3 pb-3 overflow-y-auto max-h-[calc(100vh-250px)]">
-                      {filteredEvents.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                          {filteredEvents.map((event, index) => (
+                    <div className="max-w-7xl mx-auto px-2 mt-4 pb-4">
+                      {currentEvents.length > 0 ? (
+                        <div className="grid grid-cols-3 gap-5">
+                          {currentEvents.map((event, index) => (
                             <div
                               key={index}
                               className="shadow-lg rounded-lg border bg-white"
                             >
                               <div className="grid grid-cols-2 gap-4 px-3">
-                                <div className="flex py-2 gap-2">
+                                <div className="flex py-1 gap-2">
                                   <div className="bg-[#FFE7CC] px-2 py-1 text-sm rounded-lg text-[#FF8800]">
                                     {event.event_type}
                                   </div>
-                                  <div className="bg-[#C8DFFF] px-2 py-1 text-sm rounded-lg text-[#005FE4]">
+                                  <div className="bg-[#C8DFFF] px-1 py-1 text-sm rounded-lg text-[#005FE4]">
                                     {event.event_privacy}
                                   </div>
                                 </div>
@@ -359,7 +325,7 @@ const SortIcon = ({ columnKey }) => {
                                   {event.event_title}
                                 </div>
 
-                                <div className="flex gap-4 pt-2">
+                                <div className="flex gap-4 ">
                                   <div className="flex gap-1 items-center">
                                     <img
                                       src={calendersvg}
@@ -395,197 +361,206 @@ const SortIcon = ({ columnKey }) => {
                   )}
 
                   {viewMode === "list" && (
-                    <div className="bg-white rounded-lg shadow">
-                      <div className="max-h-[calc(100vh-250px)] overflow-y-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50 sticky top-0 z-10">
-                            <tr>
-                              <th
-                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                                onClick={() => handleSort("event_type")}
+                    <div className="bg-white rounded-lg shadow pt-5">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50 sticky top-0 z-10">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                              <div className="flex items-center gap-1">
+                                Event Type
+                              </div>
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                              <div className="flex items-center gap-1">
+                                Title
+                              </div>
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                              <div className="flex items-center gap-1">
+                                Speaker
+                              </div>
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                              <div className="flex items-center gap-1">
+                                Date
+                              </div>
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                              <div className="flex items-center gap-1">
+                                Time
+                              </div>
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Actions
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {currentEvents.length > 0 ? (
+                            currentEvents.map((event) => (
+                              <tr
+                                key={event.event_id}
+                                className="hover:bg-gray-50"
                               >
-                                <div className="flex items-center gap-1">
-                                  Event Type
-                                  <SortIcon columnKey="event_type" />
-                                </div>
-                              </th>
-                              <th
-                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                                onClick={() => handleSort("event_title")}
-                              >
-                                <div className="flex items-center gap-1">
-                                  Title
-                                  <SortIcon columnKey="event_title" />
-                                </div>
-                              </th>
-                              <th
-                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                                onClick={() => handleSort("event_speaker")}
-                              >
-                                <div className="flex items-center gap-1">
-                                  Speaker
-                                  <SortIcon columnKey="event_speaker" />
-                                </div>
-                              </th>
-                              <th
-                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                                onClick={() => handleSort("event_date")}
-                              >
-                                <div className="flex items-center gap-1">
-                                  Date
-                                  <SortIcon columnKey="event_date" />
-                                </div>
-                              </th>
-                              <th
-                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                                onClick={() => handleSort("event_time")}
-                              >
-                                <div className="flex items-center gap-1">
-                                  Time
-                                  <SortIcon columnKey="event_time" />
-                                </div>
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
-                            {sortedEvents.length > 0 ? (
-                              sortedEvents.map((event) => (
-                                <tr
-                                  key={event.event_id}
-                                  className="hover:bg-gray-50"
-                                >
-                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {event.event_type || "Event Name"}
-                                  </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {event.event_title || "Title"}
-                                  </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {event.speaker || "Speaker Name"}
-                                  </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {formatDate(event.event_date) ||
-                                      "DD/MM/YYYY"}
-                                  </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {formatTime(event.event_time) || "HR:MM"}
-                                  </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-sm relative">
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                  {event.event_type || "Event Name"}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                  {event.event_title || "Title"}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                  {event.speaker || "Speaker Name"}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                  {formatDate(event.event_date) || "DD/MM/YYYY"}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                  {formatTime(event.event_time) || "HR:MM"}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm relative">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
 
-                                        const rect =
-                                          e.currentTarget.getBoundingClientRect();
-                                        const dropdownHeight = 160; // approx height of menu
-                                        const viewportHeight =
-                                          window.innerHeight;
+                                      const rect =
+                                        e.currentTarget.getBoundingClientRect();
+                                      const dropdownHeight = 160; // approx height of menu
+                                      const viewportHeight = window.innerHeight;
 
-                                        const spaceBelow =
-                                          viewportHeight - rect.bottom;
-                                        const spaceAbove = rect.top;
+                                      const spaceBelow =
+                                        viewportHeight - rect.bottom;
+                                      const spaceAbove = rect.top;
 
-                                        const placement =
-                                          spaceBelow < dropdownHeight &&
-                                          spaceAbove > dropdownHeight
-                                            ? "top"
-                                            : "bottom";
+                                      const placement =
+                                        spaceBelow < dropdownHeight &&
+                                        spaceAbove > dropdownHeight
+                                          ? "top"
+                                          : "bottom";
 
-                                        setDropdownPosition({
-                                          top:
-                                            placement === "bottom"
-                                              ? rect.bottom + 6
-                                              : rect.top - dropdownHeight - 6,
-                                          left: rect.right - 128, // dropdown width
-                                          placement,
-                                        });
+                                      setDropdownPosition({
+                                        top:
+                                          placement === "bottom"
+                                            ? rect.bottom + 6
+                                            : rect.top - dropdownHeight - 6,
+                                        left: rect.right - 128, // dropdown width
+                                        placement,
+                                      });
 
-                                        setOpenDropdownId(
-                                          openDropdownId === event.event_id
-                                            ? null
-                                            : event.event_id,
-                                        );
+                                      setOpenDropdownId(
+                                        openDropdownId === event.event_id
+                                          ? null
+                                          : event.event_id,
+                                      );
+                                    }}
+                                    className="text-black hover:text-gray-600"
+                                  >
+                                    <FaEllipsis />
+                                  </button>
+
+                                  {openDropdownId === event.event_id && (
+                                    <div
+                                      className="fixed w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-[9999]"
+                                      style={{
+                                        top: dropdownPosition.top,
+                                        left: dropdownPosition.left,
                                       }}
-                                      className="text-black hover:text-gray-600"
+                                      onClick={(e) => e.stopPropagation()}
                                     >
-                                      <FaEllipsis />
-                                    </button>
-
-                                    {openDropdownId === event.event_id && (
-                                      <div
-                                        className="fixed w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-[9999]"
-                                        style={{
-                                          top: dropdownPosition.top,
-                                          left: dropdownPosition.left,
-                                        }}
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        <div className="py-1">
-                                          <button
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setOpenDropdownId(null);
-                                              setSelectedEvent(event);
-                                              handleEventPopupClick();
-                                            }}
-                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                          >
-                                            View
-                                          </button>
-                                          <button
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setOpenDropdownId(null);
-                                            }}
-                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                          >
-                                            Share
-                                          </button>
-                                          <button
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setOpenDropdownId(null);
-                                            }}
-                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                          >
-                                            Cancel
-                                          </button>
-                                          <button
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setSelectedEvent(event);
-                                              setOpenEstablishPopUp(true);
-                                              setOpenDropdownId(null);
-                                            }}
-                                            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                                          >
-                                            Delete
-                                          </button>
-                                        </div>
+                                      <div className="py-1">
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setOpenDropdownId(null);
+                                            setSelectedEvent(event);
+                                            handleEventPopupClick();
+                                          }}
+                                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        >
+                                          View
+                                        </button>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setOpenDropdownId(null);
+                                          }}
+                                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        >
+                                          Share
+                                        </button>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setOpenDropdownId(null);
+                                          }}
+                                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        >
+                                          Cancel
+                                        </button>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedEvent(event);
+                                            setOpenEstablishPopUp(true);
+                                            setOpenDropdownId(null);
+                                          }}
+                                          className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                        >
+                                          Delete
+                                        </button>
                                       </div>
-                                    )}
-                                  </td>
-                                </tr>
-                              ))
-                            ) : (
-                              <tr>
-                                <td
-                                  colSpan="8"
-                                  className="px-6 py-12 text-center text-gray-500"
-                                >
-                                  No data available for Events
+                                    </div>
+                                  )}
                                 </td>
                               </tr>
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
+                            ))
+                          ) : (
+                            <tr>
+                              <td
+                                colSpan="8"
+                                className="px-6 py-12 text-center text-gray-500"
+                              >
+                                No data available for Events
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
                     </div>
                   )}
                 </>
+              )}
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-4 py-2">
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                    disabled={currentPage === 1}
+                    className={`px-4 py-2 rounded-lg ${
+                      currentPage === 1
+                        ? "bg-gray-200 text-gray-500"
+                        : "bg-[#45C74D] text-white hover:bg-[#3BAF43]"
+                    }`}
+                  >
+                    Previous
+                  </button>
+                  <span className="text-sm text-gray-600">
+                    Page {currentPage} of {totalPages} ({filteredEvents.length}{" "}
+                    Events)
+                  </span>
+                  <button
+                    onClick={() =>
+                      setCurrentPage((p) => Math.min(p + 1, totalPages))
+                    }
+                    disabled={currentPage === totalPages}
+                    className={`px-4 py-2 rounded-lg ${
+                      currentPage === totalPages
+                        ? "bg-gray-200 text-gray-500"
+                        : "bg-[#45C74D] text-white hover:bg-[#3BAF43]"
+                    }`}
+                  >
+                    Next
+                  </button>
+                </div>
               )}
             </div>
           </div>

@@ -4,7 +4,7 @@ import NavBar from "../../components/NavBar";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { FaEllipsis } from "react-icons/fa6";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { GraduationCap, Briefcase, Users } from "lucide-react";
 import RequestMentor from "./RequestMentor";
 import {
@@ -17,9 +17,8 @@ import { BsListUl } from "react-icons/bs";
 import { MdViewModule } from "react-icons/md";
 import FeedbackForm from "../Mentors/FeedbackForm";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
-
-// If image is in `public/assets/images/Frame (4).svg`, use:
-const mentorImage = "/assets/images/Frame (4).svg";
+import dayjs from "dayjs";
+import { jwtDecode } from "jwt-decode";
 
 function MentorShip() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -34,7 +33,8 @@ function MentorShip() {
   const [selectedSession, setSelectedSession] = useState(null);
   const [initialFeedback, setInitialFeedback] = useState(null);
   const [showrequestmentor, setShowRequestMentor] = useState(false);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage] = useState(6);
   const navigate = useNavigate();
 
   const handleScheduleClick = () => {
@@ -115,25 +115,45 @@ function MentorShip() {
     setShowAddFeedbackForm(false);
   };
 
-    const handleDelete = async (id) => {
-      try {
-        const API = await ApiDeleteMeeting(id);
-        if (API) {
-          toast.success("Mentorship deleted successfully");
-          const updateddata = mentorship.filter((meet) => meet.meet_id !== id);
-          setMentorship(updateddata);
-          setOpenDropdownId(null);
-        } else {
-          toast.error("Failed to delete Mentorship.");
+  const handleDelete = async (id) => {
+    try {
+      const API = await ApiDeleteMeeting(id);
+      if (API) {
+        toast.success("Mentorship deleted successfully");
+        const updateddata = mentorship.filter((meet) => meet.meet_id !== id);
+        setMentorship(updateddata);
+        setOpenDropdownId(null);
+        
+        const updatedMentorship = updateddata.filter((meet) =>
+          meet.mentor_name.toLowerCase().includes(searchTerm.toLowerCase()),
+        );
+        const updatedTotalPages = Math.ceil(
+          updatedMentorship.length / rowsPerPage,
+        );
+        if (currentPage > updatedTotalPages && currentPage > 1) {
+          setCurrentPage(currentPage - 1);
         }
-      } catch (err) {
-        console.error(err);
+      } else {
+        toast.error("Failed to delete Mentorship.");
       }
-    };
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-  const filteredmentorship = mentorship.filter((m) =>
-    m.mentor_name?.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredmentorship = mentorship.filter(
+    (m) =>
+      m.mentor_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      m.start_up_name?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
+  const indexOfLastMentorship = currentPage * rowsPerPage;
+  const indexOfFirstMentorship = indexOfLastMentorship - rowsPerPage;
+  const currentMentorship = filteredmentorship.slice(
+    indexOfFirstMentorship,
+    indexOfLastMentorship,
+  );
+  const totalPages = Math.ceil(filteredmentorship.length / rowsPerPage);
 
   const formatDate = (dateString) => {
     if (!dateString) return "--";
@@ -161,85 +181,29 @@ function MentorShip() {
     return timeString.slice(0, 5);
   };
 
-  const handleSort = (key) => {
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
-    }
-    setSortConfig({ key, direction });
-  };
-
-  const sortedMentorship = [...filteredmentorship].sort((a, b) => {
-    if (!sortConfig.key) return 0;
-
-    let aValue = a[sortConfig.key];
-    let bValue = b[sortConfig.key];
-
-    // Handle different data types
-    if (sortConfig.key === "date" || sortConfig.key === "time") {
-      aValue = new Date(aValue || 0).getTime();
-      bValue = new Date(bValue || 0).getTime();
-    } else {
-      aValue = (aValue || "").toString().toLowerCase();
-      bValue = (bValue || "").toString().toLowerCase();
-    }
-
-    if (aValue < bValue) {
-      return sortConfig.direction === "asc" ? -1 : 1;
-    }
-    if (aValue > bValue) {
-      return sortConfig.direction === "asc" ? 1 : -1;
-    }
-    return 0;
-  });
-
-  // sort icon component
-  const SortIcon = ({ columnKey }) => {
-    if (sortConfig.key !== columnKey) {
-      return (
-        <svg
-          className="w-4 h-4 text-gray-400"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path d="M12 5l-7 7h14z" />
-          <path d="M12 19l7-7H5z" />
-        </svg>
-      );
-    }
-
-    if (sortConfig.direction === "asc") {
-      return (
-        <svg
-          className="w-4 h-4 text-[#45C74D]"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path d="M12 5l-7 7h14z" />
-        </svg>
-      );
-    }
-
-    return (
-      <svg
-        className="w-4 h-4 text-[#45C74D]"
-        fill="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path d="M12 19l7-7H5z" />
-      </svg>
-    );
-  };
-
+  const token = sessionStorage.getItem("token");
+  
+  if (!token) {
+    return <Navigate to="/" replace />;
+  }
+  
+  let decoded;
+  try {
+    decoded = jwtDecode(token);
+  } catch (err) {
+    return <Navigate to="/" replace />;
+  }
+  
+  if (decoded.role !== 2) {
+    return <Navigate to="/" replace />;
+  }
+  
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex">
       <SideBar />
-
-      <div className="ms-[221px] flex flex-col flex-grow overflow-hidden">
+      <div className="ms-[221px] flex-grow">
         <NavBar />
-
-        {/* Scrollable area */}
-        <div className="bg-gray-100 flex-grow overflow-y-auto">
+        <div className="bg-[#f9f9f9] min-h-screen p-0">
           <div className={`mx-10 py-5 ${showw ? "visible" : "invisible"}`}>
             <div className="bg-white rounded-lg shadow-sm">
               <div className="flex gap-2 text-sm p-3 text-[#808080]">
@@ -339,132 +303,134 @@ function MentorShip() {
                 <>
                   {/* Events Grid */}
                   {viewMode === "card" && (
-                    <div className="grid grid-cols-3 gap-10 px-3 mt-4 pb-4">
-                      {filteredmentorship.map((meeting) => (
-                        <div
-                          key={meeting.meet_id}
-                          className="border rounded-md shadow-md bg-white"
-                        >
-                          <div className="flex justify-between p-3">
-                            <div className="bg-[#D8F3D9] text-[#45C74D] text-xs px-2 rounded-lg">
-                              {meeting.status}
-                            </div>
-                            {/* Menu Button and Dropdown */}
-                            <div className="relative">
-                              <button
-                                onClick={() =>
-                                  setOpenDropdownId(
-                                    openDropdownId === meeting.meet_id
-                                      ? null
-                                      : meeting.meet_id,
-                                  )
-                                }
-                                className="ellipsis-button text-gray-400 hover:text-gray-600 focus:outline-none"
-                              >
-                                <FaEllipsis/>
-                              </button>
+                    <div className="max-w-5xl mx-auto px-2 mt-4 pb-4">
+                      <div className="grid grid-cols-3 gap-6">
+                        {currentMentorship.map((meeting) => (
+                          <div
+                            key={meeting.meet_id}
+                            className="border rounded-md shadow-md bg-white"
+                          >
+                            <div className="flex justify-between p-1">
+                              <div className="bg-[#D8F3D9] text-xs px-2 rounded-lg">
+                                {dayjs(meeting.date, "D MMM YYYY").isAfter(
+                                  dayjs(),
+                                  "day",
+                                ) ? (
+                                  <span className="text-green-600 bg-green-100 px-2 py-0.5 rounded-full text-xs font-medium">
+                                    Upcoming
+                                  </span>
+                                ) : dayjs(meeting.date, "D MMM YYYY").isSame(
+                                    dayjs(),
+                                    "day",
+                                  ) ? (
+                                  <span className="text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full text-xs font-medium">
+                                    Today
+                                  </span>
+                                ) : (
+                                  ""
+                                )}
+                              </div>
+                              {/* Menu Button and Dropdown */}
+                              <div className="relative">
+                                <button
+                                  onClick={() =>
+                                    setOpenDropdownId(
+                                      openDropdownId === meeting.meet_id
+                                        ? null
+                                        : meeting.meet_id,
+                                    )
+                                  }
+                                  className="ellipsis-button text-gray-400 hover:text-gray-600 focus:outline-none"
+                                >
+                                  <FaEllipsis />
+                                </button>
 
-                              {openDropdownId === meeting.meet_id && (
-                                <div className="dropdown-menu absolute right-0 mt-2 w-36 bg-white border rounded-md shadow-lg z-10 text-sm">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setOpenDropdownId(null);
-                                      // setSelectedEvent(event);
-                                      // handleEventPopupClick();
-                                    }}
-                                    className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                                  >
-                                    Re-Schedule
-                                  </button>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSelectedSession(meeting);
-                                      setOpenEstablishPopUp(true);
-                                      setOpenDropdownId(null);
-                                    }}
-                                    className="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600"
-                                  >
-                                    Delete
-                                  </button>
+                                {openDropdownId === meeting.meet_id && (
+                                  <div className="dropdown-menu absolute right-0 mt-2 w-36 bg-white border rounded-md shadow-lg z-10 text-sm">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenDropdownId(null);
+                                        // setSelectedEvent(event);
+                                        // handleEventPopupClick();
+                                      }}
+                                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                                    >
+                                      Re-Schedule
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedSession(meeting);
+                                        setOpenEstablishPopUp(true);
+                                        setOpenDropdownId(null);
+                                      }}
+                                      className="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600"
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex justify-between text-sm px-3 mt-3">
+                              <img
+                                src={meeting.mentor_logo}
+                                alt="Mentor"
+                                className="w-16 h-16"
+                              />
+                              <div className="text-[#45C74D] font-semibold">
+                                {meeting.time}
+                              </div>
+                            </div>
+
+                            <div className="flex justify-between border-t px-3 mt-5 mb-3 pb-2">
+                              <div>
+                                <div className="text-lg font-semibold">
+                                  {meeting.mentor_name}
                                 </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="flex justify-between text-sm px-3 mt-3">
-                            <img
-                              src={meeting.mentor_logo}
-                              alt="Mentor"
-                              className="w-20 h-20"
-                            />
-                            <div className="text-[#45C74D] font-semibold">
-                              {meeting.time}
-                            </div>
-                          </div>
-
-                          <div className="flex justify-between border-t px-3 mt-5 mb-3 pb-2">
-                            <div>
-                              <div className="text-lg font-semibold">
-                                {meeting.mentor_name}
+                                <div className="text-[#808080]">
+                                  {meeting.start_up_name}
+                                </div>
                               </div>
-                              <div className="text-[#808080]">
-                                {meeting.start_up_name}
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-xs">
-                                {formatDate(meeting.date)}
-                              </div>
-                              <div className="text-xs">
-                                {meeting.meeting_duration}
+                              <div className="text-right">
+                                <div className="text-xs">
+                                  {formatDate(meeting.date)}
+                                </div>
+                                <div className="text-xs">
+                                  {meeting.meeting_duration}
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   )}{" "}
                   {viewMode === "list" && (
-                    <div className="bg-white rounded-lg shadow overflow-y-scroll h-80">
+                    <div className="bg-white rounded-lg shadow">
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                           <tr>
-                            <th
-                              className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                              onClick={() => handleSort("mentor_name")}
-                            >
+                            <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                               <div className="flex items-center gap-1">
                                 Mentor
-                                <SortIcon columnKey="mentor_name" />
                               </div>
                             </th>
-                            <th
-                              className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                              onClick={() => handleSort("startup_name")}
-                            >
+                            <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                               <div className="flex items-center gap-1">
                                 Startup
-                                <SortIcon columnKey="startup_name" />
                               </div>
                             </th>
-                            <th
-                              className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                              onClick={() => handleSort("date")}
-                            >
+                            <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                               <div className="flex items-center gap-1">
                                 Date
-                                <SortIcon columnKey="date" />
                               </div>
                             </th>
-                            <th
-                              className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                              onClick={() => handleSort("time")}
-                            >
+                            <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                               <div className="flex items-center gap-1">
                                 Time
-                                <SortIcon columnKey="time" />
                               </div>
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-black  uppercase tracking-wider">
@@ -482,8 +448,8 @@ function MentorShip() {
                           </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                          {sortedMentorship.length > 0 ? (
-                            sortedMentorship.map((mentorship) => (
+                          {currentMentorship.length > 0 ? (
+                            currentMentorship.map((mentorship) => (
                               <tr
                                 key={mentorship.meet_id}
                                 className="hover:bg-gray-50"
@@ -504,7 +470,23 @@ function MentorShip() {
                                   {mentorship.meeting_duration || "N/A"}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                  {mentorship.status || "N/A"}
+                                  {dayjs(mentorship.date, "D MMM YYYY").isAfter(
+                                    dayjs(),
+                                    "day",
+                                  ) ? (
+                                    <span className="text-green-600 bg-green-100 px-2 py-0.5 rounded-full text-xs font-medium">
+                                      Upcoming
+                                    </span>
+                                  ) : dayjs(mentorship.date, "D MMM YYYY").isSame(
+                                      dayjs(),
+                                      "day",
+                                    ) ? (
+                                    <span className="text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full text-xs font-medium">
+                                      Today
+                                    </span>
+                                  ) : (
+                                    ""
+                                  )}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                   <button
@@ -585,6 +567,39 @@ function MentorShip() {
                     </div>
                   )}
                 </>
+              )}
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-4 py-2">
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                    disabled={currentPage === 1}
+                    className={`px-4 py-2 rounded-lg ${
+                      currentPage === 1
+                        ? "bg-gray-200 text-gray-500"
+                        : "bg-[#45C74D] text-white hover:bg-[#3BAF43]"
+                    }`}
+                  >
+                    Previous
+                  </button>
+                  <span className="text-sm text-gray-600">
+                    Page {currentPage} of {totalPages} (
+                    {filteredmentorship.length} Mentorship)
+                  </span>
+                  <button
+                    onClick={() =>
+                      setCurrentPage((p) => Math.min(p + 1, totalPages))
+                    }
+                    disabled={currentPage === totalPages}
+                    className={`px-4 py-2 rounded-lg ${
+                      currentPage === totalPages
+                        ? "bg-gray-200 text-gray-500"
+                        : "bg-[#45C74D] text-white hover:bg-[#3BAF43]"
+                    }`}
+                  >
+                    Next
+                  </button>
+                </div>
               )}
             </div>
           </div>

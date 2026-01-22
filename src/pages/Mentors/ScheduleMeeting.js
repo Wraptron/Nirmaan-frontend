@@ -4,6 +4,7 @@ import NavBar from "../../components/NavBar";
 import SideBar from "../../components/sidebar";
 import mentorsvg from "../../assets/images/Frame (11).svg";
 import { ApiFetchStartup, ApiScheduleMeeting } from "../../API/API";
+import toast from "react-hot-toast";
 
 function ScheduleMeeting() {
   const [startupname, setStartupName] = useState([]);
@@ -44,15 +45,14 @@ function ScheduleMeeting() {
   }, [mentor_id]);
 
   const durationOptions = ["30 mins", "1 hour", "2 hour"];
-  
-const filteredStartups = startupname
-  .filter((startup) =>
-    (startup.startup_name ?? "")
-      .toLowerCase()
-      .includes((searchTerm ?? "").toLowerCase())
-  )
-  .sort((a, b) => (a.startup_name ?? "").localeCompare(b.startup_name ?? ""));
 
+  const filteredStartups = startupname
+    .filter((startup) =>
+      (startup.startup_name ?? "")
+        .toLowerCase()
+        .includes((searchTerm ?? "").toLowerCase()),
+    )
+    .sort((a, b) => (a.startup_name ?? "").localeCompare(b.startup_name ?? ""));
 
   const handleSelect = (startup) => {
     setMeetingdata((prev) => {
@@ -67,24 +67,68 @@ const filteredStartups = startupname
     setShowDropdown(false);
   };
 
+  const getTodayDate = () => {
+    const now = new Date();
+    return now.toISOString().split("T")[0];
+  };
+
+  // Get current time in HH:MM format
+  const getCurrentTime = () => {
+    const now = new Date();
+    return now.toTimeString().slice(0, 5);
+  };
+
+  // Get minimum allowed time based on selected date
+  const getMinTime = () => {
+    const today = getTodayDate();
+    if (meetingdata.date === today) {
+      return getCurrentTime();
+    }
+    return "00:00";
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === "startup_name") {
+
+    if (name === "date") {
+      // When date changes, reset time if it's now invalid
+      const today = getTodayDate();
+      const currentTime = getCurrentTime();
+
+      setMeetingdata((prev) => {
+        const newData = { ...prev, date: value };
+
+        // If selecting today and current time is past the selected time, clear time
+        if (value === today && prev.time && prev.time < currentTime) {
+          newData.time = "";
+        }
+
+        return newData;
+      });
+    } else if (name === "time") {
+      // Validate time against current time if date is today
+      const today = getTodayDate();
+      if (meetingdata.date === today) {
+        const currentTime = getCurrentTime();
+        if (value < currentTime) {
+          toast.error(
+            "Cannot select a time in the past. Please choose a future time.",
+          );
+          return;
+        }
+      }
+
+      setMeetingdata((prev) => ({ ...prev, [name]: value }));
+    } else if (name === "startup_name") {
       setSearchTerm(value);
       setShowDropdown(true);
-      setMeetingdata((prev) => {
-        const updated = {
-          ...prev,
-          startup_name: value,
-          startup_id: "",
-        };
-        return updated;
-      });
+      setMeetingdata((prev) => ({
+        ...prev,
+        startup_name: value,
+        startup_id: "",
+      }));
     } else {
-      setMeetingdata((prev) => {
-        const updated = { ...prev, [name]: value };
-        return updated;
-      });
+      setMeetingdata((prev) => ({ ...prev, [name]: value }));
     }
   };
   const handleSubmit = async (e) => {
@@ -135,9 +179,12 @@ const filteredStartups = startupname
 
             {/* Heading */}
             <div className="text-lg font-semibold pt-2 flex gap-3 items-center">
-             
-                <img src={mentorsvg} alt="Back" onClick={()=>navigate(`/mentors/mentor_profile/${mentor_id}`)} />
-              
+              <img
+                src={mentorsvg}
+                alt="Back"
+                onClick={() => navigate(`/mentors/mentor_profile/${mentor_id}`)}
+              />
+
               <div className="text-lg font-semibold">Schedule New Meeting</div>
             </div>
 
@@ -279,6 +326,7 @@ const filteredStartups = startupname
                     type="date"
                     name="date"
                     value={meetingdata.date}
+                    min={getTodayDate()}
                     onChange={handleChange}
                     className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
                   />
@@ -293,6 +341,7 @@ const filteredStartups = startupname
                     type="time"
                     name="time"
                     value={meetingdata.time}
+                    min={getMinTime()}
                     onChange={handleChange}
                     className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
                   />
