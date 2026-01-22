@@ -1344,6 +1344,17 @@ async function ApiFetchMeetingFeedback(mentor_id,startup_id) {
   }
 }
 
+async function ApiDeleteMeeting(id) {
+  try {
+    const result = await axios.delete(
+      `${API_BASE_URL}/api/v1/mentor/delete-meeting/${id}`,
+    );
+    return result.data;
+  } catch (err) {
+    throw err;
+  }
+}
+
 // ==================== TESTIMONIAL APIs ====================
 async function ApiTestimonials(payload) {
   try {
@@ -1831,6 +1842,7 @@ export {
   ApiScheduleMeeting,
   ApiFetchScheduleMeetings,
   ApiFetchScheduleMeetingsDetailsWithMentor,
+  ApiDeleteMeeting,
   ApiSaveFeedback,
   ApiUpdateFeedback,
   ApiFetchMeetingFeedback,
