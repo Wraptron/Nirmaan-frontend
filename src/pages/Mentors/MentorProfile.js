@@ -461,20 +461,22 @@ function MentorProfile() {
                       {session.start_up_name} {/* Status Badge */}
                       {dayjs(session.date, "D MMM YYYY").isAfter(
                         dayjs(),
-                        "day"
+                        "day",
                       ) ? (
                         <span className="text-green-600 bg-green-100 px-2 py-0.5 rounded-full text-xs font-medium">
                           Upcoming
                         </span>
                       ) : dayjs(session.date, "D MMM YYYY").isSame(
                           dayjs(),
-                          "day"
+                          "day",
                         ) ? (
                         <span className="text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full text-xs font-medium">
                           Today
                         </span>
                       ) : (
-                        ""
+                        <span className="text-black bg-red-400 px-2 py-0.5 rounded-full text-xs font-medium">
+                          completed
+                        </span>
                       )}
                     </div>
                     <div className="text-sm text-gray-600">
@@ -499,7 +501,7 @@ function MentorProfile() {
                         >
                           {feedback.some(
                             (feed) =>
-                              String(feed.meet_id) === String(session?.meet_id)
+                              String(feed.meet_id) === String(session?.meet_id),
                           )
                             ? "View Notes"
                             : "Add Notes"}

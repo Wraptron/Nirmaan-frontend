@@ -14,6 +14,7 @@ import { FaEllipsisV, FaSpinner } from "react-icons/fa";
 import { BsListUl } from "react-icons/bs";
 import { MdViewModule } from "react-icons/md";
 import { jwtDecode } from "jwt-decode";
+import EditEvents from "./EditEvents";
 function Events() {
   const [showw, setShoww] = useState(false);
   const [events, setEvents] = useState([]);
@@ -21,6 +22,7 @@ function Events() {
   const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showrequestspeaker, setshowrequestSpeaker] = useState(false);
+  const [showediteventForm, setshowediteventForm] = useState(false);
   const [showEventPopup, setShowEventPopup] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
@@ -28,13 +30,18 @@ function Events() {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage] = useState(6);
 
+  const [dateFilter, setDateFilter] = useState("");
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
   const [dropdownPosition, setDropdownPosition] = useState({
     top: 0,
     left: 0,
     placement: "bottom", // or "top"
   });
 
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  {
+    /* Preview popup */
+  }
   const handleEventPopupClick = () => setShowEventPopup(true);
   const handleEventPopupClose = async () => {
     setShowEventPopup(false);
@@ -44,6 +51,15 @@ function Events() {
     navigate("/events/new");
   };
 
+  const handleEditEventclick = () => setshowediteventForm(true);
+  const handleEditEventclose = () => {
+    Events()
+    setshowediteventForm(false);
+  };
+
+  {
+    /* Request Speaker */
+  }
   const handlerequestspeakerclick = () => setshowrequestSpeaker(true);
   const handlerequestspeakerclose = () => {
     setshowrequestSpeaker(false);
@@ -64,6 +80,9 @@ function Events() {
     Events();
   }, []);
 
+  {
+    /* Format Date and Time */
+  }
   const formatDate = (dateString) => {
     if (!dateString) return "--";
     return new Date(dateString).toLocaleDateString("en-IN", {
@@ -85,8 +104,6 @@ function Events() {
         hour12: true,
       });
     }
-
-    // If backend sends HH:mm:ss
     return timeString.slice(0, 5);
   };
 
@@ -102,6 +119,7 @@ function Events() {
         const updatedEvent = updateddata.filter((event) =>
           event.event_type.toLowerCase().includes(searchTerm.toLowerCase()),
         );
+
         const updatedTotalPages = Math.ceil(updatedEvent.length / rowsPerPage);
         if (currentPage > updatedTotalPages && currentPage > 1) {
           setCurrentPage(currentPage - 1);
@@ -114,13 +132,28 @@ function Events() {
     }
   };
 
-  const filteredEvents = events.filter((event) =>
-    event.event_title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    event.event_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    event.speaker?.toLowerCase().includes(searchTerm.toLowerCase())
-    
-  );
+  const clearDateFilter = () => {
+    setDateFilter("");
+    setShowDatePicker(false);
+  };
 
+  // Updated filtered events with date filter
+  const filteredEvents = events.filter((event) => {
+    const matchesSearch =
+      event.event_title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      event.event_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      event.speaker?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesDate = dateFilter
+      ? formatDate(event.event_date) === formatDate(dateFilter)
+      : true;
+
+    return matchesSearch && matchesDate;
+  });
+
+  {
+    /* Pagination */
+  }
   const indexOfLastEvent = currentPage * rowsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - rowsPerPage;
   const currentEvents = filteredEvents.slice(
@@ -129,23 +162,37 @@ function Events() {
   );
   const totalPages = Math.ceil(filteredEvents.length / rowsPerPage);
 
+
+const handleUpdateEvent = (updatedEvent) => {
+  setEvents((prevEvents) =>
+    prevEvents.map((event) =>
+      event.event_id === updatedEvent.event_id ||
+      event.event_id === selectedEvent?.event_id
+        ? { ...event, ...updatedEvent, event_id: event.event_id }
+        : event,
+    ),
+  );
+};
+
+
+  {
+    /*Roke based Access */
+  }
   const token = sessionStorage.getItem("token");
-  
   if (!token) {
     return <Navigate to="/" replace />;
   }
-  
+
   let decoded;
   try {
     decoded = jwtDecode(token);
   } catch (err) {
     return <Navigate to="/" replace />;
   }
-  
+
   if (decoded.role !== 2) {
     return <Navigate to="/" replace />;
   }
-  
 
   return (
     <div className="flex">
@@ -163,17 +210,71 @@ function Events() {
               <div className="px-3 text-lg font-semibold ">All Events</div>
               <div>
                 <div className="flex flex-wrap items-center justify-between px-4">
-                  {/* Search Input */}
-                  <div className="relative w-96">
-                    <input
-                      type="text"
-                      placeholder="Search..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full px-4 text-sm border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-[#45C74D] focus:border-[#45C74D]"
-                    />
-                  </div>
+                  <div className="flex gap-4">
+                    {/* Search Input */}
+                    <div className="relative w-96">
+                      <input
+                        type="text"
+                        placeholder="Search..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full px-4 text-sm border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-[#45C74D] focus:border-[#45C74D]"
+                      />
+                    </div>
+                    <div className="flex gap-5 justify-end items-center">
+                      {/* Date Filter Button */}
+                      <div className="relative">
+                        <button
+                          onClick={() => setShowDatePicker(!showDatePicker)}
+                          className={`flex items-center gap-2 px-4 py-2 border rounded-lg text-sm font-medium transition-all ${
+                            dateFilter
+                              ? "border-[#45C74D] bg-green-50 text-[#45C74D]"
+                              : "border-gray-300 hover:border-gray-400"
+                          }`}
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                          {dateFilter
+                            ? formatDate(dateFilter)
+                            : "Filter by Date"}
+                        </button>
 
+                        {/* Date Picker Dropdown */}
+                        {showDatePicker && (
+                          <div className="absolute top-full right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-4 z-20 min-w-[250px]">
+                            <input
+                              type="date"
+                              value={dateFilter}
+                              onChange={(e) => {
+                                setDateFilter(e.target.value);
+                                setShowDatePicker(false);
+                              }}
+                              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                            />
+                            {dateFilter && (
+                              <button
+                                onClick={clearDateFilter}
+                                className="mt-3 w-full px-3 py-1.5 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg font-medium transition-colors"
+                              >
+                                Clear Filter
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                   <div className="flex gap-5 justify-end">
                     <button
                       className="border border-[#45C74D] rounded-lg p-2 text-sm"
@@ -227,9 +328,9 @@ function Events() {
                     <div className="max-w-7xl mx-auto px-2 mt-4 pb-4">
                       {currentEvents.length > 0 ? (
                         <div className="grid grid-cols-3 gap-5">
-                          {currentEvents.map((event, index) => (
+                          {currentEvents.map((event) => (
                             <div
-                              key={index}
+                              key={event.event_id}
                               className="shadow-lg rounded-lg border bg-white"
                             >
                               <div className="grid grid-cols-2 gap-4 px-3">
@@ -285,12 +386,14 @@ function Events() {
                                           </button>
                                           <button
                                             onClick={(e) => {
-                                              e.stopPropagation();
-                                              setOpenDropdownId(null);
+                                             e.stopPropagation();
+                                             setOpenDropdownId(null);
+                                             setSelectedEvent(event);
+                                             handleEditEventclick();
                                             }}
                                             className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                           >
-                                            Cancel
+                                            Edit
                                           </button>
                                           <button
                                             onClick={(e) => {
@@ -491,10 +594,12 @@ function Events() {
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             setOpenDropdownId(null);
+                                            setSelectedEvent(event);
+                                            handleEditEventclick();
                                           }}
                                           className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         >
-                                          Cancel
+                                          Edit
                                         </button>
                                         <button
                                           onClick={(e) => {
@@ -566,126 +671,18 @@ function Events() {
           </div>
         </div>
       </div>
-      {/* <AddPastEvents isVisible={openPopUp} onClose={() => setOpenpopup(false)}>
-        <h1 className="font-semibold">Add Past Events</h1>
-        <form onSubmit={SubmitAddPastEvent}>
-          <div className="grid grid-cols-2 gap-4 mt-10">
-            <div class="relative">
-              <select
-                id="countries"
-                name="event_type"
-                className="peer border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 appearance-none dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                onChange={handleChangePastEvent}
-              >
-                <option value="Webinar">Webinar</option>
-                <option value="Conference">Conference</option>
-                <option value="Seminar">Seminar</option>
-                <option value="Workshop">Workshop</option>
-                <option value="Masterclass">Masterclass</option>
-              </select>
-              <label
-                for="countries"
-                id="floatig_outlined"
-                className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-700 px-2 peer-focus:px-2 peer-focus:text-blue-500 peer-focus:dark:text-blue-500 peer-focus:dark:bg-gray-700 peer-focus:bg-white peer-focus:scale-75 peer-focus:-translate-y-6 left-2.5"
-              >
-                Event type
-              </label>
-            </div>
-            <div className="relative">
-              <input
-                onChange={handleChangePastEvent}
-                type="text"
-                id="floating_outlined"
-                className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                placeholder=" "
-                name="event_title"
-              />
-              <label
-                for="floating_outlined"
-                className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1"
-              >
-                Event title
-              </label>
-            </div>
-            <div className="relative">
-              <input
-                onChange={handleChangePastEvent}
-                type="date"
-                id="floating_outlined"
-                className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                placeholder=" "
-                name="event_date"
-              />
-              <label
-                for="floating_outlined"
-                className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1"
-              >
-                Event date
-              </label>
-            </div>
-            <div className="relative">
-              <input
-                onChange={handleChangePastEvent}
-                type="time"
-                id="floating_outlined"
-                className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 appearance-none dark:text-white dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                placeholder=" "
-                name="event_time"
-              />
-              <label
-                for="floating_outlined"
-                className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1"
-              >
-                Event time
-              </label>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 gap-4 mt-2">
-            <textarea
-              onChange={handleChangePastEvent}
-              className="border rounded-md resize-none"
-              name="event_description"
-            ></textarea>
-            <div class="relative">
-              <select
-                id="countries"
-                className="peer border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 appearance-none dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                name="select_speaker"
-                onChange={handleChangePastEvent}
-              >
-                <option disabled selected>
-                  Select Speaker
-                </option>
-                {Array.isArray(fetchedMentorData) &&
-                fetchedMentorData.length > 0
-                  ? fetchedMentorData.map((dataObj, key) => (
-                      <option key={key} value={dataObj.mentor_name}>
-                        {dataObj.mentor_name}
-                      </option>
-                    ))
-                  : null}
-              </select>
-              <label
-                for="countries"
-                id="floatig_outlined"
-                className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-700 px-2 peer-focus:px-2 peer-focus:text-blue-500 peer-focus:dark:text-blue-500 peer-focus:dark:bg-gray-700 peer-focus:bg-white peer-focus:scale-75 peer-focus:-translate-y-6 left-2.5"
-              >
-                Select Speaker
-              </label>
-            </div>
-          </div>
-          <button
-            className="text-gray-500 text-sm font-semibold mt-1 p-1 px-3 rounded-xl shadow-md flex items-center justify-center"
-            style={{ backgroundColor: "#afcdde" }}
-          >
-            Submit
-          </button>
-        </form>
-      </AddPastEvents> */}
       {showEventPopup && (
         <EventDetails
           eventdata={selectedEvent}
           onClose={handleEventPopupClose}
+        />
+      )}
+
+      {showediteventForm && (
+        <EditEvents
+          initialData={selectedEvent}
+          onClose={handleEditEventclose}
+          onUpdate={handleUpdateEvent}
         />
       )}
 

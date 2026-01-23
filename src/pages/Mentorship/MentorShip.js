@@ -10,6 +10,7 @@ import RequestMentor from "./RequestMentor";
 import {
   ApiDeleteMeeting,
   ApiFetchMeetingFeedback,
+  ApiFetchMentor,
   ApiFetchScheduleMeetingsDetailsWithMentor,
 } from "../../API/API";
 import { FaEllipsisV, FaSpinner } from "react-icons/fa";
@@ -23,6 +24,7 @@ import { jwtDecode } from "jwt-decode";
 function MentorShip() {
   const [searchTerm, setSearchTerm] = useState("");
   const [mentorship, setMentorship] = useState([]);
+  const [mentorCount,setMentorCount]=useState([])
   const [loading, setLoading] = useState(false);
   const [showw, setShoww] = useState(false);
   const [viewMode, setViewMode] = useState("card");
@@ -34,6 +36,8 @@ function MentorShip() {
   const [initialFeedback, setInitialFeedback] = useState(null);
   const [showrequestmentor, setShowRequestMentor] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [dateFilter, setDateFilter] = useState("");
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [rowsPerPage] = useState(6);
   const navigate = useNavigate();
 
@@ -51,6 +55,10 @@ function MentorShip() {
       setLoading(true);
       const response = await ApiFetchScheduleMeetingsDetailsWithMentor();
       setMentorship(response);
+
+      const API = await ApiFetchMentor();
+      const MentorData = API.STATUS.rows;
+      setMentorCount(MentorData);
 
       const feedbackPromises = response.map((meet) =>
         ApiFetchMeetingFeedback(
@@ -77,14 +85,14 @@ function MentorShip() {
     {
       id: 1,
       icon: <GraduationCap className="w-5 h-5" />,
-      value: "30,000",
+      value: mentorship.length,
       label: "No. of Abhyasa Sessions Conducted",
       badgeColor: "bg-green-100 text-green-700",
     },
     {
       id: 2,
       icon: <Briefcase className="w-5 h-5" />,
-      value: "14,700",
+      value: mentorCount.length,
       label: "No. of Venture capitalist Mentors",
       badgeColor: "bg-red-100 text-red-700",
     },
@@ -123,7 +131,7 @@ function MentorShip() {
         const updateddata = mentorship.filter((meet) => meet.meet_id !== id);
         setMentorship(updateddata);
         setOpenDropdownId(null);
-        
+
         const updatedMentorship = updateddata.filter((meet) =>
           meet.mentor_name.toLowerCase().includes(searchTerm.toLowerCase()),
         );
@@ -140,20 +148,6 @@ function MentorShip() {
       console.error(err);
     }
   };
-
-  const filteredmentorship = mentorship.filter(
-    (m) =>
-      m.mentor_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      m.start_up_name?.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
-  const indexOfLastMentorship = currentPage * rowsPerPage;
-  const indexOfFirstMentorship = indexOfLastMentorship - rowsPerPage;
-  const currentMentorship = filteredmentorship.slice(
-    indexOfFirstMentorship,
-    indexOfLastMentorship,
-  );
-  const totalPages = Math.ceil(filteredmentorship.length / rowsPerPage);
 
   const formatDate = (dateString) => {
     if (!dateString) return "--";
@@ -181,23 +175,48 @@ function MentorShip() {
     return timeString.slice(0, 5);
   };
 
+  const clearDateFilter = () => {
+    setDateFilter("");
+    setShowDatePicker(false);
+  };
+
+  const filteredmentorship = mentorship.filter((m) => {
+    const matchesSearch =
+      m.mentor_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      m.start_up_name?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesDate = dateFilter
+      ? formatDate(m.date) === formatDate(dateFilter)
+      : true;
+
+    return matchesSearch && matchesDate;
+  });
+
+  const indexOfLastMentorship = currentPage * rowsPerPage;
+  const indexOfFirstMentorship = indexOfLastMentorship - rowsPerPage;
+  const currentMentorship = filteredmentorship.slice(
+    indexOfFirstMentorship,
+    indexOfLastMentorship,
+  );
+  const totalPages = Math.ceil(filteredmentorship.length / rowsPerPage);
+
   const token = sessionStorage.getItem("token");
-  
+
   if (!token) {
     return <Navigate to="/" replace />;
   }
-  
+
   let decoded;
   try {
     decoded = jwtDecode(token);
   } catch (err) {
     return <Navigate to="/" replace />;
   }
-  
+
   if (decoded.role !== 2) {
     return <Navigate to="/" replace />;
   }
-  
+
   return (
     <div className="flex">
       <SideBar />
@@ -229,7 +248,9 @@ function MentorShip() {
                       </div>
 
                       {/* Number */}
-                      <h3 className="text-2xl font-bold mt-1">{item.value}</h3>
+                      <h3 className="text-2xl font-bold mt-1">
+                        {item.value}
+                      </h3>
 
                       {/* Label */}
                       <p className="text-sm text-gray-600 mt-1">{item.label}</p>
@@ -241,25 +262,79 @@ function MentorShip() {
               <div className="mt-1 text-xl px-3 font-semibold">
                 All Mentorship
               </div>
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-3 mt-3 px-4">
+                {/*Search + Filter */}
+                <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+                  {/* Search */}
+                  <div className="relative w-96">
+                    <input
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="Search..."
+                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-[#45C74D] focus:border-[#45C74D]"
+                    />
+                  </div>
 
-              <div className="flex flex-wrap items-center justify-between mb-3 mt-3 px-4">
-                <div className="relative w-full md:w-1/2">
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search..."
-                    className="w-full px-4 text-sm border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-[#45C74D] focus:border-[#45C74D]"
-                  />
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"></div>
+                  {/* Date Filter */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowDatePicker(!showDatePicker)}
+                      className={`flex items-center gap-2 px-4 py-2 border rounded-lg text-sm font-medium transition-all ${
+                        dateFilter
+                          ? "border-[#45C74D] bg-green-50 text-[#45C74D]"
+                          : "border-gray-300 hover:border-gray-400"
+                      }`}
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                      {dateFilter ? formatDate(dateFilter) : "Filter by Date"}
+                    </button>
+
+                    {showDatePicker && (
+                      <div className="absolute top-full left-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-4 z-20 min-w-[250px]">
+                        <input
+                          type="date"
+                          value={dateFilter}
+                          onChange={(e) => {
+                            setDateFilter(e.target.value);
+                            setShowDatePicker(false);
+                          }}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                        />
+                        {dateFilter && (
+                          <button
+                            onClick={clearDateFilter}
+                            className="mt-3 w-full px-3 py-1.5 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg font-medium"
+                          >
+                            Clear Filter
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="flex gap-5 justify-end">
+
+                {/* Actions + View Toggle */}
+                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
                   <button
-                    className="border border-[#45C74D] rounded-lg p-2 text-sm"
+                    className="border border-[#45C74D] rounded-lg px-4 py-2 text-sm"
                     onClick={handleRequestMentorClick}
                   >
                     Request Mentor
                   </button>
+
                   <button
                     className="bg-[#45C74D] text-white px-4 py-2 rounded-lg text-sm font-semibold"
                     onClick={handleScheduleClick}
@@ -270,23 +345,22 @@ function MentorShip() {
                   <div className="flex gap-2 border border-gray-300 rounded-lg p-1 bg-white">
                     <button
                       onClick={() => setViewMode("card")}
-                      className={`p-2 rounded transition-all ${
+                      className={`p-2 rounded ${
                         viewMode === "card"
                           ? "bg-[#45C74D] text-white"
                           : "text-gray-600 hover:bg-gray-100"
                       }`}
-                      title="Card View"
                     >
                       <MdViewModule />
                     </button>
+
                     <button
                       onClick={() => setViewMode("list")}
-                      className={`p-2 rounded transition-all ${
+                      className={`p-2 rounded ${
                         viewMode === "list"
                           ? "bg-[#45C74D] text-white"
                           : "text-gray-600 hover:bg-gray-100"
                       }`}
-                      title="List View"
                     >
                       <BsListUl />
                     </button>
@@ -311,7 +385,7 @@ function MentorShip() {
                             className="border rounded-md shadow-md bg-white"
                           >
                             <div className="flex justify-between p-1">
-                              <div className="bg-[#D8F3D9] text-xs px-2 rounded-lg">
+                              <div className="text-xs px-2 pt-2 rounded-lg">
                                 {dayjs(meeting.date, "D MMM YYYY").isAfter(
                                   dayjs(),
                                   "day",
@@ -327,7 +401,9 @@ function MentorShip() {
                                     Today
                                   </span>
                                 ) : (
-                                  ""
+                                  <span className="text-black bg-red-400 px-2 py-0.5 rounded-full text-xs font-medium">
+                                    completed
+                                  </span>
                                 )}
                               </div>
                               {/* Menu Button and Dropdown */}
@@ -477,15 +553,17 @@ function MentorShip() {
                                     <span className="text-green-600 bg-green-100 px-2 py-0.5 rounded-full text-xs font-medium">
                                       Upcoming
                                     </span>
-                                  ) : dayjs(mentorship.date, "D MMM YYYY").isSame(
-                                      dayjs(),
-                                      "day",
-                                    ) ? (
+                                  ) : dayjs(
+                                      mentorship.date,
+                                      "D MMM YYYY",
+                                    ).isSame(dayjs(), "day") ? (
                                     <span className="text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full text-xs font-medium">
                                       Today
                                     </span>
                                   ) : (
-                                    ""
+                                    <span className="text-black bg-red-400 px-2 py-0.5 rounded-full text-xs font-medium">
+                                      completed
+                                    </span>
                                   )}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

@@ -1749,6 +1749,22 @@ async function ApiFetchEvents() {
   }
 }
 
+async function ApiUpdateEvent(payload) {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/api/v1//edit-event`,
+      payload,
+       {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      } );
+    return response.data;
+  } catch (error) {
+    throw new Error("Failed to update event details");
+  }
+}   
+
 async function ApiDeleteEvent(id) {
   try {
     const result = await axios.delete(
@@ -1881,6 +1897,7 @@ ApiIPDetails,
   // Events APIs
   ApiAddEvents,
   ApiFetchEvents,
+  ApiUpdateEvent,
   ApiDeleteEvent,
   ApiAddFunding,
   ApiFetchFundingAmount,
