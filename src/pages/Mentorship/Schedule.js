@@ -26,6 +26,7 @@ function Schedule() {
     meeting_agenda: "",
   });
   const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
 
   const fetchData = async () => {
     try {
@@ -98,9 +99,53 @@ function Schedule() {
       });
     }
   };
+    const validate = () => {
+  let newErrors = {};
 
+  if (!meetingdata.startup_id) {
+    newErrors.startup_name = "Startup name is required";
+  }
+
+  if (!meetingdata.founder_name.trim()) {
+    newErrors.founder_name = "Founder name is required";
+  }
+
+  if (!meetingdata.mentor_id) {
+    newErrors.mentor_id = "Mentor name is required";
+  }
+
+  if (!meetingdata.date) {
+    newErrors.date = "Date is required";
+  }
+
+  if (!meetingdata.time) {
+    newErrors.time = "Time is required";
+  }
+
+  if (!meetingdata.meeting_duration) {
+    newErrors.meeting_duration = "Meeting duration is required";
+  }
+
+  if (
+    meetingdata.meeting_mode === "Virtual" &&
+    !meetingdata.meeting_link.trim()
+  ) {
+    newErrors.meeting_link = "Meeting link is required";
+  }
+
+  if (
+    meetingdata.meeting_mode === "In Person" &&
+    !meetingdata.meeting_location.trim()
+  ) {
+    newErrors.meeting_location = "Meeting location is required";
+  }
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
     const handleSubmit = async (e) => {
       e.preventDefault();
+      if (!validate()) return;
       const newdate = new Date(meetingdata.date).toISOString().split("T")[0];
       const payload = {
         mentor_reference_id:meetingdata.mentor_id,
@@ -173,7 +218,11 @@ function Schedule() {
                     onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
                     className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
                   />
-
+                  {errors.startup_name && (
+  <p className="text-red-500 text-sm mt-1">
+    {errors.startup_name}
+  </p>
+)}
                   {showDropdown && filteredStartups.length > 0 && (
                     <ul className="absolute w-[27rem] p-2 text-sm text-gray-900 border border-gray-300 max-h-48 overflow-y-auto rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]">
                       {filteredStartups.map((startup) => (
@@ -195,14 +244,19 @@ function Schedule() {
                     Founder/Team Member Name{" "}
                     <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
-                    name="founder_name"
-                    value={meetingdata.founder_name}
-                    onChange={handleChange}
-                    placeholder="Enter name"
-                    className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
-                  />
+<input
+  type="text"
+  name="founder_name"
+  value={meetingdata.founder_name}
+  onChange={handleChange}
+  placeholder="Enter name"
+  className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+/>
+{errors.founder_name && (
+  <p className="text-red-500 text-sm mt-1">
+    {errors.founder_name}
+  </p>
+)}
                 </div>
 
                 <div>
@@ -230,6 +284,11 @@ function Schedule() {
                       </option>
                     ))}
                   </select>
+                  {errors.mentor_id && (
+  <p className="text-red-500 text-sm mt-1">
+    {errors.mentor_id}
+  </p>
+)}
                 </div>
 
                 {/* Meeting Mode */}
@@ -270,29 +329,39 @@ function Schedule() {
                       <label className="block font-medium mb-1">
                         Meeting Link <span className="text-red-500">*</span>
                       </label>
-                      <input
-                        type="text"
-                        name="meeting_link"
-                        value={meetingdata.meeting_link}
-                        onChange={handleChange}
-                        placeholder="Enter virtual meeting link"
-                        className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
-                      />
+<input
+  type="text"
+  name="meeting_link"
+  value={meetingdata.meeting_link}
+  onChange={handleChange}
+  placeholder="Enter virtual meeting link"
+  className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+/>
+{errors.meeting_link && (
+  <p className="text-red-500 text-sm mt-1">
+    {errors.meeting_link}
+  </p>
+)}
                     </>
                   ) : (
                     <>
                       <label className="block font-medium mb-1">
                         Meeting Location <span className="text-red-500">*</span>
                       </label>
-                      <input
-                        type="text"
-                        name="meeting_location"
-                        value={meetingdata.meeting_location}
-                        onChange={handleChange}
-                        placeholder="Enter meeting location"
-                        className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
-                      />
-                    </>
+  <input
+    type="text"
+    name="meeting_location"
+    value={meetingdata.meeting_location}
+    onChange={handleChange}
+    placeholder="Enter meeting location"
+    className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+  />
+  {errors.meeting_location && (
+    <p className="text-red-500 text-sm mt-1">
+      {errors.meeting_location}
+    </p>
+  )}
+</>
                   )}
                 </div>
 
@@ -315,13 +384,18 @@ function Schedule() {
                     <label className="block font-medium mb-1">
                       Date <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="date"
-                      name="date"
-                      value={meetingdata.date}
-                      onChange={handleChange}
-                      className=" w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
-                    />
+<input
+  type="date"
+  name="date"
+  value={meetingdata.date}
+  onChange={handleChange}
+  className=" w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+/>
+{errors.date && (
+  <p className="text-red-500 text-sm mt-1">
+    {errors.date}
+  </p>
+)}
                   </div>
 
                   {/* Time */}
@@ -329,13 +403,18 @@ function Schedule() {
                     <label className="block font-medium mb-1">
                       Time <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="time"
-                      name="time"
-                      value={meetingdata.time}
-                      onChange={handleChange}
-                      className="w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
-                    />
+<input
+  type="time"
+  name="time"
+  value={meetingdata.time}
+  onChange={handleChange}
+  className="w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+/>
+{errors.time && (
+  <p className="text-red-500 text-sm mt-1">
+    {errors.time}
+  </p>
+)}
                   </div>
                 </div>
 
@@ -357,6 +436,11 @@ function Schedule() {
                       </option>
                     ))}
                   </select>
+                  {errors.meeting_duration && (
+  <p className="text-red-500 text-sm mt-1">
+    {errors.meeting_duration}
+  </p>
+)}
                 </div>
               </div>
 
