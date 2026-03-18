@@ -90,6 +90,27 @@ function SideBar({ children }) {
             </li> */}
             {/* <li className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/reports" && "bg-[#45C74D] text-white rounded-xl"}`}><a href="/reports" className="flex gap-5"><FaRegFile size={20} />Reports</a></li> */}
           </ul>
+        ) : tokenDecodedData.role === 6 ? (
+          (() => {
+            const mentorId = sessionStorage.getItem("mentor_id") || tokenDecodedData.mentor_id;
+            return (
+              <ul className="py-5 px-8">
+                <li
+                  className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 mt-2 ${
+                    mentorId && currentPath === `/mentors/mentor_profile/${mentorId}` &&
+                    "bg-[#45C74D] text-white rounded-xl"
+                  }`}
+                >
+                  <a
+                    href={mentorId ? `/mentors/mentor_profile/${mentorId}` : "#"}
+                    className="flex gap-5"
+                  >
+                    <FaChartPie size={20} /> My Profile
+                  </a>
+                </li>
+              </ul>
+            );
+          })()
         ) : (
           <ul className="py-5 px-8">
             <li

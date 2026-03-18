@@ -104,16 +104,17 @@ function Login() {
             {
                 const accessToken = response.data.result.accessToken;
                 const userRole = response.data.result.role;
-                const startup_id  = response.data.result.startup_id
-                
-                // console.log('Login response:', response.data);
-                // console.log('User role:', userRole);
+                const startup_id  = response.data.result.startup_id;
+                const mentor_id = response.data.result.mentor_id;
                 
                 // Store token and role
                 localStorage.setItem('token', accessToken);
                 sessionStorage.setItem('token', accessToken);
                 sessionStorage.setItem('role', userRole);
-                sessionStorage.setItem('startup_id', startup_id);
+                sessionStorage.setItem('startup_id', startup_id || '');
+                if (mentor_id != null && mentor_id !== undefined) {
+                    sessionStorage.setItem('mentor_id', String(mentor_id));
+                }
                 
                 setError('');
                 setLoading(false);
@@ -121,8 +122,11 @@ function Login() {
                 // Navigate based on role
                 if(userRole === 5) // Student role
                 {
-                    // console.log('Navigating to startup profile for user:', startup_id);
                     navigate(`/startups/startupprofile/${startup_id}`);
+                }
+                else if(userRole === 6) // Mentor role - show only that mentor's profile
+                {
+                    navigate(`/mentors/mentor_profile/${mentor_id}`);
                 }
                 else if(userRole === 2) // Admin role
                 {

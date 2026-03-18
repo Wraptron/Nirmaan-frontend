@@ -224,9 +224,9 @@ function App() {
           {/* Admin Only Routes (Role: 2) */}
           <Route element={<ProtectedRoutes allowedRoles={["2"]} />}>
             <Route path="/home" element={<Home />} />
-            <Route path="/home/ipcreated" element={<IpCreated/>} />
-            <Route path="/home/pia" element={<PIADetails/>} />
-            <Route path="/home/iitmic" element={<IITMICDetails/>} />
+            <Route path="/home/ipcreated" element={<IpCreated />} />
+            <Route path="/home/pia" element={<PIADetails />} />
+            <Route path="/home/iitmic" element={<IITMICDetails />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/startups/addstartup" element={<AddStartup />} />
             <Route path="/startups" element={<Startups />} />
@@ -248,10 +248,7 @@ function App() {
               path="/mentors/scheduleMeeting/:mentor_id"
               element={<ScheduleMeeting />}
             />
-            <Route
-              path="/mentors/mentor_profile/:id"
-              element={<MentorProfile />}
-            />
+
             <Route path="/reports" element={<Reports />} />
             <Route path="/uploads" element={<UploadFile />} />
             <Route path="/view/uploads" element={<ViewComponents />} />
@@ -273,6 +270,18 @@ function App() {
             <Route
               path="/startups/startupprofile/:startup_id"
               element={<Startupprofile />}
+            />
+            <Route
+              path="/events/request-speaker"
+              element={<RequestSpeaker />}
+            />
+          </Route>
+
+          {/* Mentor Profile Routes (Admin: 2 + Mentor: 6) */}
+          <Route element={<ProtectedRoutes allowedRoles={["2", "6"]} />}>
+            <Route
+              path="/mentors/mentor_profile/:id"
+              element={<MentorProfile />}
             />
             <Route
               path="/events/request-speaker"

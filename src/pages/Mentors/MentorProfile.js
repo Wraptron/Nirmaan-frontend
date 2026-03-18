@@ -36,6 +36,11 @@ import FeedbackForm from "./FeedbackForm";
 
 function MentorProfile() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const userRole = sessionStorage.getItem("role");
+  const loggedInMentorId = sessionStorage.getItem("mentor_id");
+  const isMentorView = userRole === "6"; // Mentor sees only own profile
+
   const [mentor, setMentor] = useState(null);
   const [meeting, setMeeting] = useState([]);
 
@@ -57,7 +62,6 @@ function MentorProfile() {
   const [showEditModal, setShowEditModal] = useState(false);
   const navigationPrevRef = useRef(null);
   const navigationNextRef = useRef(null);
-  const navigate = useNavigate();
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
@@ -123,6 +127,14 @@ function MentorProfile() {
       console.error("Error fetching mentor data:", err);
     }
   };
+
+  // Mentor (role 6) can only view their own profile; redirect if URL id differs
+  useEffect(() => {
+    if (isMentorView && loggedInMentorId && String(id) !== String(loggedInMentorId)) {
+      navigate(`/mentors/mentor_profile/${loggedInMentorId}`, { replace: true });
+      return;
+    }
+  }, [id, isMentorView, loggedInMentorId, navigate]);
 
   useEffect(() => {
     FetchData();
@@ -287,17 +299,19 @@ function MentorProfile() {
         <div className="ml-5 max-w-5xl">
           <div className="flex items-center mb-4">
             <p className="text-sm text-gray-600">
-              Dashboard &gt; Mentors &gt; Profile
+              {isMentorView ? "My Profile" : "Dashboard &gt; Mentors &gt; Profile"}
             </p>
           </div>
           <div className="flex items-center mb-6">
-            <button
-              onClick={() => navigate("/mentors")}
-              className="mr-2 p-2 rounded-full hover:bg-gray-200"
-            >
-              <FaChevronLeft className="w-5 h-5" />
-            </button>
-            <h1 className="text-xl font-bold">Mentor profile</h1>
+            {!isMentorView && (
+              <button
+                onClick={() => navigate("/mentors")}
+                className="mr-2 p-2 rounded-full hover:bg-gray-200"
+              >
+                <FaChevronLeft className="w-5 h-5" />
+              </button>
+            )}
+            <h1 className="text-xl font-bold">{isMentorView ? "My Mentor Profile" : "Mentor profile"}</h1>
           </div>
 
           {/* Profile Header */}

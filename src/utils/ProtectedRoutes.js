@@ -2,9 +2,10 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
-function ProtectedRoutes({ requiredRoles = [] }) {
+function ProtectedRoutes({ requiredRoles = [], allowedRoles = [] }) {
   const token = sessionStorage.getItem('token');
   const role = sessionStorage.getItem('role');
+  const roles = requiredRoles?.length ? requiredRoles : allowedRoles;
 
   // If token or role is missing, redirect to login
   if (!token || !role) {
@@ -12,7 +13,7 @@ function ProtectedRoutes({ requiredRoles = [] }) {
   }
 
   // If role is not in the allowed roles, redirect to login
-  if (requiredRoles.length > 0 && !requiredRoles.includes(role)) {
+  if (roles.length > 0 && !roles.includes(role)) {
     return <Navigate to="/" replace />;
   }
 
