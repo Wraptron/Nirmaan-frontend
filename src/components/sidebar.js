@@ -1,7 +1,7 @@
 import React from 'react'
 import { FaChartPie, FaRocket, FaChalkboardTeacher, FaBookOpen, FaRegCalendarCheck } from 'react-icons/fa';
 import nirmaanlogo from '../assets/images/nirmaan-iitm.14fdf833.svg';
-import { FaPeopleGroup } from 'react-icons/fa6';
+import { FaPeopleGroup, FaRegFile } from 'react-icons/fa6';
 import { jwtDecode } from 'jwt-decode';
 function SideBar({ children }) {
   const currentPath = window.location.pathname;
@@ -88,7 +88,7 @@ function SideBar({ children }) {
                 Connections
               </a>
             </li> */}
-            {/* <li className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/reports" && "bg-[#45C74D] text-white rounded-xl"}`}><a href="/reports" className="flex gap-5"><FaRegFile size={20} />Reports</a></li> */}
+            <li className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/reports" && "bg-[#45C74D] text-white rounded-xl"}`}><a href="/reports" className="flex gap-5"><FaRegFile size={20} />Reports</a></li>
           </ul>
         ) : tokenDecodedData.role === 6 ? (
           (() => {

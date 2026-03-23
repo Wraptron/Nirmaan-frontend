@@ -221,7 +221,7 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/like" element={<OfficeHome />} />
 
-          {/* Admin Only Routes (Role: 2) */}
+          {/* Admin Routes (Role: 2) */}
           <Route element={<ProtectedRoutes allowedRoles={["2"]} />}>
             <Route path="/home" element={<Home />} />
             <Route path="/home/ipcreated" element={<IpCreated />} />
