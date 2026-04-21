@@ -1,12 +1,12 @@
 // API Configuration
-const isDevelopment = process.env.NODE_ENV === "production";
+// const isDevelopment = process.env.NODE_ENV === "production";
 
-const API_URLS = {
-  // DEVELOPMENT: "http://localhost:3003/api/v1/",
-  PRODUCTION: "http://nirmaan-api-newalb-659762370.ap-south-1.elb.amazonaws.com/api/v1/",
-};
+// const API_URLS = {
+//   // DEVELOPMENT: "http://localhost:3003/api/v1/",
+//   PRODUCTION: "http://nirmaan-api-newalb-659762370.ap-south-1.elb.amazonaws.com/api/v1/",
+// };
 
-const APP_URL = isDevelopment ? API_URLS.DEVELOPMENT : API_URLS.PRODUCTION;
+const APP_URL = "http://nirmaan-api-newalb-659762370.ap-south-1.elb.amazonaws.com/api/v1/";
 
 console.log(`Using API URL: ${APP_URL} (${isDevelopment ? "Development" : "Production"} mode)`);
 
