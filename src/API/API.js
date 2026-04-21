@@ -1005,14 +1005,14 @@ import axios from "axios";
 // ==================== CONFIGURATION ====================
 // const isDevelopment = process.env.NODE_ENV === "production";
 
-// // API Base URLs
-// const API_URLS = {
-//   // DEVELOPMENT: "http://localhost:3003",
-//   PRODUCTION: "http://nirmaan-api-newalb-659762370.ap-south-1.elb.amazonaws.com",
-// };
+// API Base URLs
+const API_URLS = {
+  // DEVELOPMENT: "http://localhost:3003",
+  PRODUCTION: "http://nirmaan-api-newalb-659762370.ap-south-1.elb.amazonaws.com",
+};
 
 // Current API Base URL based on environment
-const API_BASE_URL = "http://nirmaan-api-newalb-659762370.ap-south-1.elb.amazonaws.com";
+const API_BASE_URL = isDevelopment ? API_URLS.DEVELOPMENT : API_URLS.PRODUCTION;
 
 // Alternative: You can also use environment variables
 // const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || (isDevelopment ? API_URLS.DEVELOPMENT : API_URLS.PRODUCTION);
