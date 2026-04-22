@@ -1437,6 +1437,34 @@ async function ApiFetchStartup() {
     throw error;
   }
 }
+
+async function ApiFetchStartupById(id) {
+  try {
+    const token = sessionStorage.getItem("token");
+    console.log("[API] ApiFetchStartupById request", {
+      id,
+      hasToken: !!token,
+      url: `${API_BASE_URL}/api/v1/startup/${id}`,
+    });
+    const result = await axios.get(`${API_BASE_URL}/api/v1/startup/${id}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    console.log("[API] ApiFetchStartupById success", {
+      status: result?.status,
+      dataKeys: Object.keys(result?.data || {}),
+    });
+    return result.data;
+  } catch (error) {
+    console.error("[API] ApiFetchStartupById error", {
+      message: error?.message,
+      status: error?.response?.status,
+      data: error?.response?.data,
+      url: error?.config?.url,
+      hasAuthHeader: !!error?.config?.headers?.Authorization,
+    });
+    throw error;
+  }
+}
 async function ApiFetchStartupCount() {
   try {
     const result = await axios.get(`${API_BASE_URL}/api/v1/count-startupdata`);
@@ -1872,6 +1900,7 @@ export {
   // Startup APIs
   ApiAddStartup,
   ApiFetchStartup,
+  ApiFetchStartupById,
   ApiFetchStartupCount,
   ApiDeletStartupData,
   ApiUpdateStartupFounder,
