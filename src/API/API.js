@@ -1003,7 +1003,7 @@
 import axios from "axios";
 
 // ==================== CONFIGURATION ====================
-// const isDevelopment = process.env.NODE_ENV === "production";
+const isDevelopment = process.env.NODE_ENV === "development";
 
 const API_URLS = {
   DEVELOPMENT: "http://localhost:3003",
