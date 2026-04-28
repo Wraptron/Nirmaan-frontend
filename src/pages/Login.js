@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import "@fontsource/open-sans";
 import '@fontsource/josefin-sans';
 import image from '../assets/images/nirmaan-iitm.14fdf833.svg';
@@ -22,6 +22,17 @@ function Login() {
     const [icon, setIcon] = useState(eyeOff);
     const [type, setType] = useState('password');
     const [loading, setLoading] = useState(false); 
+    const [forgotPasswordData, setForgotPasswordData] = useState({
+        email: '',
+        otp: '',
+        newPassword: '',
+        confirmPassword: ''
+    });
+    const [forgotStepVisible, setForgotStepVisible] = useState(false);
+    const [forgotLoading, setForgotLoading] = useState(false);
+    const [otpSent, setOtpSent] = useState(false);
+    const [otpTimer, setOtpTimer] = useState(0);
+    const [resendTimer, setResendTimer] = useState(0);
     
     const handleToggle = () => {
         if(type==='password')
@@ -36,44 +47,110 @@ function Login() {
         }
     }
     
+    useEffect(() => {
+        if (!otpSent) {
+            return undefined;
+        }
+
+        const timerInterval = setInterval(() => {
+            setOtpTimer((previous) => (previous > 0 ? previous - 1 : 0));
+            setResendTimer((previous) => (previous > 0 ? previous - 1 : 0));
+        }, 1000);
+
+        return () => clearInterval(timerInterval);
+    }, [otpSent]);
+
     const handleForgotPassword = () => {
-        alertify.prompt('Email:', '')
-            .set({
-                'onshow': function() {
-                    this.setContent('<input type="email" id="email_prompt" name="email_prompt" style="width: 100%;">');
-                },
-                'title': 'Forgot Password',
-                'type': 'text',
-                'size': 'large',
-                'width': '100%',
-                'onok': async function(event, value){
-                    var data = document.getElementById('email_prompt').value;
-                    var datajson = {'email_prompt': data};
-                    try
-                    {
-                        const response  = await axios.post(APP_URL + 'forgot-password', datajson);
-                        if(response.data.Email_status === "exists")
-                        {
-                            alertify.success('Email sent!');
-                        }
-                        else if(response.data.Email_status === "Email does not exist! please provide valid email address")
-                        {
-                            alertify.warning("Email doesn't exist");
-                        }
-                        else
-                        {
-                            alertify.warning("Unexpected response");
-                        }
-                    }
-                    catch(err)
-                    {
-                        console.log(err);
-                    }
-                },
-                'oncancel': function(){
-                    alertify.warning('Hope you remember it😁!');
-                }
-            }).show();
+        setForgotStepVisible(true);
+        setForgotPasswordData((previous) => ({
+            ...previous,
+            email: formData.user_mail || previous.email,
+        }));
+    }
+
+    const closeForgotPasswordModal = () => {
+        setForgotStepVisible(false);
+        setOtpSent(false);
+        setOtpTimer(0);
+        setResendTimer(0);
+        setForgotPasswordData({
+            email: "",
+            otp: "",
+            newPassword: "",
+            confirmPassword: "",
+        });
+    };
+
+    const handleForgotInputChange = (e) => {
+        const { name, value } = e.target;
+        setForgotPasswordData((previous) => ({
+            ...previous,
+            [name]: value,
+        }));
+    };
+
+    const requestOtp = async (isResend = false) => {
+        const email = forgotPasswordData.email.trim();
+        if (!email) {
+            alertify.warning("Please enter your email.");
+            return;
+        }
+
+        setForgotLoading(true);
+        try {
+            const endpoint = isResend ? "forgot-password/resend-otp" : "forgot-password/request-otp";
+            const response = await axios.post(APP_URL + endpoint, { email });
+            const expiresInSeconds = response?.data?.expiresInSeconds || 300;
+            const resendAvailableInSeconds = response?.data?.resendAvailableInSeconds || 30;
+
+            setOtpSent(true);
+            setOtpTimer(expiresInSeconds);
+            setResendTimer(resendAvailableInSeconds);
+            alertify.success(isResend ? "OTP resent successfully." : "OTP sent to your email.");
+        } catch (err) {
+            const message = err?.response?.data?.message || "Failed to send OTP.";
+            const resendAvailableInSeconds = err?.response?.data?.resendAvailableInSeconds;
+            if (resendAvailableInSeconds) {
+                setResendTimer(resendAvailableInSeconds);
+            }
+            alertify.error(message);
+        } finally {
+            setForgotLoading(false);
+        }
+    };
+
+    const handleResetPassword = async () => {
+        const { email, otp, newPassword, confirmPassword } = forgotPasswordData;
+        if (!email || !otp || !newPassword || !confirmPassword) {
+            alertify.warning("All fields are required for password reset.");
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            alertify.error("Passwords do not match.");
+            return;
+        }
+
+        setForgotLoading(true);
+        try {
+            const response = await axios.post(APP_URL + "forgot-password/verify-otp", {
+                email: email.trim(),
+                otp: otp.trim(),
+                new_password: newPassword,
+            });
+
+            if (response?.data?.success) {
+                alertify.success(response.data.message || "Password reset successful.");
+                closeForgotPasswordModal();
+            } else {
+                alertify.error(response?.data?.message || "Password reset failed.");
+            }
+        } catch (err) {
+            const message = err?.response?.data?.message || "Password reset failed.";
+            alertify.error(message);
+        } finally {
+            setForgotLoading(false);
+        }
     }
     
     const handleChange = (e) => {
@@ -222,6 +299,98 @@ function Login() {
                         <div className="text-4xl font-bold mb-4">Trak<span className="text-white">tor</span></div>
                         <div className="w-full flex justify-center font-semibold text-white">Information management portal</div>
                 </div>
+
+                {forgotStepVisible && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 px-4">
+                        <div className="w-full max-w-md rounded-xl bg-white border border-green-300 p-5 shadow-lg">
+                            <h2 className="text-lg font-semibold text-green-700">Reset Password with OTP</h2>
+                            <div className="mt-3">
+                                <label className="text-sm font-medium text-green-700">Email</label>
+                                <input
+                                    name="email"
+                                    value={forgotPasswordData.email}
+                                    onChange={handleForgotInputChange}
+                                    className="w-full border rounded-lg p-2 mt-1"
+                                    placeholder="username@example.com"
+                                    type="email"
+                                />
+                            </div>
+                            <div className="mt-3 flex gap-2">
+                                <button
+                                    type="button"
+                                    disabled={forgotLoading}
+                                    className="px-3 py-2 rounded-lg bg-green-600 text-white disabled:opacity-50"
+                                    onClick={() => requestOtp(false)}
+                                >
+                                    Send OTP
+                                </button>
+                                <button
+                                    type="button"
+                                    disabled={forgotLoading || !otpSent || resendTimer > 0}
+                                    className="px-3 py-2 rounded-lg border border-green-600 text-green-700 disabled:opacity-50"
+                                    onClick={() => requestOtp(true)}
+                                >
+                                    {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Resend OTP"}
+                                </button>
+                            </div>
+                            {otpSent && (
+                                <p className="mt-2 text-xs text-gray-600">
+                                    OTP valid for {otpTimer}s
+                                </p>
+                            )}
+                            <div className="mt-3">
+                                <label className="text-sm font-medium text-green-700">OTP</label>
+                                <input
+                                    name="otp"
+                                    value={forgotPasswordData.otp}
+                                    onChange={handleForgotInputChange}
+                                    className="w-full border rounded-lg p-2 mt-1"
+                                    placeholder="Enter 6-digit OTP"
+                                    type="text"
+                                />
+                            </div>
+                            <div className="mt-3">
+                                <label className="text-sm font-medium text-green-700">New Password</label>
+                                <input
+                                    name="newPassword"
+                                    value={forgotPasswordData.newPassword}
+                                    onChange={handleForgotInputChange}
+                                    className="w-full border rounded-lg p-2 mt-1"
+                                    placeholder="Enter new password"
+                                    type="password"
+                                />
+                            </div>
+                            <div className="mt-3">
+                                <label className="text-sm font-medium text-green-700">Confirm Password</label>
+                                <input
+                                    name="confirmPassword"
+                                    value={forgotPasswordData.confirmPassword}
+                                    onChange={handleForgotInputChange}
+                                    className="w-full border rounded-lg p-2 mt-1"
+                                    placeholder="Re-enter new password"
+                                    type="password"
+                                />
+                            </div>
+                            <div className="mt-4 flex gap-2">
+                                <button
+                                    type="button"
+                                    disabled={forgotLoading || !otpSent || otpTimer <= 0}
+                                    className="px-3 py-2 rounded-lg bg-green-600 text-white disabled:opacity-50"
+                                    onClick={handleResetPassword}
+                                >
+                                    Verify OTP & Reset Password
+                                </button>
+                                <button
+                                    type="button"
+                                    className="px-3 py-2 rounded-lg border border-gray-400 text-gray-700"
+                                    onClick={closeForgotPasswordModal}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
     );        
 }

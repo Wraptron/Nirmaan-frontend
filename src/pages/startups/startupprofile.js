@@ -25,6 +25,7 @@ import {
   ApiFetchFounder,
   ApiFetchFundingAmount,
   ApiFetchStartup,
+  ApiFetchStartupById,
 } from "../../API/API";
 import { FaLinkedin} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
@@ -71,8 +72,18 @@ function StartupProfile() {
   const [fundingAmount, setFundingAmount] = useState([]);
   const [selectedFounder, setSelectedFounder] = useState(null);
   const [founders, setFounders] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
+  const token = sessionStorage.getItem("token");
+  let decoded = null;
+  try {
+    decoded = token ? jwtDecode(token) : null;
+  } catch (e) {
+    decoded = null;
+  }
+
+  const isAuthorized = !!decoded && (decoded.role === 5 || decoded.role === 2);
 
   // Edit handlers
   const handleEditClick = () => setShowEditForm(true);
@@ -248,54 +259,121 @@ function StartupProfile() {
     }
   };
   // Api FetchData
-  const FetchData = async (userId) => {
+  const FetchData = async () => {
+    setIsLoading(true);
     try {
       // ---Startup Detail Fetch ---
-      const API = await ApiFetchStartup();
-      const allStartup = API?.rows || [];
-      const selectedstartup = allStartup.find(
-        (startup) => String(startup.startup_id) === String(startup_id)
-        
-      );
-      setStartupData(selectedstartup || null);
+      const requestedStartupId =
+        decoded.role === 5 ? decoded.startup_id : startup_id;
+      console.log("[StartupProfile] FetchData start", {
+        routeStartupId: startup_id,
+        requestedStartupId,
+        role: decoded?.role,
+        tokenStartupId: decoded?.startup_id,
+      });
+      const startupResponse = await ApiFetchStartupById(requestedStartupId);
+      console.log("[StartupProfile] startupResponse", startupResponse);
+      let selectedstartup = startupResponse?.generalData?.[0] || null;
+
+      // Fallback: some records may not be returned by /startup/:id in current backend dataset
+      if (!selectedstartup) {
+        console.warn(
+          "[StartupProfile] /startup/:id returned empty. Falling back to /fetch-startup."
+        );
+        const allStartupResponse = await ApiFetchStartup();
+        const allStartup = allStartupResponse?.rows || [];
+        selectedstartup =
+          allStartup.find(
+            (startup) =>
+              String(startup.startup_id) === String(requestedStartupId)
+          ) || null;
+      }
+      setStartupData(selectedstartup);
+
+      // If a startup user manually changes URL, force route back to their own id.
+      if (decoded.role === 5 && String(startup_id) !== String(decoded.startup_id)) {
+        navigate(`/startups/startupprofile/${decoded.startup_id}`, {
+          replace: true,
+        });
+      }
       // console.log(selectedstartup)
 
       // ---Award Details Fetch ---
       const APIAward = await ApiFetchAward();
      const award = APIAward?.rows || [];
+      console.log("[StartupProfile] awards count", award?.length || 0);
       const filteredAwards = award
-        .filter((award) => String(award.startup_id) === String(startup_id))
+        .filter((award) => String(award.startup_id) === String(requestedStartupId))
         .sort((a, b) => a.id - b.id);
       setAwards(filteredAwards || []);
 
       // --- Funding Amount Details Fetch Fetch ---
       const ApiFundingAmount = await ApiFetchFundingAmount();
       const amount = ApiFundingAmount || {};
+      console.log("[StartupProfile] funding keys", Object.keys(amount || {}).length);
       const fundamount = selectedstartup?.startup_id
         ? amount[selectedstartup.startup_id] || null
         : null;
       setFundingAmount(fundamount || {});
 
 
-      const data = await ApiFetchFounder(startup_id);
+      const data = await ApiFetchFounder(requestedStartupId);
+      console.log("[StartupProfile] founders response", data);
       setFounders(data);
       // console.log("Selected startup:", selectedstartup);
       // console.log("Awards data:", filteredAwards);
       // console.log("Awards length:", filteredAwards?.length);
     } catch (err) {
-      console.error("Error fetching mentor data:", err);
+      console.error("[StartupProfile] FetchData error", {
+        message: err?.message,
+        status: err?.response?.status,
+        data: err?.response?.data,
+        url: err?.config?.url,
+      });
+      if (err?.response?.status === 403) {
+        toast.error("You are not allowed to view this startup profile");
+      } else {
+        toast.error("Failed to load startup profile. Check console.");
+      }
+      if (decoded.role === 5) {
+        navigate(`/startups/startupprofile/${decoded.startup_id}`, {
+          replace: true,
+        });
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
+    if (!isAuthorized) {
+      sessionStorage.clear();
+      localStorage.clear();
+      navigate("/", { replace: true });
+      return;
+    }
     FetchData();
-  }, [startup_id]);
+  }, [startup_id, isAuthorized, navigate]);
 
- if (!startupData) {
+  if (!isAuthorized) {
+    return <Navigate to="/" replace />;
+  }
+
+ if (isLoading) {
    return (
      <div className="flex items-center gap-4 justify-center h-screen">
        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#45C74D]"></div>
        <p className="text-[#45C74D]">Loading Startup Details ....</p>
+     </div>
+   );
+ }
+
+ if (!startupData) {
+   return (
+     <div className="flex items-center justify-center h-screen">
+       <p className="text-red-500 font-medium">
+         Startup profile not found for this account.
+       </p>
      </div>
    );
  }
@@ -351,30 +429,10 @@ function StartupProfile() {
     }
   };
 
-  const token = sessionStorage.getItem("token");
- 
-  if (!token) {
-    sessionStorage.clear();
-    localStorage.clear();
-    return <Navigate to="/" replace />;
-  }
- 
-  let decoded;
-  try {
-    decoded = jwtDecode(token);
-  } catch (e) {
-    sessionStorage.clear();
-    localStorage.clear();
-    return <Navigate to="/" replace />;
-  }
- 
-  if (decoded.role !== 5 && decoded.role !== 2) {
-    sessionStorage.clear();
-    localStorage.clear();
-    return <Navigate to="/" replace />;
-  }
-
-  const canEdit = decoded.role === 2 || (decoded.role === 5 && decoded.startup_id === startupData?.startup_id);
+  const canEdit =
+    decoded.role === 2 ||
+    (decoded.role === 5 &&
+      String(decoded.startup_id) === String(startupData?.startup_id));
   // Read More Popup Component
   const ReadMorePopup = ({ isOpen, onClose, title, content }) => {
     if (!isOpen) return null;

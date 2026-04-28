@@ -1005,14 +1005,18 @@ import axios from "axios";
 // ==================== CONFIGURATION ====================
 // const isDevelopment = process.env.NODE_ENV === "production";
 
-// API Base URLs
 const API_URLS = {
-  // DEVELOPMENT: "http://localhost:3003",
+  DEVELOPMENT: "http://localhost:3003",
   PRODUCTION: "http://nirmaan-api-newalb-659762370.ap-south-1.elb.amazonaws.com",
 };
 
-// Current API Base URL based on environment
-const API_BASE_URL = isDevelopment ? API_URLS.DEVELOPMENT : API_URLS.PRODUCTION;
+const DEFAULT_API_BASE_URL = isDevelopment
+  ? API_URLS.DEVELOPMENT
+  : API_URLS.PRODUCTION;
+
+const API_BASE_URL = (
+  process.env.REACT_APP_API_BASE_URL || DEFAULT_API_BASE_URL
+).replace(/\/+$/, "");
 
 // Alternative: You can also use environment variables
 // const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || (isDevelopment ? API_URLS.DEVELOPMENT : API_URLS.PRODUCTION);
@@ -1434,6 +1438,34 @@ async function ApiFetchStartup() {
     return result.data;
   } catch (error) {
     console.error("Error in API", error);
+    throw error;
+  }
+}
+
+async function ApiFetchStartupById(id) {
+  try {
+    const token = sessionStorage.getItem("token");
+    console.log("[API] ApiFetchStartupById request", {
+      id,
+      hasToken: !!token,
+      url: `${API_BASE_URL}/api/v1/startup/${id}`,
+    });
+    const result = await axios.get(`${API_BASE_URL}/api/v1/startup/${id}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    console.log("[API] ApiFetchStartupById success", {
+      status: result?.status,
+      dataKeys: Object.keys(result?.data || {}),
+    });
+    return result.data;
+  } catch (error) {
+    console.error("[API] ApiFetchStartupById error", {
+      message: error?.message,
+      status: error?.response?.status,
+      data: error?.response?.data,
+      url: error?.config?.url,
+      hasAuthHeader: !!error?.config?.headers?.Authorization,
+    });
     throw error;
   }
 }
@@ -1872,6 +1904,7 @@ export {
   // Startup APIs
   ApiAddStartup,
   ApiFetchStartup,
+  ApiFetchStartupById,
   ApiFetchStartupCount,
   ApiDeletStartupData,
   ApiUpdateStartupFounder,
