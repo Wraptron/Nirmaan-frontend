@@ -6,6 +6,7 @@ import NavBar from "../../components/NavBar";
 import Startups from "./Dashboards/Startups";
 import UpcomingEvents from "./Dashboards/UpcomingEvents";
 import Mentor from "./Dashboards/Mentor";
+import FundingDashboard from "./Dashboards/FundingDashboard";
 
 function Home() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -83,7 +84,7 @@ function Home() {
                 {activeTab === "overview" && <Overview />}
                 {activeTab === "startups" && <Startups />}
                 {activeTab === "mentor" && <Mentor />}
-                {/* {activeTab === "funding" && "Funding Content"} */}
+                {activeTab === "funding" && <FundingDashboard />}
               </div>
             </div>
 
