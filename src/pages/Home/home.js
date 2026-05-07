@@ -5,6 +5,8 @@ import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
 import Startups from "./Dashboards/Startups";
 import UpcomingEvents from "./Dashboards/UpcomingEvents";
+import Mentor from "./Dashboards/Mentor";
+import FundingDashboard from "./Dashboards/FundingDashboard";
 
 function Home() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -51,7 +53,7 @@ function Home() {
                     Start-ups
                   </button>
 
-                  {/* <button
+                  <button
                     onClick={() => setActiveTab("mentor")}
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium transition
       ${
@@ -75,14 +77,14 @@ function Home() {
                   >
                     <DollarSign size={18} />
                     Funding
-                  </button> */}
+                  </button>
                 </div>
               </div>
               <div>
                 {activeTab === "overview" && <Overview />}
                 {activeTab === "startups" && <Startups />}
-                {/* {activeTab === "mentor" && "Mentor Content"}
-                {activeTab === "funding" && "Funding Content"} */}
+                {activeTab === "mentor" && <Mentor />}
+                {activeTab === "funding" && <FundingDashboard />}
               </div>
             </div>
 

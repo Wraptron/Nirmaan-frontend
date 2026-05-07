@@ -6,6 +6,24 @@ import { ApiFetchStartup } from "../../API/API";
 import { FaSpinner } from "react-icons/fa";
 import * as XLSX from "xlsx";
 
+/** Omitted from "All Details" export: IDs/name (shown only as Startup Name), logo / image blobs or URLs. */
+const EXCLUDED_FROM_ALL_DETAILS_KEYS = new Set(
+  [
+    "startup_id",
+    "id",
+    "startup_name",
+    "name",
+    "ad_logo",
+    "logo",
+    "logo_image",
+    "startup_logo",
+    "logo_url",
+    "profile_image",
+    "image",
+    "mentor_logo",
+  ].map((k) => k.toLowerCase()),
+);
+
 function Reports() {
   const [showw, setShoww] = useState(false);
   const [step, setStep] = useState(1); // 1: Filters, 2: Filtered Start-ups, 3: Select Field to Export
@@ -30,6 +48,7 @@ function Reports() {
   });
 
   const [selectedStartupIds, setSelectedStartupIds] = useState(() => new Set());
+  const [step2SearchQuery, setStep2SearchQuery] = useState("");
   const exportFieldOptions = [
     "Email Address",
     "Program",
@@ -186,6 +205,29 @@ function Reports() {
     });
   }, [startups, filters]);
 
+  /** Step 2 list: filtered start-ups narrowed by name / id / cohort / sector search */
+  const startupsVisibleInStep2 = useMemo(() => {
+    const q = step2SearchQuery.trim().toLowerCase();
+    if (!q) return filteredStartups;
+
+    return filteredStartups.filter((s) => {
+      const name = String(s.startup_name || s.name || "").toLowerCase();
+      const id = String(s.startup_id ?? s.id ?? "");
+      const cohort = String(s.startup_cohort || s.cohort || "").toLowerCase();
+      const sector = String(s.startup_sector || s.sector || "").toLowerCase();
+      return (
+        name.includes(q) ||
+        id.toLowerCase().includes(q) ||
+        cohort.includes(q) ||
+        sector.includes(q)
+      );
+    });
+  }, [filteredStartups, step2SearchQuery]);
+
+  const allVisibleStep2Selected =
+    startupsVisibleInStep2.length > 0 &&
+    startupsVisibleInStep2.every((s) => selectedStartupIds.has(s.startup_id ?? s.id));
+
   const activeStepClass = (n) =>
     step >= n ? "bg-[#45C74D] text-white" : "bg-gray-200 text-gray-600";
 
@@ -245,6 +287,22 @@ function Reports() {
       const next = new Set(prev);
       if (next.has(startupId)) next.delete(startupId);
       else next.add(startupId);
+      return next;
+    });
+  };
+
+  const toggleSelectAllVisibleInStep2 = () => {
+    setSelectedStartupIds((prev) => {
+      const next = new Set(prev);
+      if (allVisibleStep2Selected) {
+        startupsVisibleInStep2.forEach((s) => {
+          next.delete(s.startup_id ?? s.id);
+        });
+      } else {
+        startupsVisibleInStep2.forEach((s) => {
+          next.add(s.startup_id ?? s.id);
+        });
+      }
       return next;
     });
   };
@@ -371,25 +429,33 @@ function Reports() {
   };
 
   const handleGenerateReport = () => {
-    const selectedStartups = filteredStartups.filter((s) =>
-      selectedStartupIds.has(s.startup_id ?? s.id),
-    );
+    const byId = new Map();
+    filteredStartups.forEach((s) => {
+      const id = s.startup_id ?? s.id;
+      if (id != null && selectedStartupIds.has(id) && !byId.has(id)) {
+        byId.set(id, s);
+      }
+    });
+    const selectedStartups = [...byId.values()];
 
     if (!selectedStartups.length || selectedExportFields.size === 0) return;
 
-    const rows = selectedStartups.map((startup, index) => {
+    const rows = selectedStartups.map((startup) => {
       const baseRow = {
-        "S.No": index + 1,
-        "Startup ID": startup.startup_id ?? startup.id ?? "",
         "Startup Name": startup.startup_name || startup.name || "",
       };
 
       if (isAllDetailsSelected) {
-        const allDetails = Object.entries(startup).reduce((acc, [key, value]) => {
-          acc[key] = normalizeText(value);
-          return acc;
-        }, {});
-        return { ...baseRow, ...allDetails };
+        const extras = Object.entries(startup)
+          .filter(
+            ([key]) => !EXCLUDED_FROM_ALL_DETAILS_KEYS.has(String(key).toLowerCase()),
+          )
+          .sort(([a], [b]) => a.localeCompare(b))
+          .reduce((acc, [key, value]) => {
+            acc[key] = normalizeText(value);
+            return acc;
+          }, {});
+        return { ...baseRow, ...extras };
       }
 
       const selectedFieldRows = {};
@@ -772,9 +838,14 @@ function Reports() {
                                                 <div className="mt-6 font-semibold text-sm text-gray-700">
                                                   Filtered Start-ups
                                                 </div>
-                                                <div className="mt-2 text-sm text-[#45C74D] flex items-center gap-2">
+                                                <div className="mt-2 text-sm text-[#45C74D] flex items-center gap-2 flex-wrap">
                                                   <span className="inline-block w-2 h-2 rounded-full bg-[#45C74D]" />
                                                   {filteredStartups.length} Start-ups Found
+                                                  <span className="text-gray-500">|</span>
+                                                  <span className="text-gray-600">
+                                                    Showing {startupsVisibleInStep2.length}
+                                                    {step2SearchQuery.trim() ? " (search)" : ""}
+                                                  </span>
                                                   <span className="text-gray-500">|</span>
                                                   <span className="text-gray-600">
                                                     {selectedStartupIds.size} Selected
@@ -786,8 +857,34 @@ function Reports() {
                                                     No start-ups match your filters.
                                                   </div>
                                                 ) : (
+                                                  <>
+                                                    <div className="mt-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+                                                      <input
+                                                        type="search"
+                                                        value={step2SearchQuery}
+                                                        onChange={(e) => setStep2SearchQuery(e.target.value)}
+                                                        placeholder="Search start-up by name, ID, cohort, or sector…"
+                                                        className="flex-1 min-w-0 max-w-xl p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+                                                      />
+                                                      <button
+                                                        type="button"
+                                                        onClick={toggleSelectAllVisibleInStep2}
+                                                        disabled={startupsVisibleInStep2.length === 0}
+                                                        className="shrink-0 px-5 py-2.5 text-sm font-medium rounded-lg border border-[#45C74D] text-[#45C74D] hover:bg-[#45C74D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                      >
+                                                        {allVisibleStep2Selected
+                                                          ? "Deselect all"
+                                                          : "Select all"}
+                                                      </button>
+                                                    </div>
+
+                                                    {startupsVisibleInStep2.length === 0 ? (
+                                                      <div className="py-12 text-center text-gray-500 text-sm">
+                                                        No start-ups match your search. Try a different term.
+                                                      </div>
+                                                    ) : (
                                                   <div className="grid grid-cols-4 gap-4 mt-4">
-                                                    {filteredStartups.map((s) => {
+                                                    {startupsVisibleInStep2.map((s) => {
                                                       const id = s.startup_id ?? s.id;
                                                       const checked = selectedStartupIds.has(id);
                                                       return (
@@ -820,6 +917,8 @@ function Reports() {
                                                       );
                                                     })}
                                                   </div>
+                                                    )}
+                                                  </>
                                                 )}
 
                                                 <div className="flex justify-center gap-4 mt-8">

@@ -1,5 +1,10 @@
 import {io} from 'socket.io-client';
 
-const URL = 'http://localhost:5000';
+const isDevelopment = process.env.NODE_ENV === "development";
+const defaultSocketUrl = isDevelopment
+  ? "http://localhost:5000"
+  : (typeof window !== "undefined" ? window.location.origin : "");
+
+const URL = process.env.REACT_APP_SOCKET_URL || defaultSocketUrl;
 
 export const socket = io(URL);
