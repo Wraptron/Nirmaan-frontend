@@ -66,7 +66,7 @@ function Home() {
                     Mentor
                   </button>
 
-                  {/* <button
+                  <button
                     onClick={() => setActiveTab("funding")}
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium transition
       ${
@@ -77,7 +77,7 @@ function Home() {
                   >
                     <DollarSign size={18} />
                     Funding
-                  </button> */}
+                  </button>
                 </div>
               </div>
               <div>
