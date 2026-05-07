@@ -4,7 +4,7 @@ import { Briefcase, Users, DollarSign, HomeIcon } from "lucide-react";
 import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
 import Startups from "./Dashboards/Startups";
-import UpcomingEvents from "./Dashboards/UpcomingEvents";
+// import UpcomingEvents from "./Dashboards/UpcomingEvents";
 import Mentor from "./Dashboards/Mentor";
 import FundingDashboard from "./Dashboards/FundingDashboard";
 
@@ -24,7 +24,7 @@ function Home() {
         <div className="mt-6 px-6">
           <div className="mt-6 grid grid-cols-1 xl:grid-cols-3 gap-4">
             {/* LEFT — TAB CONTENT */}
-            <div className="xl:col-span-2">
+            <div className="xl:col-span-3">
               <div className="flex justify-center mb-6">
                 <div className="flex  w-full bg-white rounded-xl shadow-md overflow-hidden">
                   <button
@@ -66,7 +66,7 @@ function Home() {
                     Mentor
                   </button>
 
-                  <button
+                  {/* <button
                     onClick={() => setActiveTab("funding")}
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium transition
       ${
@@ -77,7 +77,7 @@ function Home() {
                   >
                     <DollarSign size={18} />
                     Funding
-                  </button>
+                  </button> */}
                 </div>
               </div>
               <div>
@@ -88,9 +88,9 @@ function Home() {
               </div>
             </div>
 
-            <div className="xl:col-span-1">
+            {/* <div className="xl:col-span-1">
               <UpcomingEvents />
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
