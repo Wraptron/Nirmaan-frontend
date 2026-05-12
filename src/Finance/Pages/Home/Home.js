@@ -5,16 +5,18 @@ import {
   ApiFetchFundingProject,
   ApiFetchFundingProjectData,
 } from "../../../API/API";
-import { FiEdit2 } from "react-icons/fi";
 import ProjectFundingDetail from "../Startup/ProjectFundingDetails";
 import Navbar from "../../Components/Navbar";
 import AddFundingWallet from "../Startup/AddFundingWallet";
+import { MdViewModule } from "react-icons/md";
+import { BsListUl } from "react-icons/bs";
 
 function Home() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
   const [showw, setShoww] = useState(false);
   const [funding, setFunding] = useState({});
+  const [viewMode, setViewMode] = useState("card");
   const [fundingSummary, setFundingSummary] = useState({});
   const [selectedproject, setSelectedProject] = useState(null);
   const [showFundingModal, setShowFundingModal] = useState(false);
@@ -95,8 +97,6 @@ function Home() {
     }, 2000);
   }, []);
 
-  console.log(projectsDetail)
-
 const formatINR = (value) =>
   `₹${Number(value || 0).toLocaleString("en-IN", {
     minimumFractionDigits: 0,
@@ -135,95 +135,170 @@ const formatINR = (value) =>
                     Funding Dashboard
                   </div>
                   {/* <div className="py-2 px-7 text-lg ">Overview</div> */}
-                  <div className="flex items-center justify-between">
-                    <div className="py-2 px-7 text-2xl text-[#45C74D]  ">
-                      Nirmaan
-                    </div>
-                 
+                  <div className="flex flex-wrap items-center justify-between gap-3 py-2 px-7">
+                    <div className="text-2xl text-[#45C74D]">Nirmaan</div>
+                    <div className="flex flex-wrap items-center gap-3">
                       <button
                         className="bg-[#45C74D] text-white px-5 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition"
                         onClick={handleFundingWalletClick}
                       >
                         Add Funding Wallet
                       </button>
-                  </div>
-                    <div className="grid grid-cols-3 gap-10 px-7 py-2 ">
-                    {projectsDetail.map((project, index) => {
-                      const disbursed =
-                        fundingSummary[project.name]?.disbursed || 0;
-                      const utilized =
-                        fundingSummary[project.name]?.utilized || 0;
-                      const balance = disbursed - utilized;
-
-                      return (
-                        <div className="shadow-md border border-sm rounded-lg p-3 min-w-[220px]">
-                          {/* <div className="pb-2 flex justify-between">
-                            <button className="hover:bg-gray-100 rounded-full">
-                              <FiEdit2
-                                size={16}
-                                className="text-[#45C74D]"
-                                onClick={() =>
-                                  handleFundingModalClick("Nirmaan Seed Funding")
-                                }
-                              />
-                            </button>
-                          </div> */}
-
-                          {/* Total Amount */}
-                          <div className="text-center">
-                            <div className="text-xs text-gray-500">
-                              Total Amount
-                            </div>
-                            <div className="text-2xl font-semibold">
-                              {isLoaded ? (
-                                <>
-                                 {formatINR(disbursed)}
-                                </>
-                              ) : (
-                                <SkeletonLoader />
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Utilized & Balance */}
-                          <div className="flex justify-between mt-3">
-                            <div>
-                              <div className="text-sm text-gray-500">
-                                Fund Utilized
-                              </div>
-                              <div className="text-sm font-medium text-red-500">
-                                {formatINR(utilized)}
-                              </div>
-                            </div>
-
-                            <div className="text-right">
-                              <div className="text-sm text-gray-500">Balance</div>
-                              <div className="text-sm font-semibold text-green-600">
-                                {formatINR(balance)}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* <div className="mt-1 text-center font-medium">
-                            <div className="text-lg">{fundingSummary.duration}</div>
-                          </div> */}
-
-                          {/* Project Name */}
-                          <div className="mt-1 text-center font-medium">
-                            <div className="text-lg">{project.name}</div>
-                          </div>
-
-                          {/* ID */}
-                          <div className="flex gap-1 text-sm justify-center">
-                            <div>ID -</div>
-                            <div className="text-[#45C74D]">
-                              {project.id}
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    })}
+                      <div className="flex gap-2 border border-gray-300 rounded-lg p-1 bg-white">
+                        <button
+                          type="button"
+                          onClick={() => setViewMode("card")}
+                          className={`p-2 rounded transition-all ${
+                            viewMode === "card"
+                              ? "bg-[#45C74D] text-white"
+                              : "text-gray-600 hover:bg-gray-100"
+                          }`}
+                          title="Card View"
+                        >
+                          <MdViewModule />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setViewMode("list")}
+                          className={`p-2 rounded transition-all ${
+                            viewMode === "list"
+                              ? "bg-[#45C74D] text-white"
+                              : "text-gray-600 hover:bg-gray-100"
+                          }`}
+                          title="List View"
+                        >
+                          <BsListUl />
+                        </button>
+                      </div>
                     </div>
+                  </div>
+
+                  {viewMode === "card" ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 px-7 py-2">
+                      {projectsDetail.map((project, index) => {
+                        const disbursed =
+                          fundingSummary[project.name]?.disbursed || 0;
+                        const utilized =
+                          fundingSummary[project.name]?.utilized || 0;
+                        const balance = disbursed - utilized;
+
+                        return (
+                          <div
+                            key={project.id || index}
+                            className="shadow-md border border-sm rounded-lg p-3 min-w-[220px]"
+                          >
+                            <div className="text-center">
+                              <div className="text-xs text-gray-500">
+                                Total Amount
+                              </div>
+                              <div className="text-2xl font-semibold">
+                                {isLoaded ? (
+                                  <>{formatINR(disbursed)}</>
+                                ) : (
+                                  <SkeletonLoader />
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex justify-between mt-3">
+                              <div>
+                                <div className="text-sm text-gray-500">
+                                  Fund Utilized
+                                </div>
+                                <div className="text-sm font-medium text-red-500">
+                                  {formatINR(utilized)}
+                                </div>
+                              </div>
+
+                              <div className="text-right">
+                                <div className="text-sm text-gray-500">
+                                  Balance
+                                </div>
+                                <div className="text-sm font-semibold text-green-600">
+                                  {formatINR(balance)}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="mt-1 text-center font-medium">
+                              <div className="text-lg">{project.name}</div>
+                            </div>
+
+                            <div className="flex gap-1 text-sm justify-center">
+                              <div>ID -</div>
+                              <div className="text-[#45C74D]">{project.id}</div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="px-7 pb-6 overflow-x-auto">
+                      <table className="min-w-full border-collapse text-left text-sm">
+                        <thead>
+                          <tr className="border-b border-gray-200 bg-gray-50 text-gray-600">
+                            <th className="py-3 px-4 font-semibold">
+                              Project name
+                            </th>
+                            <th className="py-3 px-4 font-semibold">Project ID</th>
+                            <th className="py-3 px-4 font-semibold text-right">
+                              Total disbursed
+                            </th>
+                            <th className="py-3 px-4 font-semibold text-right">
+                              Fund utilized
+                            </th>
+                            <th className="py-3 px-4 font-semibold text-right">
+                              Balance
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {projectsDetail.map((project, index) => {
+                            const disbursed =
+                              fundingSummary[project.name]?.disbursed || 0;
+                            const utilized =
+                              fundingSummary[project.name]?.utilized || 0;
+                            const balance = disbursed - utilized;
+
+                            return (
+                              <tr
+                                key={project.id || index}
+                                className="border-b border-gray-100 hover:bg-gray-50/80"
+                              >
+                                <td className="py-3 px-4 font-medium text-gray-900 max-w-[280px]">
+                                  {project.name}
+                                </td>
+                                <td className="py-3 px-4 text-[#45C74D] font-mono text-xs whitespace-nowrap">
+                                  {project.id}
+                                </td>
+                                <td className="py-3 px-4 text-right font-medium tabular-nums">
+                                  {isLoaded ? (
+                                    formatINR(disbursed)
+                                  ) : (
+                                    <SkeletonLoader />
+                                  )}
+                                </td>
+                                <td className="py-3 px-4 text-right font-medium text-red-600 tabular-nums">
+                                  {isLoaded ? (
+                                    formatINR(utilized)
+                                  ) : (
+                                    <SkeletonLoader />
+                                  )}
+                                </td>
+                                <td className="py-3 px-4 text-right font-semibold text-green-600 tabular-nums">
+                                  {isLoaded ? (
+                                    formatINR(balance)
+                                  ) : (
+                                    <SkeletonLoader />
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
