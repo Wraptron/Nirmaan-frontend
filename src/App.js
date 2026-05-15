@@ -203,7 +203,8 @@ import Schedule from "./pages/Mentorship/Schedule";
 
 // Startup Logi
 import StartupMentor from "./pages/startups/Mentor/MentorList";
-import StartupList from "./pages/startups/Startup/StartupList"
+import StartupMentorDetail from "./pages/startups/Mentor/StartupMentorDetail";
+import StartupList from "./pages/startups/Startup/StartupList";
 import IpCreated from "./pages/Home/IpDetails"
 import PIADetails from "./pages/Home/PIADetails";
 import IITMICDetails from "./pages/Home/IITMICDetails";
@@ -305,6 +306,10 @@ function App() {
             <Route path="/customer/Startups" element={<CustomerStartup />} />
             <Route path="/customer/contacts" element={<CustomerContacts />} />
             <Route path="/startup/mentor" element={<StartupMentor />} />
+            <Route
+              path="/startup/mentor/:id"
+              element={<StartupMentorDetail />}
+            />
             <Route path="/startup/startuplist" element={<StartupList />} />
           </Route>
 
