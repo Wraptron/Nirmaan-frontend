@@ -485,10 +485,12 @@ import More from "./More";
 import startupsvg from "../assets/images/Startups.svg";
 import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
+import APP_URL from "../Config";
 
 function NavBar({ onSelectionChange, selectedIndex }) {
   const [messageNotify, setMessageNotification] = useState(false);
   const handleClose = () => setMessageNotification(false);
+  const [mentorRequestNotifications, setMentorRequestNotifications] = useState([]);
 
   const [showModal, setShowModal] = useState(false);
 
@@ -526,15 +528,36 @@ function NavBar({ onSelectionChange, selectedIndex }) {
   }, []);
   const UpdatedFundingData = async () => {
     try {
-      const result = await axios.get("http://13.127.7.121/api/v1/notification");
-      if (result.data && result.data.rows && result.data.rows.length > 0) {
+      const result = await axios.get(`${APP_URL}notification`);
+      if (result.data?.rows?.length > 0) {
         setTokenData(result.data.rows[0]);
+      }
+      if (Array.isArray(result.data?.mentorSessionRequests)) {
+        setMentorRequestNotifications(result.data.mentorSessionRequests);
+      } else {
+        setMentorRequestNotifications([]);
       }
       setLoading(false);
     } catch (err) {
       console.log("Error fetching notification data:", err);
       setLoading(false);
     }
+  };
+
+  const isAdmin = sessionStorage.getItem("role") === "2";
+  const hasMentorNotifications =
+    isAdmin && mentorRequestNotifications.length > 0;
+
+  const formatRequestDate = (value) => {
+    if (!value) return "—";
+    const d = new Date(value);
+    return Number.isNaN(d.getTime())
+      ? String(value)
+      : d.toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        });
   };
 
   // Add error handling for JWT decode
@@ -678,6 +701,25 @@ function NavBar({ onSelectionChange, selectedIndex }) {
                 </button>
               </div>
             </div> */}
+            {isAdmin ? (
+              <div className="relative md:block">
+                <div className="text-black px-2 py-2 ms-3">
+                  <button
+                    type="button"
+                    onClick={() => setMessageNotification(true)}
+                    className="relative"
+                    aria-label="Notifications"
+                  >
+                    <img src={Bellsvg} alt="Bell" />
+                    {hasMentorNotifications ? (
+                      <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 text-[10px] font-semibold text-white bg-red-500 rounded-full flex items-center justify-center">
+                        {mentorRequestNotifications.length}
+                      </span>
+                    ) : null}
+                  </button>
+                </div>
+              </div>
+            ) : null}
             <div className="relative md:block" ref={dropdownRef}>
               <div className="text-black px-2 py-2 ms-3">
                 <button onClick={toggleDropdown}>
@@ -773,28 +815,49 @@ function NavBar({ onSelectionChange, selectedIndex }) {
         </div>
       </nav>
       <Notification isVisible={messageNotify} onClose={handleClose}>
-        {Array.isArray(tokenData) && tokenData.length > 0 ? (
-          tokenData.map((dataObj, key) => (
-            <div className="max-h-[50px]" key={key}>
-              <div className="flex justify-between gap-10 bg-white mt-1">
-                <div className="text-xs">
-                  startup Vision have requested for a new connection with
-                  startup Vision.
-                  <br></br>
-                  <span className="text-gray-400">Hello</span>
-                </div>
-                <button className="p-3 bg-gray-100 rounded-sm">View</button>
-                <div className="m-2 inline-block w-[15px] h-[11px] text-sm font-semibold text-white bg-green-500 rounded-full relative">
-                  <button className="w-full h-full"></button>
-                  <span className="absolute left-1/2 top-[-90px] transform -translate-x-1/2 -translate-y-full bg-gray-300 text-white text-xs font-medium px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity duration-200">
-                    Mark as Read
-                  </span>
+        {loading ? (
+          <div className="text-sm text-gray-500 py-4">Loading...</div>
+        ) : hasMentorNotifications ? (
+          <div className="max-h-[420px] overflow-y-auto space-y-3">
+            {mentorRequestNotifications.map((req) => (
+              <div
+                key={req.id}
+                className="border border-gray-100 rounded-lg p-3 bg-gray-50"
+              >
+                <p className="text-sm font-semibold text-gray-800">
+                  {req.startup_name} requested a mentor session
+                </p>
+                <div className="mt-2 text-xs text-gray-600 space-y-1">
+                  {req.mentor_name ? (
+                    <p>
+                      <span className="font-medium text-gray-700">Mentor:</span>{" "}
+                      {req.mentor_name}
+                    </p>
+                  ) : null}
+                  <p>
+                    <span className="font-medium text-gray-700">Date:</span>{" "}
+                    {formatRequestDate(req.requested_date)} ·{" "}
+                    <span className="font-medium text-gray-700">Time:</span>{" "}
+                    {req.requested_time}
+                  </p>
+                  <p>
+                    <span className="font-medium text-gray-700">Duration:</span>{" "}
+                    {req.duration} min ·{" "}
+                    <span className="font-medium text-gray-700">Mode:</span>{" "}
+                    {req.session_mode}
+                  </p>
+                  {req.agenda ? (
+                    <p>
+                      <span className="font-medium text-gray-700">Agenda:</span>{" "}
+                      {req.agenda}
+                    </p>
+                  ) : null}
                 </div>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         ) : (
-          <div>{loading ? "Loading..." : "No notifications"}</div>
+          <div className="text-sm text-gray-500 py-4">No notifications</div>
         )}
       </Notification>
       <ProfileModal isVisible={showModal} onClose={() => setShowModal(false)}>
