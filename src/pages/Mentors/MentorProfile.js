@@ -298,9 +298,29 @@ function MentorProfile() {
         <NavBar />
         <div className="ml-5 max-w-5xl">
           <div className="flex items-center mb-4">
-            <p className="text-sm text-gray-600">
-              {isMentorView ? "My Profile" : "Dashboard &gt; Mentors &gt; Profile"}
-            </p>
+            {isMentorView ? (
+              <p className="text-sm text-gray-600">My Profile</p>
+            ) : (
+              <p className="text-sm text-gray-600 flex flex-wrap items-center gap-1">
+                <button
+                  type="button"
+                  className="text-gray-600 hover:text-[#45C74D] hover:underline"
+                  onClick={() => navigate("/home")}
+                >
+                  Dashboard
+                </button>
+                <span className="text-gray-400">&gt;</span>
+                <button
+                  type="button"
+                  className="text-gray-600 hover:text-[#45C74D] hover:underline"
+                  onClick={() => navigate("/mentors")}
+                >
+                  Mentors
+                </button>
+                <span className="text-gray-400">&gt;</span>
+                <span className="text-gray-800 font-medium">Profile</span>
+              </p>
+            )}
           </div>
           <div className="flex items-center mb-6">
             {!isMentorView && (

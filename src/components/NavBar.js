@@ -488,8 +488,7 @@ import { useRef } from "react";
 import APP_URL from "../Config";
 
 function NavBar({ onSelectionChange, selectedIndex }) {
-  const [messageNotify, setMessageNotification] = useState(false);
-  const handleClose = () => setMessageNotification(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [mentorRequestNotifications, setMentorRequestNotifications] = useState([]);
 
   const [showModal, setShowModal] = useState(false);
@@ -501,6 +500,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
+  const notificationRef = useRef(null);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -519,6 +519,12 @@ function NavBar({ onSelectionChange, selectedIndex }) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
+        setNotificationsOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -526,12 +532,9 @@ function NavBar({ onSelectionChange, selectedIndex }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  const UpdatedFundingData = async () => {
+  const fetchMentorNotifications = async () => {
     try {
       const result = await axios.get(`${APP_URL}notification`);
-      if (result.data?.rows?.length > 0) {
-        setTokenData(result.data.rows[0]);
-      }
       if (Array.isArray(result.data?.mentorSessionRequests)) {
         setMentorRequestNotifications(result.data.mentorSessionRequests);
       } else {
@@ -594,11 +597,11 @@ function NavBar({ onSelectionChange, selectedIndex }) {
 
   useEffect(() => {
     // Initial data fetch
-    UpdatedFundingData();
+    fetchMentorNotifications();
 
     // Set up interval for periodic updates
     const interval = setInterval(() => {
-      UpdatedFundingData();
+      fetchMentorNotifications();
     }, 5000);
 
     // Cleanup interval on component unmount
@@ -624,7 +627,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
 
   return (
     <div className="navbar dm-sans">
-      <nav className="bg-white shadow-sm">
+      <nav className="bg-white shadow-sm relative z-50">
         <div className="flex flex-wrap items-center justify-between p-3">
           <div className="flex md:order-2">
             <button
@@ -702,22 +705,39 @@ function NavBar({ onSelectionChange, selectedIndex }) {
               </div>
             </div> */}
             {isAdmin ? (
-              <div className="relative md:block">
+              <div className="relative md:block" ref={notificationRef}>
                 <div className="text-black px-2 py-2 ms-3">
                   <button
                     type="button"
-                    onClick={() => setMessageNotification(true)}
-                    className="relative"
+                    onClick={() => {
+                      setNotificationsOpen((open) => !open);
+                      setIsOpen(false);
+                    }}
+                    className={`relative p-1 rounded-lg transition-colors ${
+                      notificationsOpen
+                        ? "bg-gray-100 ring-1 ring-gray-200"
+                        : "hover:bg-gray-50"
+                    }`}
                     aria-label="Notifications"
+                    aria-expanded={notificationsOpen}
                   >
-                    <img src={Bellsvg} alt="Bell" />
+                    <img src={Bellsvg} alt="" className="w-5 h-5" />
                     {hasMentorNotifications ? (
-                      <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 text-[10px] font-semibold text-white bg-red-500 rounded-full flex items-center justify-center">
-                        {mentorRequestNotifications.length}
+                      <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 text-[10px] font-semibold text-white bg-red-500 rounded-full flex items-center justify-center ring-2 ring-white">
+                        {mentorRequestNotifications.length > 9
+                          ? "9+"
+                          : mentorRequestNotifications.length}
                       </span>
                     ) : null}
                   </button>
                 </div>
+                <Notification
+                  isOpen={notificationsOpen}
+                  onClose={() => setNotificationsOpen(false)}
+                  loading={loading}
+                  requests={mentorRequestNotifications}
+                  formatRequestDate={formatRequestDate}
+                />
               </div>
             ) : null}
             <div className="relative md:block" ref={dropdownRef}>
@@ -814,52 +834,6 @@ function NavBar({ onSelectionChange, selectedIndex }) {
           </div>
         </div>
       </nav>
-      <Notification isVisible={messageNotify} onClose={handleClose}>
-        {loading ? (
-          <div className="text-sm text-gray-500 py-4">Loading...</div>
-        ) : hasMentorNotifications ? (
-          <div className="max-h-[420px] overflow-y-auto space-y-3">
-            {mentorRequestNotifications.map((req) => (
-              <div
-                key={req.id}
-                className="border border-gray-100 rounded-lg p-3 bg-gray-50"
-              >
-                <p className="text-sm font-semibold text-gray-800">
-                  {req.startup_name} requested a mentor session
-                </p>
-                <div className="mt-2 text-xs text-gray-600 space-y-1">
-                  {req.mentor_name ? (
-                    <p>
-                      <span className="font-medium text-gray-700">Mentor:</span>{" "}
-                      {req.mentor_name}
-                    </p>
-                  ) : null}
-                  <p>
-                    <span className="font-medium text-gray-700">Date:</span>{" "}
-                    {formatRequestDate(req.requested_date)} ·{" "}
-                    <span className="font-medium text-gray-700">Time:</span>{" "}
-                    {req.requested_time}
-                  </p>
-                  <p>
-                    <span className="font-medium text-gray-700">Duration:</span>{" "}
-                    {req.duration} min ·{" "}
-                    <span className="font-medium text-gray-700">Mode:</span>{" "}
-                    {req.session_mode}
-                  </p>
-                  {req.agenda ? (
-                    <p>
-                      <span className="font-medium text-gray-700">Agenda:</span>{" "}
-                      {req.agenda}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-sm text-gray-500 py-4">No notifications</div>
-        )}
-      </Notification>
       <ProfileModal isVisible={showModal} onClose={() => setShowModal(false)}>
         <center>
           <img src={img} className="h-[60px;]" alt="Logo" />
