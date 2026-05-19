@@ -374,14 +374,17 @@ function MentorProfile() {
                 </div>
               </div>
             </div>
-            <div className="flex justify-end mt-4">
-              <button
-                className="bg-[#45C74D] text-white px-4 py-2 rounded-md"
-                onClick={handleScheduleClick}
-              >
-                Schedule Session
-              </button>
-            </div>
+            {!isMentorView && (
+              <div className="flex justify-end mt-4">
+                <button
+                  type="button"
+                  className="bg-[#45C74D] text-white px-4 py-2 rounded-md"
+                  onClick={handleScheduleClick}
+                >
+                  Schedule Session
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Profile Stats */}
@@ -418,41 +421,45 @@ function MentorProfile() {
             </p>
           </div>
 
-          {/* Current Mentees Section */}
-          <div className="bg-white p-6 rounded-lg mb-6">
-            <h2 className="text-lg font-semibold mb-4">Current Mentees</h2>
-            <div className="space-y-4">
-              {mentor.mentees?.length > 0 ? (
-                mentor.mentees.map((mentee, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between py-2"
-                  >
-                    <div className="flex items-center">
-                      <img
-                        src={dummysvg}
-                        alt="Mentee"
-                        className="rounded-lg w-12 h-12 object-cover mr-4"
-                      />
-                      <div>
-                        <h3 className="font-medium text-sm">{mentee.name}</h3>
-                        <p className="text-sm text-gray-600">
-                          {mentee.position}
-                        </p>
+          {!isMentorView && (
+            <div className="bg-white p-6 rounded-lg mb-6">
+              <h2 className="text-lg font-semibold mb-4">Current Mentees</h2>
+              <div className="space-y-4">
+                {mentor.mentees?.length > 0 ? (
+                  mentor.mentees.map((mentee, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between py-2"
+                    >
+                      <div className="flex items-center">
+                        <img
+                          src={dummysvg}
+                          alt="Mentee"
+                          className="rounded-lg w-12 h-12 object-cover mr-4"
+                        />
+                        <div>
+                          <h3 className="font-medium text-sm">{mentee.name}</h3>
+                          <p className="text-sm text-gray-600">
+                            {mentee.position}
+                          </p>
+                        </div>
                       </div>
+                      <button
+                        type="button"
+                        className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600"
+                      >
+                        Visit Profile
+                      </button>
                     </div>
-                    <button className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600">
-                      Visit Profile
-                    </button>
+                  ))
+                ) : (
+                  <div className="py-4 text-sm text-gray-500">
+                    No mentees available.
                   </div>
-                ))
-              ) : (
-                <div className="py-4 text-sm text-gray-500">
-                  No mentees available.
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Mentoring Sessions Section */}
           <div className="bg-white p-6 rounded-lg mb-6">
@@ -546,9 +553,11 @@ function MentorProfile() {
                 <h2 className="text-xl font-semibold mb-4 text-gray-800 px-5">
                   Testimonials
                 </h2>
-                <div onClick={() => setShowModal(true)}>
-                  <img src={Testimonials} alt="" className="px-8 h-6" />
-                </div>
+                {!isMentorView && (
+                  <div onClick={() => setShowModal(true)} role="button" tabIndex={0}>
+                    <img src={Testimonials} alt="" className="px-8 h-6" />
+                  </div>
+                )}
               </div>
 
               <Swiper
@@ -570,25 +579,29 @@ function MentorProfile() {
                     <div className="bg-[#F9F9F9] shadow-md rounded-xl p-6 h-full flex flex-col justify-between mx-2">
                       <div className="flex items-center justify-between">
                         <FaQuoteLeft className="text-[#808080] text-2xl mb-4" />
-                        <div className="flex items-center gap-2">
-                          <button
-                            className=" hover:bg-gray-100 rounded-full"
-                            onClick={() => handleEditTestimonialClick(item)}
-                          >
-                            <FiEdit2 size={16} className="text-[#45C74D]" />
-                          </button>
-                          <button
-                            className="text-red-600 p-1 hover:bg-gray-100 rounded-full"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setdeletetestimonial(item.testimonial_id);
-                              setOpenEstablishPopUp(true);
-                              setOpenDropdownId(null);
-                            }}
-                          >
-                            <FaTrash size={16} />
-                          </button>
-                        </div>
+                        {!isMentorView && (
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              className="hover:bg-gray-100 rounded-full"
+                              onClick={() => handleEditTestimonialClick(item)}
+                            >
+                              <FiEdit2 size={16} className="text-[#45C74D]" />
+                            </button>
+                            <button
+                              type="button"
+                              className="text-red-600 p-1 hover:bg-gray-100 rounded-full"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setdeletetestimonial(item.testimonial_id);
+                                setOpenEstablishPopUp(true);
+                                setOpenDropdownId(null);
+                              }}
+                            >
+                              <FaTrash size={16} />
+                            </button>
+                          </div>
+                        )}
                       </div>
                       <p className="text-gray-700 text-sm italic">
                         "{item.description}"

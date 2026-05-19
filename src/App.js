@@ -173,6 +173,7 @@ import Bills from "./Finance/Pages/Startup/Bills";
 import ScheduleMeeting from "./pages/Mentors/ScheduleMeeting";
 import Startupprofile from "./pages/startups/startupprofile";
 import MentorProfile from "./pages/Mentors/MentorProfile";
+import MentorAvailability from "./pages/Mentors/MentorAvailability";
 import Mentor from "./pages/Mentors/Mentor";
 import OfficeHome from "./Office/Pages/OfficeHome";
 
@@ -287,6 +288,14 @@ function App() {
             <Route
               path="/events/request-speaker"
               element={<RequestSpeaker />}
+            />
+          </Route>
+
+          {/* Mentor availability calendar (Mentor: 6) */}
+          <Route element={<ProtectedRoutes allowedRoles={["6"]} />}>
+            <Route
+              path="/mentors/availability"
+              element={<MentorAvailability />}
             />
           </Route>
 
