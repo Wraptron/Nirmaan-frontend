@@ -10,7 +10,9 @@
       extend: {
         colors: {
           lightGray: "#D3D3D3",
-          purple: "#6842EF"
+          purple: "#6842EF",
+          nirmaanGreen: "#45c74d",
+          nirmaanGreenDark: "#3ab342",
         }
       }
     },

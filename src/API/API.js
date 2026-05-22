@@ -323,6 +323,31 @@ async function ApiFetchScheduleMeetings(mentor_id) {
     console.log(err);
   }
 }
+
+async function ApiFetchMentorAvailability(mentor_id) {
+  try {
+    const result = await axios.get(
+      `${API_BASE_URL}/api/v1/availability/${mentor_id}`
+    );
+    return result.data;
+  } catch (err) {
+    console.error("Error in ApiFetchMentorAvailability", err);
+    throw err;
+  }
+}
+
+async function ApiSaveMentorAvailability(payload) {
+  try {
+    const result = await axios.post(
+      `${API_BASE_URL}/api/v1/availability/save`,
+      payload
+    );
+    return result.data;
+  } catch (err) {
+    console.error("Error in ApiSaveMentorAvailability", err);
+    throw err;
+  }
+}
 async function ApiFetchScheduleMeetingsDetailsWithMentor() {
   try {
     const result = await axios.get(
@@ -917,6 +942,8 @@ export {
   ApiRequestMentor,
   ApiScheduleMeeting,
   ApiFetchScheduleMeetings,
+  ApiFetchMentorAvailability,
+  ApiSaveMentorAvailability,
   ApiFetchScheduleMeetingsDetailsWithMentor,
   ApiDeleteMeeting,
   ApiSaveFeedback,
