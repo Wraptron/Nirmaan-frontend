@@ -33,6 +33,7 @@ import EditTestimonial from "./EditTestimonial";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
 import dayjs from "dayjs";
 import FeedbackForm from "./FeedbackForm";
+import MentorTag from "../../components/MentorTag";
 
 function MentorProfile() {
   const { id } = useParams();
@@ -345,8 +346,9 @@ function MentorProfile() {
               </div>
 
               <div>
-                <div className="flex items-center">
+                <div className="flex items-center flex-wrap gap-2">
                   <h2 className="text-xl font-bold">{mentor.mentor_name}</h2>
+                  <MentorTag tag={mentor.tag} />
                   <a
                     href={mentor.linkedin_id}
                     target="_blank"

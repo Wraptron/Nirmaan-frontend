@@ -5,6 +5,7 @@ import { ApiFetchMentor } from "../../../API/API";
 import MentorAbout from "./MentorAbout";
 import { jwtDecode } from "jwt-decode";
 import { Navigate, useNavigate } from "react-router-dom";
+import MentorTag from "../../../components/MentorTag";
 
 const Mentor = () => {
   const [data, setData] = useState([]);
@@ -127,7 +128,12 @@ const Mentor = () => {
                     {filteredMentor.map((mentor) => (
                       <tr className="border-b border-dotted">
                          <td className="px-4 py-2">{mentor.siNo}</td>
-                        <td className="px-4 py-2">{mentor.mentor_name}</td>
+                        <td className="px-4 py-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span>{mentor.mentor_name}</span>
+                            <MentorTag tag={mentor.tag} />
+                          </div>
+                        </td>
                         <td className="px-4 py-2">{mentor.institution}</td>
                         <td className="px-4 py-2">-</td>
                         <td className="px-4 py-2">
@@ -163,6 +169,7 @@ const Mentor = () => {
           mentor_name={selectedMentor.mentor_name}
           about={selectedMentor.mento_description}
           expertise={selectedMentor.area_of_expertise}
+          tag={selectedMentor.tag}
         />
       )}
     </div>

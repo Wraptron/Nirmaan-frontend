@@ -485,6 +485,8 @@ import More from "./More";
 import startupsvg from "../assets/images/Startups.svg";
 import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
+import APP_URL from "../Config";
+import MentorTag from "./MentorTag";
 
 function NavBar({ onSelectionChange, selectedIndex }) {
   const [messageNotify, setMessageNotification] = useState(false);
@@ -497,6 +499,66 @@ function NavBar({ onSelectionChange, selectedIndex }) {
   const [loading, setLoading] = useState(true);
   // logout
   const [isOpen, setIsOpen] = useState(false);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loggedInMentorTag, setLoggedInMentorTag] = useState("");
+
+  const handleOpenChangePassword = () => {
+    setShowChangePasswordModal(true);
+  };
+
+  const handleCloseChangePassword = () => {
+    setShowChangePasswordModal(false);
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      alert("Please fill in all password fields.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      alert("New password and Confirm Password do not match");
+      return;
+    }
+
+    const token =
+      sessionStorage.getItem("token") || localStorage.getItem("token");
+
+    if (!token) {
+      alert("You are not logged in. Please login again.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${APP_URL}change-password`,
+        {
+          currentPassword,
+          newPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      alert(response.data?.message || "Password changed successfully");
+      handleCloseChangePassword();
+    } catch (error) {
+      console.log(error);
+      const message =
+        error?.response?.data?.message ||
+        "Current password is incorrect or update failed";
+      alert(message);
+    }
+  };
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
@@ -552,6 +614,34 @@ function NavBar({ onSelectionChange, selectedIndex }) {
   };
 
   const tokenDecodedData = getTokenDecodedData();
+
+  useEffect(() => {
+    const role =
+      sessionStorage.getItem("role") || tokenDecodedData?.role;
+    const mentorId =
+      sessionStorage.getItem("mentor_id") || tokenDecodedData?.mentor_id;
+
+    if (String(role) !== "6" || !mentorId) {
+      setLoggedInMentorTag("");
+      return;
+    }
+
+    const loadMentorTag = async () => {
+      try {
+        const response = await axios.get(`${APP_URL}get-mentor-details`);
+        const rows = response.data?.STATUS?.rows || [];
+        const match = rows.find(
+          (mentor) => String(mentor.mentor_id) === String(mentorId)
+        );
+        setLoggedInMentorTag(match?.tag || "");
+      } catch (err) {
+        console.log("Error fetching mentor tag:", err);
+        setLoggedInMentorTag("");
+      }
+    };
+
+    loadMentorTag();
+  }, [tokenDecodedData?.role, tokenDecodedData?.mentor_id]);
 
   const GetProfilePhotoImage = useCallback(async () => {
     if (!tokenDecodedData?.user_mail) return;
@@ -685,35 +775,110 @@ function NavBar({ onSelectionChange, selectedIndex }) {
                 </button>
               </div>
               {isOpen && (
-                <ul className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden animate-fadeIn">
-                  <li className="px-4 py-2 text-sm text-gray-600">
-                    {tokenDecodedData.user_name || tokenDecodedData.user_mail}
-                  </li>
+  <ul className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden animate-fadeIn">
+    
+    <li className="px-4 py-2 text-sm text-gray-600 border-b">
+      <div className="flex items-center gap-2 flex-wrap">
+        <span>{tokenDecodedData.user_name || tokenDecodedData.user_mail}</span>
+        {(String(sessionStorage.getItem("role")) === "6" ||
+          tokenDecodedData?.role === 6) && (
+          <MentorTag tag={loggedInMentorTag} />
+        )}
+      </div>
+    </li>
 
-                  <li>
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-700 transition-all duration-200 hover:bg-gradient-to-r hover:bg-[#45C74D] hover:text-white"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-4 h-4"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
-                        />
-                      </svg>
-                      Logout
-                    </button>
-                  </li>
-                </ul>
-              )}
+    {/* Change Password Button */}
+    <li>
+  <button
+    onClick={handleOpenChangePassword}
+    className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-[#45C74D] hover:text-white"
+  >
+    Change Password
+  </button>
+</li>
+    {/* Logout Button */}
+    <li>
+      <button
+        onClick={handleLogout}
+        className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-700 transition-all duration-200 hover:bg-[#45C74D] hover:text-white"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="w-4 h-4"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
+          />
+        </svg>
+        Logout
+      </button>
+    </li>
+
+  </ul>
+)}
+{showChangePasswordModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-white rounded-xl shadow-xl w-[450px] p-6 relative">
+
+      <button
+        onClick={handleCloseChangePassword}
+        className="absolute top-4 right-4 text-gray-500"
+      >
+        ✕
+      </button>
+
+      <h2 className="text-2xl font-bold mb-4">
+        Change Password
+      </h2>
+
+      <input
+  type="password"
+  placeholder="Current Password"
+  value={currentPassword}
+  onChange={(e) => setCurrentPassword(e.target.value)}
+  className="w-full border rounded-lg p-3 mb-4"
+/>
+
+<input
+  type="password"
+  placeholder="New Password"
+  value={newPassword}
+  onChange={(e) => setNewPassword(e.target.value)}
+  className="w-full border rounded-lg p-3 mb-4"
+/>
+
+<input
+  type="password"
+  placeholder="Confirm Password"
+  value={confirmPassword}
+  onChange={(e) => setConfirmPassword(e.target.value)}
+  className="w-full border rounded-lg p-3 mb-6"
+/>
+
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={handleCloseChangePassword}
+          className="px-4 py-2 border rounded-lg"
+        >
+          Cancel
+        </button>
+
+        <button
+  onClick={handleChangePassword}
+  className="px-4 py-2 bg-[#45C74D] text-white rounded-lg"
+>
+  Change Password
+</button>
+      </div>
+    </div>
+  </div>
+)}
             </div>
             <button
               data-collapse-toggle="navbar-search"

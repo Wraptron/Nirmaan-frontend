@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import ImageSvg from "../../../assets/images/image (1).svg"; 
+import ImageSvg from "../../../assets/images/image (1).svg";
+import MentorTag from "../../../components/MentorTag";
 
-const MentorAbout = ({ onClose, mentor_name, about, expertise ,mentor_logo}) => {
+const MentorAbout = ({ onClose, mentor_name, about, expertise, mentor_logo, tag }) => {
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]"
@@ -42,7 +43,10 @@ const MentorAbout = ({ onClose, mentor_name, about, expertise ,mentor_logo}) => 
 
         {/* Content */}
         <div className="pt-24 pb-10 max-w-4xl mx-auto text-center px-6">
-          <h2 className="text-2xl font-bold text-gray-900">{mentor_name}</h2>
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            <h2 className="text-2xl font-bold text-gray-900">{mentor_name}</h2>
+            <MentorTag tag={tag} />
+          </div>
           <div className="text-lg mt-2">
             <span className="font-semibold">Expertise: </span>
             <span className="text-[#45C74D] font-semibold">{expertise}</span>

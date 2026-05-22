@@ -17,6 +17,7 @@ import { FaEllipsisV, FaSpinner } from "react-icons/fa";
 import { BsListUl } from "react-icons/bs";
 import { MdViewModule } from "react-icons/md";
 import FeedbackForm from "../Mentors/FeedbackForm";
+import MentorTag from "../../components/MentorTag";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
 import dayjs from "dayjs";
 import { jwtDecode } from "jwt-decode";
@@ -463,8 +464,11 @@ function MentorShip() {
 
                             <div className="flex justify-between border-t px-3 mt-5 mb-3 pb-2">
                               <div>
-                                <div className="text-lg font-semibold">
-                                  {meeting.mentor_name}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-lg font-semibold">
+                                    {meeting.mentor_name}
+                                  </span>
+                                  <MentorTag tag={meeting.tag} />
                                 </div>
                                 <div className="text-[#808080]">
                                   {meeting.start_up_name}
@@ -531,7 +535,10 @@ function MentorShip() {
                                 className="hover:bg-gray-50"
                               >
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                  {mentorship.mentor_name || "N/A"}
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span>{mentorship.mentor_name || "N/A"}</span>
+                                    <MentorTag tag={mentorship.tag} />
+                                  </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                   {mentorship.start_up_name || "N/A"}

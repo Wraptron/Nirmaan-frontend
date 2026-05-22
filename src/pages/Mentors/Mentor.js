@@ -10,6 +10,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { MdViewModule } from "react-icons/md";
 import { BsListUl } from "react-icons/bs";
+import MentorTag from "../../components/MentorTag";
 function Mentor() {
   const [openEstablishPopUp, setOpenEstablishPopUp] = useState(false);
   const [data, setData] = useState([]);
@@ -231,12 +232,14 @@ if (decoded.role !== 2) {
                           className="rounded-full w-20 h-20 object-cover aspect-square"
                         />
                         <div className="flex-1 ml-4">
-                          <div className="text-md font-semibold">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <a
                               href={`/mentors/mentor_profile/${mentor.mentor_id}`}
+                              className="text-md font-semibold"
                             >
                               {mentor.mentor_name}
                             </a>
+                            <MentorTag tag={mentor.tag} />
                           </div>
                           <div className="text-sm text-gray-500">
                             {mentor.email_address || "N/A"}
@@ -334,8 +337,11 @@ if (decoded.role !== 2) {
                             className="hover:bg-gray-50 cursor-pointer transition-colors"
                           >
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-gray-900">
-                                {Mentor.mentor_name || "mentor_name"}
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-sm font-medium text-gray-900">
+                                  {Mentor.mentor_name || "mentor_name"}
+                                </span>
+                                <MentorTag tag={Mentor.tag} />
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
