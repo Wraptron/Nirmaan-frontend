@@ -262,6 +262,28 @@ async function ApiUpdateMentor(payload) {
   }
 }   
 
+async function ApiUpdateMentorSessionRequest(requestId, status) {
+  try {
+    const token = sessionStorage.getItem("token");
+    const result = await axios.patch(
+      `${API_BASE_URL}/api/v1/mentor/session-request/${requestId}`,
+      { status },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      }
+    );
+    return result.data;
+  } catch (error) {
+    console.error("Error in ApiUpdateMentorSessionRequest", error);
+    const data = error.response?.data;
+    if (data?.message) throw new Error(data.message);
+    throw error;
+  }
+}
+
 async function ApiRequestMentor(payload) {
   try {
     const token = sessionStorage.getItem("token");
@@ -356,6 +378,7 @@ async function ApiFetchScheduleMeetingsDetailsWithMentor() {
     return result.data;
   } catch (err) {
     console.log(err);
+    return [];
   }
 }
 
@@ -940,6 +963,7 @@ export {
 
   // Meeting & Feedback APIs
   ApiRequestMentor,
+  ApiUpdateMentorSessionRequest,
   ApiScheduleMeeting,
   ApiFetchScheduleMeetings,
   ApiFetchMentorAvailability,

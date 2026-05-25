@@ -88,7 +88,13 @@ function NotificationSkeleton() {
   );
 }
 
-function NotificationItem({ req, formatRequestDate }) {
+function NotificationItem({
+  req,
+  formatRequestDate,
+  onAccept,
+  onReject,
+  processingId,
+}) {
   const relative = formatRelativeTime(req.created_at);
   const initials = (req.startup_name || "S")
     .split(" ")
@@ -140,6 +146,24 @@ function NotificationItem({ req, formatRequestDate }) {
               {req.agenda}
             </p>
           ) : null}
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              disabled={processingId === req.id}
+              onClick={() => onAccept?.(req)}
+              className="flex-1 py-1.5 text-xs font-semibold text-white bg-[#45C74D] rounded-lg hover:bg-[#3bae42] disabled:opacity-60"
+            >
+              Accept
+            </button>
+            <button
+              type="button"
+              disabled={processingId === req.id}
+              onClick={() => onReject?.(req)}
+              className="flex-1 py-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 disabled:opacity-60"
+            >
+              {processingId === req.id ? "…" : "Reject"}
+            </button>
+          </div>
         </div>
       </div>
     </article>
@@ -152,6 +176,9 @@ function Notification({
   loading,
   requests = [],
   formatRequestDate,
+  onAccept,
+  onReject,
+  processingId,
 }) {
   useEffect(() => {
     if (!isOpen) return;
@@ -214,6 +241,9 @@ function Notification({
                   key={req.id}
                   req={req}
                   formatRequestDate={formatRequestDate}
+                  onAccept={onAccept}
+                  onReject={onReject}
+                  processingId={processingId}
                 />
               ))}
             </div>

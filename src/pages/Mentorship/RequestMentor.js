@@ -1,12 +1,25 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { ApiRequestMentor } from "../../API/API";
+import useAvailability from "./availability/useAvailability.js";
+import {
+  formatSlotLabel,
+  getSlotsForDate,
+  getTodayDateKey,
+  SLOT_DURATION_MINUTES,
+} from "./availability/availabilitySlots.js";
 
 const RequestMentor = ({ onClose, mentorId, mentorName }) => {
+  const {
+    availabilityMap,
+    slotsForDate,
+    loading: availabilityLoading,
+  } = useAvailability(mentorId);
+
   const [formData, setFormData] = useState({
     date: "",
     time: "",
-    duration: "",
+    duration: String(SLOT_DURATION_MINUTES),
     mode: "",
     agenda: "",
   });
@@ -18,52 +31,40 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
     mode: "",
   });
 
+  const savedSlotsForDate = formData.date
+    ? getSlotsForDate(availabilityMap, formData.date)
+    : [];
+  const timeSlots = formData.date ? slotsForDate(formData.date) : [];
+  const noAvailabilityOnDate =
+    Boolean(formData.date) &&
+    !availabilityLoading &&
+    timeSlots.length === 0;
+  const allSlotsPassedToday =
+    noAvailabilityOnDate && savedSlotsForDate.length > 0;
+
   const clearFieldError = (field) => {
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
-  const getTodayDate = () => new Date().toISOString().split("T")[0];
-  const getCurrentTime = () => new Date().toTimeString().slice(0, 5);
+  const handleDateChange = (e) => {
+    const value = e.target.value;
+    clearFieldError("date");
+    clearFieldError("time");
+    setFormData((prev) => ({
+      ...prev,
+      date: value,
+      time: "",
+    }));
+  };
 
-  const getMinTime = () => {
-    if (formData.date === getTodayDate()) return getCurrentTime();
-    return "00:00";
+  const handleSlotSelect = (slot) => {
+    clearFieldError("time");
+    setFormData((prev) => ({ ...prev, time: slot }));
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    if (name === "date" || name === "time" || name === "duration") {
-      clearFieldError(name);
-    }
-
-    if (name === "date") {
-      const today = getTodayDate();
-      const currentTime = getCurrentTime();
-      const shouldClearTime =
-        value === today && formData.time && formData.time < currentTime;
-      setFormData((prev) => {
-        const next = { ...prev, date: value };
-        if (value === today && prev.time && prev.time < currentTime) {
-          next.time = "";
-        }
-        return next;
-      });
-      if (shouldClearTime) clearFieldError("time");
-      return;
-    }
-
-    if (name === "time") {
-      const today = getTodayDate();
-      if (formData.date === today) {
-        const currentTime = getCurrentTime();
-        if (value < currentTime) {
-          toast.error("Choose a future time for today.");
-          return;
-        }
-      }
-    }
-
+    if (name === "duration") clearFieldError("duration");
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -75,12 +76,26 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
       duration: "",
       mode: "",
     };
+
+    if (!mentorId) {
+      toast.error("Mentor is required to submit a request.");
+      return;
+    }
     if (!formData.date) nextErrors.date = "Please select a date";
-    if (!formData.time) nextErrors.time = "Please select a time";
+    if (!formData.time) {
+      nextErrors.time = noAvailabilityOnDate
+        ? "No availability on this date — choose another date"
+        : "Please select a time slot";
+    }
     if (!formData.duration) nextErrors.duration = "Please select a duration";
     if (!formData.mode) nextErrors.mode = "Please select a session mode";
 
-    if (nextErrors.date || nextErrors.time || nextErrors.duration || nextErrors.mode) {
+    if (
+      nextErrors.date ||
+      nextErrors.time ||
+      nextErrors.duration ||
+      nextErrors.mode
+    ) {
       setErrors(nextErrors);
       return;
     }
@@ -110,10 +125,11 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
   };
 
   const modes = ["Online", "In-person"];
+  const formDisabled = isLoading;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-lg w-full max-w-md relative">
+      <div className="bg-white rounded-2xl shadow-lg w-full max-w-md relative max-h-[90vh] overflow-y-auto">
         <button
           type="button"
           onClick={onClose}
@@ -139,12 +155,11 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
             <p className="text-sm text-gray-600 mb-5">{mentorName}</p>
           ) : (
             <p className="text-sm text-gray-500 mb-5">
-              Pick a preferred slot and session mode.
+              Select a date, then choose an available time slot.
             </p>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Date */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Date <span className="text-red-500">*</span>
@@ -153,56 +168,82 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
                 type="date"
                 name="date"
                 value={formData.date}
-                min={getTodayDate()}
-                onChange={handleChange}
-                className="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+                min={getTodayDateKey()}
+                onChange={handleDateChange}
+                disabled={formDisabled}
+                className="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D] disabled:opacity-60"
               />
               {errors.date ? (
                 <p className="text-xs text-red-500 mt-1">{errors.date}</p>
               ) : null}
             </div>
 
-            {/* Time + Duration side by side */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Time <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="time"
-                  name="time"
-                  value={formData.time}
-                  min={getMinTime()}
-                  onChange={handleChange}
-                  className="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
-                />
-                {errors.time ? (
-                  <p className="text-xs text-red-500 mt-1">{errors.time}</p>
-                ) : null}
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Time slot <span className="text-red-500">*</span>
+              </label>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Duration <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="duration"
-                  value={formData.duration}
-                  onChange={handleChange}
-                  className="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
+              {!formData.date ? (
+                <p className="text-xs text-gray-500">
+                  Select a date to view this mentor&apos;s available slots.
+                </p>
+              ) : availabilityLoading ? (
+                <p className="text-xs text-gray-500">Loading slots…</p>
+              ) : noAvailabilityOnDate ? (
+                <div
+                  className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800"
+                  role="status"
                 >
-                  <option value="">Select</option>
-                  <option value="30">30 min</option>
-                  <option value="60">60 min</option>
-                  <option value="90">90 min</option>
-                </select>
-                {errors.duration ? (
-                  <p className="text-xs text-red-500 mt-1">{errors.duration}</p>
-                ) : null}
-              </div>
+                  {allSlotsPassedToday
+                    ? "No open slots remain on this date. Please choose another date."
+                    : "This mentor has no availability on the selected date. Please choose another date."}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+                  {timeSlots.map((slot) => (
+                    <button
+                      key={slot}
+                      type="button"
+                      disabled={formDisabled}
+                      onClick={() => handleSlotSelect(slot)}
+                      className={`py-2 px-2 text-xs font-medium rounded-lg border transition-colors ${
+                        formData.time === slot
+                          ? "bg-[#45C74D] text-white border-[#45C74D]"
+                          : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100"
+                      } disabled:opacity-60`}
+                    >
+                      {formatSlotLabel(slot)}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {errors.time ? (
+                <p className="text-xs text-red-500 mt-1">{errors.time}</p>
+              ) : null}
             </div>
 
-            {/* Mode — toggle buttons */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Duration <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="duration"
+                value={formData.duration}
+                onChange={handleChange}
+                disabled={formDisabled}
+                className="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D] disabled:opacity-60"
+              >
+                <option value={String(SLOT_DURATION_MINUTES)}>
+                  {SLOT_DURATION_MINUTES} min
+                </option>
+                <option value="90">90 min</option>
+              </select>
+              {errors.duration ? (
+                <p className="text-xs text-red-500 mt-1">{errors.duration}</p>
+              ) : null}
+            </div>
+
             <div>
               <span className="block text-sm font-medium text-gray-700 mb-2">
                 Session mode <span className="text-red-500">*</span>
@@ -212,6 +253,7 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
                   <button
                     key={m}
                     type="button"
+                    disabled={formDisabled}
                     onClick={() => {
                       clearFieldError("mode");
                       setFormData((prev) => ({ ...prev, mode: m }));
@@ -220,7 +262,7 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
                       formData.mode === m
                         ? "bg-[#45C74D] text-white border-[#45C74D]"
                         : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100"
-                    }`}
+                    } disabled:opacity-60`}
                   >
                     {m}
                   </button>
@@ -231,7 +273,6 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
               ) : null}
             </div>
 
-            {/* Agenda — optional */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Agenda{" "}
@@ -242,8 +283,9 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
                 value={formData.agenda}
                 onChange={handleChange}
                 rows={3}
+                disabled={formDisabled}
                 placeholder="What do you want to cover in this session?"
-                className="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D] resize-none"
+                className="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D] resize-none disabled:opacity-60"
               />
             </div>
 
@@ -258,7 +300,7 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
               </button>
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={formDisabled || noAvailabilityOnDate}
                 className="inline-flex items-center justify-center gap-2 px-6 py-2 text-sm font-medium text-white bg-[#45C74D] rounded-lg transition-colors hover:bg-[#3bae42] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-[#45C74D]"
               >
                 {isLoading ? (

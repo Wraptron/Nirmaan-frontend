@@ -472,6 +472,9 @@ import { jwtDecode } from "jwt-decode";
 import ProfileModal from "./ProfileModal";
 import "alertifyjs/build/css/alertify.css";
 import Notification from "./Notification";
+import { ScheduleMeetingPopup } from "../pages/Mentorship/ScheduleMeetingForm";
+import { ApiUpdateMentorSessionRequest } from "../API/API";
+import toast from "react-hot-toast";
 import ActionsModel from "../components/ActionsModel";
 import Startupsvg from "../assets/images/Startups.svg";
 import Mentorsvg from "../assets/images/Mentor.svg";
@@ -490,6 +493,8 @@ import APP_URL from "../Config";
 function NavBar({ onSelectionChange, selectedIndex }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [mentorRequestNotifications, setMentorRequestNotifications] = useState([]);
+  const [schedulingRequest, setSchedulingRequest] = useState(null);
+  const [processingRequestId, setProcessingRequestId] = useState(null);
 
   const [showModal, setShowModal] = useState(false);
 
@@ -534,7 +539,10 @@ function NavBar({ onSelectionChange, selectedIndex }) {
   }, []);
   const fetchMentorNotifications = async () => {
     try {
-      const result = await axios.get(`${APP_URL}notification`);
+      const token = sessionStorage.getItem("token");
+      const result = await axios.get(`${APP_URL}notification`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       if (Array.isArray(result.data?.mentorSessionRequests)) {
         setMentorRequestNotifications(result.data.mentorSessionRequests);
       } else {
@@ -544,6 +552,28 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     } catch (err) {
       console.log("Error fetching notification data:", err);
       setLoading(false);
+    }
+  };
+
+  const handleAcceptMentorRequest = (req) => {
+    if (!req?.mentor_id) {
+      toast.error("This request has no mentor linked.");
+      return;
+    }
+    setNotificationsOpen(false);
+    setSchedulingRequest(req);
+  };
+
+  const handleRejectMentorRequest = async (req) => {
+    setProcessingRequestId(req.id);
+    try {
+      await ApiUpdateMentorSessionRequest(req.id, "rejected");
+      toast.success("Request rejected.");
+      await fetchMentorNotifications();
+    } catch (err) {
+      toast.error(err?.message || "Failed to reject request.");
+    } finally {
+      setProcessingRequestId(null);
     }
   };
 
@@ -737,6 +767,9 @@ function NavBar({ onSelectionChange, selectedIndex }) {
                   loading={loading}
                   requests={mentorRequestNotifications}
                   formatRequestDate={formatRequestDate}
+                  onAccept={handleAcceptMentorRequest}
+                  onReject={handleRejectMentorRequest}
+                  processingId={processingRequestId}
                 />
               </div>
             ) : null}
@@ -1041,6 +1074,13 @@ function NavBar({ onSelectionChange, selectedIndex }) {
           </div>
         </div>
       </More> */}
+      {schedulingRequest ? (
+        <ScheduleMeetingPopup
+          sessionRequest={schedulingRequest}
+          onClose={() => setSchedulingRequest(null)}
+          onSuccess={fetchMentorNotifications}
+        />
+      ) : null}
     </div>
   );
 }

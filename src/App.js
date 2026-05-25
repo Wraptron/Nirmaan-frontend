@@ -170,7 +170,7 @@ import Mobility from "./pages/startups/Mobility/Mobility";
 import IndividualStartups from "./pages/startups/IndividualStartups";
 import Pdf from "./pages/Reports/Pdf";
 import Bills from "./Finance/Pages/Startup/Bills";
-import ScheduleMeeting from "./pages/Mentors/ScheduleMeeting";
+import { ScheduleMeetingPage } from "./pages/Mentorship/ScheduleMeetingForm";
 import Startupprofile from "./pages/startups/startupprofile";
 import MentorProfile from "./pages/Mentors/MentorProfile";
 import MentorAvailability from "./pages/Mentors/MentorAvailability";
@@ -200,7 +200,6 @@ import FinanceStartupdetails from "./Finance/Pages/Startup/Finstartup";
 import ProtectedRoutes from "./utils/ProtectedRoutes";
 import Finstartup from "./Finance/Pages/Startup/Finstartup";
 import StartupFundingDetail from "./Finance/Pages/Startup/StartupfundingDetail";
-import Schedule from "./pages/Mentorship/Schedule";
 
 // Startup Logi
 import StartupMentor from "./pages/startups/Mentor/MentorList";
@@ -237,6 +236,10 @@ function App() {
             <Route path="/mentors" element={<Mentor />} />
             <Route path="/events" element={<Events />} />
             <Route path="/mentorship" element={<MentorShip />} />
+            <Route
+              path="/mentorship/scheduleMeeting"
+              element={<ScheduleMeetingPage />}
+            />
             <Route path="/settings" element={<Settings />} />
             <Route path="/fintechstartups" element={<FinTech />} />
             <Route path="/industrystartups" element={<Industry />} />
@@ -248,7 +251,7 @@ function App() {
             <Route path="/mentors/new" element={<AddNewMentor />} />
             <Route
               path="/mentors/scheduleMeeting/:mentor_id"
-              element={<ScheduleMeeting />}
+              element={<ScheduleMeetingPage />}
             />
 
             <Route path="/reports" element={<Reports />} />
@@ -264,7 +267,6 @@ function App() {
                 </PDFViewer>
               }
             />
-            <Route path="/mentorship/scheduleMeeting" element={<Schedule />} />
           </Route>
 
           {/* Startup Profile Routes (Admin: 2 + Students: 5) */}

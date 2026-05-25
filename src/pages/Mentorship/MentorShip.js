@@ -54,13 +54,14 @@ function MentorShip() {
     try {
       setLoading(true);
       const response = await ApiFetchScheduleMeetingsDetailsWithMentor();
-      setMentorship(response);
+      const meetings = Array.isArray(response) ? response : [];
+      setMentorship(meetings);
 
       const API = await ApiFetchMentor();
-      const MentorData = API.STATUS.rows;
-      setMentorCount(MentorData);
+      const MentorData = API?.STATUS?.rows;
+      setMentorCount(Array.isArray(MentorData) ? MentorData : []);
 
-      const feedbackPromises = response.map((meet) =>
+      const feedbackPromises = meetings.map((meet) =>
         ApiFetchMeetingFeedback(
           selectedSession?.mentor_id || meet.mentor_id,
           meet.startup_id,
@@ -85,14 +86,14 @@ function MentorShip() {
     {
       id: 1,
       icon: <GraduationCap className="w-5 h-5" />,
-      value: mentorship.length,
+      value: mentorship?.length ?? 0,
       label: "No. of Abhyasa Sessions Conducted",
       badgeColor: "bg-green-100 text-green-700",
     },
     {
       id: 2,
       icon: <Briefcase className="w-5 h-5" />,
-      value: mentorCount.length,
+      value: mentorCount?.length ?? 0,
       label: "No. of Venture capitalist Mentors",
       badgeColor: "bg-red-100 text-red-700",
     },
@@ -180,7 +181,7 @@ function MentorShip() {
     setShowDatePicker(false);
   };
 
-  const filteredmentorship = mentorship.filter((m) => {
+  const filteredmentorship = (mentorship ?? []).filter((m) => {
     const matchesSearch =
       m.mentor_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       m.start_up_name?.toLowerCase().includes(searchTerm.toLowerCase());
