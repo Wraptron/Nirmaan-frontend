@@ -29,7 +29,7 @@ export const formatRequestTimeForInput = (value) => {
 export const buildMeetingFormFromRequest = (req) => ({
   startup_name: req.startup_name || "",
   startup_id: req.startup_id != null ? String(req.startup_id) : "",
-  founder_name: req.requested_by || "",
+  founder_name: "",
   mentor_name: req.mentor_name || "",
   mentor_id: req.mentor_id != null ? String(req.mentor_id) : "",
   meeting_mode: mapSessionModeToMeetingMode(req.session_mode),

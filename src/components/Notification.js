@@ -31,6 +31,45 @@ const formatRelativeTime = (value) => {
   return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 };
 
+const typeLabel = (type) => {
+  const map = {
+    mentorship: "Mentorship",
+  };
+  return map[type] || type;
+};
+
+export const mapNotificationToDisplayItem = (n) => {
+  if (n.type === "mentorship" && n.metadata && typeof n.metadata === "object") {
+    const eventStatus =
+      n.event === "pending"
+        ? "pending"
+        : n.event === "accepted"
+          ? "accepted"
+          : n.event === "rejected"
+            ? "rejected"
+            : n.event;
+    return {
+      ...n.metadata,
+      id: n.source_id,
+      notificationId: n.id,
+      status: eventStatus,
+      created_at: n.created_at,
+      _notificationType: n.type,
+    };
+  }
+  return {
+    id: n.source_id || n.id,
+    notificationId: n.id,
+    type: n.type,
+    event: n.event,
+    title: n.title,
+    body: n.body,
+    created_at: n.created_at,
+    status: n.event,
+    _notificationType: n.type,
+  };
+};
+
 const ModeBadge = ({ mode }) => {
   const isOnline = String(mode).toLowerCase() === "online";
   return (
@@ -85,6 +124,104 @@ function NotificationSkeleton() {
         </div>
       ))}
     </div>
+  );
+}
+
+function GenericInboxItem({ item }) {
+  const relative = formatRelativeTime(item.created_at);
+  return (
+    <article className="px-4 py-3.5 hover:bg-gray-50/80 transition-colors">
+      <div className="flex gap-3">
+        <div className="w-10 h-10 rounded-full bg-violet-50 text-violet-700 flex items-center justify-center text-[10px] font-semibold shrink-0 ring-1 ring-violet-100">
+          {typeLabel(item.type).slice(0, 2).toUpperCase()}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-sm font-semibold text-gray-900 leading-snug">
+              {item.title}
+            </p>
+            {relative ? (
+              <span className="text-[11px] text-gray-400 whitespace-nowrap shrink-0">
+                {relative}
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-0.5 text-[11px] text-violet-600 font-medium">
+            {typeLabel(item.type)}
+          </p>
+          {item.body ? (
+            <p className="mt-1 text-xs text-gray-600 leading-relaxed">{item.body}</p>
+          ) : null}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function SessionStatusNotificationItem({ req, formatRequestDate, viewerRole }) {
+  const relative = formatRelativeTime(req.created_at);
+  const isAccepted = req.status === "accepted";
+  const isMentor = viewerRole === "mentor";
+  const title = isAccepted
+    ? isMentor
+      ? "Meeting scheduled"
+      : "Session confirmed"
+    : isMentor
+      ? "Session request declined"
+      : "Session request declined";
+  const subtitle = isAccepted
+    ? isMentor
+      ? `Meeting with ${req.startup_name || "startup"}`
+      : `Meeting with ${req.mentor_name || "mentor"}`
+    : isMentor
+      ? `Request from ${req.startup_name || "startup"} was rejected`
+      : `Your request with ${req.mentor_name || "mentor"} was rejected`;
+
+  return (
+    <article className="px-4 py-3.5 hover:bg-gray-50/80 transition-colors">
+      <div className="flex gap-3">
+        <div
+          className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ring-1 ${
+            isAccepted
+              ? "bg-sky-50 text-sky-700 ring-sky-100"
+              : "bg-red-50 text-red-700 ring-red-100"
+          }`}
+          aria-hidden
+        >
+          {isAccepted ? "✓" : "×"}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-sm font-semibold text-gray-900 leading-snug">
+              {title}
+            </p>
+            {relative ? (
+              <span className="text-[11px] text-gray-400 whitespace-nowrap shrink-0">
+                {relative}
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-0.5 text-xs text-gray-600">{subtitle}</p>
+          {isAccepted && (req.requested_date || req.requested_time) ? (
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+              {req.requested_date ? (
+                <MetaChip icon={<CalendarIcon />}>
+                  {formatRequestDate(req.requested_date)}
+                </MetaChip>
+              ) : null}
+              {req.requested_time ? (
+                <MetaChip icon={<ClockIcon />}>
+                  {formatTime(req.requested_time)}
+                </MetaChip>
+              ) : null}
+              {req.duration ? (
+                <span className="text-xs text-gray-500">{req.duration} min</span>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </article>
   );
 }
 
@@ -170,15 +307,60 @@ function NotificationItem({
   );
 }
 
+function renderNotificationItem(item, props) {
+  const {
+    formatRequestDate,
+    onAccept,
+    onReject,
+    processingId,
+    viewerRole,
+  } = props;
+
+  if (item._notificationType === "mentorship" || item.startup_name) {
+    if (item.status === "pending") {
+      return (
+        <NotificationItem
+          key={item.notificationId || item.id}
+          req={item}
+          formatRequestDate={formatRequestDate}
+          onAccept={onAccept}
+          onReject={onReject}
+          processingId={processingId}
+        />
+      );
+    }
+    if (item.status === "accepted" || item.status === "rejected") {
+      return (
+        <SessionStatusNotificationItem
+          key={item.notificationId || item.id}
+          req={item}
+          formatRequestDate={formatRequestDate}
+          viewerRole={viewerRole}
+        />
+      );
+    }
+  }
+
+  return (
+    <GenericInboxItem
+      key={item.notificationId || item.id}
+      item={item}
+    />
+  );
+}
+
 function Notification({
   isOpen,
   onClose,
   loading,
-  requests = [],
+  items = [],
   formatRequestDate,
   onAccept,
   onReject,
   processingId,
+  viewerRole = "admin",
+  emptyTitle = "All caught up",
+  emptySubtitle = "No new notifications",
 }) {
   useEffect(() => {
     if (!isOpen) return;
@@ -191,7 +373,7 @@ function Notification({
 
   if (!isOpen) return null;
 
-  const count = requests.length;
+  const count = items.length;
 
   return (
     <div
@@ -231,21 +413,20 @@ function Notification({
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
               </div>
-              <p className="text-sm font-medium text-gray-700">All caught up</p>
-              <p className="text-xs text-gray-500 mt-1">No pending mentor session requests</p>
+              <p className="text-sm font-medium text-gray-700">{emptyTitle}</p>
+              <p className="text-xs text-gray-500 mt-1">{emptySubtitle}</p>
             </div>
           ) : (
             <div className="divide-y divide-gray-100">
-              {requests.map((req) => (
-                <NotificationItem
-                  key={req.id}
-                  req={req}
-                  formatRequestDate={formatRequestDate}
-                  onAccept={onAccept}
-                  onReject={onReject}
-                  processingId={processingId}
-                />
-              ))}
+              {items.map((item) =>
+                renderNotificationItem(item, {
+                  formatRequestDate,
+                  onAccept,
+                  onReject,
+                  processingId,
+                  viewerRole,
+                })
+              )}
             </div>
           )}
         </div>
@@ -253,7 +434,7 @@ function Notification({
         {count > 0 ? (
           <footer className="px-4 py-2 border-t border-gray-100 bg-gray-50/30">
             <p className="text-[11px] text-center text-gray-400">
-              Mentor session requests from startups
+              Mentor session and meeting updates
             </p>
           </footer>
         ) : null}

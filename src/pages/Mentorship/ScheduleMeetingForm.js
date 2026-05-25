@@ -7,7 +7,6 @@ import {
   ApiFetchMentor,
   ApiFetchStartup,
   ApiScheduleMeeting,
-  ApiUpdateMentorSessionRequest,
 } from "../../API/API";
 import { buildMeetingFormFromRequest } from "./sessionRequestHelpers";
 import toast from "react-hot-toast";
@@ -60,6 +59,7 @@ function ScheduleMeetingForm({
         response.rows.map((item) => ({
           id: item.startup_id,
           startup_name: item.startup_name,
+          founder_name: item.founder_name?.trim() || "",
         }))
       );
       const API = await ApiFetchMentor();
@@ -119,15 +119,33 @@ function ScheduleMeetingForm({
       (a.startup_name ?? "").localeCompare(b.startup_name ?? "")
     );
 
+  const founderNameForStartupId = (startupId) => {
+    if (!startupId) return "";
+    const match = startupname.find(
+      (s) => String(s.id) === String(startupId)
+    );
+    return match?.founder_name?.trim() || "";
+  };
+
   const handleSelect = (startup) => {
     setMeetingdata((prev) => ({
       ...prev,
       startup_name: startup.startup_name,
       startup_id: String(startup.id),
+      founder_name: startup.founder_name || prev.founder_name,
     }));
     setSearchTerm(startup.startup_name);
     setShowDropdown(false);
   };
+
+  useEffect(() => {
+    if (!meetingdata.startup_id || !startupname.length) return;
+    const founder = founderNameForStartupId(meetingdata.startup_id);
+    if (!founder) return;
+    setMeetingdata((prev) =>
+      prev.founder_name === founder ? prev : { ...prev, founder_name: founder }
+    );
+  }, [meetingdata.startup_id, startupname]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -183,17 +201,17 @@ function ScheduleMeetingForm({
         meetingdata.time.length === 5
           ? `${meetingdata.time}:00`
           : meetingdata.time,
+      ...(sessionRequestId ? { sessionRequestId } : {}),
     };
 
     setSubmitting(true);
     try {
       await ApiScheduleMeeting(payload);
-      if (sessionRequestId) {
-        await ApiUpdateMentorSessionRequest(sessionRequestId, "accepted");
-        toast.success("Meeting scheduled and request accepted.");
-      } else {
-        toast.success("Meeting scheduled successfully.");
-      }
+      toast.success(
+        sessionRequestId
+          ? "Meeting scheduled and request accepted."
+          : "Meeting scheduled successfully."
+      );
       onSuccess?.();
       onClose?.();
     } catch (error) {

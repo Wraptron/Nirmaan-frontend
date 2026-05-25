@@ -284,6 +284,36 @@ async function ApiUpdateMentorSessionRequest(requestId, status) {
   }
 }
 
+async function ApiFetchNotifications() {
+  try {
+    const token = sessionStorage.getItem("token");
+    const result = await axios.get(`${API_BASE_URL}/api/v1/notification`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    return result.data;
+  } catch (error) {
+    console.error("Error in ApiFetchNotifications", error);
+    throw error;
+  }
+}
+
+async function ApiMarkNotificationsRead() {
+  try {
+    const token = sessionStorage.getItem("token");
+    const result = await axios.patch(
+      `${API_BASE_URL}/api/v1/notification/read`,
+      {},
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
+    );
+    return result.data;
+  } catch (error) {
+    console.error("Error in ApiMarkNotificationsRead", error);
+    throw error;
+  }
+}
+
 async function ApiRequestMentor(payload) {
   try {
     const token = sessionStorage.getItem("token");
@@ -319,12 +349,14 @@ async function ApiRequestMentor(payload) {
 // ==================== MEETING & FEEDBACK APIs ====================
 async function ApiScheduleMeeting(payload) {
   try {
+    const token = sessionStorage.getItem("token");
     const result = await axios.post(
       `${API_BASE_URL}/api/v1/mentor/meeting`,
       payload,
       {
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       }
     );
@@ -964,6 +996,8 @@ export {
   // Meeting & Feedback APIs
   ApiRequestMentor,
   ApiUpdateMentorSessionRequest,
+  ApiFetchNotifications,
+  ApiMarkNotificationsRead,
   ApiScheduleMeeting,
   ApiFetchScheduleMeetings,
   ApiFetchMentorAvailability,

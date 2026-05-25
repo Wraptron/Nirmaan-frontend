@@ -471,9 +471,13 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import ProfileModal from "./ProfileModal";
 import "alertifyjs/build/css/alertify.css";
-import Notification from "./Notification";
+import Notification, { mapNotificationToDisplayItem } from "./Notification";
 import { ScheduleMeetingPopup } from "../pages/Mentorship/ScheduleMeetingForm";
-import { ApiUpdateMentorSessionRequest } from "../API/API";
+import {
+  ApiUpdateMentorSessionRequest,
+  ApiFetchNotifications,
+  ApiMarkNotificationsRead,
+} from "../API/API";
 import toast from "react-hot-toast";
 import ActionsModel from "../components/ActionsModel";
 import Startupsvg from "../assets/images/Startups.svg";
@@ -492,7 +496,7 @@ import APP_URL from "../Config";
 
 function NavBar({ onSelectionChange, selectedIndex }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [mentorRequestNotifications, setMentorRequestNotifications] = useState([]);
+  const [notificationItems, setNotificationItems] = useState([]);
   const [schedulingRequest, setSchedulingRequest] = useState(null);
   const [processingRequestId, setProcessingRequestId] = useState(null);
 
@@ -537,21 +541,25 @@ function NavBar({ onSelectionChange, selectedIndex }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  const fetchMentorNotifications = async () => {
+  const fetchNotifications = async () => {
     try {
-      const token = sessionStorage.getItem("token");
-      const result = await axios.get(`${APP_URL}notification`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      if (Array.isArray(result.data?.mentorSessionRequests)) {
-        setMentorRequestNotifications(result.data.mentorSessionRequests);
-      } else {
-        setMentorRequestNotifications([]);
-      }
+      const data = await ApiFetchNotifications();
+      const raw = Array.isArray(data?.notifications) ? data.notifications : [];
+      setNotificationItems(raw.map(mapNotificationToDisplayItem));
       setLoading(false);
     } catch (err) {
       console.log("Error fetching notification data:", err);
       setLoading(false);
+    }
+  };
+
+  const handleNotificationPanelClose = async () => {
+    setNotificationsOpen(false);
+    try {
+      await ApiMarkNotificationsRead();
+      await fetchNotifications();
+    } catch (err) {
+      console.log("Mark notifications read:", err);
     }
   };
 
@@ -569,7 +577,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     try {
       await ApiUpdateMentorSessionRequest(req.id, "rejected");
       toast.success("Request rejected.");
-      await fetchMentorNotifications();
+      await fetchNotifications();
     } catch (err) {
       toast.error(err?.message || "Failed to reject request.");
     } finally {
@@ -577,9 +585,13 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     }
   };
 
-  const isAdmin = sessionStorage.getItem("role") === "2";
-  const hasMentorNotifications =
-    isAdmin && mentorRequestNotifications.length > 0;
+  const userRole = sessionStorage.getItem("role");
+  const isAdmin = userRole === "2";
+  const isStartup = userRole === "5";
+  const isMentor = userRole === "6";
+  const canSeeNotifications = isAdmin || isStartup || isMentor;
+  const notificationCount = notificationItems.length;
+  const hasNotifications = canSeeNotifications && notificationCount > 0;
 
   const formatRequestDate = (value) => {
     if (!value) return "—";
@@ -627,12 +639,11 @@ function NavBar({ onSelectionChange, selectedIndex }) {
 
   useEffect(() => {
     // Initial data fetch
-    fetchMentorNotifications();
+    fetchNotifications();
 
-    // Set up interval for periodic updates
     const interval = setInterval(() => {
-      fetchMentorNotifications();
-    }, 5000);
+      fetchNotifications();
+    }, 30000);
 
     // Cleanup interval on component unmount
     return () => clearInterval(interval);
@@ -734,7 +745,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
                 </button>
               </div>
             </div> */}
-            {isAdmin ? (
+            {canSeeNotifications ? (
               <div className="relative md:block" ref={notificationRef}>
                 <div className="text-black px-2 py-2 ms-3">
                   <button
@@ -752,24 +763,27 @@ function NavBar({ onSelectionChange, selectedIndex }) {
                     aria-expanded={notificationsOpen}
                   >
                     <img src={Bellsvg} alt="" className="w-5 h-5" />
-                    {hasMentorNotifications ? (
+                    {hasNotifications ? (
                       <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 text-[10px] font-semibold text-white bg-red-500 rounded-full flex items-center justify-center ring-2 ring-white">
-                        {mentorRequestNotifications.length > 9
-                          ? "9+"
-                          : mentorRequestNotifications.length}
+                        {notificationCount > 9 ? "9+" : notificationCount}
                       </span>
                     ) : null}
                   </button>
                 </div>
                 <Notification
                   isOpen={notificationsOpen}
-                  onClose={() => setNotificationsOpen(false)}
+                  onClose={handleNotificationPanelClose}
                   loading={loading}
-                  requests={mentorRequestNotifications}
+                  items={notificationItems}
                   formatRequestDate={formatRequestDate}
-                  onAccept={handleAcceptMentorRequest}
-                  onReject={handleRejectMentorRequest}
+                  onAccept={isAdmin ? handleAcceptMentorRequest : undefined}
+                  onReject={isAdmin ? handleRejectMentorRequest : undefined}
                   processingId={processingRequestId}
+                  viewerRole={
+                    isMentor ? "mentor" : isStartup ? "startup" : "admin"
+                  }
+                  emptyTitle="All caught up"
+                  emptySubtitle="No new notifications"
                 />
               </div>
             ) : null}
@@ -1078,7 +1092,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
         <ScheduleMeetingPopup
           sessionRequest={schedulingRequest}
           onClose={() => setSchedulingRequest(null)}
-          onSuccess={fetchMentorNotifications}
+          onSuccess={fetchNotifications}
         />
       ) : null}
     </div>
