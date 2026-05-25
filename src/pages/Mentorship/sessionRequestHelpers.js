@@ -1,4 +1,31 @@
+import { jwtDecode } from "jwt-decode";
+
 /** Map mentor session request fields → schedule meeting form. */
+
+/** Resolve logged-in startup id from JWT and session (role 5). */
+export const resolveStartupContext = () => {
+  let startupId =
+    sessionStorage.getItem("startup_id") ||
+    sessionStorage.getItem("startupId") ||
+    "";
+
+  const token = sessionStorage.getItem("token");
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      if (decoded?.startup_id != null && decoded.startup_id !== "") {
+        startupId = String(decoded.startup_id);
+      }
+    } catch {
+      /* ignore invalid token */
+    }
+  }
+
+  return {
+    startupId: startupId ? String(startupId) : "",
+    startupName: "",
+  };
+};
 
 export const mapDurationToMeetingLabel = (minutes) => {
   const n = Number(minutes);

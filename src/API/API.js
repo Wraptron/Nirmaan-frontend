@@ -319,15 +319,8 @@ async function ApiRequestMentor(payload) {
     const token = sessionStorage.getItem("token");
     const result = await axios.post(
       `${API_BASE_URL}/api/v1/mentor/session-request`,
-      {
-        mentorId: payload.mentorId || null,
-        mentorName: payload.mentorName || "",
-        date: payload.date,
-        time: payload.time,
-        duration: Number(payload.duration),
-        mode: payload.mode,
-        agenda: payload.agenda || "",
-      },
+       payload
+      ,
       {
         headers: {
           "Content-Type": "application/json",

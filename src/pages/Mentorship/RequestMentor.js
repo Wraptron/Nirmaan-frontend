@@ -103,8 +103,8 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
     setIsLoading(true);
     try {
       await ApiRequestMentor({
-        mentorId,
-        mentorName: mentorName || "",
+        mentor_id: mentorId,
+        mentor_name: mentorName || "",
         date: formData.date,
         time: formData.time,
         duration: formData.duration,
@@ -237,7 +237,6 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
                 <option value={String(SLOT_DURATION_MINUTES)}>
                   {SLOT_DURATION_MINUTES} min
                 </option>
-                <option value="90">90 min</option>
               </select>
               {errors.duration ? (
                 <p className="text-xs text-red-500 mt-1">{errors.duration}</p>

@@ -220,9 +220,10 @@ function StartupMentorDetail() {
   return (
     <div className="flex">
       <SideBar />
-      <div className="ms-[220px] bg-gray-100 min-h-screen flex-grow flex flex-col">
+      <div className="ms-[221px] flex-grow">
         <NavBar />
-        <div className="ml-8 mr-6 mb-6 max-w-5xl flex-1 bg-white rounded-lg shadow-sm border border-gray-100 px-6 py-6">
+        <div className="bg-[#F8FAFB] min-h-screen">
+          <div className="w-full px-6 py-6">
           {isMentorView ? (
             <div className="flex items-center mb-6">
               <h1 className="text-xl font-bold">My Profile</h1>
@@ -435,6 +436,7 @@ function StartupMentorDetail() {
               </button>
             </div>
           )}
+          </div>
         </div>
         {showRequestMentor && (
           <RequestMentor

@@ -4,6 +4,8 @@ import mailsvg from "../../assets/images/Frame (6).svg";
 import phonesvg from "../../assets/images/Frame (7).svg";
 import dummysvg from "../../assets/images/image (1).svg";
 import ImageSvg from "../../assets/images/296fe121-5dfa-43f4-98b5-db50019738a7.jpg";
+import bgImg from "../../assets/images/Rectangle 5.svg";
+import { MdChevronLeft, MdCall } from "react-icons/md";
 import linkedinsvg from "../../assets/images/Frame (9).svg";
 import Testimonials from "../../assets/images/testimonial.png";
 import editsvg from "../../assets/images/Frame (12).svg";
@@ -294,9 +296,10 @@ function MentorProfile() {
   return (
     <div className="flex">
       <SideBar />
-      <div className="ms-[220px] bg-gray-100 flex-grow">
+      <div className="ms-[221px] flex-grow">
         <NavBar />
-        <div className="ml-5 max-w-5xl">
+        <div className="bg-[#F8FAFB] min-h-screen">
+          <div className="w-full px-6 py-6">
           {isMentorView ? (
             <div className="flex items-center mb-6">
               <h1 className="text-xl font-bold">My Profile</h1>
@@ -655,6 +658,7 @@ function MentorProfile() {
                 </button>
               </div>
             </div>
+          </div>
           </div>
         </div>
         {showEditModal && (
