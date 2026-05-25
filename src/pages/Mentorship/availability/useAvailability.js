@@ -28,7 +28,7 @@ function useAvailability(mentorId) {
     setLoading(true);
     setError(null);
 
-    ApiFetchMentorAvailability(mentorId)
+    ApiFetchMentorAvailability(mentorId, { forBooking: true })
       .then((data) => {
         if (cancelled) return;
         setAvailabilityMap(normalizeAvailabilityMap(data));

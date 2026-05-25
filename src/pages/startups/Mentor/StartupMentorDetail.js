@@ -223,38 +223,40 @@ function StartupMentorDetail() {
       <div className="ms-[220px] bg-gray-100 min-h-screen flex-grow flex flex-col">
         <NavBar />
         <div className="ml-8 mr-6 mb-6 max-w-5xl flex-1 bg-white rounded-lg shadow-sm border border-gray-100 px-6 py-6">
-          <div className="flex items-center gap-2 mb-4">
-            {!isMentorView && (
-              <button
-                type="button"
-                onClick={() => navigate("/startup/mentor")}
-                className="p-2 rounded-full hover:bg-gray-200 shrink-0"
-                aria-label="Back to mentors list"
-              >
-                <FaChevronLeft className="w-5 h-5" />
-              </button>
-            )}
-            {isMentorView ? (
-              <p className="text-sm text-gray-600">My Profile</p>
-            ) : (
-              <p className="text-sm text-gray-600 flex flex-wrap items-center gap-1">
-                <span>Start-ups</span>
-                <span className="text-gray-400">&gt;</span>
+          {isMentorView ? (
+            <div className="flex items-center mb-6">
+              <h1 className="text-xl font-bold">My Profile</h1>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-2 mb-4">
                 <button
                   type="button"
-                  className="text-gray-600 hover:text-[#45C74D] hover:underline"
                   onClick={() => navigate("/startup/mentor")}
+                  className="p-2 rounded-full hover:bg-gray-200 shrink-0"
+                  aria-label="Back to mentors list"
                 >
-                  Mentors
+                  <FaChevronLeft className="w-5 h-5" />
                 </button>
-                <span className="text-gray-400">&gt;</span>
-                <span className="text-gray-800 font-medium">Profile</span>
-              </p>
-            )}
-          </div>
-          <div className="flex items-center mb-6">
-            <h1 className="text-xl font-bold">{isMentorView ? "My Mentor Profile" : "Mentor profile"}</h1>
-          </div>
+                <p className="text-sm text-gray-600 flex flex-wrap items-center gap-1">
+                  <span>Start-ups</span>
+                  <span className="text-gray-400">&gt;</span>
+                  <button
+                    type="button"
+                    className="text-gray-600 hover:text-[#45C74D] hover:underline"
+                    onClick={() => navigate("/startup/mentor")}
+                  >
+                    Mentors
+                  </button>
+                  <span className="text-gray-400">&gt;</span>
+                  <span className="text-gray-800 font-medium">Profile</span>
+                </p>
+              </div>
+              <div className="flex items-center mb-6">
+                <h1 className="text-xl font-bold">Mentor profile</h1>
+              </div>
+            </>
+          )}
 
           {/* Profile Header */}
           <div className="bg-gradient-to-r from-green-300 to-grey-200 rounded-lg p-6 relative mb-6">

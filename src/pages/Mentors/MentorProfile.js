@@ -297,42 +297,44 @@ function MentorProfile() {
       <div className="ms-[220px] bg-gray-100 flex-grow">
         <NavBar />
         <div className="ml-5 max-w-5xl">
-          <div className="flex items-center mb-4">
-            {isMentorView ? (
-              <p className="text-sm text-gray-600">My Profile</p>
-            ) : (
-              <p className="text-sm text-gray-600 flex flex-wrap items-center gap-1">
+          {isMentorView ? (
+            <div className="flex items-center mb-6">
+              <h1 className="text-xl font-bold">My Profile</h1>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center mb-4">
+                <p className="text-sm text-gray-600 flex flex-wrap items-center gap-1">
+                  <button
+                    type="button"
+                    className="text-gray-600 hover:text-[#45C74D] hover:underline"
+                    onClick={() => navigate("/home")}
+                  >
+                    Dashboard
+                  </button>
+                  <span className="text-gray-400">&gt;</span>
+                  <button
+                    type="button"
+                    className="text-gray-600 hover:text-[#45C74D] hover:underline"
+                    onClick={() => navigate("/mentors")}
+                  >
+                    Mentors
+                  </button>
+                  <span className="text-gray-400">&gt;</span>
+                  <span className="text-gray-800 font-medium">Profile</span>
+                </p>
+              </div>
+              <div className="flex items-center mb-6">
                 <button
-                  type="button"
-                  className="text-gray-600 hover:text-[#45C74D] hover:underline"
-                  onClick={() => navigate("/home")}
-                >
-                  Dashboard
-                </button>
-                <span className="text-gray-400">&gt;</span>
-                <button
-                  type="button"
-                  className="text-gray-600 hover:text-[#45C74D] hover:underline"
                   onClick={() => navigate("/mentors")}
+                  className="mr-2 p-2 rounded-full hover:bg-gray-200"
                 >
-                  Mentors
+                  <FaChevronLeft className="w-5 h-5" />
                 </button>
-                <span className="text-gray-400">&gt;</span>
-                <span className="text-gray-800 font-medium">Profile</span>
-              </p>
-            )}
-          </div>
-          <div className="flex items-center mb-6">
-            {!isMentorView && (
-              <button
-                onClick={() => navigate("/mentors")}
-                className="mr-2 p-2 rounded-full hover:bg-gray-200"
-              >
-                <FaChevronLeft className="w-5 h-5" />
-              </button>
-            )}
-            <h1 className="text-xl font-bold">{isMentorView ? "My Mentor Profile" : "Mentor profile"}</h1>
-          </div>
+                <h1 className="text-xl font-bold">Mentor profile</h1>
+              </div>
+            </>
+          )}
 
           {/* Profile Header */}
           <div className="bg-gradient-to-r from-green-300 to-grey-200 rounded-lg p-6 relative mb-6">

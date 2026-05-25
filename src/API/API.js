@@ -378,10 +378,11 @@ async function ApiFetchScheduleMeetings(mentor_id) {
   }
 }
 
-async function ApiFetchMentorAvailability(mentor_id) {
+async function ApiFetchMentorAvailability(mentor_id, { forBooking = false } = {}) {
   try {
     const result = await axios.get(
-      `${API_BASE_URL}/api/v1/availability/${mentor_id}`
+      `${API_BASE_URL}/api/v1/availability/${mentor_id}`,
+      forBooking ? { params: { forBooking: "true" } } : undefined
     );
     return result.data;
   } catch (err) {
