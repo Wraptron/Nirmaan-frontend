@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { MENTOR_TAG_OPTIONS } from "../../../utils/mentorTagUtils";
 
 const Step2 = ({ formData, handleChange }) => {
   const [errors, setErrors] = useState({
@@ -8,7 +9,9 @@ const Step2 = ({ formData, handleChange }) => {
     institution: "",
     qualification: "",
     year_of_passing_out: "",
-    startup_associated: ""
+    startup_associated: "",
+    tag: "",
+    representing_from: "",
   });
 
   // Options for dropdown fields
@@ -83,6 +86,16 @@ const Step2 = ({ formData, handleChange }) => {
         } else {
           newErrors.startup_associated = "";
         }
+        break;
+      case "tag":
+        if (!value.trim()) {
+          newErrors.tag = "Tag is required";
+        } else {
+          newErrors.tag = "";
+        }
+        break;
+      case "representing_from":
+        newErrors.representing_from = "";
         break;
       default:
         break;
@@ -247,6 +260,53 @@ const Step2 = ({ formData, handleChange }) => {
           </select>
           {errors.startup_associated && (
             <p className="text-[#E54545] text-xs mt-1">{errors.startup_associated}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <div className="mb-1">
+          Tag <span className="text-[#E54545]">*</span>
+        </div>
+        <div>
+          <select
+            name="tag"
+            value={formData.tag || ""}
+            onChange={validateAndChange}
+            className={`block w-full p-2 text-sm text-gray-900 border ${
+              errors.tag ? "border-[#E54545]" : "border-gray-300"
+            } rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]`}
+          >
+            <option value="">Select tag</option>
+            {MENTOR_TAG_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+          {errors.tag && (
+            <p className="text-[#E54545] text-xs mt-1">{errors.tag}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <div className="mb-1">Representing From</div>
+        <div>
+          <input
+            type="text"
+            placeholder="e.g. Kalaari Capital, IITM Alumni Forum"
+            onChange={validateAndChange}
+            name="representing_from"
+            value={formData.representing_from || ""}
+            className={`block w-full p-2 text-sm text-gray-900 border ${
+              errors.representing_from ? "border-[#E54545]" : "border-gray-300"
+            } rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]`}
+          />
+          {errors.representing_from && (
+            <p className="text-[#E54545] text-xs mt-1">
+              {errors.representing_from}
+            </p>
           )}
         </div>
       </div>

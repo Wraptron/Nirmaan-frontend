@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { ApiUpdateMentor } from "../../API/API";
 import toast from "react-hot-toast";
+import { MENTOR_TAG_OPTIONS } from "../../utils/mentorTagUtils";
 import bgImg from "../../assets/images/Rectangle 5.svg";
 import { FiEdit2 } from "react-icons/fi";
 
@@ -18,6 +19,8 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
     year_of_passing_out: initialData.year_of_passing_out || "",
     expertise: initialData.area_of_expertise || "",
     linkedin_id: initialData.linkedin_id || "",
+    tag: initialData.tag || "",
+    representing_from: initialData.representing_from || "",
   });
   // console.log(initialData);
    const [preview, setPreview] = useState(
@@ -251,6 +254,36 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
                 value={formData.linkedin_id}
                 onChange={handleChange}
                 placeholder="LinkedIn Profile ID"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#45C74D] focus:border-[#45C74D]"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tag
+              </label>
+              <select
+                name="tag"
+                value={formData.tag}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#45C74D] focus:border-[#45C74D]"
+              >
+                <option value="">Select tag</option>
+                {MENTOR_TAG_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Representing From
+              </label>
+              <input
+                name="representing_from"
+                value={formData.representing_from}
+                onChange={handleChange}
+                placeholder="Organization or fund name"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#45C74D] focus:border-[#45C74D]"
               />
             </div>
