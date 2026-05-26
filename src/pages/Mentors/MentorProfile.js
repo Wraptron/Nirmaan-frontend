@@ -4,8 +4,6 @@ import mailsvg from "../../assets/images/Frame (6).svg";
 import phonesvg from "../../assets/images/Frame (7).svg";
 import dummysvg from "../../assets/images/image (1).svg";
 import ImageSvg from "../../assets/images/296fe121-5dfa-43f4-98b5-db50019738a7.jpg";
-import bgImg from "../../assets/images/Rectangle 5.svg";
-import { MdChevronLeft, MdCall } from "react-icons/md";
 import linkedinsvg from "../../assets/images/Frame (9).svg";
 import Testimonials from "../../assets/images/testimonial.png";
 import editsvg from "../../assets/images/Frame (12).svg";
