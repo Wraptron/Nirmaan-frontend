@@ -329,12 +329,12 @@ function MentorShip() {
 
                 {/* Actions + View Toggle */}
                 <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
-                  <button
+                  {/* <button
                     className="border border-[#45C74D] rounded-lg px-4 py-2 text-sm"
                     onClick={handleRequestMentorClick}
                   >
                     Request Mentor
-                  </button>
+                  </button> */}
 
                   <button
                     className="bg-[#45C74D] text-white px-4 py-2 rounded-lg text-sm font-semibold"
