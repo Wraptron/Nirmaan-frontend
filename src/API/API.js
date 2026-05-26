@@ -262,15 +262,94 @@ async function ApiUpdateMentor(payload) {
   }
 }   
 
+async function ApiUpdateMentorSessionRequest(requestId, status) {
+  try {
+    const token = sessionStorage.getItem("token");
+    const result = await axios.patch(
+      `${API_BASE_URL}/api/v1/mentor/session-request/${requestId}`,
+      { status },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      }
+    );
+    return result.data;
+  } catch (error) {
+    console.error("Error in ApiUpdateMentorSessionRequest", error);
+    const data = error.response?.data;
+    if (data?.message) throw new Error(data.message);
+    throw error;
+  }
+}
+
+async function ApiFetchNotifications() {
+  try {
+    const token = sessionStorage.getItem("token");
+    const result = await axios.get(`${API_BASE_URL}/api/v1/notification`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    return result.data;
+  } catch (error) {
+    console.error("Error in ApiFetchNotifications", error);
+    throw error;
+  }
+}
+
+async function ApiMarkNotificationsRead() {
+  try {
+    const token = sessionStorage.getItem("token");
+    const result = await axios.patch(
+      `${API_BASE_URL}/api/v1/notification/read`,
+      {},
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
+    );
+    return result.data;
+  } catch (error) {
+    console.error("Error in ApiMarkNotificationsRead", error);
+    throw error;
+  }
+}
+
+async function ApiRequestMentor(payload) {
+  try {
+    const token = sessionStorage.getItem("token");
+    const result = await axios.post(
+      `${API_BASE_URL}/api/v1/mentor/session-request`,
+       payload
+      ,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      }
+    );
+    return result.data;
+  } catch (error) {
+    console.error("Error in ApiRequestMentor", error);
+    const data = error.response?.data;
+    if (typeof data === "string") throw new Error(data);
+    if (data?.message) throw new Error(data.message);
+    if (data?.error) throw new Error(data.error);
+    throw error;
+  }
+}
+
 // ==================== MEETING & FEEDBACK APIs ====================
 async function ApiScheduleMeeting(payload) {
   try {
+    const token = sessionStorage.getItem("token");
     const result = await axios.post(
       `${API_BASE_URL}/api/v1/mentor/meeting`,
       payload,
       {
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       }
     );
@@ -291,6 +370,36 @@ async function ApiFetchScheduleMeetings(mentor_id) {
     console.log(err);
   }
 }
+
+async function ApiFetchMentorAvailability(mentor_id, { forBooking = false } = {}) {
+  try {
+    const token = sessionStorage.getItem("token");
+    const result = await axios.get(
+      `${API_BASE_URL}/api/v1/availability/${mentor_id}`,
+      {
+        ...(forBooking ? { params: { forBooking: "true" } } : {}),
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
+    );
+    return result.data;
+  } catch (err) {
+    console.error("Error in ApiFetchMentorAvailability", err);
+    throw err;
+  }
+}
+
+async function ApiSaveMentorAvailability(payload) {
+  try {
+    const result = await axios.post(
+      `${API_BASE_URL}/api/v1/availability/save`,
+      payload
+    );
+    return result.data;
+  } catch (err) {
+    console.error("Error in ApiSaveMentorAvailability", err);
+    throw err;
+  }
+}
 async function ApiFetchScheduleMeetingsDetailsWithMentor() {
   try {
     const result = await axios.get(
@@ -299,6 +408,7 @@ async function ApiFetchScheduleMeetingsDetailsWithMentor() {
     return result.data;
   } catch (err) {
     console.log(err);
+    return [];
   }
 }
 
@@ -882,8 +992,14 @@ export {
   ApiUpdateMentor,
 
   // Meeting & Feedback APIs
+  ApiRequestMentor,
+  ApiUpdateMentorSessionRequest,
+  ApiFetchNotifications,
+  ApiMarkNotificationsRead,
   ApiScheduleMeeting,
   ApiFetchScheduleMeetings,
+  ApiFetchMentorAvailability,
+  ApiSaveMentorAvailability,
   ApiFetchScheduleMeetingsDetailsWithMentor,
   ApiDeleteMeeting,
   ApiSaveFeedback,

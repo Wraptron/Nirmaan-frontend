@@ -170,9 +170,10 @@ import Mobility from "./pages/startups/Mobility/Mobility";
 import IndividualStartups from "./pages/startups/IndividualStartups";
 import Pdf from "./pages/Reports/Pdf";
 import Bills from "./Finance/Pages/Startup/Bills";
-import ScheduleMeeting from "./pages/Mentors/ScheduleMeeting";
+import { ScheduleMeetingPage } from "./pages/Mentorship/ScheduleMeetingForm";
 import Startupprofile from "./pages/startups/startupprofile";
 import MentorProfile from "./pages/Mentors/MentorProfile";
+import MentorAvailability from "./pages/Mentors/MentorAvailability";
 import Mentor from "./pages/Mentors/Mentor";
 import OfficeHome from "./Office/Pages/OfficeHome";
 
@@ -199,11 +200,11 @@ import FinanceStartupdetails from "./Finance/Pages/Startup/Finstartup";
 import ProtectedRoutes from "./utils/ProtectedRoutes";
 import Finstartup from "./Finance/Pages/Startup/Finstartup";
 import StartupFundingDetail from "./Finance/Pages/Startup/StartupfundingDetail";
-import Schedule from "./pages/Mentorship/Schedule";
 
 // Startup Logi
 import StartupMentor from "./pages/startups/Mentor/MentorList";
-import StartupList from "./pages/startups/Startup/StartupList"
+import StartupMentorDetail from "./pages/startups/Mentor/StartupMentorDetail";
+import StartupList from "./pages/startups/Startup/StartupList";
 import IpCreated from "./pages/Home/IpDetails"
 import PIADetails from "./pages/Home/PIADetails";
 import IITMICDetails from "./pages/Home/IITMICDetails";
@@ -235,6 +236,10 @@ function App() {
             <Route path="/mentors" element={<Mentor />} />
             <Route path="/events" element={<Events />} />
             <Route path="/mentorship" element={<MentorShip />} />
+            <Route
+              path="/mentorship/scheduleMeeting"
+              element={<ScheduleMeetingPage />}
+            />
             <Route path="/settings" element={<Settings />} />
             <Route path="/fintechstartups" element={<FinTech />} />
             <Route path="/industrystartups" element={<Industry />} />
@@ -246,7 +251,7 @@ function App() {
             <Route path="/mentors/new" element={<AddNewMentor />} />
             <Route
               path="/mentors/scheduleMeeting/:mentor_id"
-              element={<ScheduleMeeting />}
+              element={<ScheduleMeetingPage />}
             />
 
             <Route path="/reports" element={<Reports />} />
@@ -262,7 +267,6 @@ function App() {
                 </PDFViewer>
               }
             />
-            <Route path="/mentorship/scheduleMeeting" element={<Schedule />} />
           </Route>
 
           {/* Startup Profile Routes (Admin: 2 + Students: 5) */}
@@ -289,6 +293,14 @@ function App() {
             />
           </Route>
 
+          {/* Mentor availability calendar (Mentor: 6) */}
+          <Route element={<ProtectedRoutes allowedRoles={["6"]} />}>
+            <Route
+              path="/mentors/availability"
+              element={<MentorAvailability />}
+            />
+          </Route>
+
           {/* Student Only Routes (Role: 5) */}
           <Route element={<ProtectedRoutes allowedRoles={["5"]} />}>
             <Route path="/customer/Home" element={<CustomerHome />} />
@@ -305,6 +317,10 @@ function App() {
             <Route path="/customer/Startups" element={<CustomerStartup />} />
             <Route path="/customer/contacts" element={<CustomerContacts />} />
             <Route path="/startup/mentor" element={<StartupMentor />} />
+            <Route
+              path="/startup/mentor/:id"
+              element={<StartupMentorDetail />}
+            />
             <Route path="/startup/startuplist" element={<StartupList />} />
           </Route>
 

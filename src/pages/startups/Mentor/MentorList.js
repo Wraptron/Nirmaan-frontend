@@ -2,24 +2,13 @@ import React, { useEffect, useState } from "react";
 import SideBar from "../../../components/sidebar";
 import Navbar from "../../../components/NavBar";
 import { ApiFetchMentor } from "../../../API/API";
-import MentorAbout from "./MentorAbout";
 import { jwtDecode } from "jwt-decode";
 import { Navigate, useNavigate } from "react-router-dom";
 
 const Mentor = () => {
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedMentor, setSelectedMentor] = useState(null);
-  const [showmentorabout, setShowMentorAbout] = useState(false);
   const navigate = useNavigate();
-  const handleaboutclose = () => {
-    setSelectedMentor(null);
-    setShowMentorAbout(false);
-  };
-
-   const handleScheduleClick = () => {
-     navigate(`/schedulemeeting`);
-   };
   const fetchData = async () => {
     try {
       const API = await ApiFetchMentor();
@@ -29,7 +18,7 @@ const Mentor = () => {
         .map((item, index) => ({
           ...item,
           siNo: index + 1,
-        }));;
+        }));
       setData(sortedData);
     } catch (err) {
       console.error(err);
@@ -60,7 +49,7 @@ const Mentor = () => {
      return <Navigate to="/" replace />;
    }
   
-   if (decoded.role !== 5) {
+   if (Number(decoded.role) !== 5) {
      sessionStorage.clear();
      localStorage.clear();
      return <Navigate to="/" replace />;
@@ -117,35 +106,30 @@ const Mentor = () => {
                       <tr className="border-b border-dotted">
                             <th className="px-4 py-2">SI.No</th>
                       <th className="px-4 py-2">Name</th>
-                      <th className="px-4 py-2">Institution</th>
-                      <th className="px-4 py-2">Startups </th>
-                      <th className="px-4 py-2"></th>
-                      <th className="px-4 py-2"></th>
+                      <th className="px-4 py-2">Qualification</th>
+                      <th className="px-4 py-2">Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredMentor.map((mentor) => (
-                      <tr className="border-b border-dotted">
+                      <tr
+                        key={mentor.mentor_id}
+                        className="border-b border-dotted"
+                      >
                          <td className="px-4 py-2">{mentor.siNo}</td>
                         <td className="px-4 py-2">{mentor.mentor_name}</td>
-                        <td className="px-4 py-2">{mentor.institution}</td>
-                        <td className="px-4 py-2">-</td>
+                        <td className="px-4 py-2">{mentor.qualification}</td>
                         <td className="px-4 py-2">
                           <button
+                            type="button"
                             className="bg-[#45C74D] text-white px-8 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition"
-                            onClick={() => {
-                              setSelectedMentor(mentor);
-                              setShowMentorAbout(true);
-                            }}
+                            onClick={() =>
+                              navigate(`/startup/mentor/${mentor.mentor_id}`)
+                            }
                           >
                             View
                           </button>
                         </td>
-                        {/* <td className="px-4 py-2">
-                          <button className="bg-[#45C74D] text-white px-8 py-2 rounded-lg text-base font-semibold shadow hover:bg-[#36a03d] transition">
-                            Request
-                          </button>
-                        </td> */}
                       </tr>
                     ))}
                   </tbody>
@@ -156,15 +140,6 @@ const Mentor = () => {
           </div>
         </div>
       </div>
-      {showmentorabout && (
-        <MentorAbout
-          onClose={handleaboutclose}
-          mentor_logo={selectedMentor.mentor_logo}
-          mentor_name={selectedMentor.mentor_name}
-          about={selectedMentor.mento_description}
-          expertise={selectedMentor.area_of_expertise}
-        />
-      )}
     </div>
   );
 };

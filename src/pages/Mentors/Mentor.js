@@ -232,11 +232,17 @@ if (decoded.role !== 2) {
                         />
                         <div className="flex-1 ml-4">
                           <div className="text-md font-semibold">
-                            <a
-                              href={`/mentors/mentor_profile/${mentor.mentor_id}`}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                navigate(
+                                  `/mentors/mentor_profile/${mentor.mentor_id}`
+                                )
+                              }
+                              className="text-left hover:text-[#45C74D] hover:underline"
                             >
                               {mentor.mentor_name}
-                            </a>
+                            </button>
                           </div>
                           <div className="text-sm text-gray-500">
                             {mentor.email_address || "N/A"}

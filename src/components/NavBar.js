@@ -471,7 +471,14 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import ProfileModal from "./ProfileModal";
 import "alertifyjs/build/css/alertify.css";
-import Notification from "./Notification";
+import Notification, { mapNotificationToDisplayItem } from "./Notification";
+import { ScheduleMeetingPopup } from "../pages/Mentorship/ScheduleMeetingForm";
+import {
+  ApiUpdateMentorSessionRequest,
+  ApiFetchNotifications,
+  ApiMarkNotificationsRead,
+} from "../API/API";
+import toast from "react-hot-toast";
 import ActionsModel from "../components/ActionsModel";
 import Startupsvg from "../assets/images/Startups.svg";
 import Mentorsvg from "../assets/images/Mentor.svg";
@@ -485,10 +492,13 @@ import More from "./More";
 import startupsvg from "../assets/images/Startups.svg";
 import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
+import APP_URL from "../Config";
 
 function NavBar({ onSelectionChange, selectedIndex }) {
-  const [messageNotify, setMessageNotification] = useState(false);
-  const handleClose = () => setMessageNotification(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notificationItems, setNotificationItems] = useState([]);
+  const [schedulingRequest, setSchedulingRequest] = useState(null);
+  const [processingRequestId, setProcessingRequestId] = useState(null);
 
   const [showModal, setShowModal] = useState(false);
 
@@ -499,6 +509,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
+  const notificationRef = useRef(null);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -517,6 +528,12 @@ function NavBar({ onSelectionChange, selectedIndex }) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
+        setNotificationsOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -524,17 +541,81 @@ function NavBar({ onSelectionChange, selectedIndex }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  const UpdatedFundingData = async () => {
+  const fetchNotifications = async () => {
     try {
-      const result = await axios.get("http://13.127.7.121/api/v1/notification");
-      if (result.data && result.data.rows && result.data.rows.length > 0) {
-        setTokenData(result.data.rows[0]);
-      }
+      const data = await ApiFetchNotifications();
+      const raw = Array.isArray(data?.notifications) ? data.notifications : [];
+      setNotificationItems(raw.map(mapNotificationToDisplayItem));
       setLoading(false);
     } catch (err) {
       console.log("Error fetching notification data:", err);
       setLoading(false);
     }
+  };
+
+  const handleNotificationPanelClose = async () => {
+    setNotificationsOpen(false);
+    try {
+      await ApiMarkNotificationsRead();
+      await fetchNotifications();
+    } catch (err) {
+      console.log("Mark notifications read:", err);
+    }
+  };
+
+  const handleAcceptMentorRequest = (req) => {
+    if (!req?.mentor_id) {
+      toast.error("This request has no mentor linked.");
+      return;
+    }
+    setNotificationsOpen(false);
+    setSchedulingRequest(req);
+  };
+
+  const handleRejectMentorRequest = async (req) => {
+    setProcessingRequestId(req.id);
+    try {
+      await ApiUpdateMentorSessionRequest(req.id, "rejected");
+      toast.success("Request rejected.");
+      setNotificationItems((items) =>
+        items.filter((item) => String(item.id) !== String(req.id))
+      );
+      await fetchNotifications();
+    } catch (err) {
+      toast.error(err?.message || "Failed to reject request.");
+    } finally {
+      setProcessingRequestId(null);
+    }
+  };
+
+  const handleScheduleMeetingSuccess = async () => {
+    const processedId = schedulingRequest?.id;
+    if (processedId != null) {
+      setNotificationItems((items) =>
+        items.filter((item) => String(item.id) !== String(processedId))
+      );
+    }
+    await fetchNotifications();
+  };
+
+  const userRole = sessionStorage.getItem("role");
+  const isAdmin = userRole === "2";
+  const isStartup = userRole === "5";
+  const isMentor = userRole === "6";
+  const canSeeNotifications = isAdmin || isStartup || isMentor;
+  const notificationCount = notificationItems.length;
+  const hasNotifications = canSeeNotifications && notificationCount > 0;
+
+  const formatRequestDate = (value) => {
+    if (!value) return "—";
+    const d = new Date(value);
+    return Number.isNaN(d.getTime())
+      ? String(value)
+      : d.toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        });
   };
 
   // Add error handling for JWT decode
@@ -571,12 +652,11 @@ function NavBar({ onSelectionChange, selectedIndex }) {
 
   useEffect(() => {
     // Initial data fetch
-    UpdatedFundingData();
+    fetchNotifications();
 
-    // Set up interval for periodic updates
     const interval = setInterval(() => {
-      UpdatedFundingData();
-    }, 5000);
+      fetchNotifications();
+    }, 30000);
 
     // Cleanup interval on component unmount
     return () => clearInterval(interval);
@@ -601,7 +681,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
 
   return (
     <div className="navbar dm-sans">
-      <nav className="bg-white shadow-sm">
+      <nav className="bg-white shadow-sm relative z-50">
         <div className="flex flex-wrap items-center justify-between p-3">
           <div className="flex md:order-2">
             <button
@@ -678,6 +758,48 @@ function NavBar({ onSelectionChange, selectedIndex }) {
                 </button>
               </div>
             </div> */}
+            {canSeeNotifications ? (
+              <div className="relative md:block" ref={notificationRef}>
+                <div className="text-black px-2 py-2 ms-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNotificationsOpen((open) => !open);
+                      setIsOpen(false);
+                    }}
+                    className={`relative p-1 rounded-lg transition-colors ${
+                      notificationsOpen
+                        ? "bg-gray-100 ring-1 ring-gray-200"
+                        : "hover:bg-gray-50"
+                    }`}
+                    aria-label="Notifications"
+                    aria-expanded={notificationsOpen}
+                  >
+                    <img src={Bellsvg} alt="" className="w-5 h-5" />
+                    {hasNotifications ? (
+                      <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 text-[10px] font-semibold text-white bg-red-500 rounded-full flex items-center justify-center ring-2 ring-white">
+                        {notificationCount > 9 ? "9+" : notificationCount}
+                      </span>
+                    ) : null}
+                  </button>
+                </div>
+                <Notification
+                  isOpen={notificationsOpen}
+                  onClose={handleNotificationPanelClose}
+                  loading={loading}
+                  items={notificationItems}
+                  formatRequestDate={formatRequestDate}
+                  onAccept={isAdmin ? handleAcceptMentorRequest : undefined}
+                  onReject={isAdmin ? handleRejectMentorRequest : undefined}
+                  processingId={processingRequestId}
+                  viewerRole={
+                    isMentor ? "mentor" : isStartup ? "startup" : "admin"
+                  }
+                  emptyTitle="All caught up"
+                  emptySubtitle="No new notifications"
+                />
+              </div>
+            ) : null}
             <div className="relative md:block" ref={dropdownRef}>
               <div className="text-black px-2 py-2 ms-3">
                 <button onClick={toggleDropdown}>
@@ -772,31 +894,6 @@ function NavBar({ onSelectionChange, selectedIndex }) {
           </div>
         </div>
       </nav>
-      <Notification isVisible={messageNotify} onClose={handleClose}>
-        {Array.isArray(tokenData) && tokenData.length > 0 ? (
-          tokenData.map((dataObj, key) => (
-            <div className="max-h-[50px]" key={key}>
-              <div className="flex justify-between gap-10 bg-white mt-1">
-                <div className="text-xs">
-                  startup Vision have requested for a new connection with
-                  startup Vision.
-                  <br></br>
-                  <span className="text-gray-400">Hello</span>
-                </div>
-                <button className="p-3 bg-gray-100 rounded-sm">View</button>
-                <div className="m-2 inline-block w-[15px] h-[11px] text-sm font-semibold text-white bg-green-500 rounded-full relative">
-                  <button className="w-full h-full"></button>
-                  <span className="absolute left-1/2 top-[-90px] transform -translate-x-1/2 -translate-y-full bg-gray-300 text-white text-xs font-medium px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity duration-200">
-                    Mark as Read
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div>{loading ? "Loading..." : "No notifications"}</div>
-        )}
-      </Notification>
       <ProfileModal isVisible={showModal} onClose={() => setShowModal(false)}>
         <center>
           <img src={img} className="h-[60px;]" alt="Logo" />
@@ -1004,6 +1101,13 @@ function NavBar({ onSelectionChange, selectedIndex }) {
           </div>
         </div>
       </More> */}
+      {schedulingRequest ? (
+        <ScheduleMeetingPopup
+          sessionRequest={schedulingRequest}
+          onClose={() => setSchedulingRequest(null)}
+          onSuccess={handleScheduleMeetingSuccess}
+        />
+      ) : null}
     </div>
   );
 }

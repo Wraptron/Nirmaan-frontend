@@ -4,6 +4,8 @@ import mailsvg from "../../assets/images/Frame (6).svg";
 import phonesvg from "../../assets/images/Frame (7).svg";
 import dummysvg from "../../assets/images/image (1).svg";
 import ImageSvg from "../../assets/images/296fe121-5dfa-43f4-98b5-db50019738a7.jpg";
+import bgImg from "../../assets/images/Rectangle 5.svg";
+import { MdChevronLeft, MdCall } from "react-icons/md";
 import linkedinsvg from "../../assets/images/Frame (9).svg";
 import Testimonials from "../../assets/images/testimonial.png";
 import editsvg from "../../assets/images/Frame (12).svg";
@@ -33,6 +35,7 @@ import EditTestimonial from "./EditTestimonial";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
 import dayjs from "dayjs";
 import FeedbackForm from "./FeedbackForm";
+import MentorAvailabilityDetails from "../../components/MentorAvailabilityDetails";
 
 function MentorProfile() {
   const { id } = useParams();
@@ -40,6 +43,7 @@ function MentorProfile() {
   const userRole = sessionStorage.getItem("role");
   const loggedInMentorId = sessionStorage.getItem("mentor_id");
   const isMentorView = userRole === "6"; // Mentor sees only own profile
+  const isAdminView = userRole === "2";
 
   const [mentor, setMentor] = useState(null);
   const [meeting, setMeeting] = useState([]);
@@ -294,25 +298,48 @@ function MentorProfile() {
   return (
     <div className="flex">
       <SideBar />
-      <div className="ms-[220px] bg-gray-100 flex-grow">
+      <div className="ms-[221px] flex-grow">
         <NavBar />
-        <div className="ml-5 max-w-5xl">
-          <div className="flex items-center mb-4">
-            <p className="text-sm text-gray-600">
-              {isMentorView ? "My Profile" : "Dashboard &gt; Mentors &gt; Profile"}
-            </p>
-          </div>
-          <div className="flex items-center mb-6">
-            {!isMentorView && (
-              <button
-                onClick={() => navigate("/mentors")}
-                className="mr-2 p-2 rounded-full hover:bg-gray-200"
-              >
-                <FaChevronLeft className="w-5 h-5" />
-              </button>
-            )}
-            <h1 className="text-xl font-bold">{isMentorView ? "My Mentor Profile" : "Mentor profile"}</h1>
-          </div>
+        <div className="bg-[#F8FAFB] min-h-screen">
+          <div className="w-full px-6 py-6">
+          {isMentorView ? (
+            <div className="flex items-center mb-6">
+              <h1 className="text-xl font-bold">My Profile</h1>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center mb-4">
+                <p className="text-sm text-gray-600 flex flex-wrap items-center gap-1">
+                  <button
+                    type="button"
+                    className="text-gray-600 hover:text-[#45C74D] hover:underline"
+                    onClick={() => navigate("/home")}
+                  >
+                    Dashboard
+                  </button>
+                  <span className="text-gray-400">&gt;</span>
+                  <button
+                    type="button"
+                    className="text-gray-600 hover:text-[#45C74D] hover:underline"
+                    onClick={() => navigate("/mentors")}
+                  >
+                    Mentors
+                  </button>
+                  <span className="text-gray-400">&gt;</span>
+                  <span className="text-gray-800 font-medium">Profile</span>
+                </p>
+              </div>
+              <div className="flex items-center mb-6">
+                <button
+                  onClick={() => navigate("/mentors")}
+                  className="mr-2 p-2 rounded-full hover:bg-gray-200"
+                >
+                  <FaChevronLeft className="w-5 h-5" />
+                </button>
+                <h1 className="text-xl font-bold">Mentor profile</h1>
+              </div>
+            </>
+          )}
 
           {/* Profile Header */}
           <div className="bg-gradient-to-r from-green-300 to-grey-200 rounded-lg p-6 relative mb-6">
@@ -374,14 +401,17 @@ function MentorProfile() {
                 </div>
               </div>
             </div>
-            <div className="flex justify-end mt-4">
-              <button
-                className="bg-[#45C74D] text-white px-4 py-2 rounded-md"
-                onClick={handleScheduleClick}
-              >
-                Schedule Session
-              </button>
-            </div>
+            {!isMentorView && (
+              <div className="flex justify-end mt-4">
+                <button
+                  type="button"
+                  className="bg-[#45C74D] text-white px-4 py-2 rounded-md"
+                  onClick={handleScheduleClick}
+                >
+                  Schedule Session
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Profile Stats */}
@@ -418,41 +448,49 @@ function MentorProfile() {
             </p>
           </div>
 
-          {/* Current Mentees Section */}
-          <div className="bg-white p-6 rounded-lg mb-6">
-            <h2 className="text-lg font-semibold mb-4">Current Mentees</h2>
-            <div className="space-y-4">
-              {mentor.mentees?.length > 0 ? (
-                mentor.mentees.map((mentee, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between py-2"
-                  >
-                    <div className="flex items-center">
-                      <img
-                        src={dummysvg}
-                        alt="Mentee"
-                        className="rounded-lg w-12 h-12 object-cover mr-4"
-                      />
-                      <div>
-                        <h3 className="font-medium text-sm">{mentee.name}</h3>
-                        <p className="text-sm text-gray-600">
-                          {mentee.position}
-                        </p>
+          {isAdminView ? (
+            <MentorAvailabilityDetails mentorId={mentor.mentor_id} />
+          ) : null}
+
+          {!isMentorView && (
+            <div className="bg-white p-6 rounded-lg mb-6">
+              <h2 className="text-lg font-semibold mb-4">Current Mentees</h2>
+              <div className="space-y-4">
+                {mentor.mentees?.length > 0 ? (
+                  mentor.mentees.map((mentee, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between py-2"
+                    >
+                      <div className="flex items-center">
+                        <img
+                          src={dummysvg}
+                          alt="Mentee"
+                          className="rounded-lg w-12 h-12 object-cover mr-4"
+                        />
+                        <div>
+                          <h3 className="font-medium text-sm">{mentee.name}</h3>
+                          <p className="text-sm text-gray-600">
+                            {mentee.position}
+                          </p>
+                        </div>
                       </div>
+                      <button
+                        type="button"
+                        className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600"
+                      >
+                        Visit Profile
+                      </button>
                     </div>
-                    <button className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600">
-                      Visit Profile
-                    </button>
+                  ))
+                ) : (
+                  <div className="py-4 text-sm text-gray-500">
+                    No mentees available.
                   </div>
-                ))
-              ) : (
-                <div className="py-4 text-sm text-gray-500">
-                  No mentees available.
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Mentoring Sessions Section */}
           <div className="bg-white p-6 rounded-lg mb-6">
@@ -546,9 +584,11 @@ function MentorProfile() {
                 <h2 className="text-xl font-semibold mb-4 text-gray-800 px-5">
                   Testimonials
                 </h2>
-                <div onClick={() => setShowModal(true)}>
-                  <img src={Testimonials} alt="" className="px-8 h-6" />
-                </div>
+                {!isMentorView && (
+                  <div onClick={() => setShowModal(true)} role="button" tabIndex={0}>
+                    <img src={Testimonials} alt="" className="px-8 h-6" />
+                  </div>
+                )}
               </div>
 
               <Swiper
@@ -570,25 +610,29 @@ function MentorProfile() {
                     <div className="bg-[#F9F9F9] shadow-md rounded-xl p-6 h-full flex flex-col justify-between mx-2">
                       <div className="flex items-center justify-between">
                         <FaQuoteLeft className="text-[#808080] text-2xl mb-4" />
-                        <div className="flex items-center gap-2">
-                          <button
-                            className=" hover:bg-gray-100 rounded-full"
-                            onClick={() => handleEditTestimonialClick(item)}
-                          >
-                            <FiEdit2 size={16} className="text-[#45C74D]" />
-                          </button>
-                          <button
-                            className="text-red-600 p-1 hover:bg-gray-100 rounded-full"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setdeletetestimonial(item.testimonial_id);
-                              setOpenEstablishPopUp(true);
-                              setOpenDropdownId(null);
-                            }}
-                          >
-                            <FaTrash size={16} />
-                          </button>
-                        </div>
+                        {!isMentorView && (
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              className="hover:bg-gray-100 rounded-full"
+                              onClick={() => handleEditTestimonialClick(item)}
+                            >
+                              <FiEdit2 size={16} className="text-[#45C74D]" />
+                            </button>
+                            <button
+                              type="button"
+                              className="text-red-600 p-1 hover:bg-gray-100 rounded-full"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setdeletetestimonial(item.testimonial_id);
+                                setOpenEstablishPopUp(true);
+                                setOpenDropdownId(null);
+                              }}
+                            >
+                              <FaTrash size={16} />
+                            </button>
+                          </div>
+                        )}
                       </div>
                       <p className="text-gray-700 text-sm italic">
                         "{item.description}"
@@ -620,6 +664,7 @@ function MentorProfile() {
                 </button>
               </div>
             </div>
+          </div>
           </div>
         </div>
         {showEditModal && (

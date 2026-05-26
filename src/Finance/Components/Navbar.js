@@ -474,26 +474,15 @@ import Mentorsvg from "../../assets/images/Mentor.svg";
 import ChatMessage from "../../assets/images/message.svg";
 import Mentorshipsvg from "../../assets/images/Mentorships.svg";
 import Eventsvg from "../../assets/images/Event.svg";
-import Bellsvg from "../../assets/images/Component 14.svg";
 import Usersvg from "../../assets/images/User profile.svg";
 import moresvg from "../../assets/images/more.svg";
 import startupsvg from "../../assets/images/Startups.svg";
 import ProfileModal from "../../components/ProfileModal";
-import Notification from "../../components/Notification";
 import More from "../../components/More";
 import { useNavigate } from "react-router-dom";
 
 function Navbar({ onSelectionChange, selectedIndex }) {
-  const [messageNotify, setMessageNotification] = useState(false);
-  const handleClose = () => setMessageNotification(false);
-
   const [showModal, setShowModal] = useState(false);
-
-  // Initialize tokenData as null instead of empty string
-  const [tokenData, setTokenData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  // logout
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
@@ -507,30 +496,17 @@ function Navbar({ onSelectionChange, selectedIndex }) {
   };
 
   useEffect(() => {
-  const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-      setIsOpen(false);
-    }
-  };
-
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, []);
-
-  const UpdatedFundingData = async () => {
-    try {
-      const result = await axios.get("http://13.127.7.121/api/v1/notification");
-      if (result.data && result.data.rows && result.data.rows.length > 0) {
-        setTokenData(result.data.rows[0]);
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
       }
-      setLoading(false);
-    } catch (err) {
-      console.log("Error fetching notification data:", err);
-      setLoading(false);
-    }
-  };
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   // Add error handling for JWT decode
   const getTokenDecodedData = () => {
@@ -564,19 +540,6 @@ function Navbar({ onSelectionChange, selectedIndex }) {
     GetProfilePhotoImage();
   }, [GetProfilePhotoImage]);
 
-  useEffect(() => {
-    // Initial data fetch
-    UpdatedFundingData();
-
-    // Set up interval for periodic updates
-    const interval = setInterval(() => {
-      UpdatedFundingData();
-    }, 5000);
-
-    // Cleanup interval on component unmount
-    return () => clearInterval(interval);
-  }, []);
-
   const [color] = useState([
     "#afdade",
     "#afd5de",
@@ -596,7 +559,7 @@ function Navbar({ onSelectionChange, selectedIndex }) {
 
   return (
     <div className="navbar dm-sans">
-      <nav className="bg-white shadow-sm">
+      <nav className="bg-white shadow-sm relative z-50">
         <div className="flex flex-wrap items-center justify-between p-3">
           <div className="flex md:order-2">
             <button
@@ -656,13 +619,6 @@ function Navbar({ onSelectionChange, selectedIndex }) {
               >
                 Action
               </button>
-            </div> */}
-            {/* <div className="relative md:block">
-              <div className="text-black px-2 py-2 ms-3">
-                <button>
-                  <img src={Bellsvg} alt="Bell" />
-                </button>
-              </div>
             </div> */}
             {/* <div className="relative md:block">
               <div className="text-black px-2 py-2 ms-3">
@@ -776,31 +732,6 @@ function Navbar({ onSelectionChange, selectedIndex }) {
           </div>
         </div>
       </nav>
-      <Notification isVisible={messageNotify} onClose={handleClose}>
-        {Array.isArray(tokenData) && tokenData.length > 0 ? (
-          tokenData.map((dataObj, key) => (
-            <div className="max-h-[50px]" key={key}>
-              <div className="flex justify-between gap-10 bg-white mt-1">
-                <div className="text-xs">
-                  startup Vision have requested for a new connection with
-                  startup Vision.
-                  <br></br>
-                  <span className="text-gray-400">Hello</span>
-                </div>
-                <button className="p-3 bg-gray-100 rounded-sm">View</button>
-                <div className="m-2 inline-block w-[15px] h-[11px] text-sm font-semibold text-white bg-green-500 rounded-full relative">
-                  <button className="w-full h-full"></button>
-                  <span className="absolute left-1/2 top-[-90px] transform -translate-x-1/2 -translate-y-full bg-gray-300 text-white text-xs font-medium px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity duration-200">
-                    Mark as Read
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div>{loading ? "Loading..." : "No notifications"}</div>
-        )}
-      </Notification>
       <ProfileModal isVisible={showModal} onClose={() => setShowModal(false)}>
         <center>
           <img src={img} className="h-[60px;]" alt="Logo" />
@@ -810,7 +741,7 @@ function Navbar({ onSelectionChange, selectedIndex }) {
             name="name"
             className="w-full border-2 border-gray-200 rounded-md p-2 mt-3 bg-transparent hover:border-green-300"
             placeholder="Name"
-            value={tokenData?.user_name || ""}
+            value={tokenDecodedData?.user_name || ""}
             readOnly
           />
           <input
@@ -822,14 +753,14 @@ function Navbar({ onSelectionChange, selectedIndex }) {
             name="sector"
             className="w-full border-2 border-gray-200 rounded-md p-2 mt-3 bg-transparent hover:border-green-300"
             placeholder="Sector"
-            value={tokenData?.user_department || ""}
+            value={tokenDecodedData?.user_department || ""}
             readOnly
           />
           <input
             name="Email"
             className="w-full border-2 border-gray-200 rounded-md p-2 mt-3 bg-transparent hover:border-green-300"
             placeholder="Email"
-            value={tokenData?.user_mail || ""}
+            value={tokenDecodedData?.user_mail || ""}
             readOnly
           />
           <input
@@ -851,21 +782,21 @@ function Navbar({ onSelectionChange, selectedIndex }) {
             name="ceo_name"
             className="w-full border-2 border-gray-200 rounded-md p-2 mt-3 bg-transparent hover:border-green-300"
             placeholder="CEO name"
-            value={tokenData?.user_name || ""}
+            value={tokenDecodedData?.user_name || ""}
             readOnly
           />
           <input
             name="ceo_email"
             className="w-full border-2 border-gray-200 rounded-md p-2 mt-3 bg-transparent hover:border-green-300"
             placeholder="CEO email"
-            value={tokenData?.personal_email || ""}
+            value={tokenDecodedData?.personal_email || ""}
             readOnly
           />
           <input
             name="ceo_contact_number"
             className="w-full border-2 border-gray-200 rounded-md p-2 mt-3 bg-transparent hover:border-green-300"
             placeholder="CEO contact number"
-            value={tokenData?.user_contact || ""}
+            value={tokenDecodedData?.user_contact || ""}
             readOnly
           />
           <button className="text-red-400 font-bold active:scale-[.98] active:duration-75 hover:scale-[1.02] ease-in-out transition-all">

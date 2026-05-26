@@ -1,45 +1,141 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
-import { FiUpload } from "react-icons/fi";
-import { IoCalendarOutline } from "react-icons/io5";
-import { ApiFetchMentor } from "../../API/API";
+import { ApiRequestMentor } from "../../API/API";
+import useAvailability from "./availability/useAvailability.js";
+import {
+  formatSlotLabel,
+  getSlotsForDate,
+  getTodayDateKey,
+  SLOT_DURATION_MINUTES,
+} from "./availability/availabilitySlots.js";
 
+const RequestMentor = ({ onClose, mentorId, mentorName }) => {
+  const {
+    availabilityMap,
+    slotsForDate,
+    loading: availabilityLoading,
+  } = useAvailability(mentorId);
 
-const RequestMentor = ({  onClose}) => {
-      const [mentorname, setMentorName] = useState([]);
   const [formData, setFormData] = useState({
-    mentor_name: "",
-    description: "",
+    date: "",
+    time: "",
+    duration: String(SLOT_DURATION_MINUTES),
+    mode: "",
+    agenda: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({
+    date: "",
+    time: "",
+    duration: "",
+    mode: "",
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const savedSlotsForDate = formData.date
+    ? getSlotsForDate(availabilityMap, formData.date)
+    : [];
+  const timeSlots = formData.date ? slotsForDate(formData.date) : [];
+  const noAvailabilityOnDate =
+    Boolean(formData.date) &&
+    !availabilityLoading &&
+    timeSlots.length === 0;
+  const allSlotsPassedToday =
+    noAvailabilityOnDate && savedSlotsForDate.length > 0;
+
+  const clearFieldError = (field) => {
+    setErrors((prev) => ({ ...prev, [field]: "" }));
+  };
+
+  const handleDateChange = (e) => {
+    const value = e.target.value;
+    clearFieldError("date");
+    clearFieldError("time");
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      date: value,
+      time: "",
     }));
   };
 
-    const fetchData = async () => {
-      try {
-  
-          const API = await ApiFetchMentor();
-          const sortedData = API.STATUS?.rows || [];
-        setMentorName(sortedData.map(row => row.mentor_name));
-      } catch (err) {
-        console.log(err);
-      }
+  const handleSlotSelect = (slot) => {
+    clearFieldError("time");
+    setFormData((prev) => ({ ...prev, time: slot }));
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "duration") clearFieldError("duration");
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const nextErrors = {
+      date: "",
+      time: "",
+      duration: "",
+      mode: "",
     };
-    useEffect(()=>{
-   fetchData()
-    },[])
+
+    if (!mentorId) {
+      toast.error("Mentor is required to submit a request.");
+      return;
+    }
+    if (!formData.date) nextErrors.date = "Please select a date";
+    if (!formData.time) {
+      nextErrors.time = noAvailabilityOnDate
+        ? "No availability on this date — choose another date"
+        : "Please select a time slot";
+    }
+    if (!formData.duration) nextErrors.duration = "Please select a duration";
+    if (!formData.mode) nextErrors.mode = "Please select a session mode";
+
+    if (
+      nextErrors.date ||
+      nextErrors.time ||
+      nextErrors.duration ||
+      nextErrors.mode
+    ) {
+      setErrors(nextErrors);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await ApiRequestMentor({
+        mentor_id: mentorId,
+        mentor_name: mentorName || "",
+        date: formData.date,
+        time: formData.time,
+        duration: formData.duration,
+        mode: formData.mode,
+        agenda: formData.agenda,
+      });
+      toast.success(
+        mentorName
+          ? `Request sent for ${mentorName}.`
+          : "Mentor request submitted."
+      );
+      onClose();
+    } catch (err) {
+      toast.error(err?.message || "Request failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const modes = ["Online", "In-person"];
+  const formDisabled = isLoading;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-lg w-[700px] relative">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-lg w-full max-w-md relative max-h-[90vh] overflow-y-auto">
         <button
+          type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          disabled={isLoading}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:text-gray-500"
+          aria-label="Close"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path
@@ -51,52 +147,172 @@ const RequestMentor = ({  onClose}) => {
           </svg>
         </button>
 
-        <div className="p-6">
-          <h2 className="text-xl font-semibold text-[#232323] mb-6">
-           Request Mentor
+        <div className="p-6 pt-10">
+          <h2 className="text-xl font-semibold text-[#232323] mb-1">
+            Request Mentor
           </h2>
+          {mentorName ? (
+            <p className="text-sm text-gray-600 mb-5">{mentorName}</p>
+          ) : (
+            <p className="text-sm text-gray-500 mb-5">
+              Select a date, then choose an available time slot.
+            </p>
+          )}
 
-          <form className="space-y-4">
-            <div className="grid grid-cols-1 ">
-              <div>
-                <label className="block text-sm mb-1.5">
-                  Mentor name
-                  <span className="text-red-500">*</span>
-                </label>
-               <select 
-                    name="mentor_name"
-                    value={formData.mentor_name}
-                    onChange={handleChange}
-                    className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D]"
-                  >
-                    <option >Select Mentor Name</option>
-                    {mentorname.map((item, index) => (
-                     <option key={index} value={item}>
-                            {item}
-                     </option>
-                    ))}
-                  </select>
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Date <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                name="date"
+                value={formData.date}
+                min={getTodayDateKey()}
+                onChange={handleDateChange}
+                disabled={formDisabled}
+                className="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D] disabled:opacity-60"
+              />
+              {errors.date ? (
+                <p className="text-xs text-red-500 mt-1">{errors.date}</p>
+              ) : null}
             </div>
 
             <div>
-              <label className="block text-sm mb-1.5">Description</label>
-              <textarea
-                name="description"
-                value={formData.description}
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Time slot <span className="text-red-500">*</span>
+              </label>
+
+              {!formData.date ? (
+                <p className="text-xs text-gray-500">
+                  Select a date to view this mentor&apos;s available slots.
+                </p>
+              ) : availabilityLoading ? (
+                <p className="text-xs text-gray-500">Loading slots…</p>
+              ) : noAvailabilityOnDate ? (
+                <div
+                  className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800"
+                  role="status"
+                >
+                  {allSlotsPassedToday
+                    ? "No open slots remain on this date. Please choose another date."
+                    : "This mentor has no availability on the selected date. Please choose another date."}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+                  {timeSlots.map((slot) => (
+                    <button
+                      key={slot}
+                      type="button"
+                      disabled={formDisabled}
+                      onClick={() => handleSlotSelect(slot)}
+                      className={`py-2 px-2 text-xs font-medium rounded-lg border transition-colors ${
+                        formData.time === slot
+                          ? "bg-[#45C74D] text-white border-[#45C74D]"
+                          : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100"
+                      } disabled:opacity-60`}
+                    >
+                      {formatSlotLabel(slot)}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {errors.time ? (
+                <p className="text-xs text-red-500 mt-1">{errors.time}</p>
+              ) : null}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Duration <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="duration"
+                value={formData.duration}
                 onChange={handleChange}
-                rows="4"
-                placeholder="Type here..."
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-green-500"
+                disabled={formDisabled}
+                className="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D] disabled:opacity-60"
+              >
+                <option value={String(SLOT_DURATION_MINUTES)}>
+                  {SLOT_DURATION_MINUTES} min
+                </option>
+              </select>
+              {errors.duration ? (
+                <p className="text-xs text-red-500 mt-1">{errors.duration}</p>
+              ) : null}
+            </div>
+
+            <div>
+              <span className="block text-sm font-medium text-gray-700 mb-2">
+                Session mode <span className="text-red-500">*</span>
+              </span>
+              <div className="flex gap-2">
+                {modes.map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    disabled={formDisabled}
+                    onClick={() => {
+                      clearFieldError("mode");
+                      setFormData((prev) => ({ ...prev, mode: m }));
+                    }}
+                    className={`flex-1 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                      formData.mode === m
+                        ? "bg-[#45C74D] text-white border-[#45C74D]"
+                        : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100"
+                    } disabled:opacity-60`}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+              {errors.mode ? (
+                <p className="text-xs text-red-500 mt-1">{errors.mode}</p>
+              ) : null}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Agenda{" "}
+                <span className="text-gray-400 font-normal">(optional)</span>
+              </label>
+              <textarea
+                name="agenda"
+                value={formData.agenda}
+                onChange={handleChange}
+                rows={3}
+                disabled={formDisabled}
+                placeholder="What do you want to cover in this session?"
+                className="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D] resize-none disabled:opacity-60"
               />
             </div>
 
-            <div className="flex justify-end gap-4 pt-4">
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isLoading}
+                className="px-5 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+              >
+                Cancel
+              </button>
               <button
                 type="submit"
-                className="px-6 py-2 text-sm font-medium text-white bg-[#45C74D] rounded-lg hover:bg-[#3bae42] transition-colors"
+                disabled={formDisabled || noAvailabilityOnDate}
+                className="inline-flex items-center justify-center gap-2 px-6 py-2 text-sm font-medium text-white bg-[#45C74D] rounded-lg transition-colors hover:bg-[#3bae42] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-[#45C74D]"
               >
-                 Request Mentor
+                {isLoading ? (
+                  <>
+                    <span
+                      className="inline-block h-3.5 w-3.5 shrink-0 rounded-full border-2 border-white/35 border-t-white animate-spin"
+                      aria-hidden
+                    />
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit request"
+                )}
               </button>
             </div>
           </form>
