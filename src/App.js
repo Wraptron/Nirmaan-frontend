@@ -174,6 +174,7 @@ import { ScheduleMeetingPage } from "./pages/Mentorship/ScheduleMeetingForm";
 import Startupprofile from "./pages/startups/startupprofile";
 import MentorProfile from "./pages/Mentors/MentorProfile";
 import MentorAvailability from "./pages/Mentors/MentorAvailability";
+import MentorMyMeetings from "./pages/Mentors/MentorMyMeetings";
 import Mentor from "./pages/Mentors/Mentor";
 import OfficeHome from "./Office/Pages/OfficeHome";
 
@@ -293,11 +294,15 @@ function App() {
             />
           </Route>
 
-          {/* Mentor availability calendar (Mentor: 6) */}
+          {/* Mentor-only routes (Role: 6) */}
           <Route element={<ProtectedRoutes allowedRoles={["6"]} />}>
             <Route
               path="/mentors/availability"
               element={<MentorAvailability />}
+            />
+            <Route
+              path="/mentors/my-meetings"
+              element={<MentorMyMeetings />}
             />
           </Route>
 
