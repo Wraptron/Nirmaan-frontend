@@ -35,6 +35,7 @@ import EditTestimonial from "./EditTestimonial";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
 import dayjs from "dayjs";
 import FeedbackForm from "./FeedbackForm";
+import MentorAvailabilityDetails from "../../components/MentorAvailabilityDetails";
 
 function MentorProfile() {
   const { id } = useParams();
@@ -42,6 +43,7 @@ function MentorProfile() {
   const userRole = sessionStorage.getItem("role");
   const loggedInMentorId = sessionStorage.getItem("mentor_id");
   const isMentorView = userRole === "6"; // Mentor sees only own profile
+  const isAdminView = userRole === "2";
 
   const [mentor, setMentor] = useState(null);
   const [meeting, setMeeting] = useState([]);
@@ -445,6 +447,10 @@ function MentorProfile() {
               {mentor.mento_description || "No description provided."}
             </p>
           </div>
+
+          {isAdminView ? (
+            <MentorAvailabilityDetails mentorId={mentor.mentor_id} />
+          ) : null}
 
           {!isMentorView && (
             <div className="bg-white p-6 rounded-lg mb-6">

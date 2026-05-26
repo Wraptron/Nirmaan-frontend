@@ -577,12 +577,25 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     try {
       await ApiUpdateMentorSessionRequest(req.id, "rejected");
       toast.success("Request rejected.");
+      setNotificationItems((items) =>
+        items.filter((item) => String(item.id) !== String(req.id))
+      );
       await fetchNotifications();
     } catch (err) {
       toast.error(err?.message || "Failed to reject request.");
     } finally {
       setProcessingRequestId(null);
     }
+  };
+
+  const handleScheduleMeetingSuccess = async () => {
+    const processedId = schedulingRequest?.id;
+    if (processedId != null) {
+      setNotificationItems((items) =>
+        items.filter((item) => String(item.id) !== String(processedId))
+      );
+    }
+    await fetchNotifications();
   };
 
   const userRole = sessionStorage.getItem("role");
@@ -1092,7 +1105,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
         <ScheduleMeetingPopup
           sessionRequest={schedulingRequest}
           onClose={() => setSchedulingRequest(null)}
-          onSuccess={fetchNotifications}
+          onSuccess={handleScheduleMeetingSuccess}
         />
       ) : null}
     </div>

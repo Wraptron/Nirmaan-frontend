@@ -37,10 +37,67 @@ export const normalizeAvailabilityMap = (data) => {
 
 export const getTodayDateKey = () => {
   const now = new Date();
-  const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, "0");
-  const d = String(now.getDate()).padStart(2, "0");
+  return toDateKey(now);
+};
+
+export const toDateKey = (date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
+};
+
+const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+export const buildMonthCalendarCells = (viewDate) => {
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  const firstOfMonth = new Date(year, month, 1);
+  const startOffset = firstOfMonth.getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cells = [];
+
+  const prevMonthDays = new Date(year, month, 0).getDate();
+  for (let i = startOffset - 1; i >= 0; i -= 1) {
+    const day = prevMonthDays - i;
+    cells.push({ date: new Date(year, month - 1, day), inMonth: false });
+  }
+
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    cells.push({ date: new Date(year, month, day), inMonth: true });
+  }
+
+  let nextMonthDay = 1;
+  while (cells.length % 7 !== 0) {
+    cells.push({
+      date: new Date(year, month + 1, nextMonthDay),
+      inMonth: false,
+    });
+    nextMonthDay += 1;
+  }
+
+  return cells;
+};
+
+export { WEEKDAY_LABELS };
+
+/** Count days and slots in availability map for a given calendar month. */
+export const getMonthAvailabilityStats = (availabilityMap, viewDate) => {
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  let days = 0;
+  let slots = 0;
+
+  Object.entries(availabilityMap).forEach(([dateKey, daySlots]) => {
+    if (!daySlots?.length) return;
+    const [y, m] = dateKey.split("-").map(Number);
+    if (y === year && m - 1 === month) {
+      days += 1;
+      slots += daySlots.length;
+    }
+  });
+
+  return { days, slots };
 };
 
 export const getCurrentTimeKey = () => new Date().toTimeString().slice(0, 5);

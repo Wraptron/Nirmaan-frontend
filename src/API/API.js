@@ -373,9 +373,13 @@ async function ApiFetchScheduleMeetings(mentor_id) {
 
 async function ApiFetchMentorAvailability(mentor_id, { forBooking = false } = {}) {
   try {
+    const token = sessionStorage.getItem("token");
     const result = await axios.get(
       `${API_BASE_URL}/api/v1/availability/${mentor_id}`,
-      forBooking ? { params: { forBooking: "true" } } : undefined
+      {
+        ...(forBooking ? { params: { forBooking: "true" } } : {}),
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
     );
     return result.data;
   } catch (err) {

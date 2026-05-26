@@ -10,14 +10,15 @@ import {
 /**
  * Loads a mentor's saved availability for booking UIs (e.g. Request Mentor).
  * @param {string|number|null} mentorId
+ * @param {{ forBooking?: boolean, enabled?: boolean }} [options]
  */
-function useAvailability(mentorId) {
+function useAvailability(mentorId, { forBooking = true, enabled = true } = {}) {
   const [availabilityMap, setAvailabilityMap] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!mentorId) {
+    if (!mentorId || !enabled) {
       setAvailabilityMap({});
       setError(null);
       setLoading(false);
@@ -28,7 +29,7 @@ function useAvailability(mentorId) {
     setLoading(true);
     setError(null);
 
-    ApiFetchMentorAvailability(mentorId, { forBooking: true })
+    ApiFetchMentorAvailability(mentorId, { forBooking })
       .then((data) => {
         if (cancelled) return;
         setAvailabilityMap(normalizeAvailabilityMap(data));
@@ -46,7 +47,7 @@ function useAvailability(mentorId) {
     return () => {
       cancelled = true;
     };
-  }, [mentorId]);
+  }, [mentorId, forBooking, enabled]);
 
   const availableDates = useMemo(
     () => getBookableDates(availabilityMap),
