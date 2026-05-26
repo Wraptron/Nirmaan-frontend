@@ -337,12 +337,12 @@ function MentorShip() {
                     Request Mentor
                   </button> */}
 
-                  <button
+                  {/* <button
                     className="bg-[#45C74D] text-white px-4 py-2 rounded-lg text-sm font-semibold"
                     onClick={handleScheduleClick}
                   >
                     Schedule Meeting
-                  </button>
+                  </button> */}
 
                   <div className="flex gap-2 border border-gray-300 rounded-lg p-1 bg-white">
                     <button
