@@ -34,6 +34,8 @@ function AddNewMentor() {
       qualification: "",
       year_of_passing_out: null,
       startup_associated: "",
+      tag: "",
+      representing_from: "",
     },
     contact: {
       contact_number: "",

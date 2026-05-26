@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import SideBar from "../../../components/sidebar";
 import Navbar from "../../../components/NavBar";
-import { ApiFetchMentor } from "../../../API/API";
+import {
+  ApiFetchMentor,
+  ApiFetchStartup,
+  ApiFetchStartupById,
+} from "../../../API/API";
+import { isPrathamProgram, isVcMentorTag } from "../../../utils/mentorTagUtils";
 import MentorAbout from "./MentorAbout";
 import { jwtDecode } from "jwt-decode";
 import { Navigate, useNavigate } from "react-router-dom";
@@ -12,6 +17,7 @@ const Mentor = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMentor, setSelectedMentor] = useState(null);
   const [showmentorabout, setShowMentorAbout] = useState(false);
+  const [isPratham, setIsPratham] = useState(false);
   const navigate = useNavigate();
   const handleaboutclose = () => {
     setSelectedMentor(null);
@@ -21,28 +27,85 @@ const Mentor = () => {
    const handleScheduleClick = () => {
      navigate(`/schedulemeeting`);
    };
-  const fetchData = async () => {
+  const fetchMentors = async () => {
     try {
       const API = await ApiFetchMentor();
-      // sort by mentor_id or any unique field
-      const sortedData = API.STATUS.rows
-        .sort((a, b) => a.mentor_id - b.mentor_id)
-        .map((item, index) => ({
-          ...item,
-          siNo: index + 1,
-        }));;
+      const sortedData = (API.STATUS?.rows || []).sort(
+        (a, b) => String(a.mentor_id).localeCompare(String(b.mentor_id))
+      );
       setData(sortedData);
     } catch (err) {
       console.error(err);
     }
   };
+
+  const fetchCurrentStartup = async (startupId) => {
+    if (!startupId) {
+      return null;
+    }
+
+    try {
+      const startupResponse = await ApiFetchStartupById(startupId);
+      const fromProfile = startupResponse?.generalData?.[0];
+      if (fromProfile) {
+        return fromProfile;
+      }
+    } catch (err) {
+      console.warn("Startup profile fetch failed, using list fallback:", err);
+    }
+
+    try {
+      const allStartups = await ApiFetchStartup();
+      return (
+        (allStartups?.rows || []).find(
+          (startup) => String(startup.startup_id) === String(startupId)
+        ) || null
+      );
+    } catch (err) {
+      console.error("Error fetching startup list:", err);
+      return null;
+    }
+  };
+
   useEffect(() => {
-    fetchData();
+    const load = async () => {
+      const token = sessionStorage.getItem("token");
+      let decoded = null;
+
+      try {
+        decoded = token ? jwtDecode(token) : null;
+      } catch {
+        decoded = null;
+      }
+
+      const startupId =
+        sessionStorage.getItem("startup_id") || decoded?.startup_id;
+
+      await Promise.all([
+        fetchMentors(),
+        fetchCurrentStartup(startupId).then((startup) => {
+          setIsPratham(isPrathamProgram(startup));
+        }),
+      ]);
+    };
+
+    load();
   }, []);
 
-  const filteredMentor = data.filter((mentor) =>
-    (mentor.mentor_name || "").toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredMentor = data
+    .filter((mentor) => {
+      if (isPratham && isVcMentorTag(mentor.tag)) {
+        return false;
+      }
+
+      return (mentor.mentor_name || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+    })
+    .map((mentor, index) => ({
+      ...mentor,
+      siNo: index + 1,
+    }));
 
    const token = sessionStorage.getItem("token");
   
@@ -131,7 +194,7 @@ const Mentor = () => {
                         <td className="px-4 py-2">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span>{mentor.mentor_name}</span>
-                            <MentorTag tag={mentor.tag} />
+                            <MentorTag tag={mentor.tag} hideVcTag={isPratham} />
                           </div>
                         </td>
                         <td className="px-4 py-2">{mentor.institution}</td>
@@ -170,6 +233,7 @@ const Mentor = () => {
           about={selectedMentor.mento_description}
           expertise={selectedMentor.area_of_expertise}
           tag={selectedMentor.tag}
+          hideVcTag={isPratham}
         />
       )}
     </div>

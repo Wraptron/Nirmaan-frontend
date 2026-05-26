@@ -1,4 +1,5 @@
 import React from "react";
+import { isVcMentorTag } from "../utils/mentorTagUtils";
 
 const TAG_STYLES = {
   VC: "bg-rose-100 text-rose-800 border-rose-300",
@@ -41,9 +42,13 @@ const getTagStyle = (tag) => {
   return FALLBACK_PALETTE[Math.abs(hash) % FALLBACK_PALETTE.length];
 };
 
-function MentorTag({ tag, className = "" }) {
+function MentorTag({ tag, className = "", hideVcTag = false }) {
   const label = String(tag || "").trim();
   if (!label) {
+    return null;
+  }
+
+  if (hideVcTag && isVcMentorTag(label)) {
     return null;
   }
 
