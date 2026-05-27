@@ -524,21 +524,7 @@ function Navbar({ onSelectionChange, selectedIndex }) {
 
   const tokenDecodedData = getTokenDecodedData();
 
-  const GetProfilePhotoImage = useCallback(async () => {
-    if (!tokenDecodedData?.user_mail) return;
-
-    try {
-      await axios.get(
-        `http://13.127.7.121/api/v1/prof?mail=${tokenDecodedData.user_mail}`
-      );
-    } catch (err) {
-      console.log("Error fetching profile photo:", err);
-    }
-  }, [tokenDecodedData?.user_mail]);
-
-  useEffect(() => {
-    GetProfilePhotoImage();
-  }, [GetProfilePhotoImage]);
+ 
 
   const [color] = useState([
     "#afdade",

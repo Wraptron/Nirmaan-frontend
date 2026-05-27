@@ -390,9 +390,13 @@ async function ApiFetchMentorAvailability(mentor_id, { forBooking = false } = {}
 
 async function ApiSaveMentorAvailability(payload) {
   try {
+    const token = sessionStorage.getItem("token");
     const result = await axios.post(
       `${API_BASE_URL}/api/v1/availability/save`,
-      payload
+      payload,
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
     );
     return result.data;
   } catch (err) {

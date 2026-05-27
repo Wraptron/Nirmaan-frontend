@@ -167,15 +167,14 @@ import Industry from "./pages/startups/Industry/Industry";
 import Sustainability from "./pages/startups/Sustainability/Sustainability";
 import Healthcare from "./pages/startups/Healthcare/Healthcare";
 import Mobility from "./pages/startups/Mobility/Mobility";
-import IndividualStartups from "./pages/startups/IndividualStartups";
 import Pdf from "./pages/Reports/Pdf";
 import Bills from "./Finance/Pages/Startup/Bills";
 import { ScheduleMeetingPage } from "./pages/Mentorship/ScheduleMeetingForm";
 import Startupprofile from "./pages/startups/startupprofile";
 import MentorProfile from "./pages/Mentors/MentorProfile";
 import MentorAvailability from "./pages/Mentors/MentorAvailability";
+import MentorMyMeetings from "./pages/Mentors/MentorMyMeetings";
 import Mentor from "./pages/Mentors/Mentor";
-import OfficeHome from "./Office/Pages/OfficeHome";
 
 // Customer pages
 import CustomerHome from "./Customer/Pages/Home/home";
@@ -220,7 +219,6 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Login />} />
-          <Route path="/like" element={<OfficeHome />} />
 
           {/* Admin Routes (Role: 2) */}
           <Route element={<ProtectedRoutes allowedRoles={["2"]} />}>
@@ -258,7 +256,6 @@ function App() {
             <Route path="/uploads" element={<UploadFile />} />
             <Route path="/view/uploads" element={<ViewComponents />} />
             <Route path="/cms" element={<Cms />} />
-            <Route path="/startup/:id" element={<IndividualStartups />} />
             <Route
               path="/pdf"
               element={
@@ -293,11 +290,15 @@ function App() {
             />
           </Route>
 
-          {/* Mentor availability calendar (Mentor: 6) */}
+          {/* Mentor-only routes (Role: 6) */}
           <Route element={<ProtectedRoutes allowedRoles={["6"]} />}>
             <Route
               path="/mentors/availability"
               element={<MentorAvailability />}
+            />
+            <Route
+              path="/mentors/my-meetings"
+              element={<MentorMyMeetings />}
             />
           </Route>
 
