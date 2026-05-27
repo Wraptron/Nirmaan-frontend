@@ -4,7 +4,7 @@ import NavBar from "../../components/NavBar";
 import MeetingDetailsModal, {
   getMeetingStatus,
 } from "../../components/MeetingDetailsModal";
-import { ApiFetchScheduleMeetings } from "../../API/API";
+import { ApiFetchMeetingFeedback, ApiFetchScheduleMeetings } from "../../API/API";
 import { FaSpinner } from "react-icons/fa";
 import {
   Calendar,
@@ -15,6 +15,7 @@ import {
   Search,
 } from "lucide-react";
 import dayjs from "dayjs";
+import FeedbackForm from "./FeedbackForm";
 
 const ROWS_PER_PAGE = 10;
 
@@ -67,12 +68,36 @@ function formatTime(timeStr) {
 function MentorMyMeetings() {
   const mentorId = sessionStorage.getItem("mentor_id");
   const [meetings, setMeetings] = useState([]);
+  const [feedback, setFeedback] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMeeting, setSelectedMeeting] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showAddFeedbackForm, setShowAddFeedbackForm] = useState(false);
+  const [selectedSession, setSelectedSession] = useState(null);
+  const [initialFeedback, setInitialFeedback] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusTab, setStatusTab] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+
+  const getStartupId = (m) => m?.startup_id ?? m?.startupId ?? m?.startupID ?? null;
+
+  const fetchFeedbackForMeetings = async (meetingRows) => {
+    if (!mentorId) return [];
+    try {
+      const feedbackPromises = meetingRows.map((m) =>
+        getStartupId(m)
+          ? ApiFetchMeetingFeedback(mentorId, getStartupId(m)).then((res) =>
+              Array.isArray(res) ? res : res?.STATUS?.rows || res?.rows || []
+            )
+          : Promise.resolve([]),
+      );
+
+      const allFeedbackArrays = await Promise.all(feedbackPromises);
+      return allFeedbackArrays.flat();
+    } catch {
+      return [];
+    }
+  };
 
   useEffect(() => {
     if (!mentorId) {
@@ -95,6 +120,8 @@ function MentorMyMeetings() {
           return db.valueOf() - da.valueOf();
         });
         setMeetings(sorted);
+        const feedbackRows = await fetchFeedbackForMeetings(sorted);
+        if (!cancelled) setFeedback(feedbackRows);
       } catch (err) {
         console.error("Failed to load meetings:", err);
         if (!cancelled) setMeetings([]);
@@ -172,12 +199,34 @@ function MentorMyMeetings() {
     setSelectedMeeting(null);
   };
 
+  const handleAddFeedbackClose = async () => {
+    setShowAddFeedbackForm(false);
+    setSelectedSession(null);
+    setInitialFeedback(null);
+
+    // Refresh feedback labels after saving/updating.
+    if (meetings.length) {
+      const updatedFeedback = await fetchFeedbackForMeetings(meetings);
+      setFeedback(updatedFeedback);
+    }
+  };
+
+  const openFeedbackModal = (meeting) => {
+    const currentFeedback = feedback.find(
+      (f) => String(f.meet_id) === String(meeting?.meet_id),
+    );
+    setInitialFeedback(currentFeedback || null);
+    setSelectedSession(meeting);
+    setShowAddFeedbackForm(true);
+  };
+
   return (
     <div className="flex">
       <SideBar />
       <div className="ms-[220px] min-h-screen flex-grow bg-gradient-to-br from-slate-50 via-gray-50 to-emerald-50/30">
         <NavBar />
-        <main className="mx-auto max-w-5xl px-6 py-8">
+        <main className="min-h-[calc(100vh-64px)] w-full p-3 sm:p-4">
+          <div className="flex min-h-full w-full flex-col rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5 md:p-6">
           <div className="mb-8">
             <p className="text-sm font-medium text-[#45C74D]">Mentorship</p>
             <h1 className="mt-1 text-3xl font-bold tracking-tight text-gray-900">
@@ -274,24 +323,31 @@ function MentorMyMeetings() {
                   </div>
 
                   <div className="hidden grid-cols-12 gap-4 border-b border-gray-100 bg-slate-50/50 px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 sm:grid">
-                    <div className="col-span-4">Startup</div>
+                    <div className="col-span-3">Startup</div>
                     <div className="col-span-2">Date</div>
                     <div className="col-span-2">Time</div>
                     <div className="col-span-2">Duration</div>
-                    <div className="col-span-2">Mode</div>
+                    <div className="col-span-3">Mode / Notes</div>
                   </div>
 
                   <ul className="divide-y divide-gray-50">
                     {paginatedMeetings.map((meeting) => {
                       const status = getMeetingStatus(meeting.date);
+                      const hasFeedback = feedback.some(
+                        (f) => String(f.meet_id) === String(meeting?.meet_id),
+                      );
                       return (
                         <li key={meeting.meet_id}>
-                          <button
-                            type="button"
+                          <div
+                            role="button"
+                            tabIndex={0}
                             onClick={() => openMeeting(meeting)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") openMeeting(meeting);
+                            }}
                             className="group grid w-full grid-cols-1 gap-3 px-5 py-4 text-left transition hover:bg-emerald-50/40 sm:grid-cols-12 sm:items-center sm:gap-4 sm:px-6"
                           >
-                            <div className="col-span-4 flex min-w-0 items-center gap-3">
+                            <div className="col-span-3 flex min-w-0 items-center gap-3">
                               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#45C74D]/15 to-[#45C74D]/5 ring-1 ring-[#45C74D]/20">
                                 <Video className="h-4 w-4 text-[#45C74D]" />
                               </div>
@@ -324,13 +380,25 @@ function MentorMyMeetings() {
                             <div className="col-span-2 text-sm text-gray-600">
                               {meeting.meeting_duration || "—"}
                             </div>
-                            <div className="col-span-2 flex items-center justify-between gap-2">
+                            <div className="col-span-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                               <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
                                 {meeting.meeting_mode || "—"}
                               </span>
-                              <ChevronRight className="hidden h-5 w-5 shrink-0 text-gray-300 transition group-hover:translate-x-0.5 group-hover:text-[#45C74D] sm:block" />
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    openFeedbackModal(meeting);
+                                  }}
+                                  className="bg-[#45C74D] text-white px-4 py-2 rounded-md text-sm"
+                                >
+                                  {hasFeedback ? "View Notes" : "Add Notes"}
+                                </button>
+                                <ChevronRight className="hidden h-5 w-5 shrink-0 text-gray-300 transition group-hover:translate-x-0.5 group-hover:text-[#45C74D] sm:block" />
+                              </div>
                             </div>
-                          </button>
+                          </div>
                         </li>
                       );
                     })}
@@ -369,6 +437,7 @@ function MentorMyMeetings() {
               )}
             </>
           )}
+          </div>
         </main>
       </div>
 
@@ -377,6 +446,18 @@ function MentorMyMeetings() {
         isVisible={showModal}
         onClose={closeModal}
       />
+
+      {showAddFeedbackForm && selectedSession && (
+        <FeedbackForm
+          key={selectedSession.meet_id}
+          isOpen={showAddFeedbackForm}
+          mentor_id={mentorId}
+          meet_id={selectedSession.meet_id}
+          startup_id={getStartupId(selectedSession)}
+          onClose={handleAddFeedbackClose}
+          initialFeedback={initialFeedback}
+        />
+      )}
     </div>
   );
 }

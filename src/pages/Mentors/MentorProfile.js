@@ -490,91 +490,94 @@ function MentorProfile() {
             </div>
           )}
 
-          {/* Mentoring Sessions Section */}
-          <div className="bg-white p-6 rounded-lg mb-6">
-            <h2 className="text-lg font-semibold mb-4">Mentoring Sessions</h2>
-            <div className="grid grid-cols-5 gap-3 py-3 border-b border-gray-200 font-medium text-sm text-gray-600">
-              <div>Start-up</div>
-              <div>Date</div>
-              <div>Mentor Hours</div>
-              <div>Meeting Mode</div>
-              <div>Feedback</div>
-            </div>
-            <div className="space-y-3">
-              {currentMeetings.length > 0 ? (
-                currentMeetings.map((session, index) => (
-                  <div
-                    key={index}
-                    className="grid grid-cols-5 gap-3 py-3 items-center"
-                  >
-                    <div className="text-sm font-medium flex items-center gap-2">
-                      {session.start_up_name} {/* Status Badge */}
-                      {dayjs(session.date, "D MMM YYYY").isAfter(
-                        dayjs(),
-                        "day",
-                      ) ? (
-                        <span className="text-green-600 bg-green-100 px-2 py-0.5 rounded-full text-xs font-medium">
-                          Upcoming
-                        </span>
-                      ) : dayjs(session.date, "D MMM YYYY").isSame(
+          {/* Mentoring Sessions Section (hidden for mentor self view) */}
+          {!isMentorView && (
+            <div className="bg-white p-6 rounded-lg mb-6">
+              <h2 className="text-lg font-semibold mb-4">Mentoring Sessions</h2>
+              <div className="grid grid-cols-5 gap-3 py-3 border-b border-gray-200 font-medium text-sm text-gray-600">
+                <div>Start-up</div>
+                <div>Date</div>
+                <div>Mentor Hours</div>
+                <div>Meeting Mode</div>
+                <div>Feedback</div>
+              </div>
+              <div className="space-y-3">
+                {currentMeetings.length > 0 ? (
+                  currentMeetings.map((session, index) => (
+                    <div
+                      key={index}
+                      className="grid grid-cols-5 gap-3 py-3 items-center"
+                    >
+                      <div className="text-sm font-medium flex items-center gap-2">
+                        {session.start_up_name} {/* Status Badge */}
+                        {dayjs(session.date, "D MMM YYYY").isAfter(
                           dayjs(),
                           "day",
                         ) ? (
-                        <span className="text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full text-xs font-medium">
-                          Today
-                        </span>
-                      ) : (
-                        <span className="text-black bg-red-400 px-2 py-0.5 rounded-full text-xs font-medium">
-                          completed
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {" "}
-                      {new Date(session.date).toLocaleDateString("en-IN", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {session.meeting_duration || "-"}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {session.meeting_mode || "-"}
-                    </div>
-                    <div>
+                          <span className="text-green-600 bg-green-100 px-2 py-0.5 rounded-full text-xs font-medium">
+                            Upcoming
+                          </span>
+                        ) : dayjs(session.date, "D MMM YYYY").isSame(
+                            dayjs(),
+                            "day",
+                          ) ? (
+                          <span className="text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full text-xs font-medium">
+                            Today
+                          </span>
+                        ) : (
+                          <span className="text-black bg-red-400 px-2 py-0.5 rounded-full text-xs font-medium">
+                            completed
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {" "}
+                        {new Date(session.date).toLocaleDateString("en-IN", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {session.meeting_duration || "-"}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {session.meeting_mode || "-"}
+                      </div>
                       <div>
-                        <button
-                          className="bg-[#45C74D] text-white px-4 py-2 rounded-md text-sm "
-                          onClick={() => openFeedbackModal(session)}
-                        >
-                          {feedback.some(
-                            (feed) =>
-                              String(feed.meet_id) === String(session?.meet_id),
-                          )
-                            ? "View Notes"
-                            : "Add Notes"}
-                        </button>
+                        <div>
+                          <button
+                            className="bg-[#45C74D] text-white px-4 py-2 rounded-md text-sm "
+                            onClick={() => openFeedbackModal(session)}
+                          >
+                            {feedback.some(
+                              (feed) =>
+                                String(feed.meet_id) ===
+                                String(session?.meet_id),
+                            )
+                              ? "View Notes"
+                              : "Add Notes"}
+                          </button>
+                        </div>
                       </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="py-4 text-sm text-gray-500">
+                    No sessions found.
                   </div>
-                ))
-              ) : (
-                <div className="py-4 text-sm text-gray-500">
-                  No sessions found.
-                </div>
+                )}
+              </div>
+              {meeting?.length > itemsPerPage && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                  showingText={`Showing ${startIndex + 1} to ${Math.min(endIndex, meeting.length)} of ${meeting.length} results`}
+                />
               )}
             </div>
-            {meeting?.length > itemsPerPage && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-                showingText={`Showing ${startIndex + 1} to ${Math.min(endIndex, meeting.length)} of ${meeting.length} results`}
-              />
-            )}
-          </div>
+          )}
           {/* Testimonials */}
           <div className="bg-white p-6 rounded-lg mb-6  overflow-x-hidden max-w-full ">
             <div className="border shadow-sm py-6 rounded-md w-full">

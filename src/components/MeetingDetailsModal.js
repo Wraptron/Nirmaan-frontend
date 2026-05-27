@@ -175,9 +175,6 @@ function MeetingDetailsModal({ meeting, isVisible, onClose }) {
               <p className="text-xs font-semibold uppercase tracking-wider text-emerald-800/70">
                 External meeting link
               </p>
-              <p className="mt-1 text-sm text-gray-600">
-                Opens Zoom, Google Meet, or another site in a new browser tab.
-              </p>
               <p
                 className="mt-3 break-all rounded-lg border border-emerald-100 bg-white px-3 py-2 font-mono text-xs text-gray-600"
                 title={meetingUrl}
