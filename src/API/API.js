@@ -5,7 +5,6 @@ const isDevelopment = process.env.NODE_ENV === "development";
 
 // API Base URLs
 const API_URLS = {
-  // "https://nirmaan-api-newalb-659762370.ap-south-1.elb.amazonaws.com",
   // DEVELOPMENT: "http://localhost:3003",
   PRODUCTION: "https://api.sieiitm.org",
 };
