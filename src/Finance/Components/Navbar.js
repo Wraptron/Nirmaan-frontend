@@ -468,7 +468,8 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import img from "../../assets/images/nirmaan-iitm.14fdf833.svg";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import { clearAuthSession, getSessionUser, isAuthenticated } from "../../utils/authSession";
+import APP_URL from "../../Config";
 import "alertifyjs/build/css/alertify.css";
 import Mentorsvg from "../../assets/images/Mentor.svg";
 import ChatMessage from "../../assets/images/message.svg";
@@ -491,7 +492,13 @@ function Navbar({ onSelectionChange, selectedIndex }) {
     setIsOpen(!isOpen);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${APP_URL}auth/logout`, {}, { withCredentials: true });
+    } catch (err) {
+      console.log("Logout request failed:", err);
+    }
+    clearAuthSession();
     navigate("/");
   };
 
@@ -508,21 +515,7 @@ function Navbar({ onSelectionChange, selectedIndex }) {
     };
   }, []);
 
-  // Add error handling for JWT decode
-  const getTokenDecodedData = () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (token) {
-        return jwtDecode(token);
-      }
-      return null;
-    } catch (err) {
-      console.log("Error decoding token:", err);
-      return null;
-    }
-  };
-
-  const tokenDecodedData = getTokenDecodedData();
+  const tokenDecodedData = isAuthenticated() ? getSessionUser() : null;
 
  
 

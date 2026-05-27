@@ -136,7 +136,7 @@
 
 // export default App;
 
-import React, { useEffect } from "react";
+import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { PDFViewer } from "@react-pdf/renderer";
@@ -208,10 +208,6 @@ import IpCreated from "./pages/Home/IpDetails"
 import PIADetails from "./pages/Home/PIADetails";
 import IITMICDetails from "./pages/Home/IITMICDetails";
 function App() {
-  useEffect(() => {
-    localStorage.getItem("token");
-  }, []);
-
   return (
     <div>
       <Toaster position="top-right" reverseOrder={false} />

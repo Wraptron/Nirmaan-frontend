@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import img from "../assets/images/nirmaan-iitm.14fdf833.svg";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import { clearAuthSession, getSessionUser, isAuthenticated } from "../utils/authSession";
 import ProfileModal from "./ProfileModal";
 import "alertifyjs/build/css/alertify.css";
 import Notification, { mapNotificationToDisplayItem } from "./Notification";
@@ -69,10 +69,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
       return;
     }
 
-    const token =
-      sessionStorage.getItem("token") || localStorage.getItem("token");
-
-    if (!token) {
+    if (!isAuthenticated()) {
       alert("You are not logged in. Please login again.");
       return;
     }
@@ -84,11 +81,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
           currentPassword,
           newPassword,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { withCredentials: true }
       );
 
       alert(response.data?.message || "Password changed successfully");
@@ -109,11 +102,13 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     setIsOpen(!isOpen);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.clear();
-    sessionStorage.removeItem("token");
-    sessionStorage.clear();
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${APP_URL}auth/logout`, {}, { withCredentials: true });
+    } catch (err) {
+      console.log("Logout request failed:", err);
+    }
+    clearAuthSession();
     navigate("/");
   };
 
@@ -212,21 +207,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
         });
   };
 
-  // Add error handling for JWT decode
-  const getTokenDecodedData = () => {
-    try {
-      const token = sessionStorage.getItem("token");
-      if (token) {
-        return jwtDecode(token);
-      }
-      return null;
-    } catch (err) {
-      console.log("Error decoding token:", err);
-      return null;
-    }
-  };
-
-  const tokenDecodedData = getTokenDecodedData();
+  const tokenDecodedData = isAuthenticated() ? getSessionUser() : null;
 
 
 

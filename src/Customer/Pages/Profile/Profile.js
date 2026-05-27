@@ -6,7 +6,7 @@ import Foundernew from "../../components/Foundernew";
 import Membernew from "../../components/Membernew";
 // import Uploadocument from "../../components/Uploadocument";
 import Awards from "../../components/Awards";
-import { jwtDecode } from "jwt-decode";
+import { getSessionUser } from "../../../utils/authSession";
 import alertify from "alertifyjs";
 import Aboutedit from "../../components/Aboutedit";
 function CustomerProfile() {
@@ -40,7 +40,7 @@ function CustomerProfile() {
     })) 
   }
   //console.log(memberFormData);
-  let session_mail = jwtDecode(localStorage.getItem('token'));
+  const session_mail = getSessionUser();
   console.log(session_mail.user_mail);
   const handleSubmit = async(e) => {
         e.preventDefault()

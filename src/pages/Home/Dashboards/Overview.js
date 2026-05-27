@@ -20,7 +20,7 @@ import {
   ApiFetchStartupCount,
 } from "../../../API/API";
 import { Navigate, useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import { clearAuthSession, getSessionUser, isAuthenticated } from "../../../utils/authSession";
 import SideBar from "../../../components/sidebar";
 import NavBar from "../../../components/NavBar";
 
@@ -253,26 +253,14 @@ function Overview() {
     </div>
   );
 
-  const token = sessionStorage.getItem("token");
- 
-  if (!token) {
-    sessionStorage.clear();
-    localStorage.clear();
+  if (!isAuthenticated()) {
+    clearAuthSession();
     return <Navigate to="/" replace />;
   }
- 
-  let decoded;
-  try {
-    decoded = jwtDecode(token);
-  } catch (e) {
-    sessionStorage.clear();
-    localStorage.clear();
-    return <Navigate to="/" replace />;
-  }
- 
+
+  const decoded = getSessionUser();
   if (decoded.role !== 2) {
-    sessionStorage.clear();
-    localStorage.clear();
+    clearAuthSession();
     return <Navigate to="/" replace />;
   }
   

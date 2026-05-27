@@ -2,13 +2,13 @@ import React,{useState, useEffect} from "react";
 import SideBar from "../../components/SideBar";
 import NavBar from "../../../components/NavBar";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import { getSessionUser } from "../../../utils/authSession";
 import {ToastContainer, toast} from "react-toastify"
 import "react-toastify/dist/ReactToastify.css";
 // import { useNavigate} from "react-router-dom"; // Removed unused import
 import {socket} from '../../../socket';
 function ProfileApply() {
-    let token = jwtDecode(localStorage.getItem('token'));
+    const token = getSessionUser();
     // const [form] = Form.useForm();
     // console.log(token.user_mail);
     const[awsCreditDate, setAwsCreditData] = useState({

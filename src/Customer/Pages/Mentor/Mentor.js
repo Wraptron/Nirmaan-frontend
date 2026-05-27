@@ -4,12 +4,12 @@ import NavBar from "../../../components/NavBar";
 // import src from "../../../img/image.png";
 import Addmentor from "../../components/Addmentor";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import { getSessionUser } from "../../../utils/authSession";
 import alertify from "alertifyjs";
 function CustomerMentor() {
   const [showAddmentor, setAddmentor] = useState(false);
   const [data, setData] = useState([]);
-  const token = jwtDecode(localStorage.getItem('token'));
+  const token = getSessionUser();
   const [addMentData, setAddMentData] = useState({
         team_mail: `${token.user_mail}`,
         startup: '',

@@ -1,11 +1,11 @@
 import React, {useState} from "react";
 import SideBar from "../../components/SideBar";
 import NavBar from "../../../components/NavBar";
-import { jwtDecode } from "jwt-decode";
+import { getSessionUser } from "../../../utils/authSession";
 import alertify from "alertifyjs";
 import axios from "axios";
 function Addjob() {
-    let token = jwtDecode(localStorage.getItem('token'));
+    const token = getSessionUser();
     const[formData, setFormData] = useState({
       team_mail: `${token.user_mail}`,
       role: '',

@@ -6,7 +6,7 @@ import {
   FaClock,
   FaSpinner,
 } from "react-icons/fa";
-import { jwtDecode } from "jwt-decode";
+import { getSessionUser } from "../utils/authSession";
 import toast from "react-hot-toast";
 import {
   ApiFetchMentorAvailability,
@@ -18,16 +18,8 @@ const cn = (...classes) => classes.filter(Boolean).join(" ");
 const getMentorId = () => {
   const fromSession = sessionStorage.getItem("mentor_id");
   if (fromSession) return fromSession;
-  try {
-    const token = sessionStorage.getItem("token");
-    if (token) {
-      const decoded = jwtDecode(token);
-      return decoded.mentor_id || null;
-    }
-  } catch (err) {
-    console.error("Error decoding token for mentor_id:", err);
-  }
-  return null;
+  const sessionUser = getSessionUser();
+  return sessionUser.mentor_id || null;
 };
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

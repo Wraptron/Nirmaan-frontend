@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { ApiAddFunding, ApiFetchStartupData } from "../../../API/API";
-import { jwtDecode } from "jwt-decode";
+import { getSessionUser } from "../../../utils/authSession";
 
 const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -153,7 +153,7 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
     onClose();
   };
 
-   let decoded = jwtDecode(sessionStorage.getItem("token"));
+   const decoded = getSessionUser();
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

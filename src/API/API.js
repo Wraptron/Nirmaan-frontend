@@ -263,14 +263,13 @@ async function ApiUpdateMentor(payload) {
 
 async function ApiUpdateMentorSessionRequest(requestId, status) {
   try {
-    const token = sessionStorage.getItem("token");
     const result = await axios.patch(
       `${API_BASE_URL}/api/v1/mentor/session-request/${requestId}`,
       { status },
       {
+        withCredentials: true,
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       }
     );
@@ -285,9 +284,8 @@ async function ApiUpdateMentorSessionRequest(requestId, status) {
 
 async function ApiFetchNotifications() {
   try {
-    const token = sessionStorage.getItem("token");
     const result = await axios.get(`${API_BASE_URL}/api/v1/notification`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      withCredentials: true,
     });
     return result.data;
   } catch (error) {
@@ -298,13 +296,10 @@ async function ApiFetchNotifications() {
 
 async function ApiMarkNotificationsRead() {
   try {
-    const token = sessionStorage.getItem("token");
     const result = await axios.patch(
       `${API_BASE_URL}/api/v1/notification/read`,
       {},
-      {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      }
+      { withCredentials: true }
     );
     return result.data;
   } catch (error) {
@@ -315,15 +310,14 @@ async function ApiMarkNotificationsRead() {
 
 async function ApiRequestMentor(payload) {
   try {
-    const token = sessionStorage.getItem("token");
     const result = await axios.post(
       `${API_BASE_URL}/api/v1/mentor/session-request`,
        payload
       ,
       {
+        withCredentials: true,
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       }
     );
@@ -341,14 +335,13 @@ async function ApiRequestMentor(payload) {
 // ==================== MEETING & FEEDBACK APIs ====================
 async function ApiScheduleMeeting(payload) {
   try {
-    const token = sessionStorage.getItem("token");
     const result = await axios.post(
       `${API_BASE_URL}/api/v1/mentor/meeting`,
       payload,
       {
+        withCredentials: true,
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       }
     );
@@ -372,12 +365,11 @@ async function ApiFetchScheduleMeetings(mentor_id) {
 
 async function ApiFetchMentorAvailability(mentor_id, { forBooking = false } = {}) {
   try {
-    const token = sessionStorage.getItem("token");
     const result = await axios.get(
       `${API_BASE_URL}/api/v1/availability/${mentor_id}`,
       {
+        withCredentials: true,
         ...(forBooking ? { params: { forBooking: "true" } } : {}),
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
       }
     );
     return result.data;
@@ -389,13 +381,10 @@ async function ApiFetchMentorAvailability(mentor_id, { forBooking = false } = {}
 
 async function ApiSaveMentorAvailability(payload) {
   try {
-    const token = sessionStorage.getItem("token");
     const result = await axios.post(
       `${API_BASE_URL}/api/v1/availability/save`,
       payload,
-      {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      }
+      { withCredentials: true }
     );
     return result.data;
   } catch (err) {
@@ -552,14 +541,12 @@ async function ApiFetchStartup() {
 
 async function ApiFetchStartupById(id) {
   try {
-    const token = sessionStorage.getItem("token");
     console.log("[API] ApiFetchStartupById request", {
       id,
-      hasToken: !!token,
       url: `${API_BASE_URL}/api/v1/startup/${id}`,
     });
     const result = await axios.get(`${API_BASE_URL}/api/v1/startup/${id}`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      withCredentials: true,
     });
     console.log("[API] ApiFetchStartupById success", {
       status: result?.status,
@@ -572,7 +559,6 @@ async function ApiFetchStartupById(id) {
       status: error?.response?.status,
       data: error?.response?.data,
       url: error?.config?.url,
-      hasAuthHeader: !!error?.config?.headers?.Authorization,
     });
     throw error;
   }

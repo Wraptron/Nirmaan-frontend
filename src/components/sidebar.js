@@ -2,7 +2,7 @@ import React from 'react'
 import { FaChartPie, FaRocket, FaChalkboardTeacher, FaBookOpen, FaRegCalendarCheck, FaVideo } from 'react-icons/fa';
 import nirmaanlogo from '../assets/images/nirmaan-iitm.14fdf833.svg';
 import { FaRegFile } from 'react-icons/fa6';
-import { jwtDecode } from 'jwt-decode';
+import { getSessionUser, isAuthenticated } from '../utils/authSession';
 function SideBar({ children }) {
   const currentPath = window.location.pathname;
 
@@ -13,20 +13,7 @@ function SideBar({ children }) {
     currentPath === "/mentorship" || currentPath.startsWith("/mentorship/");
 
     
-    const getTokenDecodedData = () => {
-      try {
-        const token = sessionStorage.getItem("token");
-        if (token) {
-          return jwtDecode(token);
-        }
-        return null;
-      } catch (err) {
-        console.log("Error decoding token:", err);
-        return null;
-      }
-    };
-  
-  const tokenDecodedData = getTokenDecodedData();
+  const tokenDecodedData = isAuthenticated() ? getSessionUser() : null;
 
   return (
     <div className="fixed top-0 left-0 h-screen md:w-[220px] sm:w-9 w-9 m-0 flex flex-col text-black border-r-0 border-gray-500 shadow-md bg-white">

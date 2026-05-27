@@ -37,7 +37,7 @@ import EditTeamMembersForm from "./step/EditForm/EditTeamMembersForm";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
 import EditAwardForm from "./step/EditForm/EditAwardForm";
 import FundingDetail from "../Home/Funding/FundingDetail";
-import { jwtDecode } from "jwt-decode";
+import { getSessionUser, isAuthenticated } from "../../utils/authSession";
 import AddIPform from "./step/EditForm/AddIPform";
 
 function StartupProfile() {
@@ -75,13 +75,7 @@ function StartupProfile() {
   const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
-  const token = sessionStorage.getItem("token");
-  let decoded = null;
-  try {
-    decoded = token ? jwtDecode(token) : null;
-  } catch (e) {
-    decoded = null;
-  }
+  const decoded = isAuthenticated() ? getSessionUser() : null;
 
   const isAuthorized = !!decoded && (decoded.role === 5 || decoded.role === 2);
 

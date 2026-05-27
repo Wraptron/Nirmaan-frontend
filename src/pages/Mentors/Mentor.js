@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
 import ImageSvg from "../../assets/images/296fe121-5dfa-43f4-98b5-db50019738a7.jpg"; // Placeholder image
 import { Navigate, useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import { getSessionUser, isAuthenticated } from "../../utils/authSession";
 import { MdViewModule } from "react-icons/md";
 import { BsListUl } from "react-icons/bs";
 import MentorTag from "../../components/MentorTag";
@@ -97,19 +97,11 @@ function Mentor() {
   const totalPages = Math.ceil(filteredMentors.length / rowsPerPage);
    
 
-const token = sessionStorage.getItem("token");
-
-if (!token) {
+if (!isAuthenticated()) {
   return <Navigate to="/" replace />;
 }
 
-let decoded;
-try {
-  decoded = jwtDecode(token);
-} catch (err) {
-  return <Navigate to="/" replace />;
-}
-
+const decoded = getSessionUser();
 if (decoded.role !== 2) {
   return <Navigate to="/" replace />;
 }
