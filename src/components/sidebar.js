@@ -151,6 +151,16 @@ function SideBar({ children }) {
                 Mentors
               </a>
             </li>
+            <li
+              className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${
+                currentPath === "/startup/my-meetings" &&
+                "bg-[#45C74D] text-white rounded-xl"
+              }`}
+            >
+              <a href="/startup/my-meetings" className="flex gap-5">
+                <FaVideo size={20} /> My Meetings
+              </a>
+            </li>
           </ul>
         )}
       </div>

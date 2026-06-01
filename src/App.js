@@ -204,6 +204,7 @@ import StartupFundingDetail from "./Finance/Pages/Startup/StartupfundingDetail";
 import StartupMentor from "./pages/startups/Mentor/MentorList";
 import StartupMentorDetail from "./pages/startups/Mentor/StartupMentorDetail";
 import StartupList from "./pages/startups/Startup/StartupList";
+import StartupMyMeetings from "./pages/startups/StartupMyMeetings";
 import IpCreated from "./pages/Home/IpDetails"
 import PIADetails from "./pages/Home/PIADetails";
 import IITMICDetails from "./pages/Home/IITMICDetails";
@@ -319,6 +320,10 @@ function App() {
               element={<StartupMentorDetail />}
             />
             <Route path="/startup/startuplist" element={<StartupList />} />
+            <Route
+              path="/startup/my-meetings"
+              element={<StartupMyMeetings />}
+            />
           </Route>
 
           {/* Finance Routes (Role: 3) */}

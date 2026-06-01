@@ -308,6 +308,19 @@ async function ApiMarkNotificationsRead() {
   }
 }
 
+async function ApiFetchStartupMyMeetings() {
+  try {
+    const result = await axios.get(
+      `${API_BASE_URL}/api/v1/startup/my-meetings`,
+      { withCredentials: true }
+    );
+    return result.data;
+  } catch (error) {
+    console.error("Error in ApiFetchStartupMyMeetings", error);
+    throw error;
+  }
+}
+
 async function ApiRequestMentor(payload) {
   try {
     const result = await axios.post(
@@ -985,6 +998,7 @@ export {
   ApiUpdateMentorSessionRequest,
   ApiFetchNotifications,
   ApiMarkNotificationsRead,
+  ApiFetchStartupMyMeetings,
   ApiScheduleMeeting,
   ApiFetchScheduleMeetings,
   ApiFetchMentorAvailability,
