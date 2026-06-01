@@ -3,9 +3,11 @@ import toast from "react-hot-toast";
 import { ApiRequestMentor } from "../../API/API";
 import useAvailability from "./availability/useAvailability.js";
 import {
-  formatSlotLabel,
+  formatSlotWithModeLabel,
   getSlotsForDate,
   getTodayDateKey,
+  normalizeSlotEntry,
+  slotEntryKey,
   SLOT_DURATION_MINUTES,
 } from "./availability/availabilitySlots.js";
 
@@ -23,6 +25,7 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
     mode: "",
     agenda: "",
   });
+  const [selectedSlotKey, setSelectedSlotKey] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({
     date: "",
@@ -50,16 +53,27 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
     const value = e.target.value;
     clearFieldError("date");
     clearFieldError("time");
+    clearFieldError("mode");
+    setSelectedSlotKey("");
     setFormData((prev) => ({
       ...prev,
       date: value,
       time: "",
+      mode: "",
     }));
   };
 
-  const handleSlotSelect = (slot) => {
+  const handleSlotSelect = (entry) => {
+    const normalized = normalizeSlotEntry(entry);
     clearFieldError("time");
-    setFormData((prev) => ({ ...prev, time: slot }));
+    clearFieldError("mode");
+    const key = slotEntryKey(normalized);
+    setSelectedSlotKey(key);
+    setFormData((prev) => ({
+      ...prev,
+      time: normalized.time_slot,
+      mode: normalized.mode,
+    }));
   };
 
   const handleChange = (e) => {
@@ -82,13 +96,12 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
       return;
     }
     if (!formData.date) nextErrors.date = "Please select a date";
-    if (!formData.time) {
+    if (!formData.time || !formData.mode) {
       nextErrors.time = noAvailabilityOnDate
         ? "No availability on this date — choose another date"
-        : "Please select a time slot";
+        : "Please select a time slot and session mode";
     }
     if (!formData.duration) nextErrors.duration = "Please select a duration";
-    if (!formData.mode) nextErrors.mode = "Please select a session mode";
 
     if (
       nextErrors.date ||
@@ -124,7 +137,6 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
     }
   };
 
-  const modes = ["Online", "In-person"];
   const formDisabled = isLoading;
 
   return (
@@ -155,7 +167,7 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
             <p className="text-sm text-gray-600 mb-5">{mentorName}</p>
           ) : (
             <p className="text-sm text-gray-500 mb-5">
-              Select a date, then choose an available time slot.
+              Select a date, then choose an available slot (time and mode).
             </p>
           )}
 
@@ -180,7 +192,7 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Time slot <span className="text-red-500">*</span>
+                Available slot <span className="text-red-500">*</span>
               </label>
 
               {!formData.date ? (
@@ -199,27 +211,41 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
                     : "This mentor has no availability on the selected date. Please choose another date."}
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
-                  {timeSlots.map((slot) => (
-                    <button
-                      key={slot}
-                      type="button"
-                      disabled={formDisabled}
-                      onClick={() => handleSlotSelect(slot)}
-                      className={`py-2 px-2 text-xs font-medium rounded-lg border transition-colors ${
-                        formData.time === slot
-                          ? "bg-[#45C74D] text-white border-[#45C74D]"
-                          : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100"
-                      } disabled:opacity-60`}
-                    >
-                      {formatSlotLabel(slot)}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                  {timeSlots.map((entry) => {
+                    const key = slotEntryKey(entry);
+                    const isSelected = selectedSlotKey === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        disabled={formDisabled}
+                        onClick={() => handleSlotSelect(entry)}
+                        className={`py-2 px-2 text-xs font-medium rounded-lg border text-center transition-colors ${
+                          isSelected
+                            ? "bg-[#45C74D] text-white border-[#45C74D]"
+                            : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100"
+                        } disabled:opacity-60`}
+                      >
+                        <span className="block font-semibold">
+                          {formatSlotWithModeLabel(entry)}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
 
               {errors.time ? (
                 <p className="text-xs text-red-500 mt-1">{errors.time}</p>
+              ) : null}
+              {formData.mode ? (
+                <p className="text-xs text-gray-500 mt-2">
+                  Selected mode:{" "}
+                  <span className="font-medium text-gray-700">
+                    {formData.mode}
+                  </span>
+                </p>
               ) : null}
             </div>
 
@@ -240,35 +266,6 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
               </select>
               {errors.duration ? (
                 <p className="text-xs text-red-500 mt-1">{errors.duration}</p>
-              ) : null}
-            </div>
-
-            <div>
-              <span className="block text-sm font-medium text-gray-700 mb-2">
-                Session mode <span className="text-red-500">*</span>
-              </span>
-              <div className="flex gap-2">
-                {modes.map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    disabled={formDisabled}
-                    onClick={() => {
-                      clearFieldError("mode");
-                      setFormData((prev) => ({ ...prev, mode: m }));
-                    }}
-                    className={`flex-1 py-2 text-sm font-medium rounded-lg border transition-colors ${
-                      formData.mode === m
-                        ? "bg-[#45C74D] text-white border-[#45C74D]"
-                        : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100"
-                    } disabled:opacity-60`}
-                  >
-                    {m}
-                  </button>
-                ))}
-              </div>
-              {errors.mode ? (
-                <p className="text-xs text-red-500 mt-1">{errors.mode}</p>
               ) : null}
             </div>
 

@@ -12,7 +12,7 @@ import {
   WEEKDAY_LABELS,
   buildMonthCalendarCells,
   formatDisplayDate,
-  formatSlotLabel,
+  formatSlotWithModeLabel,
   getMonthAvailabilityStats,
   getTodayDateKey,
   toDateKey,
@@ -336,11 +336,11 @@ function MentorAvailabilityDetails({ mentorId }) {
                       <div className="flex flex-wrap gap-2 max-h-[280px] overflow-y-auto">
                         {selectedSlots.map((slot) => (
                           <span
-                            key={slot}
+                            key={`${slot.time_slot}-${slot.mode}`}
                             className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700 bg-[#F8FAFB] border border-gray-200 rounded-md px-2.5 py-1.5"
                           >
                             <FaClock className="w-3 h-3 text-[#45C74D] shrink-0" />
-                            {formatSlotLabel(slot)}
+                            {formatSlotWithModeLabel(slot)}
                           </span>
                         ))}
                       </div>

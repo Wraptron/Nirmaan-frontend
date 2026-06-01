@@ -5,6 +5,8 @@ import {
   FaChevronRight,
   FaClock,
   FaSpinner,
+  FaVideo,
+  FaMapMarkerAlt,
 } from "react-icons/fa";
 import { getSessionUser } from "../utils/authSession";
 import toast from "react-hot-toast";
@@ -12,6 +14,18 @@ import {
   ApiFetchMentorAvailability,
   ApiSaveMentorAvailability,
 } from "../API/API";
+import {
+  ALL_SLOTS,
+  SESSION_MODES,
+  formatDisplayDate,
+  formatSlotLabel,
+  formatSlotWithModeLabel,
+  normalizeAvailabilityMap,
+  normalizeMode,
+  normalizeSlotEntry,
+  slotEntryKey,
+  toDateKey,
+} from "../pages/Mentorship/availability/availabilitySlots";
 
 const cn = (...classes) => classes.filter(Boolean).join(" ");
 
@@ -29,30 +43,9 @@ const SLOT_GROUPS = [
   { id: "afternoon", label: "Afternoon" },
 ];
 
-const SLOT_DURATION_MINUTES = 60;
-
-const DAY_START_MINUTES = 8 * 60;
-const DAY_END_MINUTES = 17 * 60 + 30;
-
-const buildTimeSlots = () => {
-  const slots = [];
-  let minutes = DAY_START_MINUTES;
-  while (minutes + SLOT_DURATION_MINUTES <= DAY_END_MINUTES) {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    slots.push(
-      `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
-    );
-    minutes += SLOT_DURATION_MINUTES;
-  }
-  return slots;
-};
-
-const ALL_SLOTS = buildTimeSlots();
-
-const minutesFromSlot = (slot) => {
-  const [h, m] = slot.split(":").map(Number);
-  return h * 60 + m;
+const getSlotGroup = (slot) => {
+  const hour = parseInt(slot.split(":")[0], 10);
+  return hour < 12 ? "morning" : "afternoon";
 };
 
 const slotToTimeParts = (slot) => {
@@ -68,55 +61,8 @@ const formatTimeParts = (h, m) => {
   return `${displayH}:${m} ${period}`;
 };
 
-const toDateKey = (date) => {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-};
-
-const formatSlotLabel = (slot) => {
-  const { h, m } = slotToTimeParts(slot);
-  const startLabel = formatTimeParts(h, m);
-  const endMinutes = minutesFromSlot(slot) + SLOT_DURATION_MINUTES;
-  const endH = Math.floor(endMinutes / 60);
-  const endM = String(endMinutes % 60).padStart(2, "0");
-  return `${startLabel} – ${formatTimeParts(endH, endM)}`;
-};
-
-const formatDisplayDate = (dateKey) => {
-  const [y, m, d] = dateKey.split("-").map(Number);
-  const date = new Date(y, m - 1, d);
-  return date.toLocaleDateString("en-IN", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-};
-
-const getSlotGroup = (slot) => {
-  const hour = parseInt(slot.split(":")[0], 10);
-  return hour < 12 ? "morning" : "afternoon";
-};
-
 const WINDOW_START_LABEL = formatTimeParts(8, "00");
 const WINDOW_END_LABEL = formatTimeParts(17, "30");
-
-const normalizeSlot = (slot) => String(slot).slice(0, 5);
-
-const normalizeAvailabilityMap = (data) => {
-  if (!data || typeof data !== "object") return {};
-  return Object.entries(data).reduce((acc, [dateKey, slots]) => {
-    const list = Array.isArray(slots)
-      ? slots.map(normalizeSlot).filter(Boolean).sort()
-      : [];
-    if (list.length > 0) {
-      acc[dateKey] = list;
-    }
-    return acc;
-  }, {});
-};
 
 const MentorAvailabilityCalendar = () => {
   const today = useMemo(() => new Date(), []);
@@ -127,6 +73,7 @@ const MentorAvailabilityCalendar = () => {
   );
   const [availabilityMap, setAvailabilityMap] = useState({});
   const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedMode, setSelectedMode] = useState("Online");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -203,10 +150,17 @@ const MentorAvailabilityCalendar = () => {
 
   const setSlotsForDate = (dateKey, updater) => {
     setAvailabilityMap((prev) => {
-      const current = (prev[dateKey] || []).map(normalizeSlot);
+      const current = (prev[dateKey] || []).map(normalizeSlotEntry);
       const nextSlots =
         typeof updater === "function" ? updater(current) : updater;
-      const sorted = nextSlots.map(normalizeSlot).sort();
+      const sorted = nextSlots
+        .map(normalizeSlotEntry)
+        .filter((entry) => entry.time_slot)
+        .sort((a, b) => {
+          const timeCmp = a.time_slot.localeCompare(b.time_slot);
+          if (timeCmp !== 0) return timeCmp;
+          return a.mode.localeCompare(b.mode);
+        });
       const next = { ...prev };
 
       if (sorted.length === 0) {
@@ -219,44 +173,46 @@ const MentorAvailabilityCalendar = () => {
     });
   };
 
-  const removeSlot = (slot) => {
-    if (!selectedDate) return;
-    const target = normalizeSlot(slot);
-    setSlotsForDate(selectedDate, (current) =>
-      current.filter((s) => s !== target)
-    );
-  };
-
-  const addSlot = (slot) => {
-    if (!selectedDate) return;
-    const target = normalizeSlot(slot);
-    setSlotsForDate(selectedDate, (current) => {
-      if (current.includes(target)) return current;
-      return [...current, target].sort();
-    });
+  const isSlotActive = (timeSlot, mode) => {
+    const key = slotEntryKey({ time_slot: timeSlot, mode });
+    return selectedSlots.some((entry) => slotEntryKey(entry) === key);
   };
 
   const toggleSlot = (slot) => {
     if (!selectedDate) return;
-    const target = normalizeSlot(slot);
-    const current = (availabilityMap[selectedDate] || []).map(normalizeSlot);
-    if (current.includes(target)) {
-      removeSlot(slot);
-      return;
-    }
-    addSlot(slot);
+    const mode = normalizeMode(selectedMode);
+    const key = slotEntryKey({ time_slot: slot, mode });
+
+    setSlotsForDate(selectedDate, (current) => {
+      const exists = current.some((entry) => slotEntryKey(entry) === key);
+      if (exists) {
+        return current.filter((entry) => slotEntryKey(entry) !== key);
+      }
+      return [...current, { time_slot: slot, mode }];
+    });
   };
 
-  const toggleSelectAll = () => {
+  const toggleSelectAllForMode = () => {
     if (!selectedDate) return;
-    const current = (availabilityMap[selectedDate] || []).map(normalizeSlot);
-    const allSelected = ALL_SLOTS.every((s) =>
-      current.includes(normalizeSlot(s))
+    const mode = normalizeMode(selectedMode);
+    const modeKeys = ALL_SLOTS.map((slot) =>
+      slotEntryKey({ time_slot: slot, mode })
     );
-    setSlotsForDate(
-      selectedDate,
-      allSelected ? [] : ALL_SLOTS.map(normalizeSlot)
+    const current = selectedSlots.map(normalizeSlotEntry);
+    const allSelected = modeKeys.every((key) =>
+      current.some((entry) => slotEntryKey(entry) === key)
     );
+
+    setSlotsForDate(selectedDate, (prev) => {
+      if (allSelected) {
+        return prev.filter((entry) => normalizeMode(entry.mode) !== mode);
+      }
+      const withoutMode = prev.filter(
+        (entry) => normalizeMode(entry.mode) !== mode
+      );
+      const additions = ALL_SLOTS.map((slot) => ({ time_slot: slot, mode }));
+      return [...withoutMode, ...additions];
+    });
   };
 
   const handleSave = async () => {
@@ -268,7 +224,9 @@ const MentorAvailabilityCalendar = () => {
       return;
     }
 
-    const currentSlots = availabilityMap[selectedDate] || [];
+    const currentSlots = (availabilityMap[selectedDate] || []).map(
+      normalizeSlotEntry
+    );
 
     setSaving(true);
     try {
@@ -286,8 +244,13 @@ const MentorAvailabilityCalendar = () => {
     }
   };
 
-  const allSelectedForDay =
-    selectedDate && ALL_SLOTS.every((s) => selectedSlots.includes(s));
+  const allSelectedForMode =
+    selectedDate &&
+    ALL_SLOTS.every((slot) => isSlotActive(slot, selectedMode));
+
+  const modeSlotCount = selectedSlots.filter(
+    (entry) => normalizeMode(entry.mode) === normalizeMode(selectedMode)
+  ).length;
 
   return (
     <div className="mx-auto max-w-[1100px] px-8 pb-10 pt-7">
@@ -304,7 +267,8 @@ const MentorAvailabilityCalendar = () => {
           </h1>
           <p className="m-0 max-w-[560px] text-[0.9375rem] leading-normal text-gray-500">
             Set the dates and 1-hour time slots when you are open for mentorship
-            sessions. Students can book only within your available windows.
+            sessions. Choose Online or In-person for each slot so startups can
+            book the right format.
           </p>
         </div>
         {daysWithAvailability > 0 && (
@@ -473,8 +437,8 @@ const MentorAvailabilityCalendar = () => {
                   Select a date
                 </h3>
                 <p className="m-0 max-w-[280px] text-sm leading-relaxed text-gray-500">
-                  Choose a future date on the calendar, then pick available
-                  1-hour session slots for that day.
+                  Choose a future date on the calendar, pick Online or
+                  In-person, then select your available 1-hour session slots.
                 </p>
               </div>
             ) : (
@@ -492,8 +456,43 @@ const MentorAvailabilityCalendar = () => {
                     </h3>
                   </div>
                   <div className="shrink-0 whitespace-nowrap rounded-lg bg-gray-100 px-3 py-1.5 text-[0.8125rem] font-semibold text-gray-700">
-                    {selectedSlots.length} / {ALL_SLOTS.length} slots
+                    {selectedSlots.length} slot
+                    {selectedSlots.length !== 1 ? "s" : ""} total
                   </div>
+                </div>
+
+                <div className="mb-4">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Session mode for new slots
+                  </p>
+                  <div className="flex gap-2">
+                    {SESSION_MODES.map((mode) => (
+                      <button
+                        key={mode}
+                        type="button"
+                        className={cn(
+                          "flex flex-1 items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-[0.8125rem] font-semibold transition-colors",
+                          selectedMode === mode
+                            ? "border-nirmaanGreenDark bg-nirmaanGreen text-white"
+                            : "border-gray-200 bg-neutral-50 text-gray-600 hover:border-green-300 hover:bg-green-50"
+                        )}
+                        onClick={() => setSelectedMode(mode)}
+                        aria-pressed={selectedMode === mode}
+                      >
+                        {mode === "Online" ? (
+                          <FaVideo className="text-xs" aria-hidden="true" />
+                        ) : (
+                          <FaMapMarkerAlt className="text-xs" aria-hidden="true" />
+                        )}
+                        {mode}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-[0.75rem] text-gray-500">
+                    Slots you add below will be marked as{" "}
+                    <strong>{selectedMode}</strong>. You can offer the same time
+                    in both modes by switching mode and selecting again.
+                  </p>
                 </div>
 
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -507,9 +506,11 @@ const MentorAvailabilityCalendar = () => {
                   <button
                     type="button"
                     className="cursor-pointer rounded-lg border border-green-200 bg-white px-3.5 py-1.5 text-[0.8125rem] font-semibold text-green-700 transition-colors duration-150 hover:border-green-300 hover:bg-green-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nirmaanGreen"
-                    onClick={toggleSelectAll}
+                    onClick={toggleSelectAllForMode}
                   >
-                    {allSelectedForDay ? "Clear all" : "Select all"}
+                    {allSelectedForMode
+                      ? `Clear all ${selectedMode}`
+                      : `Select all ${selectedMode}`}
                   </button>
                 </div>
 
@@ -526,13 +527,17 @@ const MentorAvailabilityCalendar = () => {
                       </h4>
                       <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-2">
                         {groupSlots.map((slot) => {
-                          const isActive = selectedSlots.includes(slot);
+                          const isActive = isSlotActive(slot, selectedMode);
+                          const otherMode =
+                            selectedMode === "Online" ? "In-person" : "Online";
+                          const hasOtherMode = isSlotActive(slot, otherMode);
+
                           return (
                             <button
                               key={slot}
                               type="button"
                               className={cn(
-                                "min-h-9 rounded-lg border px-2.5 py-2 text-center text-[0.8125rem] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nirmaanGreen",
+                                "relative min-h-9 rounded-lg border px-2.5 py-2 text-center text-[0.8125rem] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nirmaanGreen",
                                 isActive
                                   ? "border-nirmaanGreenDark bg-nirmaanGreen text-white shadow-[0_1px_4px_rgba(69,199,77,0.3)]"
                                   : "border-gray-200 bg-neutral-50 text-gray-600 hover:border-green-300 hover:bg-green-50 hover:text-green-800"
@@ -541,6 +546,11 @@ const MentorAvailabilityCalendar = () => {
                               aria-pressed={isActive}
                             >
                               {formatSlotLabel(slot)}
+                              {hasOtherMode && !isActive ? (
+                                <span className="mt-0.5 block text-[0.625rem] font-normal opacity-70">
+                                  +{otherMode}
+                                </span>
+                              ) : null}
                             </button>
                           );
                         })}
@@ -548,6 +558,24 @@ const MentorAvailabilityCalendar = () => {
                     </div>
                   );
                 })}
+
+                {selectedSlots.length > 0 ? (
+                  <div className="mb-4 rounded-lg border border-gray-100 bg-gray-50 px-3 py-3">
+                    <p className="mb-2 text-[0.6875rem] font-bold uppercase tracking-wider text-gray-400">
+                      Selected slots
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedSlots.map((entry) => (
+                        <span
+                          key={slotEntryKey(entry)}
+                          className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2 py-1 text-[0.6875rem] font-medium text-gray-700"
+                        >
+                          {formatSlotWithModeLabel(entry)}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
 
                 <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-gray-100 pt-4">
                   <button
@@ -569,6 +597,12 @@ const MentorAvailabilityCalendar = () => {
                       "Save availability"
                     )}
                   </button>
+                  {modeSlotCount > 0 ? (
+                    <span className="text-xs text-gray-500">
+                      {modeSlotCount} {selectedMode} slot
+                      {modeSlotCount !== 1 ? "s" : ""} on this day
+                    </span>
+                  ) : null}
                 </div>
               </section>
             )}
