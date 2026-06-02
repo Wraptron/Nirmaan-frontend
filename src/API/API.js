@@ -1,4 +1,4 @@
-import axios from "axios";
+import { apiClient as axios } from "../utils/apiClient";
 
 // ==================== CONFIGURATION ====================
 const isDevelopment = process.env.NODE_ENV === "development";
@@ -282,10 +282,11 @@ async function ApiUpdateMentorSessionRequest(requestId, status) {
   }
 }
 
-async function ApiFetchNotifications() {
+async function ApiFetchNotifications(params = {}) {
   try {
     const result = await axios.get(`${API_BASE_URL}/api/v1/notification`, {
       withCredentials: true,
+      params,
     });
     return result.data;
   } catch (error) {

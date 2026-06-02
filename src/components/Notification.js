@@ -354,6 +354,7 @@ function Notification({
   onClose,
   loading,
   items = [],
+  unreadCount = 0,
   formatRequestDate,
   onAccept,
   onReject,
@@ -374,6 +375,7 @@ function Notification({
   if (!isOpen) return null;
 
   const count = items.length;
+  const unread = Number(unreadCount) || 0;
 
   return (
     <div
@@ -385,9 +387,9 @@ function Notification({
         <header className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/50">
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-semibold text-gray-900">Notifications</h2>
-            {count > 0 ? (
+            {unread > 0 ? (
               <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[11px] font-semibold text-white bg-[#45C74D] rounded-full">
-                {count}
+                {unread}
               </span>
             ) : null}
           </div>

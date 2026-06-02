@@ -31,6 +31,7 @@ import MentorTag from "./MentorTag";
 function NavBar({ onSelectionChange, selectedIndex }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notificationItems, setNotificationItems] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [schedulingRequest, setSchedulingRequest] = useState(null);
   const [processingRequestId, setProcessingRequestId] = useState(null);
 
@@ -132,9 +133,10 @@ function NavBar({ onSelectionChange, selectedIndex }) {
   }, []);
   const fetchNotifications = async () => {
     try {
-      const data = await ApiFetchNotifications();
+      const data = await ApiFetchNotifications({ limit: 20 });
       const raw = Array.isArray(data?.notifications) ? data.notifications : [];
       setNotificationItems(raw.map(mapNotificationToDisplayItem));
+      setUnreadCount(Number(data?.unreadCount) || 0);
       setLoading(false);
     } catch (err) {
       console.log("Error fetching notification data:", err);
@@ -142,8 +144,13 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     }
   };
 
-  const handleNotificationPanelClose = async () => {
+  const handleNotificationPanelClose = () => {
     setNotificationsOpen(false);
+  };
+
+  const handleOpenNotifications = async () => {
+    setNotificationsOpen(true);
+    setIsOpen(false);
     try {
       await ApiMarkNotificationsRead();
       await fetchNotifications();
@@ -192,7 +199,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
   const isStartup = userRole === "5";
   const isMentor = userRole === "6";
   const canSeeNotifications = isAdmin || isStartup || isMentor;
-  const notificationCount = notificationItems.length;
+  const notificationCount = unreadCount;
   const hasNotifications = canSeeNotifications && notificationCount > 0;
 
   const formatRequestDate = (value) => {
@@ -324,10 +331,11 @@ function NavBar({ onSelectionChange, selectedIndex }) {
                 <div className="text-black px-2 py-2 ms-3">
                   <button
                     type="button"
-                    onClick={() => {
-                      setNotificationsOpen((open) => !open);
-                      setIsOpen(false);
-                    }}
+                    onClick={() =>
+                      notificationsOpen
+                        ? setNotificationsOpen(false)
+                        : handleOpenNotifications()
+                    }
                     className={`relative p-1 rounded-lg transition-colors ${
                       notificationsOpen
                         ? "bg-gray-100 ring-1 ring-gray-200"
@@ -348,7 +356,8 @@ function NavBar({ onSelectionChange, selectedIndex }) {
                   isOpen={notificationsOpen}
                   onClose={handleNotificationPanelClose}
                   loading={loading}
-                  items={notificationItems}
+                  items={notificationItems.slice(0, 5)}
+                  unreadCount={unreadCount}
                   formatRequestDate={formatRequestDate}
                   onAccept={isAdmin ? handleAcceptMentorRequest : undefined}
                   onReject={isAdmin ? handleRejectMentorRequest : undefined}
