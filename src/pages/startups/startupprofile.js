@@ -311,7 +311,8 @@ function StartupProfile() {
       setFundingAmount(fundamount || {});
 
 
-      const data = await ApiFetchFounder(requestedStartupId);
+      const founderUserId = selectedstartup?.user_id || requestedStartupId;
+      const data = await ApiFetchFounder(founderUserId);
       console.log("[StartupProfile] founders response", data);
       setFounders(data);
       // console.log("Selected startup:", selectedstartup);
