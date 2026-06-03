@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 const formatTime = (value) => {
   if (!value) return "—";
@@ -39,6 +39,7 @@ const typeLabel = (type) => {
 };
 
 export const mapNotificationToDisplayItem = (n) => {
+  const isUnread = !n.read_at;
   if (n.type === "mentorship" && n.metadata && typeof n.metadata === "object") {
     const eventStatus =
       n.event === "pending"
@@ -54,6 +55,7 @@ export const mapNotificationToDisplayItem = (n) => {
       notificationId: n.id,
       status: eventStatus,
       created_at: n.created_at,
+      isUnread,
       _notificationType: n.type,
     };
   }
@@ -66,49 +68,10 @@ export const mapNotificationToDisplayItem = (n) => {
     body: n.body,
     created_at: n.created_at,
     status: n.event,
+    isUnread,
     _notificationType: n.type,
   };
 };
-
-const ModeBadge = ({ mode }) => {
-  const isOnline = String(mode).toLowerCase() === "online";
-  return (
-    <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${
-        isOnline
-          ? "bg-sky-50 text-sky-700 ring-1 ring-sky-100"
-          : "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
-      }`}
-    >
-      {mode}
-    </span>
-  );
-};
-
-const MetaChip = ({ icon, children }) => (
-  <span className="inline-flex items-center gap-1 text-xs text-gray-500">
-    {icon}
-    {children}
-  </span>
-);
-
-const CalendarIcon = () => (
-  <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-  </svg>
-);
-
-const ClockIcon = () => (
-  <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-);
-
-const UserIcon = () => (
-  <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-  </svg>
-);
 
 function NotificationSkeleton() {
   return (
@@ -130,31 +93,45 @@ function NotificationSkeleton() {
 function GenericInboxItem({ item }) {
   const relative = formatRelativeTime(item.created_at);
   return (
-    <article className="px-4 py-3.5 hover:bg-gray-50/80 transition-colors">
-      <div className="flex gap-3">
-        <div className="w-10 h-10 rounded-full bg-violet-50 text-violet-700 flex items-center justify-center text-[10px] font-semibold shrink-0 ring-1 ring-violet-100">
+    <article
+      className={`px-3 py-2 hover:bg-gray-50/80 transition-colors ${
+        item.isUnread ? "bg-sky-50/40" : ""
+      }`}
+    >
+      <div className="flex gap-2.5 items-start">
+        <div className="relative w-7 h-7 rounded-full bg-violet-50 text-violet-700 flex items-center justify-center text-[9px] font-semibold shrink-0 ring-1 ring-violet-100">
           {typeLabel(item.type).slice(0, 2).toUpperCase()}
+          {item.isUnread ? (
+            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#45C74D] rounded-full ring-2 ring-white" />
+          ) : null}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <p className="text-sm font-semibold text-gray-900 leading-snug">
+            <p className="text-xs font-medium text-gray-900 leading-snug line-clamp-2">
               {item.title}
             </p>
             {relative ? (
-              <span className="text-[11px] text-gray-400 whitespace-nowrap shrink-0">
+              <span className="text-[10px] text-gray-400 whitespace-nowrap shrink-0">
                 {relative}
               </span>
             ) : null}
           </div>
-          <p className="mt-0.5 text-[11px] text-violet-600 font-medium">
-            {typeLabel(item.type)}
-          </p>
           {item.body ? (
-            <p className="mt-1 text-xs text-gray-600 leading-relaxed">{item.body}</p>
+            <p className="mt-0.5 text-[11px] text-gray-500 line-clamp-2">{item.body}</p>
           ) : null}
         </div>
       </div>
     </article>
+  );
+}
+
+function SectionLabel({ children }) {
+  return (
+    <div className="sticky top-0 z-10 px-3 py-1.5 bg-gray-50/95 border-b border-gray-100 backdrop-blur-sm">
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+        {children}
+      </p>
+    </div>
   );
 }
 
@@ -166,22 +143,29 @@ function SessionStatusNotificationItem({ req, formatRequestDate, viewerRole }) {
     ? isMentor
       ? "Meeting scheduled"
       : "Session confirmed"
-    : isMentor
-      ? "Session request declined"
-      : "Session request declined";
-  const subtitle = isAccepted
-    ? isMentor
-      ? `Meeting with ${req.startup_name || "startup"}`
-      : `Meeting with ${req.mentor_name || "mentor"}`
-    : isMentor
-      ? `Request from ${req.startup_name || "startup"} was rejected`
-      : `Your request with ${req.mentor_name || "mentor"} was rejected`;
+    : "Session declined";
+  const party = isMentor
+    ? req.startup_name || "startup"
+    : req.mentor_name || "mentor";
+  const when =
+    isAccepted && (req.requested_date || req.requested_time)
+      ? [
+          req.requested_date ? formatRequestDate(req.requested_date) : null,
+          req.requested_time ? formatTime(req.requested_time) : null,
+        ]
+          .filter(Boolean)
+          .join(" · ")
+      : null;
 
   return (
-    <article className="px-4 py-3.5 hover:bg-gray-50/80 transition-colors">
-      <div className="flex gap-3">
+    <article
+      className={`px-3 py-2 hover:bg-gray-50/80 transition-colors ${
+        req.isUnread ? "bg-sky-50/40" : ""
+      }`}
+    >
+      <div className="flex gap-2.5 items-start">
         <div
-          className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ring-1 ${
+          className={`relative w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0 ring-1 ${
             isAccepted
               ? "bg-sky-50 text-sky-700 ring-sky-100"
               : "bg-red-50 text-red-700 ring-red-100"
@@ -189,35 +173,24 @@ function SessionStatusNotificationItem({ req, formatRequestDate, viewerRole }) {
           aria-hidden
         >
           {isAccepted ? "✓" : "×"}
+          {req.isUnread ? (
+            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#45C74D] rounded-full ring-2 ring-white" />
+          ) : null}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <p className="text-sm font-semibold text-gray-900 leading-snug">
+            <p className="text-xs font-medium text-gray-900 leading-snug">
               {title}
+              <span className="font-normal text-gray-500"> · {party}</span>
             </p>
             {relative ? (
-              <span className="text-[11px] text-gray-400 whitespace-nowrap shrink-0">
+              <span className="text-[10px] text-gray-400 whitespace-nowrap shrink-0">
                 {relative}
               </span>
             ) : null}
           </div>
-          <p className="mt-0.5 text-xs text-gray-600">{subtitle}</p>
-          {isAccepted && (req.requested_date || req.requested_time) ? (
-            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-              {req.requested_date ? (
-                <MetaChip icon={<CalendarIcon />}>
-                  {formatRequestDate(req.requested_date)}
-                </MetaChip>
-              ) : null}
-              {req.requested_time ? (
-                <MetaChip icon={<ClockIcon />}>
-                  {formatTime(req.requested_time)}
-                </MetaChip>
-              ) : null}
-              {req.duration ? (
-                <span className="text-xs text-gray-500">{req.duration} min</span>
-              ) : null}
-            </div>
+          {when ? (
+            <p className="mt-0.5 text-[11px] text-gray-500">{when}</p>
           ) : null}
         </div>
       </div>
@@ -231,6 +204,8 @@ function NotificationItem({
   onAccept,
   onReject,
   processingId,
+  expanded,
+  onToggleExpand,
 }) {
   const relative = formatRelativeTime(req.created_at);
   const initials = (req.startup_name || "S")
@@ -239,56 +214,59 @@ function NotificationItem({
     .join("")
     .slice(0, 2)
     .toUpperCase();
+  const hasDetails = Boolean(req.agenda?.trim());
+  const metaLine = [
+    req.mentor_name,
+    formatRequestDate(req.requested_date),
+    formatTime(req.requested_time),
+    req.duration ? `${req.duration} min` : null,
+    req.session_mode,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
-    <article className="px-4 py-3.5 hover:bg-gray-50/80 transition-colors">
-      <div className="flex gap-3">
+    <article
+      className={`px-3 py-2.5 hover:bg-gray-50/80 transition-colors ${
+        req.isUnread ? "bg-sky-50/40" : ""
+      }`}
+    >
+      <div className="flex gap-2.5">
         <div
-          className="w-10 h-10 rounded-full bg-[#45C74D]/10 text-[#2d8a33] flex items-center justify-center text-xs font-semibold shrink-0 ring-1 ring-[#45C74D]/20"
+          className="relative w-8 h-8 rounded-full bg-[#45C74D]/10 text-[#2d8a33] flex items-center justify-center text-[10px] font-semibold shrink-0 ring-1 ring-[#45C74D]/20"
           aria-hidden
         >
           {initials}
+          {req.isUnread ? (
+            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#45C74D] rounded-full ring-2 ring-white" />
+          ) : null}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <p className="text-sm font-semibold text-gray-900 leading-snug">
+            <p className="text-xs font-semibold text-gray-900 leading-snug line-clamp-2">
               <span className="text-[#2d8a33]">{req.startup_name}</span>
-              <span className="font-normal text-gray-600"> requested a session</span>
+              <span className="font-normal text-gray-600"> · session request</span>
             </p>
             {relative ? (
-              <span className="text-[11px] text-gray-400 whitespace-nowrap shrink-0">
+              <span className="text-[10px] text-gray-400 whitespace-nowrap shrink-0 pt-0.5">
                 {relative}
               </span>
             ) : null}
           </div>
-          {req.mentor_name ? (
-            <p className="mt-0.5 text-xs text-gray-600 flex items-center gap-1">
-              <UserIcon />
-              <span className="font-medium text-gray-700">{req.mentor_name}</span>
-            </p>
+          {metaLine ? (
+            <p className="mt-0.5 text-[11px] text-gray-500 line-clamp-2">{metaLine}</p>
           ) : null}
-          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-            <MetaChip icon={<CalendarIcon />}>
-              {formatRequestDate(req.requested_date)}
-            </MetaChip>
-            <MetaChip icon={<ClockIcon />}>
-              {formatTime(req.requested_time)}
-              <span className="text-gray-300 mx-0.5">·</span>
-              {req.duration} min
-            </MetaChip>
-            <ModeBadge mode={req.session_mode} />
-          </div>
-          {req.agenda ? (
-            <p className="mt-2 text-xs text-gray-500 line-clamp-2 leading-relaxed bg-gray-50 rounded-md px-2.5 py-1.5 border border-gray-100">
+          {expanded && hasDetails ? (
+            <p className="mt-1.5 text-[11px] text-gray-600 leading-relaxed bg-gray-50 rounded px-2 py-1 border border-gray-100">
               {req.agenda}
             </p>
           ) : null}
-          <div className="mt-3 flex gap-2">
+          <div className="mt-2 flex items-center gap-1.5 flex-wrap">
             <button
               type="button"
               disabled={processingId === req.id}
               onClick={() => onAccept?.(req)}
-              className="flex-1 py-1.5 text-xs font-semibold text-white bg-[#45C74D] rounded-lg hover:bg-[#3bae42] disabled:opacity-60"
+              className="px-2.5 py-1 text-[11px] font-semibold text-white bg-[#45C74D] rounded-md hover:bg-[#3bae42] disabled:opacity-60"
             >
               Accept
             </button>
@@ -296,10 +274,19 @@ function NotificationItem({
               type="button"
               disabled={processingId === req.id}
               onClick={() => onReject?.(req)}
-              className="flex-1 py-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 disabled:opacity-60"
+              className="px-2.5 py-1 text-[11px] font-semibold text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 disabled:opacity-60"
             >
               {processingId === req.id ? "…" : "Reject"}
             </button>
+            {hasDetails ? (
+              <button
+                type="button"
+                onClick={onToggleExpand}
+                className="px-1.5 py-1 text-[11px] font-medium text-gray-500 hover:text-gray-700"
+              >
+                {expanded ? "Hide" : "Details"}
+              </button>
+            ) : null}
           </div>
         </div>
       </div>
@@ -314,25 +301,30 @@ function renderNotificationItem(item, props) {
     onReject,
     processingId,
     viewerRole,
+    expandedId,
+    onToggleExpand,
   } = props;
+  const itemKey = String(item.notificationId || item.id);
 
   if (item._notificationType === "mentorship" || item.startup_name) {
     if (item.status === "pending") {
       return (
         <NotificationItem
-          key={item.notificationId || item.id}
+          key={itemKey}
           req={item}
           formatRequestDate={formatRequestDate}
           onAccept={onAccept}
           onReject={onReject}
           processingId={processingId}
+          expanded={expandedId === itemKey}
+          onToggleExpand={() => onToggleExpand(itemKey)}
         />
       );
     }
     if (item.status === "accepted" || item.status === "rejected") {
       return (
         <SessionStatusNotificationItem
-          key={item.notificationId || item.id}
+          key={itemKey}
           req={item}
           formatRequestDate={formatRequestDate}
           viewerRole={viewerRole}
@@ -341,13 +333,25 @@ function renderNotificationItem(item, props) {
     }
   }
 
-  return (
-    <GenericInboxItem
-      key={item.notificationId || item.id}
-      item={item}
-    />
-  );
+  return <GenericInboxItem key={itemKey} item={item} />;
 }
+
+const partitionItems = (items, showActionSection) => {
+  const pending = [];
+  const recent = [];
+  items.forEach((item) => {
+    if (
+      showActionSection &&
+      item.status === "pending" &&
+      (item._notificationType === "mentorship" || item.startup_name)
+    ) {
+      pending.push(item);
+    } else {
+      recent.push(item);
+    }
+  });
+  return { pending, recent };
+};
 
 function Notification({
   isOpen,
@@ -362,7 +366,19 @@ function Notification({
   viewerRole = "admin",
   emptyTitle = "All caught up",
   emptySubtitle = "No new notifications",
+  hasMore = false,
+  loadingMore = false,
+  onLoadMore,
+  onMarkAllRead,
+  markingAllRead = false,
+  retentionDays = 90,
 }) {
+  const [expandedId, setExpandedId] = useState(null);
+
+  useEffect(() => {
+    if (!isOpen) setExpandedId(null);
+  }, [isOpen]);
+
   useEffect(() => {
     if (!isOpen) return;
     const handleEscape = (e) => {
@@ -376,40 +392,68 @@ function Notification({
 
   const count = items.length;
   const unread = Number(unreadCount) || 0;
+  const showActionSection = Boolean(onAccept);
+  const { pending, recent } = partitionItems(items, showActionSection);
+
+  const itemProps = {
+    formatRequestDate,
+    onAccept,
+    onReject,
+    processingId,
+    viewerRole,
+    expandedId,
+    onToggleExpand: (id) =>
+      setExpandedId((current) => (current === id ? null : id)),
+  };
 
   return (
     <div
       role="dialog"
       aria-label="Notifications"
-      className="absolute right-0 top-full mt-2 z-[100] w-[min(100vw-2rem,400px)] origin-top-right"
+      className="absolute right-0 top-full mt-2 z-[100] w-[min(100vw-2rem,380px)] origin-top-right"
     >
-      <div className="bg-white rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-gray-100 overflow-hidden">
-        <header className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/50">
-          <div className="flex items-center gap-2">
+      <div className="bg-white rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-gray-100 overflow-hidden flex flex-col max-h-[min(85vh,560px)]">
+        <header className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
             <h2 className="text-sm font-semibold text-gray-900">Notifications</h2>
             {unread > 0 ? (
               <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[11px] font-semibold text-white bg-[#45C74D] rounded-full">
                 {unread}
               </span>
             ) : null}
+            {count > 0 ? (
+              <span className="text-[10px] text-gray-400">{count} shown</span>
+            ) : null}
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-            aria-label="Close notifications"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-1 shrink-0">
+            {unread > 0 && onMarkAllRead ? (
+              <button
+                type="button"
+                onClick={onMarkAllRead}
+                disabled={markingAllRead}
+                className="px-2 py-1 text-[11px] font-medium text-[#2d8a33] hover:bg-[#45C74D]/10 rounded-md disabled:opacity-60"
+              >
+                {markingAllRead ? "…" : "Mark all read"}
+              </button>
+            ) : null}
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              aria-label="Close notifications"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </header>
 
-        <div className="max-h-[min(70vh,420px)] overflow-y-auto overscroll-contain">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
           {loading ? (
             <NotificationSkeleton />
           ) : count === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
+            <div className="flex flex-col items-center justify-center py-10 px-6 text-center">
               <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
                 <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -419,24 +463,45 @@ function Notification({
               <p className="text-xs text-gray-500 mt-1">{emptySubtitle}</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
-              {items.map((item) =>
-                renderNotificationItem(item, {
-                  formatRequestDate,
-                  onAccept,
-                  onReject,
-                  processingId,
-                  viewerRole,
-                })
-              )}
+            <div>
+              {pending.length > 0 ? (
+                <section>
+                  <SectionLabel>
+                    Needs action ({pending.length})
+                  </SectionLabel>
+                  <div className="divide-y divide-gray-100">
+                    {pending.map((item) => renderNotificationItem(item, itemProps))}
+                  </div>
+                </section>
+              ) : null}
+              {recent.length > 0 ? (
+                <section>
+                  {pending.length > 0 ? (
+                    <SectionLabel>Recent ({recent.length})</SectionLabel>
+                  ) : null}
+                  <div className="divide-y divide-gray-100">
+                    {recent.map((item) => renderNotificationItem(item, itemProps))}
+                  </div>
+                </section>
+              ) : null}
             </div>
           )}
         </div>
 
-        {count > 0 ? (
-          <footer className="px-4 py-2 border-t border-gray-100 bg-gray-50/30">
-            <p className="text-[11px] text-center text-gray-400">
-              Mentor session and meeting updates
+        {count > 0 || hasMore ? (
+          <footer className="px-3 py-2 border-t border-gray-100 bg-gray-50/30 space-y-1.5 shrink-0">
+            {hasMore && onLoadMore ? (
+              <button
+                type="button"
+                onClick={onLoadMore}
+                disabled={loadingMore}
+                className="w-full py-1.5 text-[11px] font-semibold text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50 disabled:opacity-60"
+              >
+                {loadingMore ? "Loading…" : "Load older notifications"}
+              </button>
+            ) : null}
+            <p className="text-[10px] text-center text-gray-400 leading-snug">
+              Scroll for more · Last {retentionDays} days
             </p>
           </footer>
         ) : null}
