@@ -20,6 +20,8 @@ import {
   formatDisplayDate,
   formatSlotLabel,
   formatSlotWithModeLabel,
+  getOppositeMode,
+  isSlotReservedByOtherMode,
   normalizeAvailabilityMap,
   normalizeMode,
   normalizeSlotEntry,
@@ -184,6 +186,9 @@ const MentorAvailabilityCalendar = () => {
     const key = slotEntryKey({ time_slot: slot, mode });
 
     setSlotsForDate(selectedDate, (current) => {
+      if (isSlotReservedByOtherMode(current, slot, mode)) {
+        return current;
+      }
       const exists = current.some((entry) => slotEntryKey(entry) === key);
       if (exists) {
         return current.filter((entry) => slotEntryKey(entry) !== key);
@@ -210,7 +215,9 @@ const MentorAvailabilityCalendar = () => {
       const withoutMode = prev.filter(
         (entry) => normalizeMode(entry.mode) !== mode
       );
-      const additions = ALL_SLOTS.map((slot) => ({ time_slot: slot, mode }));
+      const additions = ALL_SLOTS.filter(
+        (slot) => !isSlotReservedByOtherMode(withoutMode, slot, mode)
+      ).map((slot) => ({ time_slot: slot, mode }));
       return [...withoutMode, ...additions];
     });
   };
@@ -244,9 +251,14 @@ const MentorAvailabilityCalendar = () => {
     }
   };
 
+  const selectableSlotsForMode = ALL_SLOTS.filter(
+    (slot) => !isSlotReservedByOtherMode(selectedSlots, slot, selectedMode)
+  );
+
   const allSelectedForMode =
     selectedDate &&
-    ALL_SLOTS.every((slot) => isSlotActive(slot, selectedMode));
+    selectableSlotsForMode.length > 0 &&
+    selectableSlotsForMode.every((slot) => isSlotActive(slot, selectedMode));
 
   const modeSlotCount = selectedSlots.filter(
     (entry) => normalizeMode(entry.mode) === normalizeMode(selectedMode)
@@ -490,8 +502,9 @@ const MentorAvailabilityCalendar = () => {
                   </div>
                   <p className="mt-2 text-[0.75rem] text-gray-500">
                     Slots you add below will be marked as{" "}
-                    <strong>{selectedMode}</strong>. You can offer the same time
-                    in both modes by switching mode and selecting again.
+                    <strong>{selectedMode}</strong>. Each time can only be
+                    offered in one mode — if a slot is already set as{" "}
+                    {getOppositeMode(selectedMode)}, it cannot be selected here.
                   </p>
                 </div>
 
@@ -528,9 +541,12 @@ const MentorAvailabilityCalendar = () => {
                       <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-2">
                         {groupSlots.map((slot) => {
                           const isActive = isSlotActive(slot, selectedMode);
-                          const otherMode =
-                            selectedMode === "Online" ? "In-person" : "Online";
-                          const hasOtherMode = isSlotActive(slot, otherMode);
+                          const otherMode = getOppositeMode(selectedMode);
+                          const reservedByOtherMode = isSlotReservedByOtherMode(
+                            selectedSlots,
+                            slot,
+                            selectedMode
+                          );
 
                           return (
                             <button
@@ -540,15 +556,24 @@ const MentorAvailabilityCalendar = () => {
                                 "relative min-h-9 rounded-lg border px-2.5 py-2 text-center text-[0.8125rem] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nirmaanGreen",
                                 isActive
                                   ? "border-nirmaanGreenDark bg-nirmaanGreen text-white shadow-[0_1px_4px_rgba(69,199,77,0.3)]"
-                                  : "border-gray-200 bg-neutral-50 text-gray-600 hover:border-green-300 hover:bg-green-50 hover:text-green-800"
+                                  : reservedByOtherMode
+                                    ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400"
+                                    : "border-gray-200 bg-neutral-50 text-gray-600 hover:border-green-300 hover:bg-green-50 hover:text-green-800"
                               )}
                               onClick={() => toggleSlot(slot)}
+                              disabled={reservedByOtherMode && !isActive}
                               aria-pressed={isActive}
+                              aria-disabled={reservedByOtherMode && !isActive}
+                              title={
+                                reservedByOtherMode && !isActive
+                                  ? `Already set as ${otherMode}`
+                                  : undefined
+                              }
                             >
                               {formatSlotLabel(slot)}
-                              {hasOtherMode && !isActive ? (
-                                <span className="mt-0.5 block text-[0.625rem] font-normal opacity-70">
-                                  +{otherMode}
+                              {reservedByOtherMode && !isActive ? (
+                                <span className="mt-0.5 block text-[0.625rem] font-normal opacity-80">
+                                  {otherMode}
                                 </span>
                               ) : null}
                             </button>

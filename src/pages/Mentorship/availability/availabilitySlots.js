@@ -56,6 +56,21 @@ export const slotEntryKey = (entry) => {
   return `${normalized.time_slot}|${normalized.mode}`;
 };
 
+export const getOppositeMode = (mode) =>
+  normalizeMode(mode) === "Online" ? "In-person" : "Online";
+
+/** True when the same time is already saved under the other session mode. */
+export const isSlotReservedByOtherMode = (slots, timeSlot, mode) => {
+  const time = normalizeSlot(timeSlot);
+  const oppositeMode = getOppositeMode(mode);
+  return (slots || []).some((entry) => {
+    const normalized = normalizeSlotEntry(entry);
+    return (
+      normalized.time_slot === time && normalized.mode === oppositeMode
+    );
+  });
+};
+
 export const normalizeAvailabilityMap = (data) => {
   if (!data || typeof data !== "object") return {};
   return Object.entries(data).reduce((acc, [dateKey, slots]) => {
