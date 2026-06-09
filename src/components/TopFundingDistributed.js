@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import { Pie } from 'react-chartjs-2';
 //import { useContext } from 'react';
-import axios from 'axios';
+import { apiClient as axios } from '../utils/apiClient';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -24,7 +24,7 @@ const TopFundingDistributed = (props) => {
         //let data = props.selectedTopSectors
         try 
         {
-            const response = await axios.get(`http://localhost:3003/api/v1/st?id=${props.selectedTopSectors}`)
+            const response = await axios.get(`/api/v1/st?id=${props.selectedTopSectors}`)
             const rows = response.data.rows;
             // setData(rows); // removed unused state
             setLabels(rows.map((dataObj) => dataObj.sector));

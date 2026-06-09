@@ -1,7 +1,7 @@
 import React,{useState, useEffect} from "react";
 import SideBar from "../../components/SideBar";
 import NavBar from "../../../components/NavBar";
-import axios from "axios";
+import { apiClient as axios } from "../../../utils/apiClient";
 import { getSessionUser } from "../../../utils/authSession";
 import {ToastContainer, toast} from "react-toastify"
 import "react-toastify/dist/ReactToastify.css";
@@ -29,7 +29,7 @@ function ProfileApply() {
     const handleSubmit = async(e) => {
         e.preventDefault()
         try{
-            const result = await axios.post(`http://localhost:3003/api/v1/customer/aws-credit-apply`,  awsCreditDate, {headers: {
+            const result = await axios.post(`/api/v1/customer/aws-credit-apply`,  awsCreditDate, {headers: {
                 // 'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json'
             }});

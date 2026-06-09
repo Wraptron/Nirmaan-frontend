@@ -467,9 +467,8 @@
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import img from "../../assets/images/nirmaan-iitm.14fdf833.svg";
-import axios from "axios";
+import { apiClient } from "../../utils/apiClient";
 import { clearAuthSession, getSessionUser, isAuthenticated } from "../../utils/authSession";
-import APP_URL from "../../Config";
 import "alertifyjs/build/css/alertify.css";
 import Mentorsvg from "../../assets/images/Mentor.svg";
 import ChatMessage from "../../assets/images/message.svg";
@@ -494,7 +493,7 @@ function Navbar({ onSelectionChange, selectedIndex }) {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${APP_URL}auth/logout`, {}, { withCredentials: true });
+      await apiClient.post("/api/v1/auth/logout");
     } catch (err) {
       console.log("Logout request failed:", err);
     }

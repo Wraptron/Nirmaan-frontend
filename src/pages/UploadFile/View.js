@@ -1,13 +1,13 @@
 import React, {useState, useEffect} from "react";
 import PaginationButtons from "../../components/PaginationButtons";
 import UserProfile from "../../components/UserProfile"; // Assuming UserProfile is in the same folder
-import axios from "axios";
+import { apiClient } from "../../utils/apiClient";
 import alertify from "alertifyjs";
 import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
 import { FaFontAwesome, FaSpinner } from "react-icons/fa";
 const View = () => {
-  const API_URL = "http://localhost:3001/api/v1/resume/resume-fetch/3";
+  const API_PATH = "/api/v1/resume/resume-fetch/3";
   const totalPages = 300;
   const [loading, setLoading] = useState(true);
   const [pages, setPages] = useState([]);
@@ -17,7 +17,7 @@ const View = () => {
     const fetchData = async () => {
       const page = Math.min(currentPage + 1, totalPages);
       console.log(page);
-      const result = await axios.get(`${API_URL}/${page}`);
+      const result = await apiClient.get(`${API_PATH}/${page}`);
       if(result.data.status === "User_not_found")
       {
           alertify.error("end of data");

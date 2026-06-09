@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { FaEllipsis } from "react-icons/fa6";
 import { Navigate, useNavigate } from "react-router-dom";

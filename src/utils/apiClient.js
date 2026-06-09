@@ -34,7 +34,8 @@ apiClient.interceptors.response.use(
 
     const isAuthEndpoint =
       originalRequest?.url?.includes("/api/v1/login") ||
-      originalRequest?.url?.includes("/api/v1/auth/");
+      originalRequest?.url?.includes("/api/v1/auth/") ||
+      originalRequest?.url?.includes("/api/v1/forgot-password");
 
     if (
       (status === 401 || status === 403) &&

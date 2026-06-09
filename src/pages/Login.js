@@ -3,12 +3,11 @@ import "@fontsource/open-sans";
 import '@fontsource/josefin-sans';
 import image from '../assets/images/nirmaan-iitm.14fdf833.svg';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { apiClient } from '../utils/apiClient';
 import { setAuthSession } from '../utils/authSession';
 import alertify from 'alertifyjs';
 import 'alertifyjs/build/css/alertify.css';
 import PuffLoader from "react-spinners/PuffLoader";
-import APP_URL from '../Config';
 import { Icon } from 'react-icons-kit';
 import { eyeOff } from 'react-icons-kit/feather/eyeOff';
 import { eye } from 'react-icons-kit/feather/eye';
@@ -100,7 +99,7 @@ function Login() {
         setForgotLoading(true);
         try {
             const endpoint = isResend ? "forgot-password/resend-otp" : "forgot-password/request-otp";
-            const response = await axios.post(APP_URL + endpoint, { email });
+            const response = await apiClient.post(`/api/v1/${endpoint}`, { email });
             const expiresInSeconds = response?.data?.expiresInSeconds || 300;
             const resendAvailableInSeconds = response?.data?.resendAvailableInSeconds || 30;
 
@@ -134,7 +133,7 @@ function Login() {
 
         setForgotLoading(true);
         try {
-            const response = await axios.post(APP_URL + "forgot-password/verify-otp", {
+            const response = await apiClient.post("/api/v1/forgot-password/verify-otp", {
                 email: email.trim(),
                 otp: otp.trim(),
                 new_password: newPassword,
@@ -168,9 +167,7 @@ function Login() {
         
         try
         {
-            const response = await axios.post(APP_URL + 'login', formData, {
-                withCredentials: true,
-            });
+            const response = await apiClient.post("/api/v1/login", formData);
             // console.log(response)
             
             if(response.data.authentication === "Please enter username and password properly!")

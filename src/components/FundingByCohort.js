@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import { Bar } from 'react-chartjs-2';
 //import { useContext } from 'react';
-import axios from 'axios';
+import { apiClient as axios } from '../utils/apiClient';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -23,7 +23,7 @@ const FundingByCohort = (props) => {
         //let data = props.selectedTopSectors
         try 
         {
-            const response = await axios.get(`http://localhost:3003/api/v1/st?id=${props.selectedTopSectors}`)
+            const response = await axios.get(`/api/v1/st?id=${props.selectedTopSectors}`)
             const rows = response.data.rows;
             setLabels(rows.map((dataObj) => dataObj.sector));
             setValues(rows.map((dataObj) => parseFloat(dataObj.sum)));

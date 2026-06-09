@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SideBar from "../../../Finance/Components/Sidebar";
 import NavBar from "../../../components/NavBar";
-import axios from 'axios';
+import { apiClient as axios } from '../../../utils/apiClient';
 import toast from 'react-hot-toast';
 const Updatefunding = () => {
   const [formData, setFormData] = useState({
@@ -26,7 +26,7 @@ const Updatefunding = () => {
         e.preventDefault();
         try
         {
-            const result = await axios.post('http://localhost:3003/api/v1/finance/funding-update', formData);
+            const result = await axios.post('/api/v1/finance/funding-update', formData);
             console.log(result);
             if(result)
             {
@@ -50,7 +50,7 @@ const Updatefunding = () => {
   const APIData = async() => {
     try
     {
-        const result = await axios.get('http://localhost:3003/api/v1/fetch-startup'); 
+        const result = await axios.get('/api/v1/fetch-startup'); 
         setApiData(result.data.rows);
         console.log(result)
     }

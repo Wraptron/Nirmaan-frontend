@@ -3,7 +3,7 @@ import SideBar from "../../components/SideBar";
 import NavBar from "../../../components/NavBar";
 import { getSessionUser } from "../../../utils/authSession";
 import alertify from "alertifyjs";
-import axios from "axios";
+import { apiClient as axios } from "../../../utils/apiClient";
 function Addjob() {
     const token = getSessionUser();
     const[formData, setFormData] = useState({
@@ -27,7 +27,7 @@ function Addjob() {
       try
       {
         //  console.log(addMentData);
-        const result = await axios.post('http://localhost:3003/api/v1/customer/add-job',  formData, {headers: {
+        const result = await axios.post('/api/v1/customer/add-job',  formData, {headers: {
           'Content-Type': 'application/json'
         }});
         if(result.code==="23505")

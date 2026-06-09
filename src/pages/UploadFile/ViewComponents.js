@@ -7,7 +7,7 @@ import NavBar from '../../components/NavBar';
 import 'lity/dist/lity.css';
 import lity from 'lity';
 import { FaEye, FaTrash } from 'react-icons/fa';
-import APP_URL from '../../Config';
+import { apiClient } from '../../utils/apiClient';
 import alertify from 'alertifyjs';
 
 function ViewComponents() {
@@ -16,10 +16,10 @@ function ViewComponents() {
     const handleNewButtonClick = async() => {
       try
       {
-        const deleteTodo = await fetch(APP_URL+`resume/delete-resume/${data.resume_email}`,{
-          method: "DELETE",
-        });
-        if(deleteTodo)
+        const deleteTodo = await apiClient.delete(
+          `/api/v1/resume/delete-resume/${data.resume_email}`
+        );
+        if(deleteTodo.status === 200)
         {
           alertify.success("Message deleted successfully");
         }
@@ -81,9 +81,8 @@ function ViewComponents() {
 
   useEffect(() => {
     // ApprovalButtonRenderer();
-    fetch(APP_URL+'resume/resume-fetch/14/1')
-      .then(response => response.json())
-      .then(fetchedData => setData(fetchedData));
+    apiClient.get('/api/v1/resume/resume-fetch/14/1')
+      .then((response) => setData(response.data));
   }, []);
 
   return (

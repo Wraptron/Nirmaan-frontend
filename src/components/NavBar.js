@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import img from "../assets/images/nirmaan-iitm.14fdf833.svg";
-import axios from "axios";
+import { apiClient } from "../utils/apiClient";
 import { clearAuthSession, getSessionUser, isAuthenticated } from "../utils/authSession";
 import ProfileModal from "./ProfileModal";
 import "alertifyjs/build/css/alertify.css";
@@ -25,7 +25,6 @@ import More from "./More";
 import startupsvg from "../assets/images/Startups.svg";
 import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
-import APP_URL from "../Config";
 import MentorTag from "./MentorTag";
 
 const NOTIFICATION_RETENTION_DAYS = 90;
@@ -85,14 +84,10 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     }
 
     try {
-      const response = await axios.post(
-        `${APP_URL}change-password`,
-        {
-          currentPassword,
-          newPassword,
-        },
-        { withCredentials: true }
-      );
+      const response = await apiClient.post("/api/v1/change-password", {
+        currentPassword,
+        newPassword,
+      });
 
       alert(response.data?.message || "Password changed successfully");
       handleCloseChangePassword();
@@ -114,7 +109,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${APP_URL}auth/logout`, {}, { withCredentials: true });
+      await apiClient.post("/api/v1/auth/logout");
     } catch (err) {
       console.log("Logout request failed:", err);
     }

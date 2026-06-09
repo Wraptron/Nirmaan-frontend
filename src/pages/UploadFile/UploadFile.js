@@ -1,10 +1,9 @@
 import React, {useState} from "react";
 import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
-import axios from "axios";
+import { apiClient } from "../../utils/apiClient";
 import alertify from 'alertifyjs';
 import { FaEye } from "react-icons/fa";
-import APP_URL from "../../Config";
 
 function UploadFile(){
     const[formdata, setFormData] = useState({
@@ -31,7 +30,7 @@ function UploadFile(){
         }
         try
         {
-            const response = await axios.post(APP_URL+'resumeupload', formdata)
+            const response = await apiClient.post("/api/v1/resumeupload", formdata)
             //console.log(response);
             if(response.status === 200)
             {

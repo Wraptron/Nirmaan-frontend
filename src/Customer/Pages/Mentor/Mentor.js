@@ -3,7 +3,7 @@ import SideBar from "../../components/SideBar";
 import NavBar from "../../../components/NavBar";
 // import src from "../../../img/image.png";
 import Addmentor from "../../components/Addmentor";
-import axios from "axios";
+import { apiClient as axios } from "../../../utils/apiClient";
 import { getSessionUser } from "../../../utils/authSession";
 import alertify from "alertifyjs";
 function CustomerMentor() {
@@ -31,7 +31,7 @@ function CustomerMentor() {
         try
         {
           //  console.log(addMentData);
-          const result = await axios.post('http://localhost:3003/api/v1/customer/apply-mentor',  addMentData, {headers: {
+          const result = await axios.post('/api/v1/customer/apply-mentor',  addMentData, {headers: {
             'Content-Type': 'application/json'
           }});
           if(result.code==="23505")
@@ -55,7 +55,7 @@ function CustomerMentor() {
     const fetchData = async () => {
       try
       {
-          const response = await axios.get('http://localhost:3003/api/v1/customer/fetch-mentor')
+          const response = await axios.get('/api/v1/customer/fetch-mentor')
           setData(response.data.result.rows);
       }
       catch (err)
