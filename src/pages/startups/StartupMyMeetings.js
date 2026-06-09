@@ -35,6 +35,11 @@ const REQUEST_STATUS_STYLES = {
     dot: "bg-red-500",
     badge: "bg-red-50 text-red-700 ring-red-600/20",
   },
+  cancelled: {
+    label: "Cancelled",
+    dot: "bg-red-500",
+    badge: "bg-red-50 text-red-700 ring-red-600/20",
+  },
 };
 
 const FILTER_TABS = [
@@ -92,6 +97,7 @@ function buildMeetingItems(meetings) {
     time: m.time,
     duration: m.meeting_duration,
     mode: m.meeting_mode,
+    status: m.status,
     meeting: m,
     sortAt: dayjs(m.date, ["D MMM YYYY", "YYYY-MM-DD"], true).valueOf() || 0,
   }));
@@ -172,9 +178,15 @@ function StartupMyMeetings() {
         if (statusTab === "pending" && item.status !== "pending") return false;
         if (statusTab === "upcoming") return false;
         if (statusTab === "completed") {
-          if (item.status !== "rejected") return false;
+          if (!["rejected", "cancelled"].includes(item.status)) return false;
         }
       } else {
+        if (item.status === "cancelled") {
+          if (statusTab === "upcoming" || statusTab === "pending") return false;
+          if (statusTab === "completed" || statusTab === "all") {
+            return true;
+          }
+        }
         const schedule = getMeetingStatus(item.date);
         const scheduleLabel = schedule?.label?.toLowerCase() || "";
         if (statusTab === "pending") return false;
@@ -202,9 +214,13 @@ function StartupMyMeetings() {
     items.forEach((item) => {
       if (item.kind === "request") {
         if (item.status === "pending") pending++;
-        if (item.status === "rejected") completed++;
+        if (item.status === "rejected" || item.status === "cancelled") completed++;
         if (item.status === "accepted") upcoming++;
       } else {
+        if (item.status === "cancelled") {
+          completed++;
+          return;
+        }
         const s = getMeetingStatus(item.date);
         if (s?.label === "Upcoming" || s?.label === "Today") upcoming++;
         else if (s?.label === "Completed") completed++;
@@ -350,7 +366,9 @@ function StartupMyMeetings() {
                           ? getRequestStatusStyle(item.status)
                           : null;
                         const scheduleStatus = !isRequest
-                          ? getMeetingStatus(item.date)
+                          ? item.status === "cancelled"
+                            ? REQUEST_STATUS_STYLES.cancelled
+                            : getMeetingStatus(item.date)
                           : null;
 
                         return (

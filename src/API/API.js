@@ -470,6 +470,23 @@ async function ApiDeleteMeeting(id) {
   }
 }
 
+async function ApiCancelMeeting(id, reason) {
+  try {
+    const result = await axios.patch(
+      `${API_BASE_URL}/api/v1/mentor/cancel-meeting/${id}`,
+      { reason },
+      { withCredentials: true }
+    );
+    return result.data;
+  } catch (err) {
+    const data = err?.response?.data;
+    if (data?.message) {
+      throw new Error(data.message);
+    }
+    throw err;
+  }
+}
+
 // ==================== TESTIMONIAL APIs ====================
 async function ApiTestimonials(payload) {
   try {
@@ -1006,6 +1023,7 @@ export {
   ApiSaveMentorAvailability,
   ApiFetchScheduleMeetingsDetailsWithMentor,
   ApiDeleteMeeting,
+  ApiCancelMeeting,
   ApiSaveFeedback,
   ApiUpdateFeedback,
   ApiFetchMeetingFeedback,

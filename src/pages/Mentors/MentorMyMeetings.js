@@ -4,7 +4,12 @@ import NavBar from "../../components/NavBar";
 import MeetingDetailsModal, {
   getMeetingStatus,
 } from "../../components/MeetingDetailsModal";
-import { ApiFetchMeetingFeedback, ApiFetchScheduleMeetings } from "../../API/API";
+import {
+  ApiCancelMeeting,
+  ApiFetchMeetingFeedback,
+  ApiFetchScheduleMeetings,
+} from "../../API/API";
+import toast from "react-hot-toast";
 import { FaSpinner } from "react-icons/fa";
 import {
   Calendar,
@@ -78,6 +83,7 @@ function MentorMyMeetings() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusTab, setStatusTab] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [cancellingMeetingId, setCancellingMeetingId] = useState(null);
 
   const getStartupId = (m) => m?.startup_id ?? m?.startupId ?? m?.startupID ?? null;
 
@@ -141,6 +147,10 @@ function MentorMyMeetings() {
     return meetings.filter((m) => {
       const status = getMeetingStatus(m.date);
       const statusLabel = status?.label?.toLowerCase() || "";
+      if (m.status === "cancelled") {
+        if (statusTab === "completed") return true;
+        return statusTab === "all";
+      }
       if (statusTab === "upcoming" && statusLabel !== "upcoming") return false;
       if (statusTab === "today" && statusLabel !== "today") return false;
       if (statusTab === "completed" && statusLabel !== "completed") return false;
@@ -182,7 +192,8 @@ function MentorMyMeetings() {
     let completed = 0;
     meetings.forEach((m) => {
       const s = getMeetingStatus(m.date);
-      if (s?.label === "Upcoming") upcoming++;
+      if (m.status === "cancelled") completed++;
+      else if (s?.label === "Upcoming") upcoming++;
       else if (s?.label === "Today") today++;
       else if (s?.label === "Completed") completed++;
     });
@@ -218,6 +229,32 @@ function MentorMyMeetings() {
     setInitialFeedback(currentFeedback || null);
     setSelectedSession(meeting);
     setShowAddFeedbackForm(true);
+  };
+
+  const handleCancelMeeting = async (meeting, reason) => {
+    try {
+      setCancellingMeetingId(meeting.meet_id);
+      await ApiCancelMeeting(meeting.meet_id, reason);
+      setMeetings((prev) =>
+        prev.map((m) =>
+          String(m.meet_id) === String(meeting.meet_id)
+            ? {
+                ...m,
+                status: "cancelled",
+                cancellation_reason: reason,
+                cancelled_at: new Date().toISOString(),
+              }
+            : m
+        )
+      );
+      setShowModal(false);
+      setSelectedMeeting(null);
+      toast.success("Meeting cancelled.");
+    } catch (err) {
+      toast.error(err?.message || "Failed to cancel meeting.");
+    } finally {
+      setCancellingMeetingId(null);
+    }
   };
 
   return (
@@ -365,6 +402,12 @@ function MentorMyMeetings() {
                                     {status.label}
                                   </span>
                                 )}
+                                {meeting.status === "cancelled" && (
+                                  <span className="mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset bg-red-50 text-red-700 ring-red-600/20">
+                                    <span className="h-1 w-1 rounded-full bg-red-500" />
+                                    Cancelled
+                                  </span>
+                                )}
                               </div>
                               <ChevronRight className="ml-auto h-5 w-5 shrink-0 text-gray-300 transition group-hover:translate-x-0.5 group-hover:text-[#45C74D] sm:hidden" />
                             </div>
@@ -385,16 +428,18 @@ function MentorMyMeetings() {
                                 {meeting.meeting_mode || "—"}
                               </span>
                               <div className="flex items-center gap-2">
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    openFeedbackModal(meeting);
-                                  }}
-                                  className="bg-[#45C74D] text-white px-4 py-2 rounded-md text-sm"
-                                >
-                                  {hasFeedback ? "View Notes" : "Add Notes"}
-                                </button>
+                                {meeting.status !== "cancelled" && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openFeedbackModal(meeting);
+                                    }}
+                                    className="bg-[#45C74D] text-white px-4 py-2 rounded-md text-sm"
+                                  >
+                                    {hasFeedback ? "View Notes" : "Add Notes"}
+                                  </button>
+                                )}
                                 <ChevronRight className="hidden h-5 w-5 shrink-0 text-gray-300 transition group-hover:translate-x-0.5 group-hover:text-[#45C74D] sm:block" />
                               </div>
                             </div>
@@ -445,6 +490,9 @@ function MentorMyMeetings() {
         meeting={selectedMeeting}
         isVisible={showModal}
         onClose={closeModal}
+        showCancelAction
+        cancelling={cancellingMeetingId === selectedMeeting?.meet_id}
+        onCancelMeeting={handleCancelMeeting}
       />
 
       {showAddFeedbackForm && selectedSession && (

@@ -138,17 +138,22 @@ function SectionLabel({ children }) {
 function SessionStatusNotificationItem({ req, formatRequestDate, viewerRole }) {
   const relative = formatRelativeTime(req.created_at);
   const isAccepted = req.status === "accepted";
+  const isCancelled = req.status === "cancelled";
   const isMentor = viewerRole === "mentor";
-  const title = isAccepted
+  const title = isCancelled
     ? isMentor
-      ? "Meeting scheduled"
-      : "Session confirmed"
-    : "Session declined";
+      ? "Session cancelled"
+      : "Session cancelled by mentor"
+    : isAccepted
+      ? isMentor
+        ? "Meeting scheduled"
+        : "Session confirmed"
+      : "Session declined";
   const party = isMentor
     ? req.startup_name || "startup"
     : req.mentor_name || "mentor";
   const when =
-    isAccepted && (req.requested_date || req.requested_time)
+    (isAccepted || isCancelled) && (req.requested_date || req.requested_time)
       ? [
           req.requested_date ? formatRequestDate(req.requested_date) : null,
           req.requested_time ? formatTime(req.requested_time) : null,
@@ -166,7 +171,9 @@ function SessionStatusNotificationItem({ req, formatRequestDate, viewerRole }) {
       <div className="flex gap-2.5 items-start">
         <div
           className={`relative w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0 ring-1 ${
-            isAccepted
+            isCancelled
+              ? "bg-red-50 text-red-700 ring-red-100"
+              : isAccepted
               ? "bg-sky-50 text-sky-700 ring-sky-100"
               : "bg-red-50 text-red-700 ring-red-100"
           }`}
@@ -191,6 +198,11 @@ function SessionStatusNotificationItem({ req, formatRequestDate, viewerRole }) {
           </div>
           {when ? (
             <p className="mt-0.5 text-[11px] text-gray-500">{when}</p>
+          ) : null}
+          {isCancelled && req.cancellation_reason ? (
+            <p className="mt-0.5 text-[11px] text-red-600 line-clamp-2">
+              Reason: {req.cancellation_reason}
+            </p>
           ) : null}
         </div>
       </div>
@@ -321,7 +333,11 @@ function renderNotificationItem(item, props) {
         />
       );
     }
-    if (item.status === "accepted" || item.status === "rejected") {
+    if (
+      item.status === "accepted" ||
+      item.status === "rejected" ||
+      item.status === "cancelled"
+    ) {
       return (
         <SessionStatusNotificationItem
           key={itemKey}

@@ -26,6 +26,28 @@ export function normalizeMeetingUrl(link) {
   return `https://${trimmed}`;
 }
 
+export const MEETING_CANCEL_NOTICE_HOURS = 24;
+
+export function getMeetingStartDateTime(dateStr, timeStr) {
+  const parsedDate = dayjs(dateStr, ["D MMM YYYY", "YYYY-MM-DD"], true);
+  const d = parsedDate.isValid() ? parsedDate : dayjs(dateStr);
+  if (!d.isValid()) return null;
+
+  const t = dayjs(timeStr, ["HH:mm:ss", "H:mm:ss", "HH:mm", "h:mm A"], true);
+  if (t.isValid()) {
+    return d.hour(t.hour()).minute(t.minute()).second(t.second());
+  }
+  return d.startOf("day");
+}
+
+export function canCancelMeetingByPolicy(meeting) {
+  if (!meeting || meeting.status === "cancelled") return false;
+  const start = getMeetingStartDateTime(meeting.date, meeting.time);
+  if (!start?.isValid()) return false;
+  const msUntilStart = start.diff(dayjs());
+  return msUntilStart >= MEETING_CANCEL_NOTICE_HOURS * 60 * 60 * 1000;
+}
+
 export function getMeetingStatus(dateStr) {
   const parsed = dayjs(dateStr, ["D MMM YYYY", "YYYY-MM-DD"], true);
   const d = parsed.isValid() ? parsed : dayjs(dateStr);
@@ -82,8 +104,17 @@ function DetailCard({ icon: Icon, label, value, className = "" }) {
   );
 }
 
-function MeetingDetailsModal({ meeting, isVisible, onClose }) {
+function MeetingDetailsModal({
+  meeting,
+  isVisible,
+  onClose,
+  showCancelAction = false,
+  onCancelMeeting = null,
+  cancelling = false,
+}) {
   const [copied, setCopied] = useState(false);
+  const [showCancelBox, setShowCancelBox] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
 
   if (!isVisible || !meeting) return null;
 
@@ -95,6 +126,13 @@ function MeetingDetailsModal({ meeting, isVisible, onClose }) {
   const handleBackdrop = (e) => {
     if (e.target.id === "meeting-modal-backdrop") onClose();
   };
+
+  const canCancel = showCancelAction && canCancelMeetingByPolicy(meeting);
+  const cancelBlockedByNotice =
+    showCancelAction &&
+    meeting?.status !== "cancelled" &&
+    !canCancelMeetingByPolicy(meeting);
+  const reasonLength = cancelReason.trim().length;
 
   return (
     <div
@@ -244,16 +282,99 @@ function MeetingDetailsModal({ meeting, isVisible, onClose }) {
               </p>
             </div>
           )}
+
+          {meeting.status === "cancelled" && (
+            <div className="mt-5 rounded-xl border border-red-100 bg-red-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-red-700/80">
+                Cancellation reason
+              </p>
+              <p className="mt-1 text-sm text-red-700">
+                {meeting.cancellation_reason || "No reason provided."}
+              </p>
+            </div>
+          )}
+
+          {cancelBlockedByNotice && (
+            <div className="mt-5 rounded-xl border border-gray-200 bg-gray-50 p-4">
+              <p className="text-sm font-semibold text-gray-800">
+                Cancellation unavailable
+              </p>
+              <p className="mt-1 text-xs text-gray-600">
+                Sessions cannot be cancelled within {MEETING_CANCEL_NOTICE_HOURS}{" "}
+                hours of the start time.
+              </p>
+            </div>
+          )}
+
+          {canCancel && showCancelBox && (
+            <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+              <p className="text-sm font-semibold text-amber-900">
+                Cancel this session
+              </p>
+              <p className="mt-1 text-xs text-amber-800">
+                Reason is required and will be shared with the startup.
+              </p>
+              <textarea
+                rows={3}
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                maxLength={500}
+                placeholder="Write reason for cancellation..."
+                className="mt-3 w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm outline-none focus:border-amber-400"
+              />
+              <div className="mt-3 flex items-center justify-between">
+                <span className="text-[11px] text-amber-800/80">
+                  {reasonLength}/500 characters
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    disabled={cancelling}
+                    onClick={() => {
+                      setShowCancelBox(false);
+                      setCancelReason("");
+                    }}
+                    className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    disabled={cancelling || reasonLength < 5}
+                    onClick={async () => {
+                      await onCancelMeeting?.(meeting, cancelReason.trim());
+                      setShowCancelBox(false);
+                      setCancelReason("");
+                    }}
+                    className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
+                  >
+                    {cancelling ? "Cancelling..." : "Confirm cancel"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="border-t border-gray-100 bg-gray-50/80 px-6 py-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-full rounded-xl border border-gray-200 bg-white py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50"
-          >
-            Close
-          </button>
+          <div className="flex gap-2">
+            {canCancel && !showCancelBox && (
+              <button
+                type="button"
+                onClick={() => setShowCancelBox(true)}
+                className="w-full rounded-xl border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-700 shadow-sm transition hover:bg-red-100"
+              >
+                Cancel session
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full rounded-xl border border-gray-200 bg-white py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>
