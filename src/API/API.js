@@ -1,19 +1,12 @@
-import { apiClient as axios } from "../utils/apiClient";
+import { apiClient as axios, API_BASE_URL } from "../utils/apiClient";
 
 // ==================== CONFIGURATION ====================
 const isDevelopment = process.env.NODE_ENV === "development";
 
-// API Base URLs
 const API_URLS = {
-  // DEVELOPMENT: "http://localhost:3003",
+  DEVELOPMENT: "http://localhost:3003",
   PRODUCTION: "https://api.sieiitm.org",
 };
-
-// Current API Base URL based on environment
-const API_BASE_URL = isDevelopment ? API_URLS.DEVELOPMENT : API_URLS.PRODUCTION;
-
-// Alternative: You can also use environment variables
-// const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || (isDevelopment ? API_URLS.DEVELOPMENT : API_URLS.PRODUCTION);
 
 console.log(
   `API Base URL: ${API_BASE_URL} (${isDevelopment ? "Development" : "Production"} mode)`

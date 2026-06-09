@@ -70,9 +70,6 @@ function CustomerContacts() {
           <span className="flex-grow">Contacts</span>
           <button
             type="button"
-            onClick={() =>
-              (window.location.href = "http://localhost:3000/contact/new")
-            }
             className="active:scale-[.90] active:duration-70 hover:scale-[1.02] text-white bg-green-600 p-2 rounded-md font-semibold"
           >
             My Connections

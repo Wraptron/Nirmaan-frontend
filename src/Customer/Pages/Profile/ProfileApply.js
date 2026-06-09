@@ -97,19 +97,6 @@ function ProfileApply() {
     // useState(()=>{
     //     ProfileView();
     // }, [])
-
-    useEffect(()=> {
-        // socket.on('connect', () => {
-        //     console.log('Connected to server')
-        // })
-        // socket.on('FirstEvent' , (msg) => {
-        //      console.log(msg)
-        // })
-        socket?.emit('newUser', (token.user_mail))
-        // console.log(socket.emit("newUser", (user) => {
-        //     console.log(user)
-        // }));
-    })
     return (
         <div className="flex h-screen">
             <section className="fixed h-full">
