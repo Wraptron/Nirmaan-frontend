@@ -103,8 +103,16 @@ function buildMeetingItems(meetings) {
   }));
 }
 
+function shouldShowSessionRequest(status) {
+  const key = String(status || "").toLowerCase();
+  // Accepted requests show as "Confirmed" but the scheduled meeting already appears as Upcoming.
+  return key !== "accepted";
+}
+
 function buildRequestItems(sessionRequests) {
-  return (sessionRequests || []).map((r) => ({
+  return (sessionRequests || [])
+    .filter((r) => shouldShowSessionRequest(r.status))
+    .map((r) => ({
     kind: "request",
     id: `request-${r.id}`,
     requestId: r.id,
@@ -215,7 +223,6 @@ function StartupMyMeetings() {
       if (item.kind === "request") {
         if (item.status === "pending") pending++;
         if (item.status === "rejected" || item.status === "cancelled") completed++;
-        if (item.status === "accepted") upcoming++;
       } else {
         if (item.status === "cancelled") {
           completed++;
