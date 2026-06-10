@@ -4,6 +4,7 @@ import { FiX } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { ApiAddFunding, ApiFetchStartupData } from "../../../API/API";
 import { getSessionUser } from "../../../utils/authSession";
+import { getErrorMessage } from "../../../utils/getErrorMessage";
 
 const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -119,11 +120,7 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
       if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
-      if (error.response) {
-        toast.error(error.response.data);
-      } else {
-        toast.error("Something went wrong. Please try again.");
-      }
+      toast.error(getErrorMessage(error, "Something went wrong. Please try again."));
     }
 
     // Reset form

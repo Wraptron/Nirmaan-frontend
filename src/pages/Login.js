@@ -196,6 +196,11 @@ function Login() {
                 // Navigate based on role
                 if(userRole === 5) // Student role
                 {
+                    if (!startup_id) {
+                        alertify.error('Startup profile is not linked to this account.');
+                        setLoading(false);
+                        return;
+                    }
                     navigate(`/startups/startupprofile/${startup_id}`);
                 }
                 else if(userRole === 6) // Mentor role - show only that mentor's profile

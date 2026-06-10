@@ -5,6 +5,7 @@ import { FaEllipsisV } from "react-icons/fa";
 import { Navigate, useNavigate } from "react-router-dom";
 import { clearAuthSession, getSessionUser, isAuthenticated } from "../../utils/authSession";
 import toast from "react-hot-toast";
+import { getErrorMessage } from "../../utils/getErrorMessage";
 import { MdChevronLeft } from "react-icons/md";
 import { ApiFetchStartup } from "../../API/API";
 
@@ -31,7 +32,7 @@ const IITMICDetails = () => {
         }));
       setData(sortedData);
     } catch (err) {
-      toast.error(err);
+      toast.error(getErrorMessage(err, "Failed to load IITMIC details."));
     }
   };
   useEffect(() => {

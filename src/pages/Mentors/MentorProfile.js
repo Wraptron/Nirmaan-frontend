@@ -104,30 +104,47 @@ function MentorProfile() {
       );
       setMentor(selectedMentor || null);
 
-      const MeetAPI = await ApiFetchScheduleMeetings(selectedMentor?.mentor_id);
-      const meetings = MeetAPI || [];
-      setMeeting(meetings.reverse());
+      if (!selectedMentor?.mentor_id) return;
 
-      const APITestimonial = await ApiFetchTestimonials();
-      const Testimonial = APITestimonial?.STATUS?.rows || [];
-      const filteredTestimonial = Testimonial.filter(
-        (data) =>
-          String(data.mentor_ref_id) === String(selectedMentor?.mentor_id)
-      );
-      setTestimonial(filteredTestimonial);
+      try {
+        const MeetAPI = await ApiFetchScheduleMeetings(selectedMentor.mentor_id);
+        const meetings = MeetAPI || [];
+        setMeeting(meetings.reverse());
 
-      const feedbackPromises = meetings.map((meet) =>
-        ApiFetchMeetingFeedback(selectedMentor.mentor_id, meet.startup_id).then(
-          (res) => res || []
-        )
-      );
-      const allFeedbackArrays = await Promise.all(feedbackPromises);
+        try {
+          const feedbackPromises = meetings.map((meet) =>
+            ApiFetchMeetingFeedback(
+              selectedMentor.mentor_id,
+              meet.startup_id
+            ).then((res) => res || [])
+          );
+          const allFeedbackArrays = await Promise.all(feedbackPromises);
+          setFeedback(allFeedbackArrays.flat());
+        } catch (feedbackErr) {
+          console.warn("[MentorProfile] feedback fetch failed", feedbackErr);
+          setFeedback([]);
+        }
+      } catch (meetingErr) {
+        console.warn("[MentorProfile] meetings fetch failed", meetingErr);
+        setMeeting([]);
+        setFeedback([]);
+      }
 
-      // Flatten into a single array
-      const allFeedback = allFeedbackArrays.flat();
-      setFeedback(allFeedback);
+      try {
+        const APITestimonial = await ApiFetchTestimonials();
+        const Testimonial = APITestimonial?.STATUS?.rows || [];
+        const filteredTestimonial = Testimonial.filter(
+          (data) =>
+            String(data.mentor_ref_id) === String(selectedMentor.mentor_id)
+        );
+        setTestimonial(filteredTestimonial);
+      } catch (testimonialErr) {
+        console.warn("[MentorProfile] testimonials fetch failed", testimonialErr);
+        setTestimonial([]);
+      }
     } catch (err) {
       console.error("Error fetching mentor data:", err);
+      toast.error("Failed to load mentor profile. Check console.");
     }
   };
 

@@ -6,36 +6,51 @@ import { FaEllipsisV } from "react-icons/fa";
 import { Navigate, useNavigate } from "react-router-dom";
 import { clearAuthSession, getSessionUser, isAuthenticated } from "../../../utils/authSession";
 import toast from "react-hot-toast";
+import { getErrorMessage } from "../../../utils/getErrorMessage";
 
 const StartupList = () => {
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStartup, setSelectedStartup] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [showmentorabout, setShowMentorAbout] = useState(false);
   const handleaboutclose = () => {
     setShowMentorAbout(false);
     };
      const navigate = useNavigate();
 
-  const fetchData = async () => {
-    try {
-      const API = await ApiFetchStartup();
-      // sort by mentor_id or any unique field
-      const sortedData = API.rows
-        .filter((startup) => startup.startup_id !== loggedInStartupId)
-        .sort((a, b) => a.startup_id - b.startup_id)
-        .map((item, index) => ({
-          ...item,
-          siNo: index + 1,
-        }));
-      setData(sortedData);
-    } catch (err) {
-      toast.error(err);
-    }
-  };
+  const decoded = isAuthenticated() ? getSessionUser() : null;
+  const loggedInStartupId = decoded?.startup_id;
+
   useEffect(() => {
+    if (!isAuthenticated() || decoded?.role !== 5) return;
+
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const API = await ApiFetchStartup();
+        const rows = Array.isArray(API?.rows) ? API.rows : [];
+        const sortedData = rows
+          .filter(
+            (startup) =>
+              String(startup.startup_id) !== String(loggedInStartupId)
+          )
+          .sort((a, b) => Number(a.startup_id) - Number(b.startup_id))
+          .map((item, index) => ({
+            ...item,
+            siNo: index + 1,
+          }));
+        setData(sortedData);
+      } catch (err) {
+        toast.error(getErrorMessage(err, "Failed to load startups."));
+        setData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchData();
-  }, []);
+  }, [decoded?.role, loggedInStartupId]);
 
   const filteredStartup = data.filter((startup) =>
     (startup.startup_name || "")
@@ -75,19 +90,15 @@ const StartupList = () => {
   //   return <Navigate to="/" replace />
   // }
 
- if (!isAuthenticated()) {
-   clearAuthSession();
-   return <Navigate to="/" replace />;
- }
-
- const decoded = getSessionUser();
-
- if (decoded.role !== 5) {
-   clearAuthSession();
-   return <Navigate to="/" replace />;
+  if (!isAuthenticated()) {
+    clearAuthSession();
+    return <Navigate to="/" replace />;
   }
-  
-  const loggedInStartupId = decoded.startup_id;
+
+  if (decoded?.role !== 5) {
+    clearAuthSession();
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="flex">
@@ -140,8 +151,21 @@ const StartupList = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredStartup.map((startup) => (
-                        <tr className="border-b border-dotted">
+                      {isLoading ? (
+                        <tr>
+                          <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                            Loading startups...
+                          </td>
+                        </tr>
+                      ) : filteredStartup.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                            No startups found.
+                          </td>
+                        </tr>
+                      ) : (
+                      filteredStartup.map((startup) => (
+                        <tr key={startup.startup_id} className="border-b border-dotted">
                           <td className="px-4 py-2">{startup.siNo}</td>
                           <td className="px-4 py-2">{startup.startup_name}</td>
                           <td className="px-4 py-2">
@@ -201,7 +225,7 @@ const StartupList = () => {
                             </div>
                           </td>
                         </tr>
-                      ))}
+                      )))}
                     </tbody>
                   </table>
                 </div>

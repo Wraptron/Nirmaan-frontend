@@ -38,7 +38,22 @@ import DeleteConfirmation from "../../components/DeleteConfirmation";
 import EditAwardForm from "./step/EditForm/EditAwardForm";
 import FundingDetail from "../Home/Funding/FundingDetail";
 import { getSessionUser, isAuthenticated } from "../../utils/authSession";
+import { asDisplayText, getErrorMessage } from "../../utils/getErrorMessage";
 import AddIPform from "./step/EditForm/AddIPform";
+
+const normalizeStartupProfile = (row) => {
+  if (!row || typeof row !== "object") return null;
+  return {
+    ...row,
+    startup_name: asDisplayText(row.startup_name),
+    startup_description: asDisplayText(
+      row.startup_description ?? row.description
+    ),
+    email_address: asDisplayText(row.email_address),
+    official_contact_number: asDisplayText(row.official_contact_number),
+    startup_status: asDisplayText(row.startup_status),
+  };
+};
 
 function StartupProfile() {
   const { startup_id } = useParams();
@@ -257,8 +272,12 @@ function StartupProfile() {
     setIsLoading(true);
     try {
       // ---Startup Detail Fetch ---
-      const requestedStartupId =
-        decoded.role === 5 ? decoded.startup_id : startup_id;
+      const requestedStartupId = startup_id;
+
+      if (!requestedStartupId) {
+        setStartupData(null);
+        return;
+      }
       console.log("[StartupProfile] FetchData start", {
         routeStartupId: startup_id,
         requestedStartupId,
@@ -282,39 +301,45 @@ function StartupProfile() {
               String(startup.startup_id) === String(requestedStartupId)
           ) || null;
       }
-      setStartupData(selectedstartup);
-
-      // If a startup user manually changes URL, force route back to their own id.
-      if (decoded.role === 5 && String(startup_id) !== String(decoded.startup_id)) {
-        navigate(`/startups/startupprofile/${decoded.startup_id}`, {
-          replace: true,
-        });
-      }
-      // console.log(selectedstartup)
+      setStartupData(normalizeStartupProfile(selectedstartup));
 
       // ---Award Details Fetch ---
-      const APIAward = await ApiFetchAward();
-     const award = APIAward?.rows || [];
-      console.log("[StartupProfile] awards count", award?.length || 0);
-      const filteredAwards = award
-        .filter((award) => String(award.startup_id) === String(requestedStartupId))
-        .sort((a, b) => a.id - b.id);
-      setAwards(filteredAwards || []);
+      try {
+        const APIAward = await ApiFetchAward();
+        const award = APIAward?.rows || [];
+        console.log("[StartupProfile] awards count", award?.length || 0);
+        const filteredAwards = award
+          .filter((award) => String(award.startup_id) === String(requestedStartupId))
+          .sort((a, b) => a.id - b.id);
+        setAwards(filteredAwards || []);
+      } catch (awardErr) {
+        console.warn("[StartupProfile] awards fetch failed", awardErr);
+        setAwards([]);
+      }
 
-      // --- Funding Amount Details Fetch Fetch ---
-      const ApiFundingAmount = await ApiFetchFundingAmount();
-      const amount = ApiFundingAmount || {};
-      console.log("[StartupProfile] funding keys", Object.keys(amount || {}).length);
-      const fundamount = selectedstartup?.startup_id
-        ? amount[selectedstartup.startup_id] || null
-        : null;
-      setFundingAmount(fundamount || {});
+      // --- Funding Amount Details Fetch ---
+      try {
+        const ApiFundingAmount = await ApiFetchFundingAmount();
+        const amount = ApiFundingAmount || {};
+        console.log("[StartupProfile] funding keys", Object.keys(amount || {}).length);
+        const fundamount = selectedstartup?.startup_id
+          ? amount[selectedstartup.startup_id] || null
+          : null;
+        setFundingAmount(fundamount || {});
+      } catch (fundingErr) {
+        console.warn("[StartupProfile] funding fetch failed", fundingErr);
+        setFundingAmount({});
+      }
 
-
-      const founderUserId = selectedstartup?.user_id || requestedStartupId;
-      const data = await ApiFetchFounder(founderUserId);
-      console.log("[StartupProfile] founders response", data);
-      setFounders(data);
+      try {
+        const founderUserId = selectedstartup?.user_id || requestedStartupId;
+        const data = await ApiFetchFounder(founderUserId);
+        console.log("[StartupProfile] founders response", data);
+        setFounders(data || []);
+      } catch (founderErr) {
+        console.warn("[StartupProfile] founders fetch failed", founderErr);
+        setFounders([]);
+      }
       // console.log("Selected startup:", selectedstartup);
       // console.log("Awards data:", filteredAwards);
       // console.log("Awards length:", filteredAwards?.length);
@@ -325,12 +350,15 @@ function StartupProfile() {
         data: err?.response?.data,
         url: err?.config?.url,
       });
-      if (err?.response?.status === 403) {
-        toast.error("You are not allowed to view this startup profile");
-      } else {
-        toast.error("Failed to load startup profile. Check console.");
-      }
-      if (decoded.role === 5) {
+      toast.error(
+        getErrorMessage(
+          err,
+          err?.response?.status === 403
+            ? "You are not allowed to view this startup profile"
+            : "Failed to load startup profile. Please try again."
+        )
+      );
+      if (decoded.role === 5 && String(startup_id) === String(decoded.startup_id)) {
         navigate(`/startups/startupprofile/${decoded.startup_id}`, {
           replace: true,
         });
@@ -424,10 +452,12 @@ function StartupProfile() {
     }
   };
 
+  const isOwnStartupProfile =
+    String(decoded.startup_id) === String(startup_id);
+
   const canEdit =
     decoded.role === 2 ||
-    (decoded.role === 5 &&
-      String(decoded.startup_id) === String(startupData?.startup_id));
+    (decoded.role === 5 && isOwnStartupProfile);
   // Read More Popup Component
   const ReadMorePopup = ({ isOpen, onClose, title, content }) => {
     if (!isOpen) return null;
@@ -504,6 +534,18 @@ function StartupProfile() {
                     }
                     className="hover:text-[#45C74D] focus:outline-none"
                     title="Back to Startups"
+                  >
+                    <MdChevronLeft className="text-black text-3xl" />
+                  </button>
+                  <span>Start-ups &gt; Profile</span>
+                </>
+              ) : decoded.role === 5 && !isOwnStartupProfile ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/startup/startuplist")}
+                    className="hover:text-[#45C74D] focus:outline-none"
+                    title="Back to Startup list"
                   >
                     <MdChevronLeft className="text-black text-3xl" />
                   </button>
@@ -656,8 +698,8 @@ function StartupProfile() {
                     )}
                   </div>
                   <div className="text-[#232323] text-sm mb-4">
-                    {truncateText(startupData.startup_description)}
-                    {needsTruncation(startupData.startup_description) && (
+                    {truncateText(asDisplayText(startupData.startup_description))}
+                    {needsTruncation(asDisplayText(startupData.startup_description)) && (
                       <button
                         onClick={() => setShowReadMore(true)}
                         className="text-[#45C74D] hover:text-[#36a03d] font-medium ml-2 underline"
@@ -772,7 +814,7 @@ function StartupProfile() {
                                 })}
                               </div>
                               <div className="text-xs text-[#A1A1A1] mb-1">
-                                {award.description ? award.description : " -"}
+                                {asDisplayText(award.description, " -")}
                               </div>
 
                               <div className="inline-flex items-center gap-2 bg-[#F8FAFB] rounded-lg px-3 py-1 mt-2 border border-[#E6E6E6]">
@@ -1000,8 +1042,12 @@ function StartupProfile() {
               <div className="grid grid-cols-4 gap-4">
                 {/* Founder 1 */}
                 {Array.isArray(founders) &&
-                  founders.map((f, index) => (
-                    <div key={index} className="flex items-center gap-4">
+                  founders.map((f, index) => {
+                    const founder =
+                      f?.founder && typeof f.founder === "object" ? f.founder : f;
+                    if (!founder || typeof founder !== "object") return null;
+                    return (
+                    <div key={founder.founder_id || index} className="flex items-center gap-4">
                       <img
                         src="https://randomuser.me/api/portraits/men/32.jpg"
                         alt="Founder"
@@ -1010,13 +1056,13 @@ function StartupProfile() {
                       <div className="flex-1">
                         <div className="flex items-center  ">
                           <div className="font-semibold text-base">
-                            {f.founder.founder_name}
+                            {asDisplayText(founder.founder_name, "—")}
                           </div>
                           {canEdit && (
                             <div className="flex items-center ml-2 gap-2">
                               <button
                                 onClick={() => {
-                                  setSelectedFounder(f.founder);
+                                  setSelectedFounder(founder);
                                   setShowFounderEditForm(true);
                                 }}
                               >
@@ -1030,7 +1076,7 @@ function StartupProfile() {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setDeleteType("founder");
-                                  setDeleteId(f.founder.founder_id);
+                                  setDeleteId(founder.founder_id);
                                   setOpenDeletePopup(true);
                                 }}
                               >
@@ -1040,17 +1086,17 @@ function StartupProfile() {
                           )}
                         </div>
                         <div className="text-sm text-[#A1A1A1]">
-                          {f.founder.founder_email}
+                          {asDisplayText(founder.founder_email)}
                         </div>
                         <div className="text-sm text-[#A1A1A1]">
-                          {f.founder.founder_number}
+                          {asDisplayText(founder.founder_number)}
                         </div>
                       </div>
                     </div>
-                  ))}
+                  )})}
 
                 {/* Funding Section */}
-                {decoded.role === "" && (
+                {canEdit && (
                   <div className=" mt-11">
                     <div className="flex items-center justify-between mb-4">
                       <span className="font-bold text-lg text-[#232323]">
@@ -1354,7 +1400,7 @@ function StartupProfile() {
         isOpen={showReadMore}
         onClose={() => setShowReadMore(false)}
         title="About Us"
-        content={startupData.startup_description}
+        content={asDisplayText(startupData.startup_description)}
       />
     </div>
   );

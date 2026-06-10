@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
+import { getErrorMessage } from "../../../../utils/getErrorMessage";
 import { IoCalendarOutline } from "react-icons/io5";
 import { ApiUpdateFunding } from "../../../../API/API";
 
@@ -74,13 +75,7 @@ const EditFundingForm = ({ initialData, onClose, onSubmit }) => {
       toast.success("Funding updated successfully");
       onClose();
     } catch (error) {
-      if (error.response) {
-        const errorMessage =
-          error.response.data?.error || "Failed to update funding";
-        toast.error(errorMessage);
-      } else {
-        toast.error("Something went wrong. Please try again.");
-      }
+      toast.error(getErrorMessage(error, "Failed to update funding"));
     }
   };
   return (

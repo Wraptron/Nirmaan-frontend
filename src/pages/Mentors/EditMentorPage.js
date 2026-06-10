@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { ApiUpdateMentor } from "../../API/API";
 import toast from "react-hot-toast";
+import { getErrorMessage } from "../../utils/getErrorMessage";
 import { MENTOR_TAG_OPTIONS } from "../../utils/mentorTagUtils";
 import bgImg from "../../assets/images/Rectangle 5.svg";
 import { FiEdit2 } from "react-icons/fi";
@@ -89,7 +90,7 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
       onClose();
     } catch (error) {
       // console.error("Error updating mentor:", error?.response?.data?.Error);
-      toast.error(error?.response?.data?.Error);
+      toast.error(getErrorMessage(error, "Failed to update mentor profile"));
     }
   };
 
