@@ -49,54 +49,62 @@ function Overview() {
   }, []);
   const FetchData = async () => {
     try {
-      //Dashboard Data
-      const result = await ApiFetchStartupCount();
-      const startupcount = result || {};
+      const [countResult, startupListResult, fundingResult] =
+        await Promise.allSettled([
+          ApiFetchStartupCount(),
+          ApiFetchStartup(),
+          ApiFetchFundingDetain(),
+        ]);
 
-      const fundingcount = await ApiFetchFundingDetain();
-      const totalfunding = fundingcount || {};
-      const fundingWithChartData = {};
-      Object.entries(totalfunding).forEach(([key, value]) => {
-        // simple 5-point rising array
-        const points = [
-          { value: 0 },
-          { value: value * 0.25 },
-          { value: value * 0.5 },
-          { value: value * 0.75 },
-          { value: value },
-        ];
-        fundingWithChartData[key] = points;
-      });
-      setFunding(fundingWithChartData);
-      // FlowChart
-      const result2 = await ApiFetchStartup();
-      const startupdata = result2 || {};
+      if (countResult.status === "fulfilled") {
+        setAnalysedData(countResult.value || {});
+      } else {
+        console.error("Failed to load startup counts:", countResult.reason);
+      }
 
-      const FullData = startupdata.rows || [];
-      const monthMap = {};
+      if (startupListResult.status === "fulfilled") {
+        const FullData = startupListResult.value?.rows || [];
+        const monthMap = {};
 
-      //Count startups per cohort month
-      FullData.forEach((item) => {
-        const cohortData = item.startup_cohort;
-        if (cohortData) {
-          const formattedMonth = dayjs(cohortData).format("MMM YY");
-          monthMap[formattedMonth] = (monthMap[formattedMonth] || 0) + 1;
-        }
-      });
+        FullData.forEach((item) => {
+          const cohortData = item.startup_cohort;
+          if (cohortData) {
+            const formattedMonth = dayjs(cohortData).format("MMM YY");
+            monthMap[formattedMonth] = (monthMap[formattedMonth] || 0) + 1;
+          }
+        });
 
-      // Convert monthMap to chart data
-      const formattedChartData = Object.entries(monthMap).map(
-        ([month, count]) => ({
-          month,
-          value: count,
-        })
-      );
+        setStartupData(
+          Object.entries(monthMap).map(([month, count]) => ({
+            month,
+            value: count,
+          }))
+        );
+      } else {
+        console.error("Failed to load startups:", startupListResult.reason);
+      }
 
-      setStartupData(formattedChartData);
-      setAnalysedData(startupcount);
-      setIsLoaded(true);
+      if (fundingResult.status === "fulfilled") {
+        const totalfunding = fundingResult.value || {};
+        const fundingWithChartData = {};
+        Object.entries(totalfunding).forEach(([key, value]) => {
+          const points = [
+            { value: 0 },
+            { value: value * 0.25 },
+            { value: value * 0.5 },
+            { value: value * 0.75 },
+            { value: value },
+          ];
+          fundingWithChartData[key] = points;
+        });
+        setFunding(fundingWithChartData);
+      } else {
+        console.error("Failed to load funding totals:", fundingResult.reason);
+      }
     } catch (err) {
-      console.log(err);
+      console.error(err);
+    } finally {
+      setIsLoaded(true);
     }
   };
 

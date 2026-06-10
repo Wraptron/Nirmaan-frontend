@@ -1,4 +1,5 @@
 import { apiClient as axios, API_BASE_URL } from "../utils/apiClient";
+import { getAuthSession } from "../utils/authSession";
 
 // ==================== CONFIGURATION ====================
 const isDevelopment = process.env.NODE_ENV === "development";
@@ -100,9 +101,15 @@ async function ApiAddNewMentor(formDataa) {
 
 async function ApiFetchMentor() {
   try {
+    const { role } = getAuthSession();
+    if (Number(role) === 5) {
+      const result = await axios.get(
+        `${API_BASE_URL}/api/v1/customer/fetch-mentor`
+      );
+      return { STATUS: result.data?.result };
+    }
     const result = await axios.get(`${API_BASE_URL}/api/v1/get-mentor-details`);
     return result.data;
-
   } catch (error) {
     console.error("Error in API", error);
     throw error;
@@ -957,7 +964,7 @@ async function ApiFetchFundingAmount() {
 
 async function ApiFetchStartupData() {
   try {
-    const result = await axios.get(`${API_BASE_URL}/api/v1//finance/startup-data`);
+    const result = await axios.get(`${API_BASE_URL}/api/v1/finance/startup-data`);
     return result.data;
   } catch (error) {
     console.error("Error in API", error);
