@@ -38,22 +38,60 @@ const typeLabel = (type) => {
   return map[type] || type;
 };
 
+const resolveMentorshipStatus = (event, sessionRequestStatus) => {
+  const eventStatus =
+    event === "pending"
+      ? "pending"
+      : event === "accepted"
+        ? "accepted"
+        : event === "rejected"
+          ? "rejected"
+          : event;
+
+  if (
+    eventStatus === "pending" &&
+    sessionRequestStatus &&
+    sessionRequestStatus !== "pending"
+  ) {
+    return sessionRequestStatus;
+  }
+
+  return eventStatus;
+};
+
+export const consolidateMentorshipNotifications = (items) => {
+  const resolvedBySourceId = new Map();
+
+  items.forEach((item) => {
+    if (item._notificationType !== "mentorship" && !item.startup_name) return;
+    const sourceId = String(item.id);
+    if (["accepted", "rejected", "cancelled"].includes(item.status)) {
+      resolvedBySourceId.set(sourceId, item.status);
+    }
+  });
+
+  return items.filter((item) => {
+    if (item._notificationType !== "mentorship" && !item.startup_name) {
+      return true;
+    }
+    const sourceId = String(item.id);
+    const resolvedStatus = resolvedBySourceId.get(sourceId);
+    return !(item.status === "pending" && resolvedStatus);
+  });
+};
+
 export const mapNotificationToDisplayItem = (n) => {
   const isUnread = !n.read_at;
   if (n.type === "mentorship" && n.metadata && typeof n.metadata === "object") {
-    const eventStatus =
-      n.event === "pending"
-        ? "pending"
-        : n.event === "accepted"
-          ? "accepted"
-          : n.event === "rejected"
-            ? "rejected"
-            : n.event;
+    const status = resolveMentorshipStatus(
+      n.event,
+      n.session_request_status || n.metadata?.status
+    );
     return {
       ...n.metadata,
       id: n.source_id,
       notificationId: n.id,
-      status: eventStatus,
+      status,
       created_at: n.created_at,
       isUnread,
       _notificationType: n.type,

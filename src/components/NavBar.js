@@ -4,7 +4,10 @@ import axios from "axios";
 import { clearAuthSession, getSessionUser, isAuthenticated } from "../utils/authSession";
 import ProfileModal from "./ProfileModal";
 import "alertifyjs/build/css/alertify.css";
-import Notification, { mapNotificationToDisplayItem } from "./Notification";
+import Notification, {
+  consolidateMentorshipNotifications,
+  mapNotificationToDisplayItem,
+} from "./Notification";
 import { ScheduleMeetingPopup } from "../pages/Mentorship/ScheduleMeetingForm";
 import {
   ApiUpdateMentorSessionRequest,
@@ -157,7 +160,9 @@ function NavBar({ onSelectionChange, selectedIndex }) {
 
   const applyNotificationPage = useCallback((data, append = false) => {
     const raw = Array.isArray(data?.notifications) ? data.notifications : [];
-    const mapped = raw.map(mapNotificationToDisplayItem);
+    const mapped = consolidateMentorshipNotifications(
+      raw.map(mapNotificationToDisplayItem)
+    );
     setNotificationItems((prev) =>
       append
         ? [
@@ -245,10 +250,8 @@ function NavBar({ onSelectionChange, selectedIndex }) {
 
   const refreshNotifications = useCallback(async () => {
     await fetchUnreadCount();
-    if (notificationsOpen) {
-      await fetchNotificationHistory();
-    }
-  }, [fetchUnreadCount, fetchNotificationHistory, notificationsOpen]);
+    await fetchNotificationHistory();
+  }, [fetchUnreadCount, fetchNotificationHistory]);
 
   const handleAcceptMentorRequest = (req) => {
     if (!req?.mentor_id) {
@@ -265,7 +268,13 @@ function NavBar({ onSelectionChange, selectedIndex }) {
       await ApiUpdateMentorSessionRequest(req.id, "rejected");
       toast.success("Request rejected.");
       setNotificationItems((items) =>
-        items.filter((item) => String(item.id) !== String(req.id))
+        consolidateMentorshipNotifications(
+          items.map((item) =>
+            String(item.id) === String(req.id)
+              ? { ...item, status: "rejected", isUnread: false }
+              : item
+          )
+        )
       );
       await refreshNotifications();
     } catch (err) {
@@ -279,7 +288,13 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     const processedId = schedulingRequest?.id;
     if (processedId != null) {
       setNotificationItems((items) =>
-        items.filter((item) => String(item.id) !== String(processedId))
+        consolidateMentorshipNotifications(
+          items.map((item) =>
+            String(item.id) === String(processedId)
+              ? { ...item, status: "accepted", isUnread: false }
+              : item
+          )
+        )
       );
     }
     await refreshNotifications();

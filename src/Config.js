@@ -10,4 +10,4 @@ const APP_URL = isDevelopment ? API_URLS.DEVELOPMENT : API_URLS.PRODUCTION;
 
 console.log(`Using API URL: ${APP_URL} (${isDevelopment ? "Development" : "Production"} mode)`);
 
-export default APP_URL;
+export default APP_URL;  

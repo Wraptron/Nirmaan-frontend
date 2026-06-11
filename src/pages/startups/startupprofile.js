@@ -1050,8 +1050,8 @@ function StartupProfile() {
                   ))}
 
                 {/* Funding Section */}
-                {decoded.role === "" && (
-                  <div className=" mt-11">
+                {startupData?.startup_id && (
+                  <div className=" mt-11 col-span-4">
                     <div className="flex items-center justify-between mb-4">
                       <span className="font-bold text-lg text-[#232323]">
                         Funding
