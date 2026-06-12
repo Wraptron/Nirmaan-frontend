@@ -1,10 +1,13 @@
 import React, { useEffect, useState, useCallback } from "react";
 import img from "../assets/images/nirmaan-iitm.14fdf833.svg";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import { clearAuthSession, getSessionUser, isAuthenticated } from "../utils/authSession";
 import ProfileModal from "./ProfileModal";
 import "alertifyjs/build/css/alertify.css";
-import Notification, { mapNotificationToDisplayItem } from "./Notification";
+import Notification, {
+  consolidateMentorshipNotifications,
+  mapNotificationToDisplayItem,
+} from "./Notification";
 import { ScheduleMeetingPopup } from "../pages/Mentorship/ScheduleMeetingForm";
 import {
   ApiUpdateMentorSessionRequest,
@@ -28,9 +31,19 @@ import { useRef } from "react";
 import APP_URL from "../Config";
 import MentorTag from "./MentorTag";
 
+const NOTIFICATION_RETENTION_DAYS = 90;
+const NOTIFICATION_PAGE_SIZE = 8;
+const UNREAD_POLL_INTERVAL_MS = 60000;
+
 function NavBar({ onSelectionChange, selectedIndex }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notificationItems, setNotificationItems] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [hasMoreNotifications, setHasMoreNotifications] = useState(false);
+  const [historyCursor, setHistoryCursor] = useState(null);
+  const [retentionDays, setRetentionDays] = useState(NOTIFICATION_RETENTION_DAYS);
+  const [loadingMoreNotifications, setLoadingMoreNotifications] = useState(false);
+  const [markingAllRead, setMarkingAllRead] = useState(false);
   const [schedulingRequest, setSchedulingRequest] = useState(null);
   const [processingRequestId, setProcessingRequestId] = useState(null);
 
@@ -69,10 +82,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
       return;
     }
 
-    const token =
-      sessionStorage.getItem("token") || localStorage.getItem("token");
-
-    if (!token) {
+    if (!isAuthenticated()) {
       alert("You are not logged in. Please login again.");
       return;
     }
@@ -84,11 +94,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
           currentPassword,
           newPassword,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { withCredentials: true }
       );
 
       alert(response.data?.message || "Password changed successfully");
@@ -109,11 +115,13 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     setIsOpen(!isOpen);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.clear();
-    sessionStorage.removeItem("token");
-    sessionStorage.clear();
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${APP_URL}auth/logout`, {}, { withCredentials: true });
+    } catch (err) {
+      console.log("Logout request failed:", err);
+    }
+    clearAuthSession();
     navigate("/");
   };
 
@@ -135,27 +143,115 @@ function NavBar({ onSelectionChange, selectedIndex }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  const fetchNotifications = async () => {
+  const fetchUnreadCount = useCallback(async () => {
     try {
-      const data = await ApiFetchNotifications();
-      const raw = Array.isArray(data?.notifications) ? data.notifications : [];
-      setNotificationItems(raw.map(mapNotificationToDisplayItem));
-      setLoading(false);
+      const data = await ApiFetchNotifications({
+        countOnly: true,
+        days: NOTIFICATION_RETENTION_DAYS,
+      });
+      setUnreadCount(Number(data?.unreadCount) || 0);
+      if (data?.retentionDays) {
+        setRetentionDays(Number(data.retentionDays));
+      }
     } catch (err) {
-      console.log("Error fetching notification data:", err);
-      setLoading(false);
+      console.log("Error fetching unread notification count:", err);
+    }
+  }, []);
+
+  const applyNotificationPage = useCallback((data, append = false) => {
+    const raw = Array.isArray(data?.notifications) ? data.notifications : [];
+    const mapped = consolidateMentorshipNotifications(
+      raw.map(mapNotificationToDisplayItem)
+    );
+    setNotificationItems((prev) =>
+      append
+        ? [
+            ...prev,
+            ...mapped.filter(
+              (item) =>
+                !prev.some(
+                  (existing) =>
+                    String(existing.notificationId || existing.id) ===
+                    String(item.notificationId || item.id)
+                )
+            ),
+          ]
+        : mapped
+    );
+    setUnreadCount(Number(data?.unreadCount) || 0);
+    setHasMoreNotifications(Boolean(data?.pagination?.hasMore));
+    setHistoryCursor(data?.pagination?.nextCursor || null);
+    if (data?.retentionDays) {
+      setRetentionDays(Number(data.retentionDays));
+    }
+  }, []);
+
+  const fetchNotificationHistory = useCallback(
+    async ({ append = false, before = null } = {}) => {
+      if (append) {
+        setLoadingMoreNotifications(true);
+      } else {
+        setLoading(true);
+      }
+
+      try {
+        const data = await ApiFetchNotifications({
+          limit: NOTIFICATION_PAGE_SIZE,
+          days: NOTIFICATION_RETENTION_DAYS,
+          before: before || undefined,
+        });
+        applyNotificationPage(data, append);
+      } catch (err) {
+        console.log("Error fetching notification history:", err);
+      } finally {
+        setLoading(false);
+        setLoadingMoreNotifications(false);
+      }
+    },
+    [applyNotificationPage]
+  );
+
+  const handleNotificationPanelClose = () => {
+    setNotificationsOpen(false);
+  };
+
+  const handleOpenNotifications = () => {
+    setNotificationsOpen(true);
+    setIsOpen(false);
+    fetchNotificationHistory();
+  };
+
+  const handleLoadMoreNotifications = () => {
+    if (!hasMoreNotifications || loadingMoreNotifications || !historyCursor) {
+      return;
+    }
+    fetchNotificationHistory({ append: true, before: historyCursor });
+  };
+
+  const handleMarkAllRead = async () => {
+    setMarkingAllRead(true);
+    try {
+      await ApiMarkNotificationsRead();
+      await fetchUnreadCount();
+      if (notificationsOpen) {
+        await fetchNotificationHistory();
+      } else {
+        setNotificationItems((items) =>
+          items.map((item) => ({ ...item, isUnread: false }))
+        );
+      }
+    } catch (err) {
+      console.log("Mark notifications read:", err);
+      toast.error("Failed to mark notifications as read.");
+    } finally {
+      setMarkingAllRead(false);
     }
   };
 
-  const handleNotificationPanelClose = async () => {
-    setNotificationsOpen(false);
-    try {
-      await ApiMarkNotificationsRead();
-      await fetchNotifications();
-    } catch (err) {
-      console.log("Mark notifications read:", err);
-    }
-  };
+  const refreshNotifications = useCallback(async () => {
+    await fetchUnreadCount();
+    await fetchNotificationHistory();
+  }, [fetchUnreadCount, fetchNotificationHistory]);
 
   const handleAcceptMentorRequest = (req) => {
     if (!req?.mentor_id) {
@@ -172,9 +268,15 @@ function NavBar({ onSelectionChange, selectedIndex }) {
       await ApiUpdateMentorSessionRequest(req.id, "rejected");
       toast.success("Request rejected.");
       setNotificationItems((items) =>
-        items.filter((item) => String(item.id) !== String(req.id))
+        consolidateMentorshipNotifications(
+          items.map((item) =>
+            String(item.id) === String(req.id)
+              ? { ...item, status: "rejected", isUnread: false }
+              : item
+          )
+        )
       );
-      await fetchNotifications();
+      await refreshNotifications();
     } catch (err) {
       toast.error(err?.message || "Failed to reject request.");
     } finally {
@@ -186,10 +288,16 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     const processedId = schedulingRequest?.id;
     if (processedId != null) {
       setNotificationItems((items) =>
-        items.filter((item) => String(item.id) !== String(processedId))
+        consolidateMentorshipNotifications(
+          items.map((item) =>
+            String(item.id) === String(processedId)
+              ? { ...item, status: "accepted", isUnread: false }
+              : item
+          )
+        )
       );
     }
-    await fetchNotifications();
+    await refreshNotifications();
   };
 
   const userRole = sessionStorage.getItem("role");
@@ -197,7 +305,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
   const isStartup = userRole === "5";
   const isMentor = userRole === "6";
   const canSeeNotifications = isAdmin || isStartup || isMentor;
-  const notificationCount = notificationItems.length;
+  const notificationCount = unreadCount;
   const hasNotifications = canSeeNotifications && notificationCount > 0;
 
   const formatRequestDate = (value) => {
@@ -212,35 +320,35 @@ function NavBar({ onSelectionChange, selectedIndex }) {
         });
   };
 
-  // Add error handling for JWT decode
-  const getTokenDecodedData = () => {
-    try {
-      const token = sessionStorage.getItem("token");
-      if (token) {
-        return jwtDecode(token);
-      }
-      return null;
-    } catch (err) {
-      console.log("Error decoding token:", err);
-      return null;
-    }
-  };
-
-  const tokenDecodedData = getTokenDecodedData();
+  const tokenDecodedData = isAuthenticated() ? getSessionUser() : null;
 
 
 
   useEffect(() => {
-    // Initial data fetch
-    fetchNotifications();
+    fetchUnreadCount();
 
     const interval = setInterval(() => {
-      fetchNotifications();
-    }, 30000);
+      if (!notificationsOpen) {
+        fetchUnreadCount();
+      }
+    }, UNREAD_POLL_INTERVAL_MS);
 
-    // Cleanup interval on component unmount
-    return () => clearInterval(interval);
-  }, []);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchUnreadCount();
+        if (notificationsOpen) {
+          fetchNotificationHistory();
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [fetchUnreadCount, fetchNotificationHistory, notificationsOpen]);
 
   const [color] = useState([
     "#afdade",
@@ -343,10 +451,11 @@ function NavBar({ onSelectionChange, selectedIndex }) {
                 <div className="text-black px-2 py-2 ms-3">
                   <button
                     type="button"
-                    onClick={() => {
-                      setNotificationsOpen((open) => !open);
-                      setIsOpen(false);
-                    }}
+                    onClick={() =>
+                      notificationsOpen
+                        ? setNotificationsOpen(false)
+                        : handleOpenNotifications()
+                    }
                     className={`relative p-1 rounded-lg transition-colors ${
                       notificationsOpen
                         ? "bg-gray-100 ring-1 ring-gray-200"
@@ -366,8 +475,9 @@ function NavBar({ onSelectionChange, selectedIndex }) {
                 <Notification
                   isOpen={notificationsOpen}
                   onClose={handleNotificationPanelClose}
-                  loading={loading}
+                  loading={loading && notificationItems.length === 0}
                   items={notificationItems}
+                  unreadCount={unreadCount}
                   formatRequestDate={formatRequestDate}
                   onAccept={isAdmin ? handleAcceptMentorRequest : undefined}
                   onReject={isAdmin ? handleRejectMentorRequest : undefined}
@@ -376,7 +486,13 @@ function NavBar({ onSelectionChange, selectedIndex }) {
                     isMentor ? "mentor" : isStartup ? "startup" : "admin"
                   }
                   emptyTitle="All caught up"
-                  emptySubtitle="No new notifications"
+                  emptySubtitle={`No notifications in the last ${retentionDays} days`}
+                  hasMore={hasMoreNotifications}
+                  loadingMore={loadingMoreNotifications}
+                  onLoadMore={handleLoadMoreNotifications}
+                  onMarkAllRead={handleMarkAllRead}
+                  markingAllRead={markingAllRead}
+                  retentionDays={retentionDays}
                 />
               </div>
             ) : null}

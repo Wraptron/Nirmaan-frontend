@@ -4,6 +4,7 @@ import '@fontsource/josefin-sans';
 import image from '../assets/images/nirmaan-iitm.14fdf833.svg';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { setAuthSession } from '../utils/authSession';
 import alertify from 'alertifyjs';
 import 'alertifyjs/build/css/alertify.css';
 import PuffLoader from "react-spinners/PuffLoader";
@@ -167,7 +168,9 @@ function Login() {
         
         try
         {
-            const response = await axios.post(APP_URL + 'login', formData);
+            const response = await axios.post(APP_URL + 'login', formData, {
+                withCredentials: true,
+            });
             // console.log(response)
             
             if(response.data.authentication === "Please enter username and password properly!")
@@ -179,19 +182,16 @@ function Login() {
             
             if(response.data.result && response.data.result.status === 'Login Authenticated')
             {
-                const accessToken = response.data.result.accessToken;
-                const userRole = response.data.result.role;
-                const startup_id  = response.data.result.startup_id;
-                const mentor_id = response.data.result.mentor_id;
-                
-                // Store token and role
-                localStorage.setItem('token', accessToken);
-                sessionStorage.setItem('token', accessToken);
-                sessionStorage.setItem('role', userRole);
-                sessionStorage.setItem('startup_id', startup_id || '');
-                if (mentor_id != null && mentor_id !== undefined) {
-                    sessionStorage.setItem('mentor_id', String(mentor_id));
-                }
+                const { role: userRole, startup_id, mentor_id, user_mail, user_name } =
+                    response.data.result;
+
+                setAuthSession({
+                    role: userRole,
+                    startup_id,
+                    mentor_id,
+                    user_mail,
+                    user_name,
+                });
                 
                 setError('');
                 setLoading(false);

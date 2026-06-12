@@ -4,7 +4,7 @@ import Navbar from "../../../components/NavBar";
 import { ApiFetchStartup } from "../../../API/API";
 import { FaEllipsisV } from "react-icons/fa";
 import { Navigate, useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import { clearAuthSession, getSessionUser, isAuthenticated } from "../../../utils/authSession";
 import toast from "react-hot-toast";
 
 const StartupList = () => {
@@ -75,26 +75,15 @@ const StartupList = () => {
   //   return <Navigate to="/" replace />
   // }
 
- const token = sessionStorage.getItem("token");
-
- if (!token) {
-   sessionStorage.clear();
-   localStorage.clear();
+ if (!isAuthenticated()) {
+   clearAuthSession();
    return <Navigate to="/" replace />;
  }
 
- let decoded;
- try {
-   decoded = jwtDecode(token);
- } catch (e) {
-   sessionStorage.clear();
-   localStorage.clear();
-   return <Navigate to="/" replace />;
- }
+ const decoded = getSessionUser();
 
  if (decoded.role !== 5) {
-   sessionStorage.clear();
-   localStorage.clear();
+   clearAuthSession();
    return <Navigate to="/" replace />;
   }
   

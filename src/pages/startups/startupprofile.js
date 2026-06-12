@@ -37,7 +37,7 @@ import EditTeamMembersForm from "./step/EditForm/EditTeamMembersForm";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
 import EditAwardForm from "./step/EditForm/EditAwardForm";
 import FundingDetail from "../Home/Funding/FundingDetail";
-import { jwtDecode } from "jwt-decode";
+import { getSessionUser, isAuthenticated } from "../../utils/authSession";
 import AddIPform from "./step/EditForm/AddIPform";
 
 function StartupProfile() {
@@ -75,13 +75,7 @@ function StartupProfile() {
   const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
-  const token = sessionStorage.getItem("token");
-  let decoded = null;
-  try {
-    decoded = token ? jwtDecode(token) : null;
-  } catch (e) {
-    decoded = null;
-  }
+  const decoded = isAuthenticated() ? getSessionUser() : null;
 
   const isAuthorized = !!decoded && (decoded.role === 5 || decoded.role === 2);
 
@@ -317,7 +311,8 @@ function StartupProfile() {
       setFundingAmount(fundamount || {});
 
 
-      const data = await ApiFetchFounder(requestedStartupId);
+      const founderUserId = selectedstartup?.user_id || requestedStartupId;
+      const data = await ApiFetchFounder(founderUserId);
       console.log("[StartupProfile] founders response", data);
       setFounders(data);
       // console.log("Selected startup:", selectedstartup);
@@ -1055,8 +1050,8 @@ function StartupProfile() {
                   ))}
 
                 {/* Funding Section */}
-                {decoded.role === "" && (
-                  <div className=" mt-11">
+                {startupData?.startup_id && (
+                  <div className=" mt-11 col-span-4">
                     <div className="flex items-center justify-between mb-4">
                       <span className="font-bold text-lg text-[#232323]">
                         Funding

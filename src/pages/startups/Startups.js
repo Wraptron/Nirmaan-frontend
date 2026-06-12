@@ -6,7 +6,7 @@ import { FaSpinner, FaEllipsisV, FaFilter } from "react-icons/fa";
 import { ApiDeletStartupData, ApiFetchStartup } from "../../API/API";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import { clearAuthSession, getSessionUser, isAuthenticated } from "../../utils/authSession";
 import { MdViewModule } from "react-icons/md";
 import { BsListUl } from "react-icons/bs";
 
@@ -185,26 +185,14 @@ function Startups() {
     return ["All", ...unique];
   }, [data]);
 
-  const token = sessionStorage.getItem("token");
-
-  if (!token) {
-    sessionStorage.clear();
-    localStorage.clear();
+  if (!isAuthenticated()) {
+    clearAuthSession();
     return <Navigate to="/" replace />;
   }
 
-  let decoded;
-  try {
-    decoded = jwtDecode(token);
-  } catch (e) {
-    sessionStorage.clear();
-    localStorage.clear();
-    return <Navigate to="/" replace />;
-  }
-
+  const decoded = getSessionUser();
   if (decoded.role !== 2) {
-    sessionStorage.clear();
-    localStorage.clear();
+    clearAuthSession();
     return <Navigate to="/" replace />;
   }
   return (

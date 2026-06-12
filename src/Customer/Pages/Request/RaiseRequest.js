@@ -3,11 +3,10 @@ import SideBar from "../../components/SideBar";
 import NavBar from "../../../components/NavBar";
 import axios from "axios";
 import alertify from "alertifyjs";
-import { jwtDecode } from "jwt-decode";
+import { getSessionUser } from "../../../utils/authSession";
 const RaiseRequest = () => {
-  let token = localStorage.getItem('token');
-  let decrypted = jwtDecode(token);
-  console.log(token.user_mail);
+  const decrypted = getSessionUser();
+  console.log(decrypted.user_mail);
   const[raiseRequestData, setRaiseRequestData] = useState({
        team_mail: `${decrypted.user_mail}`,
        request_type: '',

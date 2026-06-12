@@ -1,24 +1,18 @@
-import { jwtDecode } from "jwt-decode";
+import { getAuthSession } from "../../utils/authSession";
 
 /** Map mentor session request fields → schedule meeting form. */
 
-/** Resolve logged-in startup id from JWT and session (role 5). */
+/** Resolve logged-in startup id from session (role 5). */
 export const resolveStartupContext = () => {
+  const session = getAuthSession();
   let startupId =
+    session.startup_id ||
     sessionStorage.getItem("startup_id") ||
     sessionStorage.getItem("startupId") ||
     "";
 
-  const token = sessionStorage.getItem("token");
-  if (token) {
-    try {
-      const decoded = jwtDecode(token);
-      if (decoded?.startup_id != null && decoded.startup_id !== "") {
-        startupId = String(decoded.startup_id);
-      }
-    } catch {
-      /* ignore invalid token */
-    }
+  if (startupId != null && startupId !== "") {
+    startupId = String(startupId);
   }
 
   return {

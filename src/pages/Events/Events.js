@@ -13,7 +13,7 @@ import DeleteConfirmation from "../../components/DeleteConfirmation";
 import { FaEllipsisV, FaSpinner } from "react-icons/fa";
 import { BsListUl } from "react-icons/bs";
 import { MdViewModule } from "react-icons/md";
-import { jwtDecode } from "jwt-decode";
+import { getSessionUser, isAuthenticated } from "../../utils/authSession";
 import EditEvents from "./EditEvents";
 function Events() {
   const [showw, setShoww] = useState(false);
@@ -178,18 +178,11 @@ const handleUpdateEvent = (updatedEvent) => {
   {
     /*Roke based Access */
   }
-  const token = sessionStorage.getItem("token");
-  if (!token) {
+  if (!isAuthenticated()) {
     return <Navigate to="/" replace />;
   }
 
-  let decoded;
-  try {
-    decoded = jwtDecode(token);
-  } catch (err) {
-    return <Navigate to="/" replace />;
-  }
-
+  const decoded = getSessionUser();
   if (decoded.role !== 2) {
     return <Navigate to="/" replace />;
   }

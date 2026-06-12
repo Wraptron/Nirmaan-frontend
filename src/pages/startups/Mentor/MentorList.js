@@ -8,7 +8,7 @@ import {
 } from "../../../API/API";
 import { isPrathamProgram, isVcMentorTag } from "../../../utils/mentorTagUtils";
 import MentorAbout from "./MentorAbout";
-import { jwtDecode } from "jwt-decode";
+import { clearAuthSession, getSessionUser, isAuthenticated } from "../../../utils/authSession";
 import { Navigate, useNavigate } from "react-router-dom";
 import MentorTag from "../../../components/MentorTag";
 
@@ -69,14 +69,7 @@ const Mentor = () => {
 
   useEffect(() => {
     const load = async () => {
-      const token = sessionStorage.getItem("token");
-      let decoded = null;
-
-      try {
-        decoded = token ? jwtDecode(token) : null;
-      } catch {
-        decoded = null;
-      }
+      const decoded = isAuthenticated() ? getSessionUser() : null;
 
       const startupId =
         sessionStorage.getItem("startup_id") || decoded?.startup_id;
@@ -107,26 +100,15 @@ const Mentor = () => {
       siNo: index + 1,
     }));
 
-   const token = sessionStorage.getItem("token");
-  
-   if (!token) {
-     sessionStorage.clear();
-     localStorage.clear();
+   if (!isAuthenticated()) {
+     clearAuthSession();
      return <Navigate to="/" replace />;
    }
-  
-   let decoded;
-   try {
-     decoded = jwtDecode(token);
-   } catch (e) {
-     sessionStorage.clear();
-     localStorage.clear();
-     return <Navigate to="/" replace />;
-   }
-  
+
+   const decoded = getSessionUser();
+
    if (Number(decoded.role) !== 5) {
-     sessionStorage.clear();
-     localStorage.clear();
+     clearAuthSession();
      return <Navigate to="/" replace />;
    }
   return (

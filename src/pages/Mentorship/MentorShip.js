@@ -20,7 +20,7 @@ import FeedbackForm from "../Mentors/FeedbackForm";
 import MentorTag from "../../components/MentorTag";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
 import dayjs from "dayjs";
-import { jwtDecode } from "jwt-decode";
+import { getSessionUser, isAuthenticated } from "../../utils/authSession";
 
 function MentorShip() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -202,19 +202,11 @@ function MentorShip() {
   );
   const totalPages = Math.ceil(filteredmentorship.length / rowsPerPage);
 
-  const token = sessionStorage.getItem("token");
-
-  if (!token) {
+  if (!isAuthenticated()) {
     return <Navigate to="/" replace />;
   }
 
-  let decoded;
-  try {
-    decoded = jwtDecode(token);
-  } catch (err) {
-    return <Navigate to="/" replace />;
-  }
-
+  const decoded = getSessionUser();
   if (decoded.role !== 2) {
     return <Navigate to="/" replace />;
   }
