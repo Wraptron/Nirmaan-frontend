@@ -15,7 +15,6 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
     project_name: "",
     type: "",
     amount: "",
-    status: "",
     purpose: "",
     date: "",
     refNo: "",
@@ -64,19 +63,10 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
-    if (name === "type") {
-      setFormData((prev) => ({
-        ...prev,
-        type: value,
-        status: value === "Funding Utilized" ? "Debit" : "Credit",
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleFileChange = (e) => {
@@ -103,7 +93,6 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
     formPayload.append("startup_name", formData.startup_name);
     formPayload.append("funding_type", formData.type);
     formPayload.append("amount", formData.amount);
-    formPayload.append("status", formData.status);
     formPayload.append("purpose", formData.purpose);
     formPayload.append("funding_date", formData.date);
     formPayload.append("reference_number", formData.refNo);
@@ -144,7 +133,6 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
       project_name: "",
       type: "",
       amount: "",
-      status: "",
       purpose: "",
       date: "",
       refNo: "",
@@ -303,23 +291,6 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
                   placeholder="Enter amount"
                   required
                 />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[#232323] mb-1">
-                  Status <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#45C74D]"
-                  required
-                >
-                  <option value="">Select Status</option>
-                  <option value="Credit">Credit</option>
-                  <option value="Debit">Debit</option>
-                </select>
               </div>
 
               <div>

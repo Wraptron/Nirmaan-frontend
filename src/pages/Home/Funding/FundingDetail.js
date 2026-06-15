@@ -81,7 +81,6 @@ const FundingDetail = ({ onClose, startup_id }) => {
               <tr className="border-b border-dotted">
                 <th className="px-4 py-2">Type</th>
                 <th className="px-4 py-2">Amount</th>
-                <th className="px-4 py-2">Status</th>
                 <th className="px-4 py-2">Purpose</th>
                 <th className="px-4 py-2">Date</th>
                 <th className="px-4 py-2">Ref No</th>
@@ -103,7 +102,6 @@ const FundingDetail = ({ onClose, startup_id }) => {
                         maximumFractionDigits: 2,
                       }) || "-"}
                     </td>
-                    <td className="px-4 py-2">{fund.status || "-"}</td>
                     <td className="px-4 py-2">{fund.purpose || "-"}</td>
                     <td className="px-4 py-2">{fund.funding_date || "-"}</td>
                     <td className="px-4 py-2">

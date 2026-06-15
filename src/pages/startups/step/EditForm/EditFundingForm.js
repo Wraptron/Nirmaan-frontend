@@ -8,7 +8,6 @@ const EditFundingForm = ({ initialData, onClose, onSubmit }) => {
     startup_name: "",
     funding_type: "",
     amount: "",
-    status: "",
     purpose: "",
     funding_date: "",
     reference_number: "",
@@ -24,7 +23,6 @@ const EditFundingForm = ({ initialData, onClose, onSubmit }) => {
         startup_name: initialData.startup_name || "",
         funding_type: initialData.funding_type || "",
         amount: initialData.amount || "",
-        status: initialData.status || "",
         purpose: initialData.purpose || "",
         funding_date: initialData.funding_date || "",
         reference_number: initialData.reference_number || "",
@@ -150,23 +148,6 @@ const EditFundingForm = ({ initialData, onClose, onSubmit }) => {
                   placeholder="Enter amount"
                   required
                 />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[#232323] mb-1">
-                  Status
-                </label>
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#45C74D]"
-                  required
-                >
-                  <option value="">Select Status</option>
-                  <option value="Credit">Credit</option>
-                  <option value="Debit">Debit</option>
-                </select>
               </div>
 
               <div>
