@@ -34,12 +34,36 @@ const formatRelativeTime = (value) => {
 const typeLabel = (type) => {
   const map = {
     mentorship: "Mentorship",
+    funding: "Funding",
   };
   return map[type] || type;
 };
 
+const formatFundingAmount = (amount) => {
+  const value = Number(amount || 0);
+  return value.toLocaleString("en-IN");
+};
+
 export const mapNotificationToDisplayItem = (n) => {
   if (n.type === "mentorship" && n.metadata && typeof n.metadata === "object") {
+    const eventStatus =
+      n.event === "pending"
+        ? "pending"
+        : n.event === "accepted"
+          ? "accepted"
+          : n.event === "rejected"
+            ? "rejected"
+            : n.event;
+    return {
+      ...n.metadata,
+      id: n.source_id,
+      notificationId: n.id,
+      status: eventStatus,
+      created_at: n.created_at,
+      _notificationType: n.type,
+    };
+  }
+  if (n.type === "funding" && n.metadata && typeof n.metadata === "object") {
     const eventStatus =
       n.event === "pending"
         ? "pending"
@@ -225,6 +249,135 @@ function SessionStatusNotificationItem({ req, formatRequestDate, viewerRole }) {
   );
 }
 
+function FundingPendingNotificationItem({
+  req,
+  formatRequestDate,
+  onAccept,
+  onReject,
+  processingId,
+}) {
+  const relative = formatRelativeTime(req.created_at);
+  const initials = (req.startup_name || "S")
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  return (
+    <article className="px-4 py-3.5 hover:bg-gray-50/80 transition-colors">
+      <div className="flex gap-3">
+        <div
+          className="w-10 h-10 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center text-xs font-semibold shrink-0 ring-1 ring-amber-100"
+          aria-hidden
+        >
+          {initials}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-sm font-semibold text-gray-900 leading-snug">
+              <span className="text-amber-700">{req.startup_name}</span>
+              <span className="font-normal text-gray-600"> submitted funding utilization</span>
+            </p>
+            {relative ? (
+              <span className="text-[11px] text-gray-400 whitespace-nowrap shrink-0">
+                {relative}
+              </span>
+            ) : null}
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+            {req.project_name ? (
+              <MetaChip icon={<CalendarIcon />}>{req.project_name}</MetaChip>
+            ) : null}
+            <span className="text-xs font-medium text-gray-700">
+              Rs. {formatFundingAmount(req.amount)}
+            </span>
+            {req.funding_date ? (
+              <MetaChip icon={<ClockIcon />}>
+                {formatRequestDate(req.funding_date)}
+              </MetaChip>
+            ) : null}
+          </div>
+          {req.purpose ? (
+            <p className="mt-2 text-xs text-gray-500 line-clamp-2 leading-relaxed bg-gray-50 rounded-md px-2.5 py-1.5 border border-gray-100">
+              {req.purpose}
+            </p>
+          ) : null}
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              disabled={processingId === req.id}
+              onClick={() => onAccept?.(req)}
+              className="flex-1 py-1.5 text-xs font-semibold text-white bg-[#45C74D] rounded-lg hover:bg-[#3bae42] disabled:opacity-60"
+            >
+              Accept
+            </button>
+            <button
+              type="button"
+              disabled={processingId === req.id}
+              onClick={() => onReject?.(req)}
+              className="flex-1 py-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 disabled:opacity-60"
+            >
+              {processingId === req.id ? "…" : "Reject"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function FundingStatusNotificationItem({ req, viewerRole }) {
+  const relative = formatRelativeTime(req.created_at);
+  const isAccepted = req.status === "accepted";
+  const isFinance = viewerRole === "finance";
+  const title = isAccepted
+    ? isFinance
+      ? "Utilization approved by admin"
+      : "Utilization request approved"
+    : "Utilization request declined";
+  const subtitle = isAccepted
+    ? isFinance
+      ? `${req.startup_name || "Startup"} · Rs. ${formatFundingAmount(req.amount)} · ${req.project_name || "project"}`
+      : `Your request for ${req.project_name || "project"} was approved.`
+    : `Your request of Rs. ${formatFundingAmount(req.amount)} for ${req.project_name || "project"} was declined.`;
+
+  return (
+    <article className="px-4 py-3.5 hover:bg-gray-50/80 transition-colors">
+      <div className="flex gap-3">
+        <div
+          className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ring-1 ${
+            isAccepted
+              ? "bg-sky-50 text-sky-700 ring-sky-100"
+              : "bg-red-50 text-red-700 ring-red-100"
+          }`}
+          aria-hidden
+        >
+          {isAccepted ? "✓" : "×"}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-sm font-semibold text-gray-900 leading-snug">
+              {title}
+            </p>
+            {relative ? (
+              <span className="text-[11px] text-gray-400 whitespace-nowrap shrink-0">
+                {relative}
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-0.5 text-xs text-gray-600">{subtitle}</p>
+          {!isAccepted && req.rejection_reason ? (
+            <p className="mt-2 text-xs text-gray-500 bg-gray-50 rounded-md px-2.5 py-1.5 border border-gray-100">
+              {req.rejection_reason}
+            </p>
+          ) : null}
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function NotificationItem({
   req,
   formatRequestDate,
@@ -312,11 +465,37 @@ function renderNotificationItem(item, props) {
     formatRequestDate,
     onAccept,
     onReject,
+    onAcceptFunding,
+    onRejectFunding,
     processingId,
     viewerRole,
   } = props;
 
-  if (item._notificationType === "mentorship" || item.startup_name) {
+  if (item._notificationType === "funding") {
+    if (item.status === "pending") {
+      return (
+        <FundingPendingNotificationItem
+          key={item.notificationId || item.id}
+          req={item}
+          formatRequestDate={formatRequestDate}
+          onAccept={onAcceptFunding}
+          onReject={onRejectFunding}
+          processingId={processingId}
+        />
+      );
+    }
+    if (item.status === "accepted" || item.status === "rejected") {
+      return (
+        <FundingStatusNotificationItem
+          key={item.notificationId || item.id}
+          req={item}
+          viewerRole={viewerRole}
+        />
+      );
+    }
+  }
+
+  if (item._notificationType === "mentorship") {
     if (item.status === "pending") {
       return (
         <NotificationItem
@@ -358,6 +537,8 @@ function Notification({
   formatRequestDate,
   onAccept,
   onReject,
+  onAcceptFunding,
+  onRejectFunding,
   processingId,
   viewerRole = "admin",
   emptyTitle = "All caught up",
@@ -425,6 +606,8 @@ function Notification({
                   formatRequestDate,
                   onAccept,
                   onReject,
+                  onAcceptFunding,
+                  onRejectFunding,
                   processingId,
                   viewerRole,
                 })
@@ -436,7 +619,7 @@ function Notification({
         {count > 0 ? (
           <footer className="px-4 py-2 border-t border-gray-100 bg-gray-50/30">
             <p className="text-[11px] text-center text-gray-400">
-              Mentor session and meeting updates
+              Mentor sessions and funding updates
             </p>
           </footer>
         ) : null}

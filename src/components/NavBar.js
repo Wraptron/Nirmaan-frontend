@@ -10,6 +10,8 @@ import {
   ApiUpdateMentorSessionRequest,
   ApiFetchNotifications,
   ApiMarkNotificationsRead,
+  ApiApproveFundingRequest,
+  ApiRejectFundingRequest,
 } from "../API/API";
 import toast from "react-hot-toast";
 import ActionsModel from "../components/ActionsModel";
@@ -182,6 +184,54 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     } finally {
       setProcessingRequestId(null);
     }
+  };
+
+  const handleAcceptFundingRequest = async (req) => {
+    setProcessingRequestId(req.id);
+    try {
+      await ApiApproveFundingRequest(req.id);
+      toast.success("Funding utilization request approved.");
+      setNotificationItems((items) =>
+        items.filter((item) => String(item.id) !== String(req.id))
+      );
+      await fetchNotifications();
+    } catch (err) {
+      toast.error(err?.message || "Failed to approve funding request.");
+    } finally {
+      setProcessingRequestId(null);
+    }
+  };
+
+  const handleRejectFundingRequest = async (req) => {
+    setProcessingRequestId(req.id);
+    try {
+      await ApiRejectFundingRequest(req.id);
+      toast.success("Funding utilization request rejected.");
+      setNotificationItems((items) =>
+        items.filter((item) => String(item.id) !== String(req.id))
+      );
+      await fetchNotifications();
+    } catch (err) {
+      toast.error(err?.message || "Failed to reject funding request.");
+    } finally {
+      setProcessingRequestId(null);
+    }
+  };
+
+  const handleNotificationAccept = (req) => {
+    if (req._notificationType === "funding") {
+      handleAcceptFundingRequest(req);
+      return;
+    }
+    handleAcceptMentorRequest(req);
+  };
+
+  const handleNotificationReject = (req) => {
+    if (req._notificationType === "funding") {
+      handleRejectFundingRequest(req);
+      return;
+    }
+    handleRejectMentorRequest(req);
   };
 
   const handleScheduleMeetingSuccess = async () => {
@@ -359,8 +409,10 @@ function NavBar({ onSelectionChange, selectedIndex }) {
                   items={notificationItems.slice(0, 5)}
                   unreadCount={unreadCount}
                   formatRequestDate={formatRequestDate}
-                  onAccept={isAdmin ? handleAcceptMentorRequest : undefined}
-                  onReject={isAdmin ? handleRejectMentorRequest : undefined}
+                  onAccept={isAdmin ? handleNotificationAccept : undefined}
+                  onReject={isAdmin ? handleNotificationReject : undefined}
+                  onAcceptFunding={isAdmin ? handleAcceptFundingRequest : undefined}
+                  onRejectFunding={isAdmin ? handleRejectFundingRequest : undefined}
                   processingId={processingRequestId}
                   viewerRole={
                     isMentor ? "mentor" : isStartup ? "startup" : "admin"

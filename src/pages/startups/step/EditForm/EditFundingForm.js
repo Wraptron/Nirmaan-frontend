@@ -52,12 +52,21 @@ const EditFundingForm = ({ initialData, onClose, onSubmit }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const formPayload = new FormData();
+    formPayload.append("startup_name", formData.startup_name);
+    formPayload.append("funding_type", formData.funding_type);
+    formPayload.append("amount", formData.amount);
+    formPayload.append("purpose", formData.purpose);
+    formPayload.append("funding_date", formData.funding_date);
+    formPayload.append("reference_number", formData.reference_number);
+    formPayload.append("id", initialData.id);
+    formPayload.append("startup_id", initialData.startup_id);
+    if (formData.document instanceof File) {
+      formPayload.append("document", formData.document);
+    }
+
     try {
-      await ApiUpdateFunding({
-        ...formData,
-        id: initialData.id,
-        startup_id: initialData.startup_id,
-      });
+      await ApiUpdateFunding(formPayload);
       onSubmit({
         ...formData,
         id: initialData.id,

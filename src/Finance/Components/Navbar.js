@@ -475,18 +475,26 @@ import Mentorsvg from "../../assets/images/Mentor.svg";
 import ChatMessage from "../../assets/images/message.svg";
 import Mentorshipsvg from "../../assets/images/Mentorships.svg";
 import Eventsvg from "../../assets/images/Event.svg";
+import Bellsvg from "../../assets/images/Component 14.svg";
 import Usersvg from "../../assets/images/User profile.svg";
 import moresvg from "../../assets/images/more.svg";
 import startupsvg from "../../assets/images/Startups.svg";
 import ProfileModal from "../../components/ProfileModal";
 import More from "../../components/More";
+import Notification, { mapNotificationToDisplayItem } from "../../components/Notification";
+import { ApiFetchNotifications, ApiMarkNotificationsRead } from "../../API/API";
 import { useNavigate } from "react-router-dom";
 
 function Navbar({ onSelectionChange, selectedIndex }) {
   const [showModal, setShowModal] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notificationItems, setNotificationItems] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loadingNotifications, setLoadingNotifications] = useState(true);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
+  const notificationRef = useRef(null);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -507,6 +515,12 @@ function Navbar({ onSelectionChange, selectedIndex }) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
+        setNotificationsOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -514,6 +528,53 @@ function Navbar({ onSelectionChange, selectedIndex }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const data = await ApiFetchNotifications({ limit: 20 });
+      const raw = Array.isArray(data?.notifications) ? data.notifications : [];
+      setNotificationItems(raw.map(mapNotificationToDisplayItem));
+      setUnreadCount(Number(data?.unreadCount) || 0);
+      setLoadingNotifications(false);
+    } catch (err) {
+      console.log("Error fetching notification data:", err);
+      setLoadingNotifications(false);
+    }
+  };
+
+  const handleOpenNotifications = async () => {
+    setNotificationsOpen(true);
+    setIsOpen(false);
+    try {
+      await ApiMarkNotificationsRead();
+      await fetchNotifications();
+    } catch (err) {
+      console.log("Mark notifications read:", err);
+    }
+  };
+
+  const formatRequestDate = (value) => {
+    if (!value) return "—";
+    const d = new Date(value);
+    return Number.isNaN(d.getTime())
+      ? String(value)
+      : d.toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        });
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(() => {
+      fetchNotifications();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const notificationCount = unreadCount;
+  const hasNotifications = notificationCount > 0;
 
   const tokenDecodedData = isAuthenticated() ? getSessionUser() : null;
 
@@ -606,6 +667,43 @@ function Navbar({ onSelectionChange, selectedIndex }) {
                 </button>
               </div>
             </div> */}
+            <div className="relative md:block" ref={notificationRef}>
+              <div className="text-black px-2 py-2 ms-3">
+                <button
+                  type="button"
+                  onClick={() =>
+                    notificationsOpen
+                      ? setNotificationsOpen(false)
+                      : handleOpenNotifications()
+                  }
+                  className={`relative p-1 rounded-lg transition-colors ${
+                    notificationsOpen
+                      ? "bg-gray-100 ring-1 ring-gray-200"
+                      : "hover:bg-gray-50"
+                  }`}
+                  aria-label="Notifications"
+                  aria-expanded={notificationsOpen}
+                >
+                  <img src={Bellsvg} alt="" className="w-5 h-5" />
+                  {hasNotifications ? (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 text-[10px] font-semibold text-white bg-red-500 rounded-full flex items-center justify-center ring-2 ring-white">
+                      {notificationCount > 9 ? "9+" : notificationCount}
+                    </span>
+                  ) : null}
+                </button>
+              </div>
+              <Notification
+                isOpen={notificationsOpen}
+                onClose={() => setNotificationsOpen(false)}
+                loading={loadingNotifications}
+                items={notificationItems.slice(0, 5)}
+                unreadCount={unreadCount}
+                formatRequestDate={formatRequestDate}
+                viewerRole="finance"
+                emptyTitle="All caught up"
+                emptySubtitle="No new funding notifications"
+              />
+            </div>
             <div className="relative md:block" ref={dropdownRef}>
               <div className="text-black px-2 py-2 ms-3">
                 <button onClick={toggleDropdown}>

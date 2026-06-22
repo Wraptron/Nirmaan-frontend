@@ -98,13 +98,20 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
     formPayload.append("reference_number", formData.refNo);
     formPayload.append("project_name", formData.project_name);
 
-    // if (formData.document) {
-    //   formPayload.append("document", formData.document);
-    // }
+    if (formData.document) {
+      formPayload.append("document", formData.document);
+    }
     try {
       const response = await ApiAddFunding(formPayload);
 
-      toast.success("Funding added successfully");
+      if (response?.status === "pending") {
+        toast.success(
+          response?.message ||
+            "Funding utilization request submitted for admin review."
+        );
+      } else {
+        toast.success("Funding added successfully");
+      }
       if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
