@@ -309,6 +309,48 @@ async function ApiMarkNotificationsRead() {
   }
 }
 
+async function ApiApproveFundingRequest(requestId) {
+  try {
+    const result = await axios.patch(
+      `${API_BASE_URL}/api/v1/finance/requests/${requestId}/approve`,
+      {},
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return result.data;
+  } catch (error) {
+    console.error("Error in ApiApproveFundingRequest", error);
+    const data = error.response?.data;
+    if (data?.message) throw new Error(data.message);
+    throw error;
+  }
+}
+
+async function ApiRejectFundingRequest(requestId, rejectionReason) {
+  try {
+    const result = await axios.patch(
+      `${API_BASE_URL}/api/v1/finance/requests/${requestId}/reject`,
+      { rejection_reason: rejectionReason || null },
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return result.data;
+  } catch (error) {
+    console.error("Error in ApiRejectFundingRequest", error);
+    const data = error.response?.data;
+    if (data?.message) throw new Error(data.message);
+    throw error;
+  }
+}
+
 async function ApiFetchStartupMyMeetings() {
   try {
     const result = await axios.get(
@@ -999,6 +1041,8 @@ export {
   ApiUpdateMentorSessionRequest,
   ApiFetchNotifications,
   ApiMarkNotificationsRead,
+  ApiApproveFundingRequest,
+  ApiRejectFundingRequest,
   ApiFetchStartupMyMeetings,
   ApiScheduleMeeting,
   ApiFetchScheduleMeetings,
