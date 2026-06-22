@@ -1,17 +1,20 @@
-// utils/ProtectedRoutes.js
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
-import { getAuthSession, isAuthenticated } from './authSession';
+import React from "react";
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "./AuthContext";
 
+/**
+ * UX-only route guard. Real authorization is enforced by the API via
+ * httpOnly cookies and server-side role checks on every endpoint.
+ */
 function ProtectedRoutes({ requiredRoles = [], allowedRoles = [] }) {
-  const { role } = getAuthSession();
+  const { isAuthenticated, user } = useAuth();
   const roles = requiredRoles?.length ? requiredRoles : allowedRoles;
 
-  if (!isAuthenticated()) {
+  if (!isAuthenticated || !user) {
     return <Navigate to="/" replace />;
   }
 
-  if (roles.length > 0 && !roles.includes(String(role))) {
+  if (roles.length > 0 && !roles.includes(String(user.role))) {
     return <Navigate to="/" replace />;
   }
 

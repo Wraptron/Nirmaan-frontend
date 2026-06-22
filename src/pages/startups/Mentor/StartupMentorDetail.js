@@ -32,12 +32,15 @@ import DeleteConfirmation from "../../../components/DeleteConfirmation";
 import FeedbackForm from "../../../pages/Mentors/FeedbackForm";
 import RequestMentor from "../../Mentorship/RequestMentor";
 
+import { getSessionUser } from "../../../utils/authSession";
+
 function StartupMentorDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const userRole = sessionStorage.getItem("role");
-  const loggedInMentorId = sessionStorage.getItem("mentor_id");
-  const isMentorView = userRole === "6"; // Mentor sees only own profile
+  const sessionUser = getSessionUser();
+  const userRole = sessionUser.role;
+  const loggedInMentorId = sessionUser.mentor_id;
+  const isMentorView = userRole === 6; // Mentor sees only own profile
 
   const [mentor, setMentor] = useState(null);
   const [meeting, setMeeting] = useState([]);

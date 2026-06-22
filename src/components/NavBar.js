@@ -280,10 +280,11 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     await refreshNotifications();
   };
 
-  const userRole = sessionStorage.getItem("role");
-  const isAdmin = userRole === "2";
-  const isStartup = userRole === "5";
-  const isMentor = userRole === "6";
+  const tokenDecodedData = isAuthenticated() ? getSessionUser() : null;
+  const userRole = tokenDecodedData?.role;
+  const isAdmin = userRole === 2;
+  const isStartup = userRole === 5;
+  const isMentor = userRole === 6;
   const canSeeNotifications = isAdmin || isStartup || isMentor;
   const notificationCount = unreadCount;
   const hasNotifications = canSeeNotifications && notificationCount > 0;
@@ -299,10 +300,6 @@ function NavBar({ onSelectionChange, selectedIndex }) {
           year: "numeric",
         });
   };
-
-  const tokenDecodedData = isAuthenticated() ? getSessionUser() : null;
-
-
 
   useEffect(() => {
     fetchUnreadCount();
@@ -488,8 +485,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     <li className="px-4 py-2 text-sm text-gray-600 border-b">
       <div className="flex items-center gap-2 flex-wrap">
         <span>{tokenDecodedData.user_name || tokenDecodedData.user_mail}</span>
-        {(String(sessionStorage.getItem("role")) === "6" ||
-          tokenDecodedData?.role === 6) && (
+        {userRole === 6 && (
           <MentorTag tag={loggedInMentorTag} />
         )}
       </div>

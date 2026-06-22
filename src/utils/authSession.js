@@ -1,60 +1,106 @@
-const SESSION_KEYS = {
-  role: "role",
-  startup_id: "startup_id",
-  mentor_id: "mentor_id",
-  user_mail: "user_mail",
-  user_name: "user_name",
+const LEGACY_AUTH_KEYS = [
+  "role",
+  "startup_id",
+  "mentor_id",
+  "user_mail",
+  "user_name",
+  "startupId",
+];
+
+const EMPTY_SESSION = {
+  role: null,
+  startup_id: null,
+  mentor_id: null,
+  user_mail: null,
+  user_name: null,
 };
 
-export function setAuthSession({
+/** Server-validated session (in-memory only). Populated via /auth/me or login refresh. */
+let validatedSession = null;
+let bootstrapPromise = null;
+
+function normalizeUser({
   role,
   startup_id,
   mentor_id,
   user_mail,
   user_name,
 }) {
-  if (role != null) sessionStorage.setItem(SESSION_KEYS.role, String(role));
-  sessionStorage.setItem(SESSION_KEYS.startup_id, startup_id ?? "");
-  if (mentor_id != null && mentor_id !== "") {
-    sessionStorage.setItem(SESSION_KEYS.mentor_id, String(mentor_id));
-  } else {
-    sessionStorage.removeItem(SESSION_KEYS.mentor_id);
+  const roleRaw = role;
+  return {
+    role: roleRaw === "" || roleRaw == null ? null : Number(roleRaw),
+    startup_id: startup_id ?? null,
+    mentor_id: mentor_id ?? null,
+    user_mail: user_mail ?? null,
+    user_name: user_name ?? null,
+  };
+}
+
+/** Remove legacy client-side auth keys from prior app versions. */
+function clearLegacyAuthStorage() {
+  LEGACY_AUTH_KEYS.forEach((key) => sessionStorage.removeItem(key));
+  localStorage.removeItem("token");
+}
+
+/** Set auth state from a server-validated response (login or /auth/me). */
+export function setValidatedSession(user) {
+  validatedSession = normalizeUser(user);
+}
+
+export function clearValidatedSession() {
+  validatedSession = null;
+}
+
+/**
+ * Bootstrap auth from the server. Returns the validated user or null.
+ * Authorization for API calls is enforced by httpOnly cookies on the backend.
+ */
+export async function bootstrapAuth(apiClient) {
+  if (bootstrapPromise) {
+    return bootstrapPromise;
   }
-  if (user_mail) sessionStorage.setItem(SESSION_KEYS.user_mail, user_mail);
-  if (user_name) sessionStorage.setItem(SESSION_KEYS.user_name, user_name);
+
+  bootstrapPromise = (async () => {
+    clearLegacyAuthStorage();
+
+    try {
+      const response = await apiClient.get("/api/v1/auth/me");
+      const user = response.data?.user;
+      if (user?.user_mail) {
+        setValidatedSession(user);
+        return { ok: true, user: validatedSession };
+      }
+    } catch {
+      // No valid session cookie — fall through to clear.
+    }
+
+    clearValidatedSession();
+    return { ok: false, user: null };
+  })().finally(() => {
+    bootstrapPromise = null;
+  });
+
+  return bootstrapPromise;
 }
 
 export function getAuthSession() {
-  const roleRaw = sessionStorage.getItem(SESSION_KEYS.role);
-  return {
-    role: roleRaw === "" || roleRaw == null ? null : Number(roleRaw),
-    startup_id: sessionStorage.getItem(SESSION_KEYS.startup_id) || null,
-    mentor_id: sessionStorage.getItem(SESSION_KEYS.mentor_id) || null,
-    user_mail: sessionStorage.getItem(SESSION_KEYS.user_mail) || null,
-    user_name: sessionStorage.getItem(SESSION_KEYS.user_name) || null,
-  };
+  if (validatedSession) {
+    return { ...validatedSession };
+  }
+  return { ...EMPTY_SESSION };
 }
 
 /** Shape compatible with legacy jwt-decode usage across the app. */
 export function getSessionUser() {
-  const session = getAuthSession();
-  return {
-    user_mail: session.user_mail,
-    user_name: session.user_name,
-    role: session.role,
-    startup_id: session.startup_id,
-    mentor_id: session.mentor_id,
-  };
+  return getAuthSession();
 }
 
+/** True only when the server has confirmed the session via /auth/me or login. */
 export function isAuthenticated() {
-  const role = sessionStorage.getItem(SESSION_KEYS.role);
-  return role != null && role !== "";
+  return validatedSession != null;
 }
 
 export function clearAuthSession() {
-  Object.values(SESSION_KEYS).forEach((key) => {
-    sessionStorage.removeItem(key);
-  });
-  localStorage.removeItem("token");
+  clearValidatedSession();
+  clearLegacyAuthStorage();
 }

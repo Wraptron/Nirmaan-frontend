@@ -58,6 +58,7 @@ import FinanceUpdateFunding from "./Finance/Pages/Startup/Updatefunding";
 import FinanceStartupdetails from "./Finance/Pages/Startup/Finstartup";
 
 // Utility
+import { AuthProvider } from "./utils/AuthContext";
 import ProtectedRoutes from "./utils/ProtectedRoutes";
 import Finstartup from "./Finance/Pages/Startup/Finstartup";
 import StartupFundingDetail from "./Finance/Pages/Startup/StartupfundingDetail";
@@ -75,6 +76,7 @@ function App() {
     <div>
       <Toaster position="top-right" reverseOrder={false} />
       <BrowserRouter>
+        <AuthProvider>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Login />} />
@@ -203,6 +205,7 @@ function App() {
             />
           </Route>
         </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </div>
   );

@@ -71,8 +71,7 @@ const Mentor = () => {
     const load = async () => {
       const decoded = isAuthenticated() ? getSessionUser() : null;
 
-      const startupId =
-        sessionStorage.getItem("startup_id") || decoded?.startup_id;
+      const startupId = decoded?.startup_id;
 
       await Promise.all([
         fetchMentors(),

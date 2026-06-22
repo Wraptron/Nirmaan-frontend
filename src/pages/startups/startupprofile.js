@@ -37,7 +37,7 @@ import EditTeamMembersForm from "./step/EditForm/EditTeamMembersForm";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
 import EditAwardForm from "./step/EditForm/EditAwardForm";
 import FundingDetail from "../Home/Funding/FundingDetail";
-import { getSessionUser, isAuthenticated } from "../../utils/authSession";
+import { clearAuthSession, getSessionUser, isAuthenticated } from "../../utils/authSession";
 import { asDisplayText, getErrorMessage } from "../../utils/getErrorMessage";
 import AddIPform from "./step/EditForm/AddIPform";
 
@@ -370,8 +370,7 @@ function StartupProfile() {
 
   useEffect(() => {
     if (!isAuthorized) {
-      sessionStorage.clear();
-      localStorage.clear();
+      clearAuthSession();
       navigate("/", { replace: true });
       return;
     }

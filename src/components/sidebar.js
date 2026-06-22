@@ -78,8 +78,7 @@ function SideBar({ children }) {
           </ul>
         ) : tokenDecodedData?.role === 6 ? (
           (() => {
-            const mentorId =
-              sessionStorage.getItem("mentor_id") || tokenDecodedData.mentor_id;
+            const mentorId = tokenDecodedData.mentor_id;
             return (
               <ul className="py-5 px-8">
                 <li

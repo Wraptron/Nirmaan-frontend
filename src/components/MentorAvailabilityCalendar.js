@@ -32,8 +32,6 @@ import {
 const cn = (...classes) => classes.filter(Boolean).join(" ");
 
 const getMentorId = () => {
-  const fromSession = sessionStorage.getItem("mentor_id");
-  if (fromSession) return fromSession;
   const sessionUser = getSessionUser();
   return sessionUser.mentor_id || null;
 };

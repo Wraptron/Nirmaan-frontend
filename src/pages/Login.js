@@ -4,7 +4,7 @@ import '@fontsource/josefin-sans';
 import image from '../assets/images/nirmaan-iitm.14fdf833.svg';
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../utils/apiClient';
-import { setAuthSession } from '../utils/authSession';
+import { useAuth } from '../utils/AuthContext';
 import alertify from 'alertifyjs';
 import 'alertifyjs/build/css/alertify.css';
 import PuffLoader from "react-spinners/PuffLoader";
@@ -14,6 +14,7 @@ import { eye } from 'react-icons-kit/feather/eye';
 
 function Login() {  
     const navigate = useNavigate();
+    const { refreshAuth } = useAuth();
     const [error, setError] = useState('');
     const [formData, setFormData] = useState({
         user_mail: '',
@@ -179,16 +180,14 @@ function Login() {
             
             if(response.data.result && response.data.result.status === 'Login Authenticated')
             {
-                const { role: userRole, startup_id, mentor_id, user_mail, user_name } =
-                    response.data.result;
+                const refreshResult = await refreshAuth();
+                if (!refreshResult.ok) {
+                    alertify.error('Login succeeded but session could not be verified. Please try again.');
+                    setLoading(false);
+                    return;
+                }
 
-                setAuthSession({
-                    role: userRole,
-                    startup_id,
-                    mentor_id,
-                    user_mail,
-                    user_name,
-                });
+                const { role: userRole, startup_id, mentor_id } = refreshResult.user;
                 
                 setError('');
                 setLoading(false);

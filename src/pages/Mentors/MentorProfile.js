@@ -35,14 +35,16 @@ import dayjs from "dayjs";
 import FeedbackForm from "./FeedbackForm";
 import MentorAvailabilityDetails from "../../components/MentorAvailabilityDetails";
 import MentorTag from "../../components/MentorTag";
+import { getSessionUser } from "../../utils/authSession";
 
 function MentorProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const userRole = sessionStorage.getItem("role");
-  const loggedInMentorId = sessionStorage.getItem("mentor_id");
-  const isMentorView = userRole === "6"; // Mentor sees only own profile
-  const isAdminView = userRole === "2";
+  const sessionUser = getSessionUser();
+  const userRole = sessionUser.role;
+  const loggedInMentorId = sessionUser.mentor_id;
+  const isMentorView = userRole === 6; // Mentor sees only own profile
+  const isAdminView = userRole === 2;
 
   const [mentor, setMentor] = useState(null);
   const [meeting, setMeeting] = useState([]);

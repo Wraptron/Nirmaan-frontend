@@ -17,6 +17,11 @@ const apiClient = axios.create({
 });
 
 let refreshPromise = null;
+let authRefreshHandler = null;
+
+export function setAuthRefreshHandler(handler) {
+  authRefreshHandler = handler;
+}
 
 apiClient.interceptors.response.use(
   (response) => response,
@@ -58,6 +63,9 @@ apiClient.interceptors.response.use(
 
       try {
         await refreshPromise;
+        if (authRefreshHandler) {
+          await authRefreshHandler();
+        }
         return apiClient(originalRequest);
       } catch (refreshError) {
         return Promise.reject(refreshError);
