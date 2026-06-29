@@ -475,14 +475,18 @@ async function ApiCancelMeeting(id, reason) {
     const result = await axios.patch(
       `${API_BASE_URL}/api/v1/mentor/cancel-meeting/${id}`,
       { reason },
-      { withCredentials: true }
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
     );
     return result.data;
   } catch (err) {
-    const data = err?.response?.data;
-    if (data?.message) {
-      throw new Error(data.message);
-    }
+    const data = err.response?.data;
+    if (typeof data === "string") throw new Error(data);
+    if (data?.message) throw new Error(data.message);
     throw err;
   }
 }
