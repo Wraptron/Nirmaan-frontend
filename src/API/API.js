@@ -805,11 +805,16 @@ async function ApiFetchAward() {
   }
 }
 
-async function ApiUpdateAward(payload) {
+async function ApiUpdateAward(formdata) {
   try {
     const response = await axios.put(
       `${API_BASE_URL}/api/v1/updateaward`,
-      payload
+      formdata,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
     return response.data;
   } catch (error) {

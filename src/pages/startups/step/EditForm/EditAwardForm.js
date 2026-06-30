@@ -1,8 +1,18 @@
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { FiUpload } from "react-icons/fi";
-import { IoCalendarOutline } from "react-icons/io5";
-import { ApiAddAward, ApiUpdateAward } from "../../../../API/API";
+import { ApiUpdateAward } from "../../../../API/API";
+
+const getDocumentLabel = (document, documentUrl) => {
+  if (document instanceof File) {
+    return document.name;
+  }
+  if (documentUrl) {
+    const fileName = documentUrl.split("/").pop()?.split("?")[0];
+    return fileName || "Current document";
+  }
+  return "No file chosen";
+};
 
 const EditAwardForm = ({ initialData, onClose }) => {
   const [formData, setFormData] = useState({
@@ -11,11 +21,12 @@ const EditAwardForm = ({ initialData, onClose }) => {
     prize_money: "",
     awarded_date: "",
     document: null,
+    document_url: "",
     description: "",
+    id: "",
   });
 
   useEffect(() => {
-    console.log(initialData);
     if (initialData) {
       setFormData({
         award_name: initialData.award_name || "",
@@ -24,7 +35,8 @@ const EditAwardForm = ({ initialData, onClose }) => {
         awarded_date: initialData.awarded_date
           ? new Date(initialData.awarded_date).toLocaleDateString("en-CA")
           : "",
-        document: initialData.document || "",
+        document: null,
+        document_url: initialData.document_url || "",
         description: initialData.description || "",
         id: initialData.id || "",
       });
@@ -51,13 +63,32 @@ const EditAwardForm = ({ initialData, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!formData.award_name || !formData.award_org || !formData.awarded_date) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    const payload = new FormData();
+    payload.append("award_name", formData.award_name);
+    payload.append("award_org", formData.award_org);
+    payload.append("prize_money", formData.prize_money || "");
+    payload.append("awarded_date", formData.awarded_date);
+    payload.append("description", formData.description || "");
+    payload.append("id", formData.id);
+
+    if (formData.document) {
+      payload.append("document", formData.document);
+    } else if (formData.document_url) {
+      payload.append("document_url", formData.document_url);
+    }
+
     try {
-      await ApiUpdateAward(formData);
+      await ApiUpdateAward(payload);
       toast.success("Award updated successfully");
       onClose();
     } catch (error) {
-      console.error("Error updating profile:", error);
-      toast.error("Failed to Award profile");
+      console.error("Error updating award:", error);
+      toast.error("Failed to update award");
     }
   };
 
@@ -158,11 +189,19 @@ const EditAwardForm = ({ initialData, onClose }) => {
                     onChange={(e) => handleDocumentUpload(e.target.files[0])}
                   />
                 </label>
-                <span className="text-sm text-gray-500">
-                  {formData.document
-                    ? formData.document.name
-                    : "No file chosen"}
+                <span className="text-sm text-gray-500 truncate max-w-[280px]">
+                  {getDocumentLabel(formData.document, formData.document_url)}
                 </span>
+                {formData.document_url && !formData.document && (
+                  <a
+                    href={formData.document_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-[#45C74D] hover:underline whitespace-nowrap"
+                  >
+                    View
+                  </a>
+                )}
               </div>
             </div>
 
