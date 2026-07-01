@@ -528,12 +528,15 @@ function StartupProfile() {
                     alt="bg"
                     className="w-full h-full object-cover"
                   />
-                  {/* <button
-                    onClick={handleEditClick}
-                    className="absolute top-3 right-3 bg-white rounded-full p-2 shadow hover:bg-gray-100 transition"
-                  >
-                    <FiEdit2 size={18} className="text-[#232323]" />
-                  </button> */}
+                  {canEdit && (
+                    <button
+                      onClick={handleEditClick}
+                      className="absolute top-3 right-3 bg-white rounded-full p-2 shadow hover:bg-gray-100 transition"
+                      title="Edit Personal Info"
+                    >
+                      <FiEdit2 size={18} className="text-[#232323]" />
+                    </button>
+                  )}
                 </div>
                 {/* Profile image with green border */}
                 <div className="absolute left-1/2 top-[90px] -translate-x-1/2 z-10">

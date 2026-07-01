@@ -601,6 +601,14 @@ const statusOptions = [
   { value: "Inactive", label: "Inactive" },
 ];
 
+function encodeS3Url(url) {
+  if (!url || typeof url !== "string") return null;
+  const parts = url.split("/");
+  const fileName = parts.pop();
+  const encodedFileName = encodeURIComponent(fileName);
+  return parts.join("/") + "/" + encodedFileName;
+}
+
 const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     startup_id : "",
@@ -637,8 +645,8 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
       });
 
       // Set image previews if they exist
-      setProfilePreview(initialData.profile_image || null);
-      setBgPreview(initialData.background_image || null);
+      setProfilePreview(encodeS3Url(initialData.profile_image));
+      setBgPreview(encodeS3Url(initialData.background_image));
     }
   }, [initialData]);
 
@@ -668,9 +676,6 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
       setBgPreview(URL.createObjectURL(file));
     }
   };
-  //url encoding for urls - images
-      
-  //ending here
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -721,11 +726,11 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
     formPayload.append("linkedin", formData.linkedin);
     formPayload.append("website_link", formData.website_link);
 
-    if (formData.profile_image) {
+    if (formData.profile_image instanceof File) {
       formPayload.append("profile_image", formData.profile_image);
     }
 
-    if (formData.background_image) {
+    if (formData.background_image instanceof File) {
       formPayload.append("background_image", formData.background_image);
     }
 
@@ -739,14 +744,7 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
       toast.error("Failed to update profile");
     }
   };
-  function encodeS3Url(url) {
-      const parts = url.split('/');
-      const fileName = parts.pop(); // last part
-      const encodedFileName = encodeURIComponent(fileName);
-      return parts.join('/') + '/' + encodedFileName;
-  } 
-  const profileImage = encodeS3Url(initialData.profile_image);
-  console.log(profileImage);
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl shadow-lg w-[500px] relative">
@@ -783,7 +781,7 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
               <div className="relative w-24 h-24">
                 {profilePreview ? (
                   <img
-                    src={profileImage}
+                    src={profilePreview}
                     alt="Profile"
                     className="w-24 h-24 rounded-xl border-4 border-white shadow-lg object-cover bg-gray-100"
                   />
