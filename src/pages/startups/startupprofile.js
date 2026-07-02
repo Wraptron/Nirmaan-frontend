@@ -153,7 +153,7 @@ function StartupProfile() {
       // await ApiUpdateStartup(id, updatedData);
       setStartupData(updatedData);
     } catch (error) {
-      console.error("Error updating startup:", error);
+
       toast.error("Failed to update startup profile");
     }
   };
@@ -165,7 +165,6 @@ function StartupProfile() {
         about: updatedData.about,
       }));
     } catch (error) {
-      console.error("Error updating about section:", error);
       toast.error("Failed to update about section");
     }
   };
@@ -177,7 +176,6 @@ function StartupProfile() {
         awards: [...prev.awards, newAward],
       }));
     } catch (error) {
-      console.error("Error adding award:", error);
       toast.error("Failed to add award");
     }
   };
@@ -189,7 +187,6 @@ function StartupProfile() {
         awards: [updatedData.awards],
       }));
     } catch (error) {
-      console.error("Error updating award section:", error);
       toast.error("Failed to update award section");
     }
   };
@@ -220,7 +217,6 @@ function StartupProfile() {
       }));
       toast.success("Team members updated successfully");
     } catch (error) {
-      console.error("Error updating team members:", error);
       toast.error("Failed to update team members");
     }
   };
@@ -236,7 +232,6 @@ function StartupProfile() {
       }));
       toast.success("Funding information updated successfully");
     } catch (error) {
-      console.error("Error updating funding:", error);
       toast.error("Failed to update funding information");
     }
   };
@@ -248,7 +243,6 @@ function StartupProfile() {
         mentors: updatedData.mentors,
       }));
     } catch (error) {
-      console.error("Error updating mentors:", error);
       toast.error("Failed to update mentors");
     }
   };
@@ -259,21 +253,12 @@ function StartupProfile() {
       // ---Startup Detail Fetch ---
       const requestedStartupId =
         decoded.role === 5 ? decoded.startup_id : startup_id;
-      console.log("[StartupProfile] FetchData start", {
-        routeStartupId: startup_id,
-        requestedStartupId,
-        role: decoded?.role,
-        tokenStartupId: decoded?.startup_id,
-      });
+
       const startupResponse = await ApiFetchStartupById(requestedStartupId);
-      console.log("[StartupProfile] startupResponse", startupResponse);
       let selectedstartup = startupResponse?.generalData?.[0] || null;
 
       // Fallback: some records may not be returned by /startup/:id in current backend dataset
       if (!selectedstartup) {
-        console.warn(
-          "[StartupProfile] /startup/:id returned empty. Falling back to /fetch-startup."
-        );
         const allStartupResponse = await ApiFetchStartup();
         const allStartup = allStartupResponse?.rows || [];
         selectedstartup =
@@ -290,12 +275,11 @@ function StartupProfile() {
           replace: true,
         });
       }
-      // console.log(selectedstartup)
+
 
       // ---Award Details Fetch ---
       const APIAward = await ApiFetchAward();
      const award = APIAward?.rows || [];
-      console.log("[StartupProfile] awards count", award?.length || 0);
       const filteredAwards = award
         .filter((award) => String(award.startup_id) === String(requestedStartupId))
         .sort((a, b) => a.id - b.id);
@@ -304,7 +288,6 @@ function StartupProfile() {
       // --- Funding Amount Details Fetch Fetch ---
       const ApiFundingAmount = await ApiFetchFundingAmount();
       const amount = ApiFundingAmount || {};
-      console.log("[StartupProfile] funding keys", Object.keys(amount || {}).length);
       const fundamount = selectedstartup?.startup_id
         ? amount[selectedstartup.startup_id] || null
         : null;
@@ -313,22 +296,12 @@ function StartupProfile() {
 
       const founderUserId = selectedstartup?.user_id || requestedStartupId;
       const data = await ApiFetchFounder(founderUserId);
-      console.log("[StartupProfile] founders response", data);
       setFounders(data);
-      // console.log("Selected startup:", selectedstartup);
-      // console.log("Awards data:", filteredAwards);
-      // console.log("Awards length:", filteredAwards?.length);
     } catch (err) {
-      console.error("[StartupProfile] FetchData error", {
-        message: err?.message,
-        status: err?.response?.status,
-        data: err?.response?.data,
-        url: err?.config?.url,
-      });
       if (err?.response?.status === 403) {
         toast.error("You are not allowed to view this startup profile");
       } else {
-        toast.error("Failed to load startup profile. Check console.");
+        toast.error("Failed to load startup profile.");
       }
       if (decoded.role === 5) {
         navigate(`/startups/startupprofile/${decoded.startup_id}`, {
@@ -474,7 +447,6 @@ function StartupProfile() {
     return parts.join("/") + "/" + encodedFileName;
   }
   const profileImage = encodeS3Url(startupData?.profile_image) || profileImg;
-  //console.log(profileImage);
   return (
     <div className="flex font-[\'DM Sans\',sans-serif]">
       <SideBar />
