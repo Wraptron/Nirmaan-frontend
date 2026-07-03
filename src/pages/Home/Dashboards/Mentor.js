@@ -300,6 +300,12 @@ function Mentor() {
   useEffect(() => {
     const loadMentorDashboardData = async () => {
       try {
+        /*
+         * PERF: Four parallel API calls on tab load. A combined
+         * /api/v1/dashboard/mentor-summary endpoint could return mentor count,
+         * mentor list metadata, startup count, and meeting aggregates in one
+         * request — review before implementing (see backend README).
+         */
         const [meetingsPayload, mentorCountPayload, startupsPayload, mentorsListPayload] = await Promise.all([
           ApiFetchScheduleMeetingsDetailsWithMentor(),
           ApiFetchMentorCount(),

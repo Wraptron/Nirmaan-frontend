@@ -564,9 +564,40 @@ async function ApiAddStartup(formdata) {
     throw err;
   }
 }
-async function ApiFetchStartup() {
+async function ApiFetchStartup({ page, limit, fetchAll = false } = {}) {
   try {
-    const result = await axios.get(`${API_BASE_URL}/api/v1/fetch-startup`);
+    if (fetchAll) {
+      const pageSize = Math.min(Math.max(limit || 100, 1), 100);
+      let allRows = [];
+      let currentPage = 1;
+      let total = Infinity;
+
+      while (allRows.length < total) {
+        const result = await axios.get(`${API_BASE_URL}/api/v1/fetch-startup`, {
+          params: { page: currentPage, limit: pageSize },
+        });
+        const data = result.data || {};
+        const rows = Array.isArray(data.rows) ? data.rows : [];
+        total = typeof data.total === "number" ? data.total : rows.length;
+        allRows = allRows.concat(rows);
+        if (rows.length === 0 || allRows.length >= total) break;
+        currentPage += 1;
+      }
+
+      return {
+        rows: allRows,
+        rowCount: allRows.length,
+        total: allRows.length,
+      };
+    }
+
+    const params = {};
+    if (page != null) params.page = page;
+    if (limit != null) params.limit = limit;
+
+    const result = await axios.get(`${API_BASE_URL}/api/v1/fetch-startup`, {
+      params,
+    });
     return result.data;
   } catch (error) {
     console.error("Error in API", error);
@@ -604,6 +635,28 @@ async function ApiFetchStartupCount() {
     return result.data;
   } catch (error) {
     console.error("Error in API", error);
+    throw error;
+  }
+}
+
+async function ApiFetchDashboardOverviewSummary() {
+  try {
+    const result = await axios.get(
+      `${API_BASE_URL}/api/v1/dashboard/overview-summary`
+    );
+    return result.data;
+  } catch (error) {
+    console.error("Error in ApiFetchDashboardOverviewSummary", error);
+    throw error;
+  }
+}
+
+async function ApiFetchDashboardSummary() {
+  try {
+    const result = await axios.get(`${API_BASE_URL}/api/v1/dashboard/summary`);
+    return result.data;
+  } catch (error) {
+    console.error("Error in ApiFetchDashboardSummary", error);
     throw error;
   }
 }
@@ -1036,6 +1089,8 @@ export {
   ApiFetchStartup,
   ApiFetchStartupById,
   ApiFetchStartupCount,
+  ApiFetchDashboardOverviewSummary,
+  ApiFetchDashboardSummary,
   ApiDeletStartupData,
   ApiUpdateStartupFounder,
   ApiDeleteFounder,

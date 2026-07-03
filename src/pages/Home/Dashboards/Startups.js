@@ -11,7 +11,7 @@ import {
   AreaChart,
   Tooltip,
 } from "recharts";
-import { ApiFetchStartup, ApiFetchStartupCount } from "../../../API/API";
+import { ApiFetchDashboardOverviewSummary } from "../../../API/API";
 import { Navigate, useNavigate } from "react-router-dom";
 import { clearAuthSession, getSessionUser, isAuthenticated } from "../../../utils/authSession";
 
@@ -38,12 +38,9 @@ function Startups() {
   }, []);
   const FetchData = async () => {
     try {
-      //Dashboard Data
-      const result = await ApiFetchStartupCount();
-      const startupcount = result || {};
-      // FlowChart
-      const result2 = await ApiFetchStartup();
-      const startupdata = result2 || {};
+      const summary = await ApiFetchDashboardOverviewSummary();
+      const startupcount = summary.startupCounts || {};
+      const startupdata = summary.startups || {};
 
       const FullData = startupdata.rows || [];
       const monthMap = {};

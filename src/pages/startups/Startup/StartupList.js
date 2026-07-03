@@ -19,7 +19,7 @@ const StartupList = () => {
 
   const fetchData = async () => {
     try {
-      const API = await ApiFetchStartup();
+      const API = await ApiFetchStartup({ fetchAll: true });
       // sort by mentor_id or any unique field
       const sortedData = API.rows
         .filter((startup) => startup.startup_id !== loggedInStartupId)

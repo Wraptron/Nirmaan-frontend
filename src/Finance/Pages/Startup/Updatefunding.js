@@ -50,9 +50,20 @@ const Updatefunding = () => {
   const APIData = async() => {
     try
     {
-        const result = await axios.get('http://localhost:3003/api/v1/fetch-startup'); 
-        setApiData(result.data.rows);
-        console.log(result)
+        let page = 1;
+        let rows = [];
+        let total = Infinity;
+        while (rows.length < total) {
+          const result = await axios.get('http://localhost:3003/api/v1/fetch-startup', {
+            params: { page, limit: 100 },
+          });
+          const batch = Array.isArray(result.data?.rows) ? result.data.rows : [];
+          total = typeof result.data?.total === 'number' ? result.data.total : batch.length;
+          rows = rows.concat(batch);
+          if (batch.length === 0 || rows.length >= total) break;
+          page += 1;
+        }
+        setApiData(rows);
     }
     catch(err)
     {

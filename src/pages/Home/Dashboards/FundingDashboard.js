@@ -124,7 +124,7 @@ function FundingDashboard() {
         const [detail, fundingRes, startupsRes, countRes] = await Promise.all([
           ApiFetchFundingDetain(),
           ApiFetchFunding(),
-          ApiFetchStartup(),
+          ApiFetchStartup({ fetchAll: true }),
           ApiFetchStartupCount(),
         ]);
 

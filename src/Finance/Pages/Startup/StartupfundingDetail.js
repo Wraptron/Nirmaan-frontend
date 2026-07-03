@@ -73,7 +73,7 @@ function StartupFundingDetail() {
   const FetchData = async (userId) => {
     try {
       // ---Startup Detail Fetch ---
-      const API = await ApiFetchStartup();
+      const API = await ApiFetchStartup({ fetchAll: true });
       const allStartup = API?.rows || [];
       const selectedstartup = allStartup.find(
         (startup) => String(startup.startup_id) === String(startup_id)

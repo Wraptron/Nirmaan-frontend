@@ -259,7 +259,7 @@ function StartupProfile() {
 
       // Fallback: some records may not be returned by /startup/:id in current backend dataset
       if (!selectedstartup) {
-        const allStartupResponse = await ApiFetchStartup();
+        const allStartupResponse = await ApiFetchStartup({ fetchAll: true });
         const allStartup = allStartupResponse?.rows || [];
         selectedstartup =
           allStartup.find(

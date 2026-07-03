@@ -15,9 +15,7 @@ import {
   AreaChart,
 } from "recharts";
 import {
-  ApiFetchFundingDetain,
-  ApiFetchStartup,
-  ApiFetchStartupCount,
+  ApiFetchDashboardOverviewSummary,
 } from "../../../API/API";
 import { Navigate, useNavigate } from "react-router-dom";
 import { clearAuthSession, getSessionUser, isAuthenticated } from "../../../utils/authSession";
@@ -49,15 +47,12 @@ function Overview() {
   }, []);
   const FetchData = async () => {
     try {
-      //Dashboard Data
-      const result = await ApiFetchStartupCount();
-      const startupcount = result || {};
+      const summary = await ApiFetchDashboardOverviewSummary();
+      const startupcount = summary.startupCounts || {};
+      const totalfunding = summary.fundingTotals || {};
 
-      const fundingcount = await ApiFetchFundingDetain();
-      const totalfunding = fundingcount || {};
       const fundingWithChartData = {};
       Object.entries(totalfunding).forEach(([key, value]) => {
-        // simple 5-point rising array
         const points = [
           { value: 0 },
           { value: value * 0.25 },
@@ -68,10 +63,8 @@ function Overview() {
         fundingWithChartData[key] = points;
       });
       setFunding(fundingWithChartData);
-      // FlowChart
-      const result2 = await ApiFetchStartup();
-      const startupdata = result2 || {};
 
+      const startupdata = summary.startups || {};
       const FullData = startupdata.rows || [];
       const monthMap = {};
 
@@ -105,6 +98,11 @@ function Overview() {
       FetchData();
     }, 2000);
   }, []);
+
+  /*
+   * PERF: Uses GET /api/v1/dashboard/overview-summary (one request) instead of
+   * count-startupdata + /funding + fetch-startup.
+   */
 
   const fundingConfig = {
     funding_disbursed: {

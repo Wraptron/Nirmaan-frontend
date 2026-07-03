@@ -42,7 +42,7 @@ function Startups() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const ApiStartup = await ApiFetchStartup();
+      const ApiStartup = await ApiFetchStartup({ fetchAll: true });
       const startupdata = Array.isArray(ApiStartup?.rows)
         ? ApiStartup.rows
         : [];
