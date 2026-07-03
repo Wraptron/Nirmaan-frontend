@@ -977,11 +977,7 @@ function StartupProfile() {
                 {Array.isArray(founders) &&
                   founders.map((f, index) => (
                     <div key={index} className="flex items-center gap-4">
-                      <img
-                        src="https://randomuser.me/api/portraits/men/32.jpg"
-                        alt="Founder"
-                        className="w-14 h-14 rounded-lg object-cover"
-                      />
+                  
                       <div className="flex-1">
                         <div className="flex items-center  ">
                           <div className="font-semibold text-base">
