@@ -126,8 +126,8 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
       });
       toast.success(
         mentorName
-          ? `Request sent for ${mentorName}.`
-          : "Mentor request submitted."
+          ? `Meeting scheduled with ${mentorName}.`
+          : "Meeting scheduled successfully."
       );
       onClose();
     } catch (err) {
@@ -308,7 +308,7 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
                     Submitting...
                   </>
                 ) : (
-                  "Submit request"
+                  "Schedule meeting"
                 )}
               </button>
             </div>

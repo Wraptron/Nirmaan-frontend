@@ -8,9 +8,7 @@ import Notification, {
   consolidateMentorshipNotifications,
   mapNotificationToDisplayItem,
 } from "./Notification";
-import { ScheduleMeetingPopup } from "../pages/Mentorship/ScheduleMeetingForm";
 import {
-  ApiUpdateMentorSessionRequest,
   ApiFetchNotifications,
   ApiMarkNotificationsRead,
 } from "../API/API";
@@ -44,8 +42,6 @@ function NavBar({ onSelectionChange, selectedIndex }) {
   const [retentionDays, setRetentionDays] = useState(NOTIFICATION_RETENTION_DAYS);
   const [loadingMoreNotifications, setLoadingMoreNotifications] = useState(false);
   const [markingAllRead, setMarkingAllRead] = useState(false);
-  const [schedulingRequest, setSchedulingRequest] = useState(null);
-  const [processingRequestId, setProcessingRequestId] = useState(null);
 
   const [showModal, setShowModal] = useState(false);
 
@@ -248,58 +244,6 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     }
   };
 
-  const refreshNotifications = useCallback(async () => {
-    await fetchUnreadCount();
-    await fetchNotificationHistory();
-  }, [fetchUnreadCount, fetchNotificationHistory]);
-
-  const handleAcceptMentorRequest = (req) => {
-    if (!req?.mentor_id) {
-      toast.error("This request has no mentor linked.");
-      return;
-    }
-    setNotificationsOpen(false);
-    setSchedulingRequest(req);
-  };
-
-  const handleRejectMentorRequest = async (req) => {
-    setProcessingRequestId(req.id);
-    try {
-      await ApiUpdateMentorSessionRequest(req.id, "rejected");
-      toast.success("Request rejected.");
-      setNotificationItems((items) =>
-        consolidateMentorshipNotifications(
-          items.map((item) =>
-            String(item.id) === String(req.id)
-              ? { ...item, status: "rejected", isUnread: false }
-              : item
-          )
-        )
-      );
-      await refreshNotifications();
-    } catch (err) {
-      toast.error(err?.message || "Failed to reject request.");
-    } finally {
-      setProcessingRequestId(null);
-    }
-  };
-
-  const handleScheduleMeetingSuccess = async () => {
-    const processedId = schedulingRequest?.id;
-    if (processedId != null) {
-      setNotificationItems((items) =>
-        consolidateMentorshipNotifications(
-          items.map((item) =>
-            String(item.id) === String(processedId)
-              ? { ...item, status: "accepted", isUnread: false }
-              : item
-          )
-        )
-      );
-    }
-    await refreshNotifications();
-  };
-
   const userRole = sessionStorage.getItem("role");
   const isAdmin = userRole === "2";
   const isStartup = userRole === "5";
@@ -479,9 +423,6 @@ function NavBar({ onSelectionChange, selectedIndex }) {
                   items={notificationItems}
                   unreadCount={unreadCount}
                   formatRequestDate={formatRequestDate}
-                  onAccept={isAdmin ? handleAcceptMentorRequest : undefined}
-                  onReject={isAdmin ? handleRejectMentorRequest : undefined}
-                  processingId={processingRequestId}
                   viewerRole={
                     isMentor ? "mentor" : isStartup ? "startup" : "admin"
                   }
@@ -872,13 +813,6 @@ function NavBar({ onSelectionChange, selectedIndex }) {
           </div>
         </div>
       </More> */}
-      {schedulingRequest ? (
-        <ScheduleMeetingPopup
-          sessionRequest={schedulingRequest}
-          onClose={() => setSchedulingRequest(null)}
-          onSuccess={handleScheduleMeetingSuccess}
-        />
-      ) : null}
     </div>
   );
 }
