@@ -222,9 +222,9 @@ function Login() {
                     navigate('/');
                 }
             }
-            else if(response.data.result && response.data.result.status === 'User_not_found')
+            else if(response.data.result && response.data.result.status !== 'Login Authenticated')
             {
-                alertify.error('User not found');
+                alertify.error(response.data.result.status);
                 setLoading(false);
             }
             else
