@@ -15,9 +15,9 @@ const API_BASE_URL = isDevelopment ? API_URLS.DEVELOPMENT : API_URLS.PRODUCTION;
 // Alternative: You can also use environment variables
 // const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || (isDevelopment ? API_URLS.DEVELOPMENT : API_URLS.PRODUCTION);
 
-console.log(
-  `API Base URL: ${API_BASE_URL} (${isDevelopment ? "Development" : "Production"} mode)`
-);
+// console.log(
+//   `API Base URL: ${API_BASE_URL} (${isDevelopment ? "Development" : "Production"} mode)`
+// );
 
 // ==================== API HEADERS CONFIGURATION ====================
 export const API_HEADERS = {
@@ -138,110 +138,6 @@ async function ApiDeletMentorData(id) {
   }
 }
 
-// async function ApiUpdateMentor(mentorId, formData) {
-//   try {
-//     // Clean the form data - remove any undefined, null, or empty string values
-//     const cleanedData = Object.fromEntries(
-//       Object.entries(formData).filter(([_, value]) => {
-//         // Keep only non-empty strings and other non-empty values
-//         if (typeof value === "string") {
-//           return value.trim() !== "";
-//         }
-//         return value !== undefined && value !== null;
-//       })
-//     );
-
-//     // Convert year_of_passing_out to number if it exists
-//     if (cleanedData.year_of_passing_out) {
-//       cleanedData.year_of_passing_out = parseInt(
-//         cleanedData.year_of_passing_out,
-//         10
-//       );
-//     }
-
-//     // Log the exact request payload
-//     const requestPayload = {
-//       mentorId,
-//       data: cleanedData,
-//     };
-//     console.log(
-//       "API Update Mentor - Exact Request Payload:",
-//       JSON.stringify(requestPayload, null, 2)
-//     );
-
-//     // First try a GET request to verify the mentor exists
-//     try {
-//       const verifyResponse = await axios.get(
-//         `${API_BASE_URL}/api/v1/get-mentor-details`
-//       );
-//       const mentorExists = verifyResponse.data?.STATUS?.rows?.some(
-//         (m) => String(m.mentor_id) === String(mentorId)
-//       );
-
-//       if (!mentorExists) {
-//         throw new Error("Mentor not found");
-//       }
-//     } catch (verifyError) {
-//       console.error("Error verifying mentor:", verifyError);
-//       throw new Error("Failed to verify mentor exists");
-//     }
-
-//     // Make the update request
-//     const result = await axios.put(
-//       `${API_BASE_URL}/api/v1/mentor/update/${mentorId}`,
-//       cleanedData,
-//       {
-//         headers: {
-//           "Content-Type": "application/json",
-//           Accept: "application/json",
-//         },
-//         validateStatus: function (status) {
-//           return status < 500; // Resolve only if the status code is less than 500
-//         },
-//       }
-//     );
-
-//     console.log("API Update Mentor - Full Response:", {
-//       status: result.status,
-//       statusText: result.statusText,
-//       data: result.data,
-//       headers: result.headers,
-//     });
-
-//     if (result.status !== 200) {
-//       const errorMessage =
-//         result.data?.error || result.data?.message || "Failed to update mentor";
-//       throw new Error(errorMessage);
-//     }
-
-//     return result.data;
-//   } catch (err) {
-//     // Enhanced error logging
-//     const errorDetails = {
-//       message: err.message,
-//       response: err.response?.data,
-//       status: err.response?.status,
-//       headers: err.response?.headers,
-//       config: {
-//         url: err.config?.url,
-//         method: err.config?.method,
-//         data: err.config?.data ? JSON.parse(err.config.data) : null,
-//       },
-//     };
-//     console.error("API Update Mentor - Detailed Error:", errorDetails);
-
-//     // Throw a more descriptive error
-//     if (err.response?.status === 500) {
-//       throw new Error(
-//         `Server error: ${err.response.data?.error || "Unknown server error"}`
-//       );
-//     } else if (err.message === "Mentor not found") {
-//       throw new Error("Mentor not found in the system");
-//     } else {
-//       throw err;
-//     }
-//   }
-// }
 
 async function ApiUpdateMentor(payload) {
   try {
@@ -475,14 +371,18 @@ async function ApiCancelMeeting(id, reason) {
     const result = await axios.patch(
       `${API_BASE_URL}/api/v1/mentor/cancel-meeting/${id}`,
       { reason },
-      { withCredentials: true }
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
     );
     return result.data;
   } catch (err) {
-    const data = err?.response?.data;
-    if (data?.message) {
-      throw new Error(data.message);
-    }
+    const data = err.response?.data;
+    if (typeof data === "string") throw new Error(data);
+    if (data?.message) throw new Error(data.message);
     throw err;
   }
 }
@@ -560,9 +460,40 @@ async function ApiAddStartup(formdata) {
     throw err;
   }
 }
-async function ApiFetchStartup() {
+async function ApiFetchStartup({ page, limit, fetchAll = false } = {}) {
   try {
-    const result = await axios.get(`${API_BASE_URL}/api/v1/fetch-startup`);
+    if (fetchAll) {
+      const pageSize = Math.min(Math.max(limit || 100, 1), 100);
+      let allRows = [];
+      let currentPage = 1;
+      let total = Infinity;
+
+      while (allRows.length < total) {
+        const result = await axios.get(`${API_BASE_URL}/api/v1/fetch-startup`, {
+          params: { page: currentPage, limit: pageSize },
+        });
+        const data = result.data || {};
+        const rows = Array.isArray(data.rows) ? data.rows : [];
+        total = typeof data.total === "number" ? data.total : rows.length;
+        allRows = allRows.concat(rows);
+        if (rows.length === 0 || allRows.length >= total) break;
+        currentPage += 1;
+      }
+
+      return {
+        rows: allRows,
+        rowCount: allRows.length,
+        total: allRows.length,
+      };
+    }
+
+    const params = {};
+    if (page != null) params.page = page;
+    if (limit != null) params.limit = limit;
+
+    const result = await axios.get(`${API_BASE_URL}/api/v1/fetch-startup`, {
+      params,
+    });
     return result.data;
   } catch (error) {
     console.error("Error in API", error);
@@ -572,25 +503,13 @@ async function ApiFetchStartup() {
 
 async function ApiFetchStartupById(id) {
   try {
-    console.log("[API] ApiFetchStartupById request", {
-      id,
-      url: `${API_BASE_URL}/api/v1/startup/${id}`,
-    });
+   
     const result = await axios.get(`${API_BASE_URL}/api/v1/startup/${id}`, {
       withCredentials: true,
     });
-    console.log("[API] ApiFetchStartupById success", {
-      status: result?.status,
-      dataKeys: Object.keys(result?.data || {}),
-    });
+   
     return result.data;
   } catch (error) {
-    console.error("[API] ApiFetchStartupById error", {
-      message: error?.message,
-      status: error?.response?.status,
-      data: error?.response?.data,
-      url: error?.config?.url,
-    });
     throw error;
   }
 }
@@ -600,6 +519,28 @@ async function ApiFetchStartupCount() {
     return result.data;
   } catch (error) {
     console.error("Error in API", error);
+    throw error;
+  }
+}
+
+async function ApiFetchDashboardOverviewSummary() {
+  try {
+    const result = await axios.get(
+      `${API_BASE_URL}/api/v1/dashboard/overview-summary`
+    );
+    return result.data;
+  } catch (error) {
+    console.error("Error in ApiFetchDashboardOverviewSummary", error);
+    throw error;
+  }
+}
+
+async function ApiFetchDashboardSummary() {
+  try {
+    const result = await axios.get(`${API_BASE_URL}/api/v1/dashboard/summary`);
+    return result.data;
+  } catch (error) {
+    console.error("Error in ApiFetchDashboardSummary", error);
     throw error;
   }
 }
@@ -619,32 +560,20 @@ async function ApiDeletStartupData(id) {
 async function ApiUpdateStartupPersonalInfo(payload) {
   try {
     let dataToSend = payload;
-    let headers = {};
 
-    // If payload is not FormData, convert it
     if (!(payload instanceof FormData)) {
       dataToSend = new FormData();
       Object.entries(payload).forEach(([key, value]) => {
-        if (key === "profile_image" && value) {
-          dataToSend.append("logo_image", value); // Use 'logo_image' for backend
-        } else if (value !== undefined && value !== null) {
+        if (value !== undefined && value !== null) {
           dataToSend.append(key, value);
         }
       });
-    } else {
-      // If already FormData, rename 'profile_image' to 'logo_image' if present
-      if (payload.has("profile_image")) {
-        const file = payload.get("profile_image");
-        payload.delete("profile_image");
-        payload.append("logo_image", file);
-      }
     }
 
-    headers["Content-Type"] = "multipart/form-data";
     const response = await axios.put(
       `${API_BASE_URL}/api/v1/edit-startupdata/personal-info`,
       dataToSend,
-      { headers }
+      { headers: { "Content-Type": "multipart/form-data" } }
     );
     return response.data;
   } catch (error) {
@@ -801,11 +730,16 @@ async function ApiFetchAward() {
   }
 }
 
-async function ApiUpdateAward(payload) {
+async function ApiUpdateAward(formdata) {
   try {
     const response = await axios.put(
       `${API_BASE_URL}/api/v1/updateaward`,
-      payload
+      formdata,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
     return response.data;
   } catch (error) {
@@ -1039,6 +973,8 @@ export {
   ApiFetchStartup,
   ApiFetchStartupById,
   ApiFetchStartupCount,
+  ApiFetchDashboardOverviewSummary,
+  ApiFetchDashboardSummary,
   ApiDeletStartupData,
   ApiUpdateStartupFounder,
   ApiDeleteFounder,

@@ -54,7 +54,7 @@ function ScheduleMeetingForm({
 
   const fetchData = async () => {
     try {
-      const response = await ApiFetchStartup();
+      const response = await ApiFetchStartup({ fetchAll: true });
       setStartupName(
         response.rows.map((item) => ({
           id: item.startup_id,

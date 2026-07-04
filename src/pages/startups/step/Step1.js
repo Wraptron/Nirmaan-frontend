@@ -1048,7 +1048,6 @@ const Step1 = forwardRef(
     ];
 
     useEffect(() => {
-      console.log("Step1 selectedProgram:", selectedProgram); // Debugging
     }, [selectedProgram]);
 
     const isDroppedOut = selectedProgram === "Dropped out";

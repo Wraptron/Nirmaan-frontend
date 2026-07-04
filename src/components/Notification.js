@@ -178,14 +178,15 @@ function SessionStatusNotificationItem({ req, formatRequestDate, viewerRole }) {
   const isAccepted = req.status === "accepted";
   const isCancelled = req.status === "cancelled";
   const isMentor = viewerRole === "mentor";
+  const isStartup = viewerRole === "startup";
   const title = isCancelled
     ? isMentor
       ? "Session cancelled"
       : "Session cancelled by mentor"
     : isAccepted
-      ? isMentor
-        ? "Meeting scheduled"
-        : "Session confirmed"
+      ? isStartup
+        ? "Session confirmed"
+        : "Meeting scheduled"
       : "Session declined";
   const party = isMentor
     ? req.startup_name || "startup"
@@ -311,24 +312,40 @@ function NotificationItem({
               {req.agenda}
             </p>
           ) : null}
-          <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-            <button
-              type="button"
-              disabled={processingId === req.id}
-              onClick={() => onAccept?.(req)}
-              className="px-2.5 py-1 text-[11px] font-semibold text-white bg-[#45C74D] rounded-md hover:bg-[#3bae42] disabled:opacity-60"
-            >
-              Accept
-            </button>
-            <button
-              type="button"
-              disabled={processingId === req.id}
-              onClick={() => onReject?.(req)}
-              className="px-2.5 py-1 text-[11px] font-semibold text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 disabled:opacity-60"
-            >
-              {processingId === req.id ? "…" : "Reject"}
-            </button>
-            {hasDetails ? (
+          {onAccept || onReject ? (
+            <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+              {onAccept ? (
+                <button
+                  type="button"
+                  disabled={processingId === req.id}
+                  onClick={() => onAccept(req)}
+                  className="px-2.5 py-1 text-[11px] font-semibold text-white bg-[#45C74D] rounded-md hover:bg-[#3bae42] disabled:opacity-60"
+                >
+                  Accept
+                </button>
+              ) : null}
+              {onReject ? (
+                <button
+                  type="button"
+                  disabled={processingId === req.id}
+                  onClick={() => onReject(req)}
+                  className="px-2.5 py-1 text-[11px] font-semibold text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 disabled:opacity-60"
+                >
+                  {processingId === req.id ? "…" : "Reject"}
+                </button>
+              ) : null}
+              {hasDetails ? (
+                <button
+                  type="button"
+                  onClick={onToggleExpand}
+                  className="px-1.5 py-1 text-[11px] font-medium text-gray-500 hover:text-gray-700"
+                >
+                  {expanded ? "Hide" : "Details"}
+                </button>
+              ) : null}
+            </div>
+          ) : hasDetails ? (
+            <div className="mt-2">
               <button
                 type="button"
                 onClick={onToggleExpand}
@@ -336,8 +353,8 @@ function NotificationItem({
               >
                 {expanded ? "Hide" : "Details"}
               </button>
-            ) : null}
-          </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </article>

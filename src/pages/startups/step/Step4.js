@@ -198,13 +198,6 @@ const Step4 = ({formData, handleChange}) => {
       {/* Form Status and Submit Button */}
       <div className="mt-6">
         <div className="flex items-center justify-between">
-          <div className="text-sm">
-            {isFormValid() ? (
-              <span className="text-green-600 font-medium">✓ All fields completed successfully</span>
-            ) : (
-              <span className="text-orange-600 font-medium">⚠ Please complete all required fields</span>
-            )}
-          </div>
           {/* <button
             type="button"
             onClick={handleNextStep}

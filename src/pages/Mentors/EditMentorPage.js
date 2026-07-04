@@ -60,18 +60,11 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
       // console.log("Mentor ID:", initialData.mentor_id);
 
       // Validate required fields
-      const requiredFields = ["mentor_name", "email_address"];
+      const requiredFields = ["mentor_name"];
       const missingFields = requiredFields.filter((field) => !formData[field]);
 
       if (missingFields.length > 0) {
         toast.error(`Missing required fields: ${missingFields.join(", ")}`);
-        return;
-      }
-
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email_address)) {
-        toast.error("Please enter a valid email address");
         return;
       }
 
@@ -178,10 +171,8 @@ const EditMentorForm = ({ initialData, onClose, onSubmit }) => {
                 type="email"
                 name="email_address"
                 value={formData.email_address}
-                onChange={handleChange}
-                placeholder="Email Address"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#45C74D] focus:border-[#45C74D]"
-                required
+                disabled
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 bg-gray-100 text-gray-500 cursor-not-allowed"
               />
             </div>
             <div>

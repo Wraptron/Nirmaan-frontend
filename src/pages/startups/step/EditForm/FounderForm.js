@@ -20,7 +20,6 @@ const FounderForm = ({ startup_id, onClose, onSubmit }) => {
     }));
   }
 }, [startup_id]);
-console.log(formData)
 
 
 
@@ -100,7 +99,7 @@ const validationErrors = validateForm();
       toast.success("Founder saved successfully");
       onClose();
     } catch (error) {
-      console.error("Error saving founder:", error);
+      // console.error("Error saving founder:", error);
       toast.error("Failed to save founder");
     }
   };

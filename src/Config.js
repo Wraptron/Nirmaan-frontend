@@ -8,6 +8,6 @@ const API_URLS = {
 
 const APP_URL = isDevelopment ? API_URLS.DEVELOPMENT : API_URLS.PRODUCTION;
 
-console.log(`Using API URL: ${APP_URL} (${isDevelopment ? "Development" : "Production"} mode)`);
+// console.log(`Using API URL: ${APP_URL} (${isDevelopment ? "Development" : "Production"} mode)`);
 
 export default APP_URL;  

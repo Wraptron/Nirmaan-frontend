@@ -300,6 +300,12 @@ function Mentor() {
   useEffect(() => {
     const loadMentorDashboardData = async () => {
       try {
+        /*
+         * PERF: Four parallel API calls on tab load. A combined
+         * /api/v1/dashboard/mentor-summary endpoint could return mentor count,
+         * mentor list metadata, startup count, and meeting aggregates in one
+         * request — review before implementing (see backend README).
+         */
         const [meetingsPayload, mentorCountPayload, startupsPayload, mentorsListPayload] = await Promise.all([
           ApiFetchScheduleMeetingsDetailsWithMentor(),
           ApiFetchMentorCount(),
@@ -426,7 +432,7 @@ function Mentor() {
           </div>
         </div>
 
-        {/* Specializations from live mentor records (area_of_expertise) */}
+        {/* Specializations from live mentor records (area_of_expertise) - commented out
         <div className="border rounded-xl p-4 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="text-base font-medium text-gray-800">Most Represented Specializations</div>
@@ -455,6 +461,7 @@ function Mentor() {
             </div>
           )}
         </div>
+        */}
 
         {/* Averages: startups per mentor, sessions per mentor, session length */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

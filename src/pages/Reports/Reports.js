@@ -74,7 +74,7 @@ function Reports() {
     const fetchStartups = async () => {
       try {
         setLoading(true);
-        const res = await ApiFetchStartup();
+        const res = await ApiFetchStartup({ fetchAll: true });
         const rows = Array.isArray(res?.rows) ? res.rows : [];
         rows.sort((a, b) => (a.startup_id ?? 0) - (b.startup_id ?? 0));
         setStartups(rows);

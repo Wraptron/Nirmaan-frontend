@@ -55,7 +55,7 @@ const Mentor = () => {
     }
 
     try {
-      const allStartups = await ApiFetchStartup();
+      const allStartups = await ApiFetchStartup({ fetchAll: true });
       return (
         (allStartups?.rows || []).find(
           (startup) => String(startup.startup_id) === String(startupId)

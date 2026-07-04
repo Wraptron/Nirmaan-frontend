@@ -308,6 +308,7 @@ function AddStartup() {
       graduated_to: "",
       program: "",
       startup_Community: "",
+      startup_status: "",
     },
     official: {
       official_contact_number: "",
@@ -350,9 +351,18 @@ function AddStartup() {
         },
       };
 
-      // Sync program selection with scheme field
+      // Sync program selection with scheme field and startup status
       if (section === "basic" && name === "program") {
         newData.official.scheme = value;
+        if (value === "Pratham" || value === "Akshar") {
+          newData.basic.startup_status = "Active";
+        } else if (value === "Graduated") {
+          newData.basic.startup_status = "Graduated";
+        } else if (value === "Dropped out") {
+          newData.basic.startup_status = "Dropped out";
+        } else {
+          newData.basic.startup_status = "";
+        }
       }
 
       return newData;

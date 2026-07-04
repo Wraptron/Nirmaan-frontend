@@ -18,7 +18,6 @@ const EditFundingForm = ({ initialData, onClose, onSubmit }) => {
   const fileInputRef = useRef();
 
   useEffect(() => {
-    console.log("initial", initialData);
     if (initialData) {
       setFormData({
         startup_name: initialData.startup_name || "",
@@ -33,7 +32,6 @@ const EditFundingForm = ({ initialData, onClose, onSubmit }) => {
     }
   }, [initialData]);
 
-  console.log(formData);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -65,12 +63,6 @@ const EditFundingForm = ({ initialData, onClose, onSubmit }) => {
         id: initialData.id,
         startup_id: initialData.startup_id,
       });
-      console.log("sumitted data:", {
-        ...formData,
-        id: initialData.id,
-        startup_id: initialData.startup_id,
-      });
-
       toast.success("Funding updated successfully");
       onClose();
     } catch (error) {

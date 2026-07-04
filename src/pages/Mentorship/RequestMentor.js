@@ -23,6 +23,7 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
     time: "",
     duration: String(SLOT_DURATION_MINUTES),
     mode: "",
+    meeting_link: "",
     agenda: "",
   });
   const [selectedSlotKey, setSelectedSlotKey] = useState("");
@@ -32,6 +33,7 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
     time: "",
     duration: "",
     mode: "",
+    meeting_link: "",
   });
 
   const savedSlotsForDate = formData.date
@@ -54,12 +56,14 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
     clearFieldError("date");
     clearFieldError("time");
     clearFieldError("mode");
+    clearFieldError("meeting_link");
     setSelectedSlotKey("");
     setFormData((prev) => ({
       ...prev,
       date: value,
       time: "",
       mode: "",
+      meeting_link: "",
     }));
   };
 
@@ -67,12 +71,14 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
     const normalized = normalizeSlotEntry(entry);
     clearFieldError("time");
     clearFieldError("mode");
+    clearFieldError("meeting_link");
     const key = slotEntryKey(normalized);
     setSelectedSlotKey(key);
     setFormData((prev) => ({
       ...prev,
       time: normalized.time_slot,
       mode: normalized.mode,
+      meeting_link: "",
     }));
   };
 
@@ -89,6 +95,7 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
       time: "",
       duration: "",
       mode: "",
+      meeting_link: "",
     };
 
     if (!mentorId) {
@@ -103,11 +110,19 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
     }
     if (!formData.duration) nextErrors.duration = "Please select a duration";
 
+    const isOnline =
+      formData.mode &&
+      formData.mode.toLowerCase() === "online";
+    if (isOnline && !formData.meeting_link?.trim()) {
+      nextErrors.meeting_link = "Meeting link is required for online sessions";
+    }
+
     if (
       nextErrors.date ||
       nextErrors.time ||
       nextErrors.duration ||
-      nextErrors.mode
+      nextErrors.mode ||
+      nextErrors.meeting_link
     ) {
       setErrors(nextErrors);
       return;
@@ -122,12 +137,13 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
         time: formData.time,
         duration: formData.duration,
         mode: formData.mode,
+        meeting_link: formData.meeting_link?.trim() || "",
         agenda: formData.agenda,
       });
       toast.success(
         mentorName
-          ? `Request sent for ${mentorName}.`
-          : "Mentor request submitted."
+          ? `Meeting scheduled with ${mentorName}.`
+          : "Meeting scheduled successfully."
       );
       onClose();
     } catch (err) {
@@ -249,6 +265,37 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
               ) : null}
             </div>
 
+            {formData.mode && formData.mode.toLowerCase() === "online" ? (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Meeting Link <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="url"
+                  name="meeting_link"
+                  value={formData.meeting_link}
+                  onChange={(e) => {
+                    clearFieldError("meeting_link");
+                    setFormData((prev) => ({
+                      ...prev,
+                      meeting_link: e.target.value,
+                    }));
+                  }}
+                  disabled={formDisabled}
+                  placeholder="https://meet.google.com/... or Zoom/Teams link"
+                  className="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#45C74D] focus:border-[#45C74D] disabled:opacity-60"
+                />
+                {errors.meeting_link ? (
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.meeting_link}
+                  </p>
+                ) : null}
+                <p className="text-xs text-gray-400 mt-1">
+                  Paste the Google Meet, Zoom, or Teams link for this session.
+                </p>
+              </div>
+            ) : null}
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Duration <span className="text-red-500">*</span>
@@ -308,7 +355,7 @@ const RequestMentor = ({ onClose, mentorId, mentorName }) => {
                     Submitting...
                   </>
                 ) : (
-                  "Submit request"
+                  "Schedule meeting"
                 )}
               </button>
             </div>

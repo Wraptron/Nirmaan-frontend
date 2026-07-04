@@ -153,7 +153,7 @@ function StartupProfile() {
       // await ApiUpdateStartup(id, updatedData);
       setStartupData(updatedData);
     } catch (error) {
-      console.error("Error updating startup:", error);
+
       toast.error("Failed to update startup profile");
     }
   };
@@ -165,7 +165,6 @@ function StartupProfile() {
         about: updatedData.about,
       }));
     } catch (error) {
-      console.error("Error updating about section:", error);
       toast.error("Failed to update about section");
     }
   };
@@ -177,7 +176,6 @@ function StartupProfile() {
         awards: [...prev.awards, newAward],
       }));
     } catch (error) {
-      console.error("Error adding award:", error);
       toast.error("Failed to add award");
     }
   };
@@ -189,7 +187,6 @@ function StartupProfile() {
         awards: [updatedData.awards],
       }));
     } catch (error) {
-      console.error("Error updating award section:", error);
       toast.error("Failed to update award section");
     }
   };
@@ -220,7 +217,6 @@ function StartupProfile() {
       }));
       toast.success("Team members updated successfully");
     } catch (error) {
-      console.error("Error updating team members:", error);
       toast.error("Failed to update team members");
     }
   };
@@ -236,7 +232,6 @@ function StartupProfile() {
       }));
       toast.success("Funding information updated successfully");
     } catch (error) {
-      console.error("Error updating funding:", error);
       toast.error("Failed to update funding information");
     }
   };
@@ -248,7 +243,6 @@ function StartupProfile() {
         mentors: updatedData.mentors,
       }));
     } catch (error) {
-      console.error("Error updating mentors:", error);
       toast.error("Failed to update mentors");
     }
   };
@@ -257,24 +251,14 @@ function StartupProfile() {
     setIsLoading(true);
     try {
       // ---Startup Detail Fetch ---
-      const requestedStartupId =
-        decoded.role === 5 ? decoded.startup_id : startup_id;
-      console.log("[StartupProfile] FetchData start", {
-        routeStartupId: startup_id,
-        requestedStartupId,
-        role: decoded?.role,
-        tokenStartupId: decoded?.startup_id,
-      });
+      const requestedStartupId = startup_id;
+
       const startupResponse = await ApiFetchStartupById(requestedStartupId);
-      console.log("[StartupProfile] startupResponse", startupResponse);
       let selectedstartup = startupResponse?.generalData?.[0] || null;
 
       // Fallback: some records may not be returned by /startup/:id in current backend dataset
       if (!selectedstartup) {
-        console.warn(
-          "[StartupProfile] /startup/:id returned empty. Falling back to /fetch-startup."
-        );
-        const allStartupResponse = await ApiFetchStartup();
+        const allStartupResponse = await ApiFetchStartup({ fetchAll: true });
         const allStartup = allStartupResponse?.rows || [];
         selectedstartup =
           allStartup.find(
@@ -284,18 +268,10 @@ function StartupProfile() {
       }
       setStartupData(selectedstartup);
 
-      // If a startup user manually changes URL, force route back to their own id.
-      if (decoded.role === 5 && String(startup_id) !== String(decoded.startup_id)) {
-        navigate(`/startups/startupprofile/${decoded.startup_id}`, {
-          replace: true,
-        });
-      }
-      // console.log(selectedstartup)
 
       // ---Award Details Fetch ---
       const APIAward = await ApiFetchAward();
      const award = APIAward?.rows || [];
-      console.log("[StartupProfile] awards count", award?.length || 0);
       const filteredAwards = award
         .filter((award) => String(award.startup_id) === String(requestedStartupId))
         .sort((a, b) => a.id - b.id);
@@ -304,7 +280,6 @@ function StartupProfile() {
       // --- Funding Amount Details Fetch Fetch ---
       const ApiFundingAmount = await ApiFetchFundingAmount();
       const amount = ApiFundingAmount || {};
-      console.log("[StartupProfile] funding keys", Object.keys(amount || {}).length);
       const fundamount = selectedstartup?.startup_id
         ? amount[selectedstartup.startup_id] || null
         : null;
@@ -313,27 +288,12 @@ function StartupProfile() {
 
       const founderUserId = selectedstartup?.user_id || requestedStartupId;
       const data = await ApiFetchFounder(founderUserId);
-      console.log("[StartupProfile] founders response", data);
       setFounders(data);
-      // console.log("Selected startup:", selectedstartup);
-      // console.log("Awards data:", filteredAwards);
-      // console.log("Awards length:", filteredAwards?.length);
     } catch (err) {
-      console.error("[StartupProfile] FetchData error", {
-        message: err?.message,
-        status: err?.response?.status,
-        data: err?.response?.data,
-        url: err?.config?.url,
-      });
       if (err?.response?.status === 403) {
         toast.error("You are not allowed to view this startup profile");
       } else {
-        toast.error("Failed to load startup profile. Check console.");
-      }
-      if (decoded.role === 5) {
-        navigate(`/startups/startupprofile/${decoded.startup_id}`, {
-          replace: true,
-        });
+        toast.error("Failed to load startup profile.");
       }
     } finally {
       setIsLoading(false);
@@ -474,7 +434,6 @@ function StartupProfile() {
     return parts.join("/") + "/" + encodedFileName;
   }
   const profileImage = encodeS3Url(startupData?.profile_image) || profileImg;
-  //console.log(profileImage);
   return (
     <div className="flex font-[\'DM Sans\',sans-serif]">
       <SideBar />
@@ -528,12 +487,15 @@ function StartupProfile() {
                     alt="bg"
                     className="w-full h-full object-cover"
                   />
-                  {/* <button
-                    onClick={handleEditClick}
-                    className="absolute top-3 right-3 bg-white rounded-full p-2 shadow hover:bg-gray-100 transition"
-                  >
-                    <FiEdit2 size={18} className="text-[#232323]" />
-                  </button> */}
+                  {canEdit && (
+                    <button
+                      onClick={handleEditClick}
+                      className="absolute top-3 right-3 bg-white rounded-full p-2 shadow hover:bg-gray-100 transition"
+                      title="Edit Personal Info"
+                    >
+                      <FiEdit2 size={18} className="text-[#232323]" />
+                    </button>
+                  )}
                 </div>
                 {/* Profile image with green border */}
                 <div className="absolute left-1/2 top-[90px] -translate-x-1/2 z-10">
@@ -1002,11 +964,7 @@ function StartupProfile() {
                 {Array.isArray(founders) &&
                   founders.map((f, index) => (
                     <div key={index} className="flex items-center gap-4">
-                      <img
-                        src="https://randomuser.me/api/portraits/men/32.jpg"
-                        alt="Founder"
-                        className="w-14 h-14 rounded-lg object-cover"
-                      />
+                  
                       <div className="flex-1">
                         <div className="flex items-center  ">
                           <div className="font-semibold text-base">
@@ -1049,8 +1007,8 @@ function StartupProfile() {
                     </div>
                   ))}
 
-                {/* Funding Section */}
-                {startupData?.startup_id && (
+                {/* Funding Section - Commented Out */}
+                {/* {startupData?.startup_id && (
                   <div className=" mt-11 col-span-4">
                     <div className="flex items-center justify-between mb-4">
                       <span className="font-bold text-lg text-[#232323]">
@@ -1163,11 +1121,6 @@ function StartupProfile() {
                         <span className="font-bold text-2xl text-[#232323] mb-2">
                           Rs. {fundingAmount?.external_funding || 0}
                         </span>
-                        {/* <img
-                        src="/src/assets/images/Frame (9).svg"
-                        alt="icon"
-                        className="absolute top-4 right-4 w-6 h-6 opacity-30"
-                      /> */}
                         <svg
                           className="absolute bottom-2 left-2 w-20 h-8"
                           viewBox="0 0 80 32"
@@ -1182,7 +1135,7 @@ function StartupProfile() {
                       </div>
                     </div>
                   </div>
-                )}
+                )} */}
 
                 {/* Gallery & Documents Section */}
                 <div className="grid grid-cols-2 gap-6 mb-8">

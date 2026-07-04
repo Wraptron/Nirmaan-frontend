@@ -1075,7 +1075,6 @@ const Step2 = ({ formData, handleChange, selectedProgram }) => {
 
   useEffect(() => {
     FetchData();
-    console.log("Step2 selectedProgram:", selectedProgram); // Debugging
   }, [selectedProgram]);
 
   // Use selectedProgram from parent component instead of formData.stage
