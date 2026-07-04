@@ -929,23 +929,6 @@ const isFormValid = () => {
           {errors.academic_background && <div className="text-red-500 text-xs mt-1">{errors.academic_background}</div>}
         </div>
         
-        {/* Form Status and Next Button */}
-        <div className="col-span-2 mt-6">
-          <div className="flex items-center justify-between">
-            {isDropped ? "" :  <div className="text-sm">
-              {isFormValid() ? (
-                <span className="text-green-600 font-medium">✓ All fields completed successfully</span>
-              ) : (
-                <span className="text-orange-600 font-medium">⚠ Please complete all required fields</span>
-              )}   </div>}
-           
-          
-            
-          </div>
-          
-          {/* Progress indicator */}
-        
-        </div>
     </div>
   );
 };

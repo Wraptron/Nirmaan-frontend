@@ -41,7 +41,6 @@ function AddNewMentor() {
       contact_number: "",
       email_address: "",
       linkedIn_ID: "",
-      password: "",
     },
   });
   console.log(formData.description.mentor_logo);
