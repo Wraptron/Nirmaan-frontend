@@ -251,8 +251,7 @@ function StartupProfile() {
     setIsLoading(true);
     try {
       // ---Startup Detail Fetch ---
-      const requestedStartupId =
-        decoded.role === 5 ? decoded.startup_id : startup_id;
+      const requestedStartupId = startup_id;
 
       const startupResponse = await ApiFetchStartupById(requestedStartupId);
       let selectedstartup = startupResponse?.generalData?.[0] || null;
@@ -268,13 +267,6 @@ function StartupProfile() {
           ) || null;
       }
       setStartupData(selectedstartup);
-
-      // If a startup user manually changes URL, force route back to their own id.
-      if (decoded.role === 5 && String(startup_id) !== String(decoded.startup_id)) {
-        navigate(`/startups/startupprofile/${decoded.startup_id}`, {
-          replace: true,
-        });
-      }
 
 
       // ---Award Details Fetch ---
@@ -302,11 +294,6 @@ function StartupProfile() {
         toast.error("You are not allowed to view this startup profile");
       } else {
         toast.error("Failed to load startup profile.");
-      }
-      if (decoded.role === 5) {
-        navigate(`/startups/startupprofile/${decoded.startup_id}`, {
-          replace: true,
-        });
       }
     } finally {
       setIsLoading(false);
@@ -1020,8 +1007,8 @@ function StartupProfile() {
                     </div>
                   ))}
 
-                {/* Funding Section */}
-                {startupData?.startup_id && (
+                {/* Funding Section - Commented Out */}
+                {/* {startupData?.startup_id && (
                   <div className=" mt-11 col-span-4">
                     <div className="flex items-center justify-between mb-4">
                       <span className="font-bold text-lg text-[#232323]">
@@ -1134,11 +1121,6 @@ function StartupProfile() {
                         <span className="font-bold text-2xl text-[#232323] mb-2">
                           Rs. {fundingAmount?.external_funding || 0}
                         </span>
-                        {/* <img
-                        src="/src/assets/images/Frame (9).svg"
-                        alt="icon"
-                        className="absolute top-4 right-4 w-6 h-6 opacity-30"
-                      /> */}
                         <svg
                           className="absolute bottom-2 left-2 w-20 h-8"
                           viewBox="0 0 80 32"
@@ -1153,7 +1135,7 @@ function StartupProfile() {
                       </div>
                     </div>
                   </div>
-                )}
+                )} */}
 
                 {/* Gallery & Documents Section */}
                 <div className="grid grid-cols-2 gap-6 mb-8">
