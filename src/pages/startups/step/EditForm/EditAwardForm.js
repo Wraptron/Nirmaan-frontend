@@ -87,7 +87,7 @@ const EditAwardForm = ({ initialData, onClose }) => {
       toast.success("Award updated successfully");
       onClose();
     } catch (error) {
-      console.error("Error updating award:", error);
+      // console.error("Error updating award:", error);
       toast.error("Failed to update award");
     }
   };

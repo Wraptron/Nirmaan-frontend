@@ -38,7 +38,6 @@ const AddAwardForm = ({ officialEmail, onClose, onSuccess, startup_id }) => {
       toast.error("Please fill all required fields");
       return;
     }
-    console.log("📧 officialEmail prop:", officialEmail);
     const formdata = new FormData();
     formdata.append("official_email_address", officialEmail);
     formdata.append("award_name", formData.name);
@@ -50,20 +49,14 @@ const AddAwardForm = ({ officialEmail, onClose, onSuccess, startup_id }) => {
     if (formData.document) {
       formdata.append("document", formData.document);
     }
-    console.log("Submitting Award FormData:");
-
+    
     try {
       const response = await ApiAddAward(formdata);
-      console.log("Response from API:", response);
 
       toast.success("Award added successfully");
       if (onSuccess) onSuccess(); // ✅ important line
       onClose();
     } catch (error) {
-      console.error(
-        "Error adding award:",
-        error?.response?.data || error.message || error
-      );
       toast.error("Failed to add award");
     }
   };

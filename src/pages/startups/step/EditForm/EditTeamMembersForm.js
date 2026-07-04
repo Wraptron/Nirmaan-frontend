@@ -12,8 +12,6 @@ const EditTeamMembersForm = ({ initialData, onClose, onSubmit,startup_id }) => {
   });
   useEffect(() => {
     if (initialData) {
-      console.log("imitial:",initialData)
-      console.log(startup_id)
       setFormData({
         founder_name: initialData.founder_name || "",
         founder_email: initialData.founder_email || "",
@@ -97,7 +95,7 @@ const EditTeamMembersForm = ({ initialData, onClose, onSubmit,startup_id }) => {
      toast.success("Profile updated successfully");
      onClose();
    } catch (error) {
-     console.error("Error updating profile:", error);
+    //  console.error("Error updating profile:", error);
      toast.error("Failed to update profile");
    }
  };

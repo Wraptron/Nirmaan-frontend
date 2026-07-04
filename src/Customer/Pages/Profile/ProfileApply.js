@@ -6,7 +6,7 @@ import { getSessionUser } from "../../../utils/authSession";
 import {ToastContainer, toast} from "react-toastify"
 import "react-toastify/dist/ReactToastify.css";
 // import { useNavigate} from "react-router-dom"; // Removed unused import
-import {socket} from '../../../socket';
+// import {socket} from '../../../socket';
 function ProfileApply() {
     const token = getSessionUser();
     // const [form] = Form.useForm();
@@ -98,18 +98,18 @@ function ProfileApply() {
     //     ProfileView();
     // }, [])
 
-    useEffect(()=> {
-        // socket.on('connect', () => {
-        //     console.log('Connected to server')
-        // })
-        // socket.on('FirstEvent' , (msg) => {
-        //      console.log(msg)
-        // })
-        socket?.emit('newUser', (token.user_mail))
-        // console.log(socket.emit("newUser", (user) => {
-        //     console.log(user)
-        // }));
-    })
+    // useEffect(()=> {
+    //     // socket.on('connect', () => {
+    //     //     console.log('Connected to server')
+    //     // })
+    //     // socket.on('FirstEvent' , (msg) => {
+    //     //      console.log(msg)
+    //     // })
+    //     socket?.emit('newUser', (token.user_mail))
+    //     // console.log(socket.emit("newUser", (user) => {
+    //     //     console.log(user)
+    //     // }));
+    // })
     return (
         <div className="flex h-screen">
             <section className="fixed h-full">

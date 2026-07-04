@@ -86,7 +86,7 @@ const EditMentorForm = ({ initialData, onClose }) => {
       toast.success("Profile updated successfully");
       onClose();
     } catch (error) {
-      console.error("Error updating profile:", error);
+      // console.error("Error updating profile:", error);
       toast.error("Failed to update profile");
     }
   };

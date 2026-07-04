@@ -607,25 +607,13 @@ async function ApiFetchStartup({ page, limit, fetchAll = false } = {}) {
 
 async function ApiFetchStartupById(id) {
   try {
-    console.log("[API] ApiFetchStartupById request", {
-      id,
-      url: `${API_BASE_URL}/api/v1/startup/${id}`,
-    });
+   
     const result = await axios.get(`${API_BASE_URL}/api/v1/startup/${id}`, {
       withCredentials: true,
     });
-    console.log("[API] ApiFetchStartupById success", {
-      status: result?.status,
-      dataKeys: Object.keys(result?.data || {}),
-    });
+   
     return result.data;
   } catch (error) {
-    console.error("[API] ApiFetchStartupById error", {
-      message: error?.message,
-      status: error?.response?.status,
-      data: error?.response?.data,
-      url: error?.config?.url,
-    });
     throw error;
   }
 }
