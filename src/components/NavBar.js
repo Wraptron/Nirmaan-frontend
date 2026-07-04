@@ -28,6 +28,9 @@ import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
 import APP_URL from "../Config";
 import MentorTag from "./MentorTag";
+import { Icon } from "react-icons-kit";
+import { eyeOff } from "react-icons-kit/feather/eyeOff";
+import { eye } from "react-icons-kit/feather/eye";
 
 const NOTIFICATION_RETENTION_DAYS = 90;
 const NOTIFICATION_PAGE_SIZE = 8;
@@ -55,6 +58,9 @@ function NavBar({ onSelectionChange, selectedIndex }) {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loggedInMentorTag, setLoggedInMentorTag] = useState("");
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
 
   const handleOpenChangePassword = () => {
     setShowChangePasswordModal(true);
@@ -65,21 +71,24 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
+    setShowCurrentPw(false);
+    setShowNewPw(false);
+    setShowConfirmPw(false);
   };
 
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
-      alert("Please fill in all password fields.");
+      toast.error("Please fill in all password fields.");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      alert("New password and Confirm Password do not match");
+      toast.error("New password and Confirm Password do not match.");
       return;
     }
 
     if (!isAuthenticated()) {
-      alert("You are not logged in. Please login again.");
+      toast.error("You are not logged in. Please login again.");
       return;
     }
 
@@ -93,14 +102,14 @@ function NavBar({ onSelectionChange, selectedIndex }) {
         { withCredentials: true }
       );
 
-      alert(response.data?.message || "Password changed successfully");
+      toast.success(response.data?.message || "Password changed successfully.");
       handleCloseChangePassword();
     } catch (error) {
       console.log(error);
       const message =
         error?.response?.data?.message ||
-        "Current password is incorrect or update failed";
-      alert(message);
+        "Current password is incorrect or update failed.";
+      toast.error(message);
     }
   };
   const navigate = useNavigate();
@@ -506,29 +515,53 @@ function NavBar({ onSelectionChange, selectedIndex }) {
         Change Password
       </h2>
 
-      <input
-  type="password"
-  placeholder="Current Password"
-  value={currentPassword}
-  onChange={(e) => setCurrentPassword(e.target.value)}
-  className="w-full border rounded-lg p-3 mb-4"
-/>
+      <div className="relative mb-4">
+        <input
+          type={showCurrentPw ? "text" : "password"}
+          placeholder="Current Password"
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          className="w-full border rounded-lg p-3 pr-10"
+        />
+        <span
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer"
+          onClick={() => setShowCurrentPw((v) => !v)}
+        >
+          <Icon icon={showCurrentPw ? eye : eyeOff} size={20} />
+        </span>
+      </div>
 
-<input
-  type="password"
-  placeholder="New Password"
-  value={newPassword}
-  onChange={(e) => setNewPassword(e.target.value)}
-  className="w-full border rounded-lg p-3 mb-4"
-/>
+      <div className="relative mb-4">
+        <input
+          type={showNewPw ? "text" : "password"}
+          placeholder="New Password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          className="w-full border rounded-lg p-3 pr-10"
+        />
+        <span
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer"
+          onClick={() => setShowNewPw((v) => !v)}
+        >
+          <Icon icon={showNewPw ? eye : eyeOff} size={20} />
+        </span>
+      </div>
 
-<input
-  type="password"
-  placeholder="Confirm Password"
-  value={confirmPassword}
-  onChange={(e) => setConfirmPassword(e.target.value)}
-  className="w-full border rounded-lg p-3 mb-6"
-/>
+      <div className="relative mb-6">
+        <input
+          type={showConfirmPw ? "text" : "password"}
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          className="w-full border rounded-lg p-3 pr-10"
+        />
+        <span
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer"
+          onClick={() => setShowConfirmPw((v) => !v)}
+        >
+          <Icon icon={showConfirmPw ? eye : eyeOff} size={20} />
+        </span>
+      </div>
 
       <div className="flex justify-end gap-3">
         <button
