@@ -58,14 +58,14 @@ function SideBar({ children }) {
                 Mentorships
               </a>
             </li>
-            <li
+            {/* <li
               className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath.startsWith("/events") && "bg-[#45C74D] text-white rounded-xl"}`}
             >
               <a href="/events" className="flex gap-5">
                 <FaRegCalendarCheck size={20} />
                 Events
               </a>
-            </li>
+            </li> */}
             {/* <li
               className={`flex gap-5 hover:bg-[#45C74D] hover:rounded-xl p-2 hover:text-white mb-2 ${currentPath === "/connections" && "bg-[#45C74D] text-white rounded-xl"}`}
             >

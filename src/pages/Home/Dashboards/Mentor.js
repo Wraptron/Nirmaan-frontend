@@ -432,7 +432,7 @@ function Mentor() {
           </div>
         </div>
 
-        {/* Specializations from live mentor records (area_of_expertise) */}
+        {/* Specializations from live mentor records (area_of_expertise) - commented out
         <div className="border rounded-xl p-4 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="text-base font-medium text-gray-800">Most Represented Specializations</div>
@@ -461,6 +461,7 @@ function Mentor() {
             </div>
           )}
         </div>
+        */}
 
         {/* Averages: startups per mentor, sessions per mentor, session length */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -400,7 +400,7 @@ function Overview() {
                   </div>
                 </div>
               </div>
-              {/* New Funding Section */}
+              {/* New Funding Section - commented out
                <div className="mb-8">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-semibold text-gray-900">
@@ -442,7 +442,7 @@ function Overview() {
                     );
                   })}
                 </div>
-              </div> 
+              </div> */}
               {/* New Start-ups Chart Section */}
               <div className="mb-8">
                 <div className="bg-white rounded-xl p-6 shadow-sm border">
