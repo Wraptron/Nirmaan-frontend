@@ -43,7 +43,6 @@ function AddNewMentor() {
       linkedIn_ID: "",
     },
   });
-  console.log(formData.description.mentor_logo);
   const handleChange = (e, section) => {
     const { name,files, value } = e.target;
     setFormData((prevData) => ({
@@ -84,7 +83,7 @@ function AddNewMentor() {
       toast.success("Mentor added successfully");
       navigate("/mentors");
     } catch (error) {
-      console.error("Error in API", error?.response?.data?.Error);
+      // console.error("Error in API", error?.response?.data?.Error);
       toast.error(error?.response?.data?.Error || "Failed to add mentor");
          setIsSubitting(false);
     }

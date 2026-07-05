@@ -26,7 +26,7 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
     official_contact_number: "",
     linkedin: "",
     website_link: "",
-    profile_image: null,
+    logo: null,
     background_image: null,
   });
 
@@ -46,13 +46,15 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
         official_contact_number: initialData.official_contact_number || "",
         linkedin: initialData.linkedin || "",
         website_link: initialData.website_link || "",
-        profile_image: initialData.profile_image || null,
+        logo: initialData.logo || initialData.profile_image || null,
         background_image: initialData.background_image || null,
         program: initialData.program || "",
       });
 
       // Set image previews if they exist
-      setProfilePreview(encodeS3Url(initialData.profile_image));
+      setProfilePreview(
+        encodeS3Url(initialData.logo || initialData.profile_image)
+      );
       setBgPreview(encodeS3Url(initialData.background_image));
     }
   }, [initialData]);
@@ -71,7 +73,7 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
   const handleProfileImage = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData((prev) => ({ ...prev, profile_image: file }));
+      setFormData((prev) => ({ ...prev, logo: file }));
       setProfilePreview(URL.createObjectURL(file));
     }
   };
@@ -133,8 +135,8 @@ const EditStartupForm = ({ initialData, onClose, onSubmit }) => {
     formPayload.append("linkedin", formData.linkedin);
     formPayload.append("website_link", formData.website_link);
 
-    if (formData.profile_image instanceof File) {
-      formPayload.append("profile_image", formData.profile_image);
+    if (formData.logo instanceof File) {
+      formPayload.append("logo", formData.logo);
     }
 
     if (formData.background_image instanceof File) {

@@ -433,7 +433,9 @@ function StartupProfile() {
     const encodedFileName = encodeURIComponent(fileName);
     return parts.join("/") + "/" + encodedFileName;
   }
-  const profileImage = encodeS3Url(startupData?.profile_image) || profileImg;
+  const profileImage =
+    encodeS3Url(startupData?.logo || startupData?.profile_image) ||
+    profileImg;
   return (
     <div className="flex font-[\'DM Sans\',sans-serif]">
       <SideBar />

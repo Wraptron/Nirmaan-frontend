@@ -335,7 +335,7 @@ function AddStartup() {
       academic_background: "",
     },
     description: {
-      logo_image: "",
+      logo: null,
       startup_description: "",
     },
   });
@@ -501,6 +501,13 @@ function AddStartup() {
           return false;
         }
       }
+      if (
+        !formData.description.logo ||
+        !(formData.description.logo instanceof File)
+      ) {
+        toast.error("Please upload a logo");
+        return false;
+      }
     }
 
     return true;
@@ -524,7 +531,20 @@ function AddStartup() {
     if (!validateStep()) return;
     try {
       setIsSubitting(true);
-      const response = await ApiAddStartup(formData);
+      const payload = new FormData();
+      if (formData.description.logo instanceof File) {
+        payload.append("logo", formData.description.logo);
+      }
+      payload.append("basic", JSON.stringify(formData.basic));
+      payload.append("official", JSON.stringify(formData.official));
+      payload.append("founder", JSON.stringify(formData.founder));
+      payload.append(
+        "description",
+        JSON.stringify({
+          startup_description: formData.description.startup_description,
+        })
+      );
+      const response = await ApiAddStartup(payload);
 
       if (response.data?.status?.status === "data already exists") {
         toast.error("Startup already exists");

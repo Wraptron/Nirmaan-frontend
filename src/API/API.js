@@ -442,15 +442,15 @@ const ApiDeleteTestimonial = async (id) => {
 };
 
 // ==================== STARTUP APIs ====================
-async function ApiAddStartup(formdata) {
+async function ApiAddStartup(formDataPayload) {
   try {
     const result = await axios.post(
       `${API_BASE_URL}/api/v1/add-startup`,
-      formdata,
+      formDataPayload,
       {
         headers: {
           "Cache-Control": "no-cache",
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
       }
     );
