@@ -468,7 +468,8 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import img from "../../assets/images/nirmaan-iitm.14fdf833.svg";
 import axios from "axios";
-import { clearAuthSession, getSessionUser, isAuthenticated } from "../../utils/authSession";
+import { getSessionUser } from "../../utils/authSession";
+import { useAuth } from "../../context/AuthContext";
 import APP_URL from "../../Config";
 import "alertifyjs/build/css/alertify.css";
 import Mentorsvg from "../../assets/images/Mentor.svg";
@@ -483,6 +484,7 @@ import More from "../../components/More";
 import { useNavigate } from "react-router-dom";
 
 function Navbar({ onSelectionChange, selectedIndex }) {
+  const { user, isAuthenticated, clearUser } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
@@ -498,7 +500,7 @@ function Navbar({ onSelectionChange, selectedIndex }) {
     } catch (err) {
       console.log("Logout request failed:", err);
     }
-    clearAuthSession();
+    clearUser();
     navigate("/");
   };
 
@@ -515,7 +517,7 @@ function Navbar({ onSelectionChange, selectedIndex }) {
     };
   }, []);
 
-  const tokenDecodedData = isAuthenticated() ? getSessionUser() : null;
+  const tokenDecodedData = isAuthenticated ? (user || getSessionUser()) : null;
 
  
 

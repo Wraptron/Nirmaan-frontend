@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
 import img from "../assets/images/nirmaan-iitm.14fdf833.svg";
 import axios from "axios";
-import { clearAuthSession, getSessionUser, isAuthenticated } from "../utils/authSession";
+import { getSessionUser } from "../utils/authSession";
+import { useAuth } from "../context/AuthContext";
 import ProfileModal from "./ProfileModal";
 import "alertifyjs/build/css/alertify.css";
 import Notification, {
@@ -37,6 +38,7 @@ const NOTIFICATION_PAGE_SIZE = 8;
 const UNREAD_POLL_INTERVAL_MS = 60000;
 
 function NavBar({ onSelectionChange, selectedIndex }) {
+  const { user, isAuthenticated: authIsAuthenticated, clearUser } = useAuth();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notificationItems, setNotificationItems] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -87,7 +89,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
       return;
     }
 
-    if (!isAuthenticated()) {
+    if (!authIsAuthenticated) {
       toast.error("You are not logged in. Please login again.");
       return;
     }
@@ -126,7 +128,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     } catch (err) {
       console.log("Logout request failed:", err);
     }
-    clearAuthSession();
+    clearUser();
     navigate("/");
   };
 
@@ -253,7 +255,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     }
   };
 
-  const userRole = sessionStorage.getItem("role");
+  const userRole = user?.role != null ? String(user.role) : null;
   const isAdmin = userRole === "2";
   const isStartup = userRole === "5";
   const isMentor = userRole === "6";
@@ -273,7 +275,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
         });
   };
 
-  const tokenDecodedData = isAuthenticated() ? getSessionUser() : null;
+  const tokenDecodedData = authIsAuthenticated ? (user || getSessionUser()) : null;
 
 
 
@@ -458,7 +460,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     <li className="px-4 py-2 text-sm text-gray-600 border-b">
       <div className="flex items-center gap-2 flex-wrap">
         <span>{tokenDecodedData.user_name || tokenDecodedData.user_mail}</span>
-        {(String(sessionStorage.getItem("role")) === "6" ||
+        {(userRole === "6" ||
           tokenDecodedData?.role === 6) && (
           <MentorTag tag={loggedInMentorTag} />
         )}

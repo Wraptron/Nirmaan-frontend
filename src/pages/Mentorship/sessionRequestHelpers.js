@@ -5,11 +5,7 @@ import { getAuthSession } from "../../utils/authSession";
 /** Resolve logged-in startup id from session (role 5). */
 export const resolveStartupContext = () => {
   const session = getAuthSession();
-  let startupId =
-    session.startup_id ||
-    sessionStorage.getItem("startup_id") ||
-    sessionStorage.getItem("startupId") ||
-    "";
+  let startupId = session.startup_id || "";
 
   if (startupId != null && startupId !== "") {
     startupId = String(startupId);

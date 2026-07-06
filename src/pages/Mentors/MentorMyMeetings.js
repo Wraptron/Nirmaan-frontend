@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import dayjs from "dayjs";
 import FeedbackForm from "./FeedbackForm";
+import { useAuth } from "../../context/AuthContext";
 
 const ROWS_PER_PAGE = 10;
 
@@ -71,7 +72,8 @@ function formatTime(timeStr) {
 }
 
 function MentorMyMeetings() {
-  const mentorId = sessionStorage.getItem("mentor_id");
+  const { user } = useAuth();
+  const mentorId = user?.mentor_id != null ? String(user.mentor_id) : null;
   const [meetings, setMeetings] = useState([]);
   const [feedback, setFeedback] = useState([]);
   const [loading, setLoading] = useState(true);

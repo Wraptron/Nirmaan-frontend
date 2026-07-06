@@ -31,12 +31,14 @@ import EditTestimonial from "../../../pages/Mentors/EditTestimonial";
 import DeleteConfirmation from "../../../components/DeleteConfirmation";
 import FeedbackForm from "../../../pages/Mentors/FeedbackForm";
 import RequestMentor from "../../Mentorship/RequestMentor";
+import { useAuth } from "../../../context/AuthContext";
 
 function StartupMentorDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const userRole = sessionStorage.getItem("role");
-  const loggedInMentorId = sessionStorage.getItem("mentor_id");
+  const { user } = useAuth();
+  const userRole = user?.role != null ? String(user.role) : null;
+  const loggedInMentorId = user?.mentor_id != null ? String(user.mentor_id) : null;
   const isMentorView = userRole === "6"; // Mentor sees only own profile
 
   const [mentor, setMentor] = useState(null);
