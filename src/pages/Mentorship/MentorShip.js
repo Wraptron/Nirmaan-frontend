@@ -6,7 +6,6 @@ import toast from "react-hot-toast";
 import { FaEllipsis } from "react-icons/fa6";
 import { Navigate, useNavigate } from "react-router-dom";
 import { GraduationCap, Briefcase, Users } from "lucide-react";
-import RequestMentor from "./RequestMentor";
 import {
   ApiDeleteMeeting,
   ApiFetchMeetingFeedback,
@@ -35,7 +34,6 @@ function MentorShip() {
   const [feedback, setFeedback] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [initialFeedback, setInitialFeedback] = useState(null);
-  const [showrequestmentor, setShowRequestMentor] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [dateFilter, setDateFilter] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -44,11 +42,6 @@ function MentorShip() {
 
   const handleScheduleClick = () => {
     navigate(`/mentorship/scheduleMeeting`);
-  };
-
-  const handleRequestMentorClick = () => setShowRequestMentor(true);
-  const handleRequestMentorClose = async () => {
-    setShowRequestMentor(false);
   };
 
   const FetchData = async () => {
@@ -683,13 +676,6 @@ function MentorShip() {
           </div>
         </div>
       </div>
-      {showrequestmentor && (
-        <RequestMentor
-          onClose={handleRequestMentorClose}
-          // onSubmit={handleAddAwardSubmit}
-        />
-      )}
-
       {showAddFeedbackForm && selectedSession && (
         <FeedbackForm
           key={selectedSession.meet_id}
