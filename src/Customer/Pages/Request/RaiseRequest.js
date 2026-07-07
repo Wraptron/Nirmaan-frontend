@@ -1,8 +1,8 @@
 import React, {useState} from "react";
 import SideBar from "../../components/SideBar";
 import NavBar from "../../../components/NavBar";
-import axios from "axios";
 import alertify from "alertifyjs";
+import { ApiCustomerRaiseRequest } from "../../../API/API";
 import { getSessionUser } from "../../../utils/authSession";
 const RaiseRequest = () => {
   const decrypted = getSessionUser();
@@ -23,10 +23,7 @@ const RaiseRequest = () => {
   const handleSubmit = async(e) => {
             e.preventDefault()
             try{
-                const result = await axios.post(`http://localhost:3003/api/v1/customer/raise-request`,  raiseRequestData, {headers: {
-                    // 'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json'
-                }});
+                const result = await ApiCustomerRaiseRequest(raiseRequestData);
                 if(result.status===200)
                 {
                     alertify.success("Data Inserted Successfully");

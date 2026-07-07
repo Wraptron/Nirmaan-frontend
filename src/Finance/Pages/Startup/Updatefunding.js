@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import SideBar from "../../../Finance/Components/Sidebar";
 import NavBar from "../../../components/NavBar";
-import axios from 'axios';
 import toast from 'react-hot-toast';
+import { ApiFetchStartup, ApiFinanceFundingUpdate } from "../../../API/API";
 const Updatefunding = () => {
   const [formData, setFormData] = useState({
       startup_name: '',
@@ -26,7 +26,7 @@ const Updatefunding = () => {
         e.preventDefault();
         try
         {
-            const result = await axios.post('http://localhost:3003/api/v1/finance/funding-update', formData);
+            const result = await ApiFinanceFundingUpdate(formData);
             console.log(result);
             if(result)
             {
@@ -50,20 +50,8 @@ const Updatefunding = () => {
   const APIData = async() => {
     try
     {
-        let page = 1;
-        let rows = [];
-        let total = Infinity;
-        while (rows.length < total) {
-          const result = await axios.get('http://localhost:3003/api/v1/fetch-startup', {
-            params: { page, limit: 100 },
-          });
-          const batch = Array.isArray(result.data?.rows) ? result.data.rows : [];
-          total = typeof result.data?.total === 'number' ? result.data.total : batch.length;
-          rows = rows.concat(batch);
-          if (batch.length === 0 || rows.length >= total) break;
-          page += 1;
-        }
-        setApiData(rows);
+        const result = await ApiFetchStartup({ fetchAll: true });
+        setApiData(Array.isArray(result?.rows) ? result.rows : []);
     }
     catch(err)
     {
