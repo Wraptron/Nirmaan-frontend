@@ -8,7 +8,7 @@ import {
   FaVideo,
   FaMapMarkerAlt,
 } from "react-icons/fa";
-import { getSessionUser } from "../utils/authSession";
+import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import {
   ApiFetchMentorAvailability,
@@ -30,13 +30,6 @@ import {
 } from "../pages/Mentorship/availability/availabilitySlots";
 
 const cn = (...classes) => classes.filter(Boolean).join(" ");
-
-const getMentorId = () => {
-  const fromSession = sessionStorage.getItem("mentor_id");
-  if (fromSession) return fromSession;
-  const sessionUser = getSessionUser();
-  return sessionUser.mentor_id || null;
-};
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -67,6 +60,9 @@ const WINDOW_START_LABEL = formatTimeParts(8, "00");
 const WINDOW_END_LABEL = formatTimeParts(17, "30");
 
 const MentorAvailabilityCalendar = () => {
+  const { user } = useAuth();
+  const getMentorId = () => user?.mentor_id ?? null;
+
   const today = useMemo(() => new Date(), []);
   const todayKey = toDateKey(today);
 
@@ -101,7 +97,7 @@ const MentorAvailabilityCalendar = () => {
     };
 
     loadAvailability();
-  }, []);
+  }, [user]);
 
   const monthLabel = viewDate.toLocaleDateString("en-IN", {
     month: "long",

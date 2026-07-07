@@ -11,8 +11,10 @@ import MentorAbout from "./MentorAbout";
 import { clearAuthSession, getSessionUser, isAuthenticated } from "../../../utils/authSession";
 import { Navigate, useNavigate } from "react-router-dom";
 import MentorTag from "../../../components/MentorTag";
+import { useAuth } from "../../../context/AuthContext";
 
 const Mentor = () => {
+  const { user, isAuthenticated: authIsAuthenticated } = useAuth();
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMentor, setSelectedMentor] = useState(null);
@@ -69,10 +71,9 @@ const Mentor = () => {
 
   useEffect(() => {
     const load = async () => {
-      const decoded = isAuthenticated() ? getSessionUser() : null;
+      const decoded = authIsAuthenticated ? (user || getSessionUser()) : null;
 
-      const startupId =
-        sessionStorage.getItem("startup_id") || decoded?.startup_id;
+      const startupId = decoded?.startup_id;
 
       await Promise.all([
         fetchMentors(),

@@ -4,7 +4,7 @@ import '@fontsource/josefin-sans';
 import image from '../assets/images/nirmaan-iitm.14fdf833.svg';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { setAuthSession } from '../utils/authSession';
+import { useAuth } from '../context/AuthContext';
 import alertify from 'alertifyjs';
 import 'alertifyjs/build/css/alertify.css';
 import PuffLoader from "react-spinners/PuffLoader";
@@ -15,6 +15,7 @@ import { eye } from 'react-icons-kit/feather/eye';
 
 function Login() {  
     const navigate = useNavigate();
+    const { refreshUser } = useAuth();
     const [error, setError] = useState('');
     const [formData, setFormData] = useState({
         user_mail: '',
@@ -182,16 +183,10 @@ function Login() {
             
             if(response.data.result && response.data.result.status === 'Login Authenticated')
             {
-                const { role: userRole, startup_id, mentor_id, user_mail, user_name } =
+                const { role: userRole, startup_id, mentor_id } =
                     response.data.result;
 
-                setAuthSession({
-                    role: userRole,
-                    startup_id,
-                    mentor_id,
-                    user_mail,
-                    user_name,
-                });
+                await refreshUser();
                 
                 setError('');
                 setLoading(false);

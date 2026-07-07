@@ -31,12 +31,14 @@ import EditTestimonial from "../../../pages/Mentors/EditTestimonial";
 import DeleteConfirmation from "../../../components/DeleteConfirmation";
 import FeedbackForm from "../../../pages/Mentors/FeedbackForm";
 import RequestMentor from "../../Mentorship/RequestMentor";
+import { useAuth } from "../../../context/AuthContext";
 
 function StartupMentorDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const userRole = sessionStorage.getItem("role");
-  const loggedInMentorId = sessionStorage.getItem("mentor_id");
+  const { user } = useAuth();
+  const userRole = user?.role != null ? String(user.role) : null;
+  const loggedInMentorId = user?.mentor_id != null ? String(user.mentor_id) : null;
   const isMentorView = userRole === "6"; // Mentor sees only own profile
 
   const [mentor, setMentor] = useState(null);
@@ -61,8 +63,6 @@ function StartupMentorDetail() {
   const navigationPrevRef = useRef(null);
   const navigationNextRef = useRef(null);
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [showRequestMentor, setShowRequestMentor] = useState(false);
-
   const handleScheduleClick = () => {
     navigate(`/mentors/scheduleMeeting/${mentor.mentor_id}`);
   };
@@ -426,25 +426,15 @@ function StartupMentorDetail() {
           </div>
 
           {!isMentorView && (
-            <div className="mt-8 pt-6 border-t border-gray-200 flex justify-center">
-              <button
-                type="button"
-                className="border border-[#45C74D] text-[#45C74D] hover:bg-green-50 px-6 py-2.5 rounded-lg text-sm font-semibold"
-                onClick={() => setShowRequestMentor(true)}
-              >
-                Request Mentor
-              </button>
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <RequestMentor
+                mentorId={mentor.mentor_id}
+                mentorName={mentor.mentor_name}
+              />
             </div>
           )}
           </div>
         </div>
-        {showRequestMentor && (
-          <RequestMentor
-            mentorId={mentor.mentor_id}
-            mentorName={mentor.mentor_name}
-            onClose={() => setShowRequestMentor(false)}
-          />
-        )}
         {showAddFeedbackForm && selectedSession && (
           <FeedbackForm
             key={selectedSession.meet_id}

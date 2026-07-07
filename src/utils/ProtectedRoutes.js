@@ -1,17 +1,21 @@
 // utils/ProtectedRoutes.js
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { getAuthSession, isAuthenticated } from './authSession';
+import { useAuth } from '../context/AuthContext';
 
 function ProtectedRoutes({ requiredRoles = [], allowedRoles = [] }) {
-  const { role } = getAuthSession();
+  const { user, loading, isAuthenticated } = useAuth();
   const roles = requiredRoles?.length ? requiredRoles : allowedRoles;
 
-  if (!isAuthenticated()) {
+  if (loading) {
+    return null;
+  }
+
+  if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }
 
-  if (roles.length > 0 && !roles.includes(String(role))) {
+  if (roles.length > 0 && !roles.includes(String(user.role))) {
     return <Navigate to="/" replace />;
   }
 

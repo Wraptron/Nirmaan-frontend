@@ -2,8 +2,10 @@ import React from 'react'
 import { FaChartPie, FaRocket, FaChalkboardTeacher, FaBookOpen, FaRegCalendarCheck, FaVideo } from 'react-icons/fa';
 import nirmaanlogo from '../assets/images/nirmaan-iitm.14fdf833.svg';
 import { FaRegFile } from 'react-icons/fa6';
-import { getSessionUser, isAuthenticated } from '../utils/authSession';
+import { getSessionUser } from '../utils/authSession';
+import { useAuth } from '../context/AuthContext';
 function SideBar({ children }) {
+  const { user, isAuthenticated } = useAuth();
   const currentPath = window.location.pathname;
 
   const isMentorsActive =
@@ -13,7 +15,7 @@ function SideBar({ children }) {
     currentPath === "/mentorship" || currentPath.startsWith("/mentorship/");
 
     
-  const tokenDecodedData = isAuthenticated() ? getSessionUser() : null;
+  const tokenDecodedData = isAuthenticated ? (user || getSessionUser()) : null;
 
   return (
     <div className="fixed top-0 left-0 h-screen md:w-[220px] sm:w-9 w-9 m-0 flex flex-col text-black border-r-0 border-gray-500 shadow-md bg-white">
@@ -78,8 +80,7 @@ function SideBar({ children }) {
           </ul>
         ) : tokenDecodedData?.role === 6 ? (
           (() => {
-            const mentorId =
-              sessionStorage.getItem("mentor_id") || tokenDecodedData.mentor_id;
+            const mentorId = tokenDecodedData?.mentor_id;
             return (
               <ul className="py-5 px-8">
                 <li

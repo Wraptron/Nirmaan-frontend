@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { PDFViewer } from "@react-pdf/renderer";
 import "sweetalert2/dist/sweetalert2.min.css";
+import { AuthProvider } from "./context/AuthContext";
 
 // Pages
 import Home from "./pages/Home/home";
@@ -72,6 +73,7 @@ import PIADetails from "./pages/Home/PIADetails";
 import IITMICDetails from "./pages/Home/IITMICDetails";
 function App() {
   return (
+    <AuthProvider>
     <div>
       <Toaster position="top-right" reverseOrder={false} />
       <BrowserRouter>
@@ -205,6 +207,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </div>
+    </AuthProvider>
   );
 }
 

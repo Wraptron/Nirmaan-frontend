@@ -1,38 +1,68 @@
-const SESSION_KEYS = {
-  role: "role",
-  startup_id: "startup_id",
-  mentor_id: "mentor_id",
-  user_mail: "user_mail",
-  user_name: "user_name",
+const LEGACY_SESSION_KEYS = [
+  "role",
+  "startup_id",
+  "mentor_id",
+  "user_mail",
+  "user_name",
+  "startupId",
+  "token",
+  "email",
+  "name",
+];
+
+let memorySession = {
+  role: null,
+  startup_id: null,
+  mentor_id: null,
+  user_mail: null,
+  user_name: null,
 };
 
-export function setAuthSession({
-  role,
-  startup_id,
-  mentor_id,
-  user_mail,
-  user_name,
-}) {
-  if (role != null) sessionStorage.setItem(SESSION_KEYS.role, String(role));
-  sessionStorage.setItem(SESSION_KEYS.startup_id, startup_id ?? "");
-  if (mentor_id != null && mentor_id !== "") {
-    sessionStorage.setItem(SESSION_KEYS.mentor_id, String(mentor_id));
-  } else {
-    sessionStorage.removeItem(SESSION_KEYS.mentor_id);
+let onClearCallback = null;
+
+/** Remove auth keys left in sessionStorage from the pre-migration flow. */
+export function clearLegacySessionStorageAuth() {
+  if (typeof sessionStorage === "undefined") {
+    return;
   }
-  if (user_mail) sessionStorage.setItem(SESSION_KEYS.user_mail, user_mail);
-  if (user_name) sessionStorage.setItem(SESSION_KEYS.user_name, user_name);
+
+  LEGACY_SESSION_KEYS.forEach((key) => {
+    sessionStorage.removeItem(key);
+  });
+}
+
+/** Allows AuthContext to stay in sync when legacy callers invoke clearAuthSession. */
+export function registerAuthClearCallback(callback) {
+  onClearCallback = callback;
+}
+
+/** Sync in-memory session from server-verified user (used by AuthContext). */
+export function syncAuthSession(user) {
+  clearLegacySessionStorageAuth();
+
+  if (!user) {
+    memorySession = {
+      role: null,
+      startup_id: null,
+      mentor_id: null,
+      user_mail: null,
+      user_name: null,
+    };
+    return;
+  }
+
+  const roleRaw = user.role;
+  memorySession = {
+    role: roleRaw === "" || roleRaw == null ? null : Number(roleRaw),
+    startup_id: user.startup_id ?? null,
+    mentor_id: user.mentor_id ?? null,
+    user_mail: user.user_mail ?? null,
+    user_name: user.user_name ?? null,
+  };
 }
 
 export function getAuthSession() {
-  const roleRaw = sessionStorage.getItem(SESSION_KEYS.role);
-  return {
-    role: roleRaw === "" || roleRaw == null ? null : Number(roleRaw),
-    startup_id: sessionStorage.getItem(SESSION_KEYS.startup_id) || null,
-    mentor_id: sessionStorage.getItem(SESSION_KEYS.mentor_id) || null,
-    user_mail: sessionStorage.getItem(SESSION_KEYS.user_mail) || null,
-    user_name: sessionStorage.getItem(SESSION_KEYS.user_name) || null,
-  };
+  return { ...memorySession };
 }
 
 /** Shape compatible with legacy jwt-decode usage across the app. */
@@ -48,13 +78,14 @@ export function getSessionUser() {
 }
 
 export function isAuthenticated() {
-  const role = sessionStorage.getItem(SESSION_KEYS.role);
-  return role != null && role !== "";
+  return memorySession.role != null && memorySession.role !== "";
 }
 
 export function clearAuthSession() {
-  Object.values(SESSION_KEYS).forEach((key) => {
-    sessionStorage.removeItem(key);
-  });
+  syncAuthSession(null);
+  clearLegacySessionStorageAuth();
   localStorage.removeItem("token");
+  if (onClearCallback) {
+    onClearCallback();
+  }
 }
