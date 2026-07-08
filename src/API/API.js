@@ -720,9 +720,9 @@ async function ApiAddAward(formdata) {
   }
 }
 
-async function ApiFetchAward() {
+async function ApiFetchAwardByStartupId(id) {
   try {
-    const result = await axios.get(`${API_BASE_URL}/api/v1/fetchaward`);
+    const result = await axios.get(`${API_BASE_URL}/api/v1/startup/${id}/awards`);
     return result.data;
   } catch (error) {
     console.error("Error in API", error);
@@ -896,6 +896,16 @@ async function ApiFetchFundingAmount() {
   }
 }
 
+async function ApiFetchFundingAmountByStartupId(id) {
+  try {
+    const result = await axios.get(`${API_BASE_URL}/api/v1/startup/${id}/funding`);
+    return result.data;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
 async function ApiFetchStartupData() {
   try {
     const result = await axios.get(`${API_BASE_URL}/api/v1//finance/startup-data`);
@@ -1060,7 +1070,7 @@ ApiUpdateFundingProject,
 ApiIPDetails,
   // Award APIs
   ApiAddAward,
-  ApiFetchAward,
+  ApiFetchAwardByStartupId,
   ApiDeleteAward,
   ApiUpdateAward,
   ApiFetchFounder,
@@ -1072,6 +1082,7 @@ ApiIPDetails,
   ApiDeleteEvent,
   ApiAddFunding,
   ApiFetchFundingAmount,
+  ApiFetchFundingAmountByStartupId,
   ApiUpdateFunding,
   ApiFinanceFundingUpdate,
   // Customer APIs

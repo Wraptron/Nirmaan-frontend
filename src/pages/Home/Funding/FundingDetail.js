@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 import { FiEdit2 } from "react-icons/fi";
-import { ApiFetchFunding, ApiFetchFundingAmount } from "../../../API/API";
+import { ApiFetchFunding, ApiFetchFundingAmountByStartupId } from "../../../API/API";
 import EditFundingForm from "../../startups/step/EditForm/EditFundingForm";
 import toast from "react-hot-toast";
 
@@ -48,10 +48,8 @@ const FundingDetail = ({ onClose, startup_id }) => {
         .sort((a, b) => a.id - b.id);
       setFundingData(filteredFunding || []);
 
-      const ApiFundingAmount = await ApiFetchFundingAmount();
-      const amount = ApiFundingAmount || {};
-      const fundamount = startup_id ? amount[startup_id] || null : null;
-      setFundingAmount(fundamount || []);
+      const fundamount = await ApiFetchFundingAmountByStartupId(startup_id);
+      setFundingAmount(fundamount || {});
     } catch (err) {
       console.error("Error fetching mentor data:", err);
     }

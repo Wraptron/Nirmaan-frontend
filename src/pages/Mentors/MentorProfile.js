@@ -72,7 +72,7 @@ function MentorProfile() {
   const itemsPerPage = 3;
 
   const handleScheduleClick = () => {
-    navigate(`/mentors/schedulemeeting/${mentor.mentor_id}`);
+    navigate(`/mentors/scheduleMeeting/${mentor.mentor_id}`);
   };
 
   const handleLinkedInClick = (e) => {

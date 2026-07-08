@@ -21,9 +21,9 @@ import EditMentorForm from "../startups/step/EditForm/EditMentorForm";
 import {
   ApiDeleteAward,
   ApiDeleteFounder,
-  ApiFetchAward,
+  ApiFetchAwardByStartupId,
   ApiFetchFounder,
-  ApiFetchFundingAmount,
+  ApiFetchFundingAmountByStartupId,
   ApiFetchStartup,
   ApiFetchStartupById,
 } from "../../API/API";
@@ -270,19 +270,11 @@ function StartupProfile() {
 
 
       // ---Award Details Fetch ---
-      const APIAward = await ApiFetchAward();
-     const award = APIAward?.rows || [];
-      const filteredAwards = award
-        .filter((award) => String(award.startup_id) === String(requestedStartupId))
-        .sort((a, b) => a.id - b.id);
-      setAwards(filteredAwards || []);
+      const APIAward = await ApiFetchAwardByStartupId(requestedStartupId);
+      setAwards(APIAward?.rows || []);
 
-      // --- Funding Amount Details Fetch Fetch ---
-      const ApiFundingAmount = await ApiFetchFundingAmount();
-      const amount = ApiFundingAmount || {};
-      const fundamount = selectedstartup?.startup_id
-        ? amount[selectedstartup.startup_id] || null
-        : null;
+      // --- Funding Amount Details Fetch ---
+      const fundamount = await ApiFetchFundingAmountByStartupId(requestedStartupId);
       setFundingAmount(fundamount || {});
 
 
