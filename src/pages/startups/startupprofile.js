@@ -303,7 +303,6 @@ function StartupProfile() {
   useEffect(() => {
     if (!isAuthorized) {
       clearAuthSession();
-      localStorage.clear();
       navigate("/", { replace: true });
       return;
     }
