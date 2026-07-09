@@ -4,6 +4,7 @@ import { Pencil, X, Save, ArrowLeft } from 'lucide-react';
 import SideBar from '../../components/sidebar';
 import NavBar from '../../components/NavBar';
 import { ApiFetchScheduleMeetings, ApiFetchMentor } from '../../API/API';
+import { safeUrl } from '../../utils/safeUrl';
 
 const Notes = () => {
   const { notesId } = useParams();
@@ -167,9 +168,9 @@ const Notes = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Link</p>
-                {meetingDetails.meeting_link ? (
+                {safeUrl(meetingDetails.meeting_link) ? (
                   <a 
-                    href={meetingDetails.meeting_link}
+                    href={safeUrl(meetingDetails.meeting_link)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-medium text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"

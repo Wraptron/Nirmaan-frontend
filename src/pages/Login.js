@@ -208,10 +208,6 @@ function Login() {
                 {
                     navigate('/finance/home');
                 }
-                else if(userRole === 1) // Other finance role
-                {
-                    navigate('/finance/home');
-                }
                 else
                 {
                     navigate('/');

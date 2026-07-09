@@ -1,4 +1,5 @@
 import axios from "axios";
+import { clearAuthSession } from "./authSession";
 
 const isDevelopment = process.env.NODE_ENV === "development";
 
@@ -59,6 +60,10 @@ apiClient.interceptors.response.use(
         await refreshPromise;
         return apiClient(originalRequest);
       } catch (refreshError) {
+        clearAuthSession();
+        if (typeof window !== "undefined" && window.location.pathname !== "/") {
+          window.location.replace("/");
+        }
         return Promise.reject(refreshError);
       }
     }

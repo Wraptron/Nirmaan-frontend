@@ -38,6 +38,7 @@ import DeleteConfirmation from "../../components/DeleteConfirmation";
 import EditAwardForm from "./step/EditForm/EditAwardForm";
 import FundingDetail from "../Home/Funding/FundingDetail";
 import { getSessionUser, isAuthenticated, clearAuthSession } from "../../utils/authSession";
+import { safeUrl } from "../../utils/safeUrl";
 import AddIPform from "./step/EditForm/AddIPform";
 
 function StartupProfile() {
@@ -550,9 +551,9 @@ function StartupProfile() {
                     </span>
                   </div>
                   <div className="flex items-center gap-4 text-sm text-[#232323] mb-2">
-                    {startupData.linkedin && (
+                    {safeUrl(startupData.linkedin) && (
                       <a
-                        href={startupData.linkedin}
+                        href={safeUrl(startupData.linkedin)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 hover:underline"
@@ -562,9 +563,9 @@ function StartupProfile() {
                       </a>
                     )}
 
-                    {startupData.website_link && (
+                    {safeUrl(startupData.website_link) && (
                       <a
-                        href={startupData.website_link}
+                        href={safeUrl(startupData.website_link)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 hover:underline"
@@ -729,9 +730,9 @@ function StartupProfile() {
                               </div>
 
                               <div className="inline-flex items-center gap-2 bg-[#F8FAFB] rounded-lg px-3 py-1 mt-2 border border-[#E6E6E6]">
-                                {award.document_url ? (
+                                {safeUrl(award.document_url) ? (
                                   <a
-                                    href={award.document_url}
+                                    href={safeUrl(award.document_url)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex items-center gap-2"
