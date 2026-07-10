@@ -18,9 +18,6 @@ function Jobs() {
           <span className="flex-grow">Jobs</span>
           <button
             type="button"
-            onClick={() =>
-              (window.location.href = "http://localhost:3000/jobs/new")
-            }
             className="active:scale-[.90] active:duration-70 hover:scale-[1.02] border border-green-300 rounded-md bg-green-500 transition-all ease-in-out md:text-xs font-semibold p-2 text-white"
           >
             <span>Post A New Job</span>

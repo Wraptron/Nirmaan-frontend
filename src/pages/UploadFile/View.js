@@ -7,7 +7,7 @@ import SideBar from "../../components/sidebar";
 import NavBar from "../../components/NavBar";
 import { FaFontAwesome, FaSpinner } from "react-icons/fa";
 const View = () => {
-  const API_URL = "http://localhost:3001/api/v1/resume/resume-fetch/3";
+
   const totalPages = 300;
   const [loading, setLoading] = useState(true);
   const [pages, setPages] = useState([]);
