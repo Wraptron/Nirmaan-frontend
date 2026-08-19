@@ -3,9 +3,12 @@ import SideBar from "../../components/SideBar";
 import NavBar from "../../../components/NavBar";
 // import src from "../../../img/image.png";
 import Addmentor from "../../components/Addmentor";
-import axios from "axios";
 import { getSessionUser } from "../../../utils/authSession";
 import alertify from "alertifyjs";
+import {
+  ApiCustomerApplyMentor,
+  ApiCustomerFetchMentor,
+} from "../../../API/API";
 function CustomerMentor() {
   const [showAddmentor, setAddmentor] = useState(false);
   const [data, setData] = useState([]);
@@ -31,9 +34,7 @@ function CustomerMentor() {
         try
         {
           //  console.log(addMentData);
-          const result = await axios.post('http://localhost:3003/api/v1/customer/apply-mentor',  addMentData, {headers: {
-            'Content-Type': 'application/json'
-          }});
+          const result = await ApiCustomerApplyMentor(addMentData);
           if(result.code==="23505")
           {
             alertify.error("Request already raised");
@@ -55,8 +56,8 @@ function CustomerMentor() {
     const fetchData = async () => {
       try
       {
-          const response = await axios.get('http://localhost:3003/api/v1/customer/fetch-mentor')
-          setData(response.data.result.rows);
+          const response = await ApiCustomerFetchMentor();
+          setData(response.result.rows);
       }
       catch (err)
       {

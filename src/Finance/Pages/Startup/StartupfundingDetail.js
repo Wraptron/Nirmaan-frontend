@@ -11,7 +11,7 @@ import "swiper/css/navigation";
 import SideBar from "../../Components/Sidebar";
 import {
   ApiFetchFunding,
-  ApiFetchFundingAmount,
+  ApiFetchFundingAmountByStartupId,
   ApiFetchStartup,
 } from "../../../API/API";
 import FundingDetail from "../../../pages/Home/Funding/FundingDetail";
@@ -87,12 +87,8 @@ function StartupFundingDetail() {
         .filter((funding) => String(funding.startup_id) === String(startup_id))
         .sort((a, b) => a.id - b.id);
       setFundingData(filteredFunding || []);
-      // --- Funding Amount Details Fetch Fetch ---
-      const ApiFundingAmount = await ApiFetchFundingAmount();
-      const amount = ApiFundingAmount || {};
-      const fundamount = selectedstartup?.startup_id
-        ? amount[selectedstartup.startup_id] || null
-        : null;
+      // --- Funding Amount Details Fetch ---
+      const fundamount = await ApiFetchFundingAmountByStartupId(startup_id);
       setFundingAmount(fundamount || {});
     } catch (err) {
       console.error("Error fetching mentor data:", err);

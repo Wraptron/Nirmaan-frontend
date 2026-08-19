@@ -720,9 +720,9 @@ async function ApiAddAward(formdata) {
   }
 }
 
-async function ApiFetchAward() {
+async function ApiFetchAwardByStartupId(id) {
   try {
-    const result = await axios.get(`${API_BASE_URL}/api/v1/fetchaward`);
+    const result = await axios.get(`${API_BASE_URL}/api/v1/startup/${id}/awards`);
     return result.data;
   } catch (error) {
     console.error("Error in API", error);
@@ -896,6 +896,16 @@ async function ApiFetchFundingAmount() {
   }
 }
 
+async function ApiFetchFundingAmountByStartupId(id) {
+  try {
+    const result = await axios.get(`${API_BASE_URL}/api/v1/startup/${id}/funding`);
+    return result.data;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
 async function ApiFetchStartupData() {
   try {
     const result = await axios.get(`${API_BASE_URL}/api/v1//finance/startup-data`);
@@ -906,8 +916,77 @@ async function ApiFetchStartupData() {
   }
 }
 
+// ==================== CUSTOMER APIs ====================
+async function ApiCustomerRaiseRequest(data) {
+  try {
+    const result = await axios.post("/api/v1/customer/raise-request", data);
+    return result;
+  } catch (error) {
+    console.error("Error in ApiCustomerRaiseRequest", error);
+    throw error;
+  }
+}
 
+async function ApiCustomerAddJob(data) {
+  try {
+    const result = await axios.post("/api/v1/customer/add-job", data);
+    return result;
+  } catch (error) {
+    console.error("Error in ApiCustomerAddJob", error);
+    throw error;
+  }
+}
 
+async function ApiCustomerApplyMentor(data) {
+  try {
+    const result = await axios.post("/api/v1/customer/apply-mentor", data);
+    return result;
+  } catch (error) {
+    console.error("Error in ApiCustomerApplyMentor", error);
+    throw error;
+  }
+}
+
+async function ApiCustomerFetchMentor() {
+  try {
+    const result = await axios.get("/api/v1/customer/fetch-mentor");
+    return result.data;
+  } catch (error) {
+    console.error("Error in ApiCustomerFetchMentor", error);
+    throw error;
+  }
+}
+
+async function ApiCustomerAwsCreditApply(data) {
+  try {
+    const result = await axios.post("/api/v1/customer/aws-credit-apply", data);
+    return result;
+  } catch (error) {
+    console.error("Error in ApiCustomerAwsCreditApply", error);
+    throw error;
+  }
+}
+
+// ==================== FINANCE UPDATE APIs ====================
+async function ApiFinanceFundingUpdate(data) {
+  try {
+    const result = await axios.post("/api/v1/finance/funding-update", data);
+    return result;
+  } catch (error) {
+    console.error("Error in ApiFinanceFundingUpdate", error);
+    throw error;
+  }
+}
+
+async function ApiFetchSectorStats(id) {
+  try {
+    const result = await axios.get("/api/v1/st", { params: { id } });
+    return result.data;
+  } catch (error) {
+    console.error("Error in ApiFetchSectorStats", error);
+    throw error;
+  }
+}
 
 // ==================== UTILITY FUNCTIONS ====================
 // Function to manually switch environments (useful for testing)
@@ -991,7 +1070,7 @@ ApiUpdateFundingProject,
 ApiIPDetails,
   // Award APIs
   ApiAddAward,
-  ApiFetchAward,
+  ApiFetchAwardByStartupId,
   ApiDeleteAward,
   ApiUpdateAward,
   ApiFetchFounder,
@@ -1003,7 +1082,16 @@ ApiIPDetails,
   ApiDeleteEvent,
   ApiAddFunding,
   ApiFetchFundingAmount,
+  ApiFetchFundingAmountByStartupId,
   ApiUpdateFunding,
+  ApiFinanceFundingUpdate,
+  // Customer APIs
+  ApiCustomerRaiseRequest,
+  ApiCustomerAddJob,
+  ApiCustomerApplyMentor,
+  ApiCustomerFetchMentor,
+  ApiCustomerAwsCreditApply,
+  ApiFetchSectorStats,
   // Configuration
   API_BASE_URL,
   API_URLS,

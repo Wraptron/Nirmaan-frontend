@@ -16,14 +16,19 @@ import {
   Copy,
   Check,
 } from "lucide-react";
+import { safeUrl } from "../utils/safeUrl";
 
 /** Ensure external meeting URLs open correctly (not as same-site paths). */
 export function normalizeMeetingUrl(link) {
   if (!link || typeof link !== "string") return "";
   const trimmed = link.trim();
   if (!trimmed) return "";
-  if (/^https?:\/\//i.test(trimmed)) return trimmed;
-  return `https://${trimmed}`;
+
+  const absolute = safeUrl(trimmed);
+  if (absolute) return absolute;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed)) return "";
+
+  return safeUrl(`https://${trimmed}`) || "";
 }
 
 export const MEETING_CANCEL_NOTICE_HOURS = 24;

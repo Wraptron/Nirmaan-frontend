@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import { Pie } from 'react-chartjs-2';
 //import { useContext } from 'react';
-import axios from 'axios';
+import { ApiFetchSectorStats } from '../API/API';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -24,8 +24,8 @@ const TopFundingDistributed = (props) => {
         //let data = props.selectedTopSectors
         try 
         {
-            const response = await axios.get(`http://localhost:3003/api/v1/st?id=${props.selectedTopSectors}`)
-            const rows = response.data.rows;
+            const response = await ApiFetchSectorStats(props.selectedTopSectors);
+            const rows = response.rows;
             // setData(rows); // removed unused state
             setLabels(rows.map((dataObj) => dataObj.sector));
             setValues(rows.map((dataObj) => parseFloat(dataObj.sum)));

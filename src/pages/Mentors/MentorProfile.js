@@ -36,6 +36,7 @@ import FeedbackForm from "./FeedbackForm";
 import MentorAvailabilityDetails from "../../components/MentorAvailabilityDetails";
 import MentorTag from "../../components/MentorTag";
 import { useAuth } from "../../context/AuthContext";
+import { safeUrl } from "../../utils/safeUrl";
 
 function MentorProfile() {
   const { id } = useParams();
@@ -72,7 +73,7 @@ function MentorProfile() {
   const itemsPerPage = 3;
 
   const handleScheduleClick = () => {
-    navigate(`/mentors/schedulemeeting/${mentor.mentor_id}`);
+    navigate(`/mentors/scheduleMeeting/${mentor.mentor_id}`);
   };
 
   const handleLinkedInClick = (e) => {
@@ -376,8 +377,9 @@ function MentorProfile() {
                 <div className="flex items-center flex-wrap gap-2">
                   <h2 className="text-xl font-bold">{mentor.mentor_name}</h2>
                   <MentorTag tag={mentor.tag} />
+                  {safeUrl(mentor.linkedin_id) && (
                   <a
-                    href={mentor.linkedin_id}
+                    href={safeUrl(mentor.linkedin_id)}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={handleLinkedInClick}
@@ -385,6 +387,7 @@ function MentorProfile() {
                   >
                     <img src={linkedinsvg} alt="linkedin" className="w-5 h-5" />
                   </a>
+                  )}
                 </div>
                 <p className="text-sm text-gray-700">
                   {mentor.designation || "N/A"}
