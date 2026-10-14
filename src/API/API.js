@@ -5,8 +5,8 @@ const isDevelopment = process.env.NODE_ENV === "development";
 
 // API Base URLs
 const API_URLS = {
-  // DEVELOPMENT: "http://localhost:3003",
-  PRODUCTION: "https://api.sieiitm.org",
+  DEVELOPMENT: "http://localhost:3003",
+  // PRODUCTION: "https://api.sieiitm.org",
 };
 
 // Current API Base URL based on environment
@@ -295,11 +295,11 @@ async function ApiFetchNotifications(params = {}) {
   }
 }
 
-async function ApiMarkNotificationsRead() {
+async function ApiMarkNotificationsRead(ids) {
   try {
     const result = await axios.patch(
       `${API_BASE_URL}/api/v1/notification/read`,
-      {},
+      Array.isArray(ids) ? { ids } : {},
       { withCredentials: true }
     );
     return result.data;

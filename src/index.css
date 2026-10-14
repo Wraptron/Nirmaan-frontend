@@ -1,6 +1,19 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 142 57% 53%;
+  --radius: 0.75rem;
+}
 body
 {
   background: 0;
@@ -18,4 +31,13 @@ body
 
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;            /* Chrome, Safari, and Opera */
+}
+
+@keyframes funding-bar-rise {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
 }

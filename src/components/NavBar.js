@@ -1,18 +1,17 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import img from "../assets/images/nirmaan-iitm.14fdf833.svg";
 import axios from "axios";
 import { clearAuthSession, getSessionUser, isAuthenticated } from "../utils/authSession";
 import ProfileModal from "./ProfileModal";
 import "alertifyjs/build/css/alertify.css";
-import Notification, { mapNotificationToDisplayItem } from "./Notification";
+import Notification from "./Notification";
 import { ScheduleMeetingPopup } from "../pages/Mentorship/ScheduleMeetingForm";
 import {
   ApiUpdateMentorSessionRequest,
-  ApiFetchNotifications,
-  ApiMarkNotificationsRead,
   ApiApproveFundingRequest,
   ApiRejectFundingRequest,
 } from "../API/API";
+import { useNotifications } from "../hooks/useNotifications";
 import toast from "react-hot-toast";
 import ActionsModel from "../components/ActionsModel";
 import Startupsvg from "../assets/images/Startups.svg";
@@ -32,8 +31,21 @@ import MentorTag from "./MentorTag";
 
 function NavBar({ onSelectionChange, selectedIndex }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [notificationItems, setNotificationItems] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const {
+    items: notificationItems,
+    unreadCount,
+    loading,
+    loadingMore,
+    hasMore,
+    error: notificationError,
+    loadMore,
+    retry: retryNotifications,
+    refresh: refreshNotifications,
+    markAllRead,
+    updateItem: updateNotificationItem,
+    removeItem: removeNotificationItem,
+    notePendingFundingSeen,
+  } = useNotifications({ isOpen: notificationsOpen });
   const [schedulingRequest, setSchedulingRequest] = useState(null);
   const [processingRequestId, setProcessingRequestId] = useState(null);
 
@@ -41,7 +53,6 @@ function NavBar({ onSelectionChange, selectedIndex }) {
 
   // Initialize tokenData as null instead of empty string
   const [tokenData, setTokenData] = useState(null);
-  const [loading, setLoading] = useState(true);
   // logout
   const [isOpen, setIsOpen] = useState(false);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
@@ -133,32 +144,13 @@ function NavBar({ onSelectionChange, selectedIndex }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  const fetchNotifications = async () => {
-    try {
-      const data = await ApiFetchNotifications({ limit: 20 });
-      const raw = Array.isArray(data?.notifications) ? data.notifications : [];
-      setNotificationItems(raw.map(mapNotificationToDisplayItem));
-      setUnreadCount(Number(data?.unreadCount) || 0);
-      setLoading(false);
-    } catch (err) {
-      console.log("Error fetching notification data:", err);
-      setLoading(false);
-    }
-  };
-
   const handleNotificationPanelClose = () => {
     setNotificationsOpen(false);
   };
 
-  const handleOpenNotifications = async () => {
+  const handleOpenNotifications = () => {
     setNotificationsOpen(true);
     setIsOpen(false);
-    try {
-      await ApiMarkNotificationsRead();
-      await fetchNotifications();
-    } catch (err) {
-      console.log("Mark notifications read:", err);
-    }
   };
 
   const handleAcceptMentorRequest = (req) => {
@@ -175,10 +167,8 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     try {
       await ApiUpdateMentorSessionRequest(req.id, "rejected");
       toast.success("Request rejected.");
-      setNotificationItems((items) =>
-        items.filter((item) => String(item.id) !== String(req.id))
-      );
-      await fetchNotifications();
+      removeNotificationItem(req.id);
+      await refreshNotifications();
     } catch (err) {
       toast.error(err?.message || "Failed to reject request.");
     } finally {
@@ -191,10 +181,8 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     try {
       await ApiApproveFundingRequest(req.id);
       toast.success("Funding utilization request approved.");
-      setNotificationItems((items) =>
-        items.filter((item) => String(item.id) !== String(req.id))
-      );
-      await fetchNotifications();
+      updateNotificationItem(req.id, { status: "accepted" });
+      await refreshNotifications();
     } catch (err) {
       toast.error(err?.message || "Failed to approve funding request.");
     } finally {
@@ -207,10 +195,8 @@ function NavBar({ onSelectionChange, selectedIndex }) {
     try {
       await ApiRejectFundingRequest(req.id);
       toast.success("Funding utilization request rejected.");
-      setNotificationItems((items) =>
-        items.filter((item) => String(item.id) !== String(req.id))
-      );
-      await fetchNotifications();
+      updateNotificationItem(req.id, { status: "rejected" });
+      await refreshNotifications();
     } catch (err) {
       toast.error(err?.message || "Failed to reject funding request.");
     } finally {
@@ -237,11 +223,9 @@ function NavBar({ onSelectionChange, selectedIndex }) {
   const handleScheduleMeetingSuccess = async () => {
     const processedId = schedulingRequest?.id;
     if (processedId != null) {
-      setNotificationItems((items) =>
-        items.filter((item) => String(item.id) !== String(processedId))
-      );
+      removeNotificationItem(processedId);
     }
-    await fetchNotifications();
+    await refreshNotifications();
   };
 
   const userRole = sessionStorage.getItem("role");
@@ -265,20 +249,6 @@ function NavBar({ onSelectionChange, selectedIndex }) {
   };
 
   const tokenDecodedData = isAuthenticated() ? getSessionUser() : null;
-
-
-
-  useEffect(() => {
-    // Initial data fetch
-    fetchNotifications();
-
-    const interval = setInterval(() => {
-      fetchNotifications();
-    }, 30000);
-
-    // Cleanup interval on component unmount
-    return () => clearInterval(interval);
-  }, []);
 
   const [color] = useState([
     "#afdade",
@@ -406,7 +376,7 @@ function NavBar({ onSelectionChange, selectedIndex }) {
                   isOpen={notificationsOpen}
                   onClose={handleNotificationPanelClose}
                   loading={loading}
-                  items={notificationItems.slice(0, 5)}
+                  items={notificationItems}
                   unreadCount={unreadCount}
                   formatRequestDate={formatRequestDate}
                   onAccept={isAdmin ? handleNotificationAccept : undefined}
@@ -419,6 +389,13 @@ function NavBar({ onSelectionChange, selectedIndex }) {
                   }
                   emptyTitle="All caught up"
                   emptySubtitle="No new notifications"
+                  hasMore={hasMore}
+                  loadingMore={loadingMore}
+                  error={notificationError}
+                  onLoadMore={loadMore}
+                  onRetry={retryNotifications}
+                  onMarkAllRead={markAllRead}
+                  onPendingFundingSeen={notePendingFundingSeen}
                 />
               </div>
             ) : null}

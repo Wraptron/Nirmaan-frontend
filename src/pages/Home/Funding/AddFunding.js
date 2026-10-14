@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FiX } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { ApiAddFunding, ApiFetchStartupData } from "../../../API/API";
@@ -7,6 +7,8 @@ import { getSessionUser } from "../../../utils/authSession";
 
 const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const submitLock = useRef(false);
   const [showStartupDropdown, setShowStartupDropdown] = useState(false);
   const [data, setData] = useState([]);
   const [formData, setFormData] = useState({
@@ -88,6 +90,10 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitLock.current) return;
+    submitLock.current = true;
+    setSubmitting(true);
+
     const formPayload = new FormData();
     formPayload.append("startup_id", formData.startup_id);
     formPayload.append("startup_name", formData.startup_name);
@@ -120,6 +126,8 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
       } else {
         toast.error("Something went wrong. Please try again.");
       }
+      submitLock.current = false;
+      setSubmitting(false);
     }
 
     // Reset form
@@ -160,8 +168,10 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
               Add Funding Entry
             </h2>
             <button
+              type="button"
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              disabled={submitting}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
             >
               <FiX size={20} className="text-[#A1A1A1]" />
             </button>
@@ -359,14 +369,19 @@ const AddFunding = ({ onClose, onSuccess, startup_name, startup_id }) => {
               <div className="col-span-2 flex gap-3">
                 <button
                   type="submit"
-                  className="bg-[#45C74D] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#36a03d] transition"
+                  disabled={submitting}
+                  className="inline-flex items-center gap-2 bg-[#45C74D] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#36a03d] transition disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  Add Entry
+                  {submitting && (
+                    <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                  )}
+                  {submitting ? "Adding..." : "Add Entry"}
                 </button>
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 transition"
+                  disabled={submitting}
+                  className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 transition disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>

@@ -5,11 +5,14 @@
   "dependencies": {
     "@fontsource/josefin-sans": "^5.0.19",
     "@fontsource/open-sans": "^5.0.27",
+    "@radix-ui/react-slot": "^1.5.0",
     "@react-pdf/renderer": "^4.0.0",
     "ag-grid-react": "^31.3.1",
     "alertifyjs": "^1.13.1",
     "axios": "^1.9.0",
     "chart.js": "^4.4.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "cors": "^2.8.5",
     "dayjs": "^1.11.13",
     "dotenv": "^17.2.0",
@@ -43,6 +46,7 @@
     "socket.io-client": "^4.8.1",
     "sweetalert2": "^11.6.13",
     "swiper": "^11.2.10",
+    "tailwind-merge": "^3.7.0",
     "tw-elements-react": "^1.0.0-alpha-end",
     "web-vitals": "^2.1.4",
     "xlsx": "^0.18.5"

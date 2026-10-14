@@ -481,23 +481,84 @@ import moresvg from "../../assets/images/more.svg";
 import startupsvg from "../../assets/images/Startups.svg";
 import ProfileModal from "../../components/ProfileModal";
 import More from "../../components/More";
-import Notification, { mapNotificationToDisplayItem } from "../../components/Notification";
-import { ApiFetchNotifications, ApiMarkNotificationsRead } from "../../API/API";
+import Notification from "../../components/Notification";
+import { useNotifications } from "../../hooks/useNotifications";
 import { useNavigate } from "react-router-dom";
 
 function Navbar({ onSelectionChange, selectedIndex }) {
   const [showModal, setShowModal] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [notificationItems, setNotificationItems] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [loadingNotifications, setLoadingNotifications] = useState(true);
+  const {
+    items: notificationItems,
+    unreadCount,
+    loading: loadingNotifications,
+    loadingMore,
+    hasMore,
+    error: notificationError,
+    loadMore,
+    retry: retryNotifications,
+    markAllRead,
+    notePendingFundingSeen,
+  } = useNotifications({ isOpen: notificationsOpen });
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
   const notificationRef = useRef(null);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleOpenChangePassword = () => {
+    setIsOpen(false);
+    setShowChangePasswordModal(true);
+  };
+
+  const handleCloseChangePassword = () => {
+    setShowChangePasswordModal(false);
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      alert("Please fill in all password fields.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      alert("New password and Confirm Password do not match");
+      return;
+    }
+
+    if (!isAuthenticated()) {
+      alert("You are not logged in. Please login again.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${APP_URL}change-password`,
+        {
+          currentPassword,
+          newPassword,
+        },
+        { withCredentials: true }
+      );
+
+      alert(response.data?.message || "Password changed successfully");
+      handleCloseChangePassword();
+    } catch (error) {
+      const message =
+        error?.response?.data?.message ||
+        "Current password is incorrect or update failed";
+      alert(message);
+    }
   };
 
   const handleLogout = async () => {
@@ -529,28 +590,9 @@ function Navbar({ onSelectionChange, selectedIndex }) {
     };
   }, []);
 
-  const fetchNotifications = async () => {
-    try {
-      const data = await ApiFetchNotifications({ limit: 20 });
-      const raw = Array.isArray(data?.notifications) ? data.notifications : [];
-      setNotificationItems(raw.map(mapNotificationToDisplayItem));
-      setUnreadCount(Number(data?.unreadCount) || 0);
-      setLoadingNotifications(false);
-    } catch (err) {
-      console.log("Error fetching notification data:", err);
-      setLoadingNotifications(false);
-    }
-  };
-
-  const handleOpenNotifications = async () => {
+  const handleOpenNotifications = () => {
     setNotificationsOpen(true);
     setIsOpen(false);
-    try {
-      await ApiMarkNotificationsRead();
-      await fetchNotifications();
-    } catch (err) {
-      console.log("Mark notifications read:", err);
-    }
   };
 
   const formatRequestDate = (value) => {
@@ -565,20 +607,10 @@ function Navbar({ onSelectionChange, selectedIndex }) {
         });
   };
 
-  useEffect(() => {
-    fetchNotifications();
-    const interval = setInterval(() => {
-      fetchNotifications();
-    }, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
   const notificationCount = unreadCount;
   const hasNotifications = notificationCount > 0;
 
   const tokenDecodedData = isAuthenticated() ? getSessionUser() : null;
-
- 
 
   const [color] = useState([
     "#afdade",
@@ -696,12 +728,19 @@ function Navbar({ onSelectionChange, selectedIndex }) {
                 isOpen={notificationsOpen}
                 onClose={() => setNotificationsOpen(false)}
                 loading={loadingNotifications}
-                items={notificationItems.slice(0, 5)}
+                items={notificationItems}
                 unreadCount={unreadCount}
                 formatRequestDate={formatRequestDate}
                 viewerRole="finance"
                 emptyTitle="All caught up"
                 emptySubtitle="No new funding notifications"
+                hasMore={hasMore}
+                loadingMore={loadingMore}
+                error={notificationError}
+                onLoadMore={loadMore}
+                onRetry={retryNotifications}
+                onMarkAllRead={markAllRead}
+                onPendingFundingSeen={notePendingFundingSeen}
               />
             </div>
             <div className="relative md:block" ref={dropdownRef}>
@@ -711,11 +750,26 @@ function Navbar({ onSelectionChange, selectedIndex }) {
                 </button>
               </div>
               {isOpen && (
-                <ul className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden animate-fadeIn">
+                <ul className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden animate-fadeIn">
+                  <li className="px-4 py-2 text-sm text-gray-600 border-b">
+                    {tokenDecodedData?.user_name ||
+                      tokenDecodedData?.user_mail ||
+                      "Finance"}
+                  </li>
                   <li>
                     <button
+                      type="button"
+                      onClick={handleOpenChangePassword}
+                      className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-[#45C74D] hover:text-white"
+                    >
+                      Change Password
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
                       onClick={handleLogout}
-                      className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-700 transition-all duration-200 hover:bg-gradient-to-r hover:bg-[#45C74D] hover:text-white"
+                      className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-700 transition-all duration-200 hover:bg-[#45C74D] hover:text-white"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -735,6 +789,57 @@ function Navbar({ onSelectionChange, selectedIndex }) {
                     </button>
                   </li>
                 </ul>
+              )}
+              {showChangePasswordModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                  <div className="bg-white rounded-xl shadow-xl w-[450px] p-6 relative">
+                    <button
+                      type="button"
+                      onClick={handleCloseChangePassword}
+                      className="absolute top-4 right-4 text-gray-500"
+                    >
+                      ✕
+                    </button>
+                    <h2 className="text-2xl font-bold mb-4">Change Password</h2>
+                    <input
+                      type="password"
+                      placeholder="Current Password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="w-full border rounded-lg p-3 mb-4"
+                    />
+                    <input
+                      type="password"
+                      placeholder="New Password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full border rounded-lg p-3 mb-4"
+                    />
+                    <input
+                      type="password"
+                      placeholder="Confirm Password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full border rounded-lg p-3 mb-6"
+                    />
+                    <div className="flex justify-end gap-3">
+                      <button
+                        type="button"
+                        onClick={handleCloseChangePassword}
+                        className="px-4 py-2 border rounded-lg"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleChangePassword}
+                        className="px-4 py-2 bg-[#45C74D] text-white rounded-lg"
+                      >
+                        Change Password
+                      </button>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
             <button

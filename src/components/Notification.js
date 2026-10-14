@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 
 const formatTime = (value) => {
   if (!value) return "—";
@@ -60,6 +60,7 @@ export const mapNotificationToDisplayItem = (n) => {
       notificationId: n.id,
       status: eventStatus,
       created_at: n.created_at,
+      read_at: n.read_at || null,
       _notificationType: n.type,
     };
   }
@@ -78,6 +79,7 @@ export const mapNotificationToDisplayItem = (n) => {
       notificationId: n.id,
       status: eventStatus,
       created_at: n.created_at,
+      read_at: n.read_at || null,
       _notificationType: n.type,
     };
   }
@@ -89,6 +91,7 @@ export const mapNotificationToDisplayItem = (n) => {
     title: n.title,
     body: n.body,
     created_at: n.created_at,
+    read_at: n.read_at || null,
     status: n.event,
     _notificationType: n.type,
   };
@@ -265,7 +268,10 @@ function FundingPendingNotificationItem({
     .toUpperCase();
 
   return (
-    <article className="px-4 py-3.5 hover:bg-gray-50/80 transition-colors">
+    <article
+      data-pending-funding-id={req.notificationId}
+      className="px-4 py-3.5 hover:bg-gray-50/80 transition-colors"
+    >
       <div className="flex gap-3">
         <div
           className="w-10 h-10 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center text-xs font-semibold shrink-0 ring-1 ring-amber-100"
@@ -329,18 +335,28 @@ function FundingPendingNotificationItem({
 
 function FundingStatusNotificationItem({ req, viewerRole }) {
   const relative = formatRelativeTime(req.created_at);
-  const isAccepted = req.status === "accepted";
+  const isAccepted = req.status === "accepted" || req.status === "approved";
   const isFinance = viewerRole === "finance";
+  const isAdmin = viewerRole === "admin";
+  const amountLabel = `Rs. ${formatFundingAmount(req.amount)}`;
+  const projectLabel = req.project_name || "project";
+  const startupLabel = req.startup_name || "Startup";
   const title = isAccepted
-    ? isFinance
-      ? "Utilization approved by admin"
-      : "Utilization request approved"
-    : "Utilization request declined";
+    ? isAdmin
+      ? "Funding request approved"
+      : isFinance
+        ? "Utilization approved by admin"
+        : "Utilization request approved"
+    : isAdmin
+      ? "Funding request rejected"
+      : "Utilization request declined";
   const subtitle = isAccepted
-    ? isFinance
-      ? `${req.startup_name || "Startup"} · Rs. ${formatFundingAmount(req.amount)} · ${req.project_name || "project"}`
-      : `Your request for ${req.project_name || "project"} was approved.`
-    : `Your request of Rs. ${formatFundingAmount(req.amount)} for ${req.project_name || "project"} was declined.`;
+    ? isAdmin || isFinance
+      ? `${startupLabel} · ${amountLabel} · ${projectLabel}`
+      : `Your request for ${projectLabel} was approved.`
+    : isAdmin
+      ? `${startupLabel}'s request of ${amountLabel} for ${projectLabel} was rejected.`
+      : `Your request of ${amountLabel} for ${projectLabel} was declined.`;
 
   return (
     <article className="px-4 py-3.5 hover:bg-gray-50/80 transition-colors">
@@ -484,7 +500,11 @@ function renderNotificationItem(item, props) {
         />
       );
     }
-    if (item.status === "accepted" || item.status === "rejected") {
+    if (
+      item.status === "accepted" ||
+      item.status === "approved" ||
+      item.status === "rejected"
+    ) {
       return (
         <FundingStatusNotificationItem
           key={item.notificationId || item.id}
@@ -543,7 +563,17 @@ function Notification({
   viewerRole = "admin",
   emptyTitle = "All caught up",
   emptySubtitle = "No new notifications",
+  hasMore = false,
+  loadingMore = false,
+  error = null,
+  onLoadMore,
+  onRetry,
+  onMarkAllRead,
+  onPendingFundingSeen,
 }) {
+  const scrollRef = useRef(null);
+  const sentinelRef = useRef(null);
+
   useEffect(() => {
     if (!isOpen) return;
     const handleEscape = (e) => {
@@ -553,10 +583,48 @@ function Notification({
     return () => document.removeEventListener("keydown", handleEscape);
   }, [isOpen, onClose]);
 
+  useEffect(() => {
+    if (!isOpen || !onPendingFundingSeen) return undefined;
+    const root = scrollRef.current;
+    if (!root) return undefined;
+    const nodes = root.querySelectorAll("[data-pending-funding-id]");
+    if (!nodes.length) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const ids = entries
+          .filter((entry) => entry.isIntersecting)
+          .map((entry) => entry.target.getAttribute("data-pending-funding-id"))
+          .filter(Boolean);
+        if (ids.length) onPendingFundingSeen(ids);
+      },
+      { root, threshold: 0.5 }
+    );
+    nodes.forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
+  }, [isOpen, items, onPendingFundingSeen]);
+
+  useEffect(() => {
+    if (!isOpen || !hasMore || loading || loadingMore || error) return undefined;
+    const sentinel = sentinelRef.current;
+    const root = scrollRef.current;
+    if (!sentinel || !root || !onLoadMore) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) onLoadMore();
+      },
+      { root, rootMargin: "80px" }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [isOpen, hasMore, loading, loadingMore, error, onLoadMore, items.length]);
+
   if (!isOpen) return null;
 
   const count = items.length;
   const unread = Number(unreadCount) || 0;
+  const caughtUp = !loading && !hasMore && count > 0 && !error;
 
   return (
     <div
@@ -574,21 +642,46 @@ function Notification({
               </span>
             ) : null}
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-            aria-label="Close notifications"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-2">
+            {unread > 0 && onMarkAllRead ? (
+              <button
+                type="button"
+                onClick={onMarkAllRead}
+                className="text-[11px] font-medium text-[#45C74D] hover:underline"
+              >
+                Mark all as read
+              </button>
+            ) : null}
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              aria-label="Close notifications"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </header>
 
-        <div className="max-h-[min(70vh,420px)] overflow-y-auto overscroll-contain">
-          {loading ? (
+        <div
+          ref={scrollRef}
+          className="max-h-[min(70vh,420px)] overflow-y-auto overscroll-contain"
+        >
+          {loading && count === 0 ? (
             <NotificationSkeleton />
+          ) : error === "refresh" && count === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
+              <p className="text-sm font-medium text-gray-700">Couldn't load notifications</p>
+              <button
+                type="button"
+                onClick={onRetry}
+                className="mt-3 text-xs font-semibold text-[#45C74D] hover:underline"
+              >
+                Retry
+              </button>
+            </div>
           ) : count === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
               <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
@@ -612,11 +705,32 @@ function Notification({
                   viewerRole,
                 })
               )}
+              {hasMore ? <div ref={sentinelRef} className="h-1" /> : null}
+              {loadingMore ? (
+                <p className="px-4 py-3 text-center text-[11px] text-gray-400">Loading...</p>
+              ) : null}
+              {error === "more" ? (
+                <div className="px-4 py-3 text-center">
+                  <button
+                    type="button"
+                    onClick={onRetry}
+                    className="text-xs font-semibold text-[#45C74D] hover:underline"
+                  >
+                    Retry
+                  </button>
+                </div>
+              ) : null}
             </div>
           )}
         </div>
 
-        {count > 0 ? (
+        {caughtUp ? (
+          <footer className="px-4 py-2 border-t border-gray-100 bg-gray-50/30">
+            <p className="text-[11px] text-center text-gray-400">
+              You're all caught up
+            </p>
+          </footer>
+        ) : count > 0 ? (
           <footer className="px-4 py-2 border-t border-gray-100 bg-gray-50/30">
             <p className="text-[11px] text-center text-gray-400">
               Mentor sessions and funding updates

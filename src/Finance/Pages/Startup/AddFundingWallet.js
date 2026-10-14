@@ -47,24 +47,19 @@ const AddFundingWallet = ({ onClose, onSuccess }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === "funding_type") {
-      setFormData((prev) => ({
-        ...prev,
-        funding_type: value,
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
+    if (name === "funding_type") return;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
 const handleSubmit = async (e) => {
   e.preventDefault();
   console.log("Submitting form with data:", formData);
 
-  const formPayload = { ...formData };
+  const formPayload = { ...formData, funding_type: "Funding Disbursed" };
 
   try {
     const res = await ApiAddFundingProject(formPayload);
@@ -157,11 +152,9 @@ const handleSubmit = async (e) => {
                 <input
                   type="text"
                   name="funding_type"
-                  value={formData.funding_type}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#45C74D]"
-                  placeholder="Enter Funding Type"
-                  required
+                  value="Funding Disbursed"
+                  readOnly
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 bg-gray-100 text-gray-600 cursor-not-allowed"
                 />
               </div>
 

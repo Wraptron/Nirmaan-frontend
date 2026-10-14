@@ -237,7 +237,21 @@ const Finstartup = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredStartup.map((item) => (
+                      {loading
+                        ? Array.from({ length: 8 }).map((_, row) => (
+                            <tr key={`loading-${row}`} className="border-b border-dotted">
+                              {["w-36", "w-16", "w-14", "w-14", "w-14", "w-20", "w-6"].map(
+                                (width, column) => (
+                                  <td key={`${row}-${column}`} className="px-4 py-3">
+                                    <div
+                                      className={`h-3 rounded-full bg-gray-200 animate-pulse ${width}`}
+                                    />
+                                  </td>
+                                )
+                              )}
+                            </tr>
+                          ))
+                        : filteredStartup.map((item) => (
                         <tr
                           key={item.startup_id}
                           className="border-b border-dotted"
